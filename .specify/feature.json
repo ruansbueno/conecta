@@ -1,0 +1,7 @@
+{
+  "feature": "001-app-conecta",
+  "title": "Aplicativo CONECTA (Flutter)",
+  "status": "planejado",
+  "fase_atual": "F1",
+  "depende_de": "projeto-api/specs/001-auth-perfil-turmas-avisos"
+}

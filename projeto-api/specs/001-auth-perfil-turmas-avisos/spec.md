@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-auth-perfil-turmas-avisos`
 
-**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30
+**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13
 
 **Status**: Draft v2 — revisada a partir do parecer do orientador sobre a v1
 
@@ -17,6 +17,13 @@ a integração real e opera, por enquanto, com um provedor de autenticação sim
 > ter **N destinos** (todos, turmas, semestres, docentes); (6) ciclo de vida do aviso (editar,
 > arquivar, excluir) e histórico definidos; (7) rastreabilidade entre requisitos, objetivos do TCC
 > e testes, incluindo um cenário de ponta a ponta.
+
+> **Emenda v2.1 (2026-10-13)** — decorre das decisões de implantação dos clientes: (1) o login
+> passa a emitir também um **cookie de sessão** para a plataforma web, que é um site estático e
+> não pode guardar o token em JavaScript, mantendo o cabeçalho `Bearer` para o aplicativo mobile;
+> (2) os métodos de escrita passam a exigir **proteção CSRF** quando autenticados por cookie;
+> (3) a listagem de gestão ganha o filtro `situacao=agendado`; (4) fica registrada a data-limite
+> para a integração real com o Moodle. Requisitos novos: RF-32 a RF-34.
 
 ## 1. Escopo e Entregas
 
@@ -331,6 +338,21 @@ Entrega indicada entre colchetes.
 - **RF-29 [E1]**: Erros MUST seguir o formato `{detail, code}` e listas MUST ser paginadas (`limit`/`offset`, com `total`).
 - **RF-30 [E2]**: O fluxo completo — alguém autorizado publica pela web, a API registra e o aluno recebe no aplicativo respeitando o público — MUST ser demonstrado por teste de ponta a ponta (seção 9.3).
 
+**Sessão dos clientes (emenda v2.1)**
+- **RF-32 [E1]**: O login MUST aceitar autenticação por dois meios equivalentes: o token no corpo
+  da resposta, usado pelo aplicativo mobile no cabeçalho `Authorization: Bearer`, e um **cookie de
+  sessão** `httpOnly`, `Secure`, `SameSite=Strict`, emitido na mesma resposta e usado pela
+  plataforma web. Os dois carregam o mesmo token e expiram em 24 h. Toda rota protegida MUST
+  aceitar qualquer um dos dois.
+- **RF-33 [E1]**: Quando a requisição for autenticada por cookie, os métodos `POST`, `PATCH` e
+  `DELETE` MUST exigir proteção CSRF por *double submit*: um cookie legível com o token CSRF,
+  emitido no login, e o mesmo valor repetido em cabeçalho na requisição. Divergência ou ausência
+  MUST resultar em 403 `CSRF_INVALIDO`. Requisições autenticadas por `Bearer` MUST NOT exigir CSRF.
+  O sistema MUST oferecer `DELETE /auth/sessao`, que invalida o cookie de sessão.
+- **RF-34 [E2]**: A listagem de gestão de avisos MUST aceitar `situacao=agendado`, devolvendo os
+  avisos ativos cuja `publicar_em` ainda não chegou, para que a paginação da plataforma web seja
+  correta.
+
 **Agenda e horários (visão geral — E3)**
 - **RF-31 [E3]**: Eventos e horários de turma MUST ser cadastrados pela gestão e consultados pelos destinatários, reutilizando o mecanismo de destinos.
 
@@ -364,7 +386,13 @@ Entrega indicada entre colchetes.
 - Não há notificação push nesta especificação (possibilidade futura prevista na arquitetura).
 - Não há registro de leitura de aviso (quem leu) nesta especificação.
 - Provas e datas importantes (previstas na arquitetura) serão tratadas como tipos de evento na E3.
-- A integração real com o Moodle é validada à parte (seção 9.4) assim que houver acesso; até lá, todos os testes de autenticação usam o provedor mock e são identificados como tal.
+- A integração real com o Moodle é validada à parte (seção 9.4) assim que houver acesso, com
+  data-limite de 13/11/2026; até lá, todos os testes de autenticação usam o provedor mock e são
+  identificados como tal.
+- A plataforma web e a API são servidas no mesmo domínio, com a API sob um caminho reservado
+  (`/api`) por proxy reverso — premissa do cookie `SameSite=Strict` de RF-32.
+- O primeiro administrador criado por seed é um usuário fictício de implantação (`admin.conecta`);
+  os dados de demonstração são inteiramente fictícios.
 
 ## 8. Visão Geral da Entrega 3 (agenda e horários)
 
@@ -408,7 +436,9 @@ grupos separadamente — **aprovação com mock não é tratada como validação
 | RF-27, RF-28 | O12 | E2 | integração `test_aviso_auditoria`; unitário `test_evento_imutavel` |
 | RF-29 | O9, O10 | E1 | contrato `test_erro_padrao`, `test_paginacao` |
 | RF-30 | O2, O7, O8, O14 | E2 | E2E `test_fluxo_publicar_e_receber` |
-| RF-31 | O5, O6 | E3 | a definir na especificação da E3 |
+| RF-31 | O5, O6 | E3 | definido na especificação da E3 (`002-agenda-horarios`) |
+| RF-32, RF-33 | O1, O3 | E1 | contrato `test_auth_cookie`, `test_csrf`; integração `test_sessao_dupla` |
+| RF-34 | O7, O8 | E2 | contrato `test_gestao_avisos_filtros` |
 | Estrutura modular | O13 | E1–E3 | revisão de arquitetura (camadas api/services/repositories/providers) |
 
 ### 9.3 Cenário de ponta a ponta (RF-30, SC-007)
@@ -427,6 +457,11 @@ Todos autenticados via provedor mock.
 8. `a5` solicita inscrição na turma A → `pendente`; `d1` aprova → `a5` passa a ver os avisos da turma A.
 
 ### 9.4 Checklist de validação da integração real (Moodle)
+
+**Data-limite: 13/11/2026.** O acesso à API do Moodle foi solicitado à instituição; se não houver
+acesso até essa data, o trabalho é concluído e defendido com o provedor simulado, e a integração
+real passa a constar como trabalho futuro. O `MoodleAuthProvider` fica implementado e testado
+contra o contrato do provedor, à espera apenas das credenciais.
 
 Executar quando houver acesso à API do Moodle; registrar data, ambiente e evidência.
 

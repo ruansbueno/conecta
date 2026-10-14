@@ -107,10 +107,24 @@ Projeto único (web-service), conforme `plan.md`: `src/`, `tests/`, `alembic/` n
 - [ ] T027 [US1] `src/services/auth_service.py`: `login` — chama o `AuthProvider` injetado
       (selecionado por `Settings.AUTH_PROVIDER`), trata falha do provedor como `CREDENCIAIS_INVALIDAS`,
       verifica `ativo`, faz upsert e emite JWT (RF-01, RF-04, RF-06) (dep. T012, T013, T014, T026)
-- [ ] T028 [US1] `src/api/routes/auth.py`: `POST /auth/login` (dep. T025, T027)
+- [ ] T028 [US1] `src/api/routes/auth.py`: `POST /auth/login`, devolvendo o token no corpo **e**
+      os cookies `conecta_sessao` (`HttpOnly`, `Secure`, `SameSite=Strict`, 24 h) e `conecta_csrf`
+      (legível) (RF-32) (dep. T025, T027)
+- [ ] T028a [US1] `src/core/security.py` (continuação): aceitar autenticação por cookie de sessão
+      além do cabeçalho `Bearer`, com o mesmo resultado em `get_current_user` (RF-32) (dep. T019)
+- [ ] T028b [US1] `src/api/deps/csrf.py`: dependência que exige `X-CSRF-Token` igual ao cookie
+      `conecta_csrf` em `POST`, `PATCH` e `DELETE` autenticados por cookie; 403 `CSRF_INVALIDO` em
+      ausência ou divergência; nenhuma exigência com `Bearer` (RF-33) (dep. T028a)
+- [ ] T028c [US1] `src/api/routes/auth.py`: `DELETE /auth/sessao`, invalidando os dois cookies com
+      `Max-Age=0` (RF-33) (dep. T028, T028b)
+- [ ] T028d [P] [US1] Contract test da sessão por cookie em `tests/contract/test_auth_cookie.py`
+      `@mock_auth`: atributos dos cookies, acesso a rota protegida só com cookie, escrita sem
+      `X-CSRF-Token` → 403 `CSRF_INVALIDO`, escrita com `Bearer` sem CSRF → sucesso, e
+      `DELETE /auth/sessao` encerrando a sessão (RF-32, RF-33)
 - [ ] T029 [US1] Registrar o router de auth em `src/main.py` (dep. T020, T028)
 - [ ] T030 [US1] `scripts/seed_dev_data.py`: cria os usuários de teste do mock no banco com os
-      perfis `administrador`, `coordenacao`, `docente` e `aluno` (dep. T012, T026)
+      perfis `administrador`, `coordenacao`, `docente` e `aluno`, mais o administrador de
+      implantação `admin.conecta`; todos os dados são fictícios (dep. T012, T026)
 
 **Checkpoint**: login funcional e testável isoladamente.
 

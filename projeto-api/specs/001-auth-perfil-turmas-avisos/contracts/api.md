@@ -4,8 +4,14 @@
 
 - JSON em requisições e respostas (`Content-Type: application/json`); datas em ISO-8601 UTC
   (`2026-10-05T14:30:00Z`); ids em UUID; campos em `snake_case` sem acento.
-- Recursos protegidos exigem `Authorization: Bearer <token>`. A API reavalia **perfil** e
-  **ativo** do usuário no banco a cada requisição (o `perfil` do token é informativo).
+- Recursos protegidos aceitam **dois meios equivalentes** de autenticação (RF-32): o cabeçalho
+  `Authorization: Bearer <token>`, usado pelo aplicativo mobile, ou o **cookie de sessão**
+  `conecta_sessao`, usado pela plataforma web. Os dois carregam o mesmo token de 24 h. A API
+  reavalia **perfil** e **ativo** do usuário no banco a cada requisição (o `perfil` do token é
+  informativo).
+- Quando a autenticação vier por cookie, `POST`, `PATCH` e `DELETE` exigem **CSRF por double
+  submit** (RF-33): o valor do cookie legível `conecta_csrf` repetido no cabeçalho `X-CSRF-Token`.
+  Ausência ou divergência → 403 `CSRF_INVALIDO`. Com `Bearer`, o CSRF não é exigido.
 - **Entrega**: seções 1–9 são **E1** (consumidas pelo app); seções 10–15 são **E2**
   (`/gestao/*`, consumidas pela plataforma web).
 
@@ -37,6 +43,7 @@ O app deve decidir comportamento por `code`, nunca pelo texto de `detail`.
 | 401 | `CREDENCIAIS_INVALIDAS` | Login falhou (inclui provedor indisponível) |
 | 403 | `USUARIO_INATIVO` | Usuário desativado |
 | 403 | `SEM_PERMISSAO` | Perfil/vínculo não autoriza a ação |
+| 403 | `CSRF_INVALIDO` | Escrita autenticada por cookie sem `X-CSRF-Token` válido |
 | 403 | `DESTINO_NAO_PERMITIDO` | Docente usando destino fora das suas turmas |
 | 404 | `TURMA_NAO_ENCONTRADA` | Turma inexistente (gestão) |
 | 404 | `TURMA_INDISPONIVEL` | Turma inexistente, inativa ou com inscrições fechadas (solicitação) |
@@ -95,6 +102,17 @@ Autentica via `AuthProvider` configurado (mock ou Moodle) e emite o token (24 h)
 }
 ```
 
+**Cabeçalhos da resposta** (RF-32, RF-33) — para a plataforma web; o aplicativo mobile ignora os
+cookies e usa `access_token`:
+
+```http
+Set-Cookie: conecta_sessao=<token>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400
+Set-Cookie: conecta_csrf=<valor aleatório>; Secure; SameSite=Strict; Path=/; Max-Age=86400
+```
+
+O cookie de sessão é `HttpOnly` — inacessível ao JavaScript. O de CSRF é legível de propósito: ele
+não autentica nada sozinho, só é devolvido em `X-CSRF-Token` nas escritas.
+
 **Efeitos**: 1º login cria o usuário com `perfil = aluno`; logins seguintes atualizam apenas `nome`
 e `ultimo_login_em`.
 
@@ -105,7 +123,20 @@ e `ultimo_login_em`.
 | 403 | `USUARIO_INATIVO` | Credenciais corretas, usuário desativado |
 | 422 | `VALIDATION_ERROR` | Campo ausente/vazio |
 
-**Maps to**: RF-01 a RF-08; User Story 1.
+**Maps to**: RF-01 a RF-08, RF-32, RF-33; User Story 1.
+
+---
+
+## 1b. DELETE /auth/sessao
+
+Encerra a sessão por cookie: invalida `conecta_sessao` e `conecta_csrf`.
+
+**Auth**: cookie de sessão (exige `X-CSRF-Token`). Com `Bearer`, responde 204 sem efeito — o
+aplicativo encerra a sessão descartando o token localmente.
+
+**204** sem corpo. Os cookies voltam com `Max-Age=0`.
+
+**Maps to**: RF-32, RF-33.
 
 ---
 
@@ -488,7 +519,11 @@ Efeito: cria versão 1 e evento `criado`.
 
 ### GET /gestao/avisos
 **Auth**: administrador e coordenação (todos); docente (somente os que publicou).
-**Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `autor_id`, `turma_id`, `q`, `limit`, `offset`.
+**Query**: `situacao` (`ativo|agendado|arquivado|excluido`; padrão: todos exceto `excluido`), `autor_id`, `turma_id`, `q`, `limit`, `offset`.
+
+`situacao=agendado` devolve os avisos **ativos cuja `publicar_em` ainda não chegou** (RF-34);
+`situacao=ativo` devolve os ativos **já publicados**. A distinção existe para que a plataforma web
+pagine corretamente a aba de agendados — no banco, os dois são `ativo`.
 **200**: lista paginada de avisos de gestão.
 
 ### GET /gestao/avisos/{aviso_id}

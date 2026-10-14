@@ -390,7 +390,8 @@ Entrega indicada entre colchetes.
   data-limite de 13/11/2026; até lá, todos os testes de autenticação usam o provedor mock e são
   identificados como tal.
 - A plataforma web e a API são servidas no mesmo domínio, com a API sob um caminho reservado
-  (`/api`) por proxy reverso — premissa do cookie `SameSite=Strict` de RF-32.
+  (`/api`) por proxy reverso — condição do cookie `SameSite=Strict` de RF-32, confirmada com a
+  infraestrutura do IFSul em 13/10/2026.
 - O primeiro administrador criado por seed é um usuário fictício de implantação (`admin.conecta`);
   os dados de demonstração são inteiramente fictícios.
 

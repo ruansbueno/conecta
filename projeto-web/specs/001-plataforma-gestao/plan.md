@@ -195,9 +195,10 @@ JavaScript, o build continuou sem segredo e não houve dependência nova além d
 Nenhum desvio aos princípios. Dependências de produção: `react`, `react-router`, `tailwindcss`,
 `zod`.
 
-**Risco registrado**: a mesma origem entre web e API é requisito de implantação, não de código. Se
-a infraestrutura não permitir o proxy reverso, o cookie `SameSite=Strict` deixa de funcionar e a
-decisão de sessão precisa ser reaberta — por isso ela é o primeiro item do quickstart a verificar.
+**Requisito de implantação confirmado em 13/10/2026**: a plataforma e a API ficam no mesmo
+domínio na infraestrutura do IFSul, com a API sob `/api` por proxy reverso. Era a premissa do
+modelo de sessão, e deixou de ser risco. Permanece como requisito: uma mudança futura de
+hospedagem que separe os domínios reabre a decisão D2 de `research.md`.
 
 ## Fase F2 (planejada, não implementada)
 

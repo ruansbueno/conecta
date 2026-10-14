@@ -51,8 +51,8 @@ mesma origem, e proteção CSRF em toda escrita.
 
 ## Próximo passo
 
-Antes do Setup, confirmar com a infraestrutura do IFSul que a plataforma e a API podem ser
-servidas no mesmo domínio, com a API sob `/api` e HTTPS — é a premissa do modelo de sessão
-(ver o passo 0 do `quickstart.md`). Depois, executar as tarefas de
-`specs/001-plataforma-gestao/tasks.md` na ordem das fases. Nada deve ser implementado sem a
-tarefa correspondente.
+Executar as tarefas de `specs/001-plataforma-gestao/tasks.md`, na ordem das fases, começando pelo
+Setup. Nada deve ser implementado sem a tarefa correspondente.
+
+A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api` e HTTPS —
+está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

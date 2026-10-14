@@ -510,8 +510,8 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 ## 9. Assumptions
 
 - A plataforma e a API são servidas no **mesmo domínio**, com a API atrás de um caminho reservado
-  (por exemplo `/api`), por proxy reverso na infraestrutura do IFSul. É o que viabiliza o cookie
-  de sessão com `SameSite=Strict`.
+  (`/api`), por proxy reverso na infraestrutura do IFSul — confirmado em 13/10/2026. É o que
+  viabiliza o cookie de sessão com `SameSite=Strict`.
 - A API emite o cookie de sessão no login e aceita autenticação por cookie nos endpoints de
   gestão, mantendo o cabeçalho `Bearer` para o aplicativo mobile (RF-32).
 - O contrato E2 é o que está em `contracts/api.md`; mudanças exigem revisão desta spec.

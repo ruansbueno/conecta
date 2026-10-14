@@ -11,18 +11,19 @@ implementado ainda — este documento é a referência que as tarefas de setup d
 - A API do CONECTA rodando localmente — ver
   `projeto-api/specs/001-auth-perfil-turmas-avisos/quickstart.md`.
 
-## 0. Verificar a premissa de implantação
+## 0. Como a implantação funciona
 
 A sessão depende de **mesma origem** entre a plataforma e a API: o cookie é `httpOnly`, `Secure` e
-`SameSite=Strict`, emitido pela API. Antes de escrever código, confirme com quem administra a
-infraestrutura do IFSul que é possível servir:
+`SameSite=Strict`, emitido pela API. A infraestrutura do IFSul atende a isso — confirmado em
+13/10/2026:
 
-- a plataforma em `https://<dominio>/` (arquivos estáticos);
+- a plataforma em `https://<dominio>/`, como arquivos estáticos;
 - a API no mesmo domínio, sob `/api`, por proxy reverso;
-- com HTTPS — sem ele o cookie `Secure` não é gravado.
+- com HTTPS, sem o qual o cookie `Secure` não é gravado.
 
-Se isso não for possível, a decisão D2 de `research.md` precisa ser reaberta **antes** do
-desenvolvimento, não depois.
+O ambiente de desenvolvimento reproduz essa disposição pelo proxy do Vite, de modo que o cookie se
+comporta igual nos dois lugares. Separar os domínios no futuro reabre a decisão D2 de
+`research.md`.
 
 ## 1. Configurar o ambiente
 

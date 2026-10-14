@@ -34,7 +34,7 @@ código da plataforma foi escrita.
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Planejada, pronta para implementar |
-| **F2** | Gestão de agenda e de horários das turmas | Especificada; bloqueada até a spec E3 da API existir |
+| **F2** | Gestão de agenda e de horários das turmas | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
 

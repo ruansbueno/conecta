@@ -46,7 +46,7 @@ gestão e é orientado a usar o aplicativo.
 | Fase | Conteúdo | Depende de | Situação |
 |---|---|---|---|
 | **F1 — Gestão** | Login e sessão, painel, avisos (lista, editor com destinos e agendamento, histórico e versões, arquivar/desarquivar/excluir), turmas, vínculos, solicitações, usuários e perfis | Endpoints **E2** (seções 10–15 do contrato), já especificados | **Detalhada nesta spec; é o que será implementado primeiro** |
-| **F2 — Agenda e horários** | Gestão de eventos e da grade de horários das turmas | Endpoints **E3** (`/gestao/eventos`, `/gestao/turmas/{id}/horarios`), ainda não especificados | **Requisitos e telas definidos nesta spec; implementação bloqueada até a spec E3 da API existir** |
+| **F2 — Agenda e horários** | Gestão de eventos e da grade de horários das turmas | Endpoints **E3**, especificados em `projeto-api/specs/002-agenda-horarios` | **Requisitos e telas definidos nesta spec; implementação começa quando a E3 estiver implementada na API** |
 
 Regra de fase: nenhuma tela de F2 é implementada enquanto os endpoints E3 não existirem. A
 navegação já prevê os itens de F2; até lá eles não são exibidos.
@@ -382,6 +382,9 @@ Fase entre colchetes. A coluna de rastreabilidade liga cada requisito ao da API.
   horário, disciplina, local e docente (RF-31).
 - **RW-36 [F2]**: Ao salvar mudança de horário, MUST oferecer criar um aviso para a turma,
   deixando claro que a alteração não notifica ninguém sozinha.
+- **RW-46 [F2]**: Ao criar ou editar um horário, a plataforma MUST exibir os conflitos de sala e
+  de docente devolvidos pela API, sem tratá-los como erro — a decisão de manter ou ajustar é de
+  quem cadastra (RF-44 da E3).
 
 ### Interface, acessibilidade e qualidade
 
@@ -514,7 +517,9 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 - O contrato E2 é o que está em `contracts/api.md`; mudanças exigem revisão desta spec.
 - Não existe endpoint de resumo para o painel: os números vêm do campo `total` de listas
   consultadas com `limit` pequeno.
-- Os endpoints de agenda e horários seguirão o mesmo padrão; F2 começa com a spec E3 publicada.
+- Os endpoints de agenda e horários seguem o mesmo padrão, conforme
+  `projeto-api/specs/002-agenda-horarios/contracts/api.md`; a F2 começa quando a E3 estiver
+  implementada na API.
 - Uso em desktop, a partir de 1280 px; não há projeto para telefone.
 - A plataforma é um build estático: não há servidor de aplicação próprio, e portanto não há lugar
   para segredo em tempo de execução.
@@ -548,8 +553,10 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 - **P: A plataforma precisa funcionar em telefone?**
   R: Não. É ferramenta de trabalho em computador; o telefone é atendido pelo aplicativo.
 - **P: Agenda e horários entram já?**
-  R: Entram como fase F2, com requisitos e telas definidos, mas implementação bloqueada até a
-  spec E3 da API existir.
+  R: Entram como fase F2, com requisitos e telas definidos. *Atualizado em 13/10/2026*: a spec E3
+  foi publicada (`002-agenda-horarios`) e resolveu as duas pendências que esta plataforma havia
+  registrado — filtro por intervalo de datas e tratamento de conflito de horário, que a API
+  informa sem recusar. A fase F2 aguarda agora a implementação da E3.
 
 ## 11. Rastreabilidade
 
@@ -561,6 +568,6 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 | RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | componente `turma-form.test`; e2e `turmas-vinculos.spec` |
 | RW-28 a RW-30 | RF-17 | T09 | e2e `solicitacoes.spec` |
 | RW-31 a RW-33 | RF-09 | T10, T11 | componente `perfil-modal.test`; e2e `usuarios.spec` |
-| RW-34 a RW-36 | RF-31 (E3) | T12, T13 | planejados na F2 |
+| RW-34 a RW-36, RW-46 | RF-35 a RF-47 (E3) | T12, T13 | planejados na F2 |
 | RW-37 a RW-42 | — | todas | componente `estados.test`; auditoria de acessibilidade por tela |
 | RW-43, RW-44 | RF-10, RF-30 | todas | revisão de código; e2e `sem-vazamento.spec` |

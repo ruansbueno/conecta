@@ -203,9 +203,10 @@ contemple.
 
 | Chamada | Tela | Observação |
 |---|---|---|
-| `GET /eventos` | T10 lista, T11 mês | Espera-se filtro por intervalo de datas para a visão de mês; se não houver, o app pedirá a página e filtrará só a **exibição** do mês corrente, sem alterar a coleção |
+| `GET /eventos?de=&ate=&incluir_encerrados=true` | T10 lista, T11 mês | O filtro por intervalo foi confirmado na spec E3 (RF-38): a visão de mês pede exatamente o mês exibido, com os encerrados, e a lista de próximos chama sem `de`/`ate` |
 | `GET /eventos/{id}` | T12 | Mesmo padrão de 404 dos avisos |
 | `GET /turmas/{turma_id}/horarios` | T13 | Turma escolhida entre as de `GET /turmas/minhas` |
 
-**Pendência a levar para a spec E3**: se `GET /eventos` aceitará `de`/`ate` e se devolverá eventos
-já encerrados — a visão de mês precisa dos dois para preencher os marcadores do mês inteiro.
+**Pendência resolvida em 13/10/2026**: a spec E3 (`projeto-api/specs/002-agenda-horarios`)
+confirmou `de`, `ate` e `incluir_encerrados` em `GET /eventos` (RF-38), que é o que a visão de mês
+precisava. Resta apenas a implementação da E3 para desbloquear a fase F2.

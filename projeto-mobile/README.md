@@ -33,7 +33,7 @@ código do aplicativo foi escrita.
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | Planejada, pronta para implementar |
-| **F2** | Agenda (lista e mês), evento, horários | Especificada; bloqueada até a spec E3 da API existir |
+| **F2** | Agenda (lista e mês), evento, horários | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
 

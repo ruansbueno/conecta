@@ -232,11 +232,12 @@ Bloqueadas até a especificação E3 da API. Registradas para que o desenho já 
 
 | Chamada | Tela | Observação |
 |---|---|---|
-| `GET /gestao/eventos`, `POST`, `PATCH`, `DELETE`, `…/arquivar` | T12 | Espera-se o mesmo mecanismo de destinos, versões e histórico dos avisos |
+| `GET /gestao/eventos`, `POST`, `PATCH`, `DELETE`, `…/arquivar`, `…/desarquivar` | T12 | Mesmo mecanismo de destinos, versões e histórico dos avisos, confirmado na E3 |
 | `GET /gestao/eventos/{id}/versoes` e `…/historico` | T12 | Reaproveita a linha do tempo |
-| `GET /gestao/turmas/{id}/horarios`, `POST`, `PATCH`, `DELETE` | T13 | Grade semanal da turma |
+| `GET /gestao/turmas/{id}/horarios`, `POST`, `PATCH`, `DELETE` | T13 | Grade semanal da turma; a resposta de criar e editar traz `conflitos` para exibição |
 
-**Pendências a levar para a spec E3**: (1) se eventos terão filtro por intervalo de datas — a
-agenda da web e a visão de mês do aplicativo dependem disso; (2) se a grade de horários terá
-verificação de conflito de sala ou de docente no mesmo horário, ou se isso fica a cargo de quem
-cadastra.
+**Pendências resolvidas em 13/10/2026** pela spec E3 (`projeto-api/specs/002-agenda-horarios`):
+(1) `GET /gestao/eventos` aceita `de` e `ate`, e a consulta dos clientes aceita também
+`incluir_encerrados` (RF-38); (2) a API **detecta e informa** conflitos de sala e de docente ao
+criar ou editar um horário, sem impedir a gravação — a resposta de sucesso traz a lista
+`conflitos`, que esta plataforma apresenta a quem está cadastrando (RF-44).

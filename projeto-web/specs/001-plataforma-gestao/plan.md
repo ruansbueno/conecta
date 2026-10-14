@@ -16,7 +16,7 @@ Plataforma web de gestão em React, construída com Vite e TypeScript, distribu�
 estático. **Esta implementação cobre a fase F1**: login com sessão em cookie emitido pela API,
 painel, avisos (lista, editor com destinos e agendamento, histórico e versões, arquivar/
 desarquivar/excluir), turmas, vínculos, solicitações e administração de usuários e perfis. A fase
-F2 (agenda e horários) está especificada e bloqueada até a spec E3 da API existir.
+F2 (agenda e horários) está especificada e aguarda a implementação da E3 na API.
 
 A forma do sistema vem de duas restrições que se combinam: **não há servidor próprio** e **o
 JavaScript não pode alcançar o token**. A saída é a API emitir um cookie `httpOnly` no login; o

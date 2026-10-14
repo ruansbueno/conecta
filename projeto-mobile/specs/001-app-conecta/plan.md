@@ -9,8 +9,8 @@
 Aplicativo Flutter para Android e iOS que consome a API do CONECTA. **Esta implementação cobre a
 fase F1**: login e sessão, avisos (ativos, arquivados, detalhe), minhas turmas, turmas disponíveis,
 solicitação e cancelamento de inscrição, minhas solicitações, perfil e cache local para abertura
-sem rede. A fase F2 (agenda, visão de mês, evento e horários) está especificada e fica bloqueada
-até a spec E3 da API existir.
+sem rede. A fase F2 (agenda, visão de mês, evento e horários) está especificada e aguarda a
+implementação da E3 na API (`projeto-api/specs/002-agenda-horarios`).
 
 O app não implementa regra de negócio: ele chama os endpoints E1, apresenta o que vier e trata
 cada `code` de erro com um comportamento definido. O estado é gerenciado com `provider`, a

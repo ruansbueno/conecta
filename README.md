@@ -107,7 +107,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 |---|---|---|
 | **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | Especificada e planejada |
 | **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | Especificada e planejada |
-| **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | Visão geral definida; detalhamento pendente |
+| **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | Especificada em `projeto-api/specs/002-agenda-horarios`; plano e tarefas após a validação da E1 |
 
 ## O que está faltando
 
@@ -129,11 +129,10 @@ cache local. 66 tarefas em
 destinos e histórico, turmas, vínculos, solicitações, usuários e perfis. 74 tarefas em
 [`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md); depende da API no ar.
 
-**4. Especificar a agenda e os horários (E3)** — os endpoints de eventos e de horários existem
-apenas como visão geral. A fase F2 **do aplicativo e da plataforma web** está bloqueada até essa
-spec existir. Duas pendências concretas já registradas: se `GET /eventos` aceitará filtro por
-intervalo de datas — a visão de mês do calendário depende disso — e se a grade de horários terá
-verificação de conflito de sala ou de docente.
+**4. Implementar a agenda e os horários (E3)** — a especificação está pronta
+([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
+eventos e de horários contratados; faltam o plano, as tarefas e a implementação, além das fases
+F2 do aplicativo e da plataforma web.
 
 **5. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado. A integração
 real só pode ser validada quando houver acesso à API da instituição, e os testes dela são
@@ -141,6 +140,20 @@ identificados à parte, para que aprovação com simulação nunca seja confundi
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.
+
+## Ordem de execução
+
+Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
+
+1. API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
+2. Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
+3. API — entrega E2 (endpoints de gestão).
+4. Plataforma web — fase F1, fechando o ciclo web → API → app.
+5. Aplicativo — fase F1 completa.
+6. E3 — agenda e horários, na API e nos dois clientes.
+
+A integração real com o Moodle tem data-limite de **13/11/2026**; depois dela, o trabalho é
+concluído com o provedor simulado e a integração real passa a trabalho futuro.
 
 ## Como trabalhar neste repositório
 

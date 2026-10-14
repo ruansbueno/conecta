@@ -43,7 +43,7 @@ de gestão existe aqui: publicar, editar, aprovar e administrar são da platafor
 | Fase | Conteúdo | Depende de | Situação |
 |---|---|---|---|
 | **F1 — Núcleo** | Login e sessão, avisos (ativos, arquivados, detalhe), minhas turmas, turmas disponíveis, solicitação de inscrição, minhas solicitações, perfil, cache local | Endpoints **E1** da API (seções 1–9 do contrato), já especificados | **Detalhada nesta spec; é o que será implementado primeiro** |
-| **F2 — Agenda e horários** | Agenda em lista e em mês, detalhe de evento, grade de horários da turma | Endpoints **E3** (`GET /eventos`, `GET /eventos/{id}`, `GET /turmas/{id}/horarios`), ainda não especificados | **Requisitos e telas definidos nesta spec; implementação bloqueada até a spec E3 da API existir** |
+| **F2 — Agenda e horários** | Agenda em lista e em mês, detalhe de evento, grade de horários da turma | Endpoints **E3**, especificados em `projeto-api/specs/002-agenda-horarios` | **Requisitos e telas definidos nesta spec; implementação começa quando a E3 estiver implementada na API** |
 
 Regra de fase: nenhuma tela de F2 é implementada enquanto os endpoints E3 não estiverem
 especificados e disponíveis. A navegação já prevê as abas de F2; até lá elas não são exibidas.
@@ -459,8 +459,9 @@ Origem única: `design/README.md` e as telas em `design/mobile/`.
 - A API está disponível em uma URL configurável por ambiente; em desenvolvimento, o app aponta para
   a instância local da API com o provedor mock.
 - O contrato E1 é o que está em `contracts/api.md`; mudanças nele exigem revisão desta spec.
-- Os endpoints de agenda e horários seguirão o mesmo padrão de paginação, erro e destinos; a
-  implementação de F2 só começa com a spec E3 publicada.
+- Os endpoints de agenda e horários seguem o mesmo padrão de paginação, erro e destinos,
+  conforme `projeto-api/specs/002-agenda-horarios/contracts/api.md`; a implementação de F2 começa
+  quando a E3 estiver implementada na API.
 - Não há limite de vagas por turma nesta fase, e o app não exibe contagem de vagas.
 - A data e hora exibidas usam o fuso do aparelho a partir dos valores ISO-8601 UTC da API.
 - Uso em telefone, orientação retrato; tablet e paisagem ficam para depois.
@@ -482,8 +483,9 @@ Origem única: `design/README.md` e as telas em `design/mobile/`.
   R: Não. Ele pode esconder controles inúteis ao perfil corrente, mas a decisão é sempre da API, e
   `403` é tratado como resposta legítima (RM-39, Princípio I).
 - **P: Agenda e horários entram já?**
-  R: Entram como fase F2, com requisitos e telas definidos, mas implementação bloqueada até a spec
-  E3 da API existir (seção 1.2).
+  R: Entram como fase F2, com requisitos e telas definidos. *Atualizado em 13/10/2026*: a spec E3
+  da API foi publicada (`002-agenda-horarios`), com `de`/`ate` e `incluir_encerrados` em
+  `GET /eventos` — o que a visão de mês exigia. A fase F2 aguarda agora a implementação da E3.
 - **P: Há notificação push?**
   R: Não nesta spec. O usuário vê os avisos ao abrir o app; push é possibilidade futura registrada
   na arquitetura.

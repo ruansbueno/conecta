@@ -20,6 +20,7 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 |---|---|---|
 | [`projeto-api/`](projeto-api/) | Especificação da API REST: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, plano técnico e tarefas | Especificado e planejado |
 | [`projeto-mobile/`](projeto-mobile/) | Especificação do aplicativo Flutter: escopo em fases, requisitos, mapa tela → endpoint, plano, decisões técnicas e 66 tarefas | Especificado e planejado |
+| [`projeto-web/`](projeto-web/) | Especificação da plataforma web de gestão (Next.js): escopo em fases, requisitos, mapa tela → endpoint, plano, decisões técnicas e 74 tarefas | Especificado e planejado |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
 
@@ -79,7 +80,10 @@ estão na matriz de permissões da
 | Rede (app) | **http** com cliente próprio | Injeção de token e tratamento central de erro em pouco código |
 | Sessão (app) | **flutter_secure_storage** | Token no Keychain/Keystore, nunca em texto simples |
 | Cache (app) | **shared_preferences** | Abrir o app sem rede com a última resposta recebida |
-| Plataforma web | **React / Next.js** | Definido na arquitetura; ainda sem especificação própria |
+| Plataforma web | **Next.js (App Router) + TypeScript** | Servidor próprio, que mantém o token JWT fora do navegador |
+| Estilo (web) | **Tailwind CSS** | Interface densa de tabelas e formulários, com os tokens do design |
+| Sessão (web) | **Cookie `httpOnly`** | O navegador nunca vê o token; as chamadas à API saem do servidor |
+| Testes (web) | Vitest, Testing Library, Playwright | Unidade, componente e ponta a ponta com API falsa |
 | Testes (API) | pytest, httpx | Contrato, integração e ponta a ponta |
 | Testes (app) | flutter_test, integration_test | Unidade, widget e integração com servidor falso |
 | Processo | **Spec Kit (SDD)** | Constituição → spec → plano → tarefas, antes de qualquer código |
@@ -102,32 +106,34 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 | Entrega | Conteúdo | Situação |
 |---|---|---|
 | **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | Especificada e planejada |
-| **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | Contrato da API definido; interface web sem especificação própria |
+| **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | Especificada e planejada |
 | **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | Visão geral definida; detalhamento pendente |
 
 ## O que está faltando
 
 Nada de código de aplicação foi escrito ainda. Em ordem de dependência:
 
-**1. Implementar a API (E1)** — é o que destrava todo o resto.
-As 9 rotas do aplicativo estão contratadas em
-[`contracts/api.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md) e as
-tarefas, em [`tasks.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/tasks.md). Inclui o
-provedor de autenticação simulado, as migrações e o seed de dados de teste.
+**1. Implementar a API** — é o que destrava todo o resto. As 9 rotas do aplicativo (E1) e as 19
+de gestão (E2) estão contratadas em
+[`contracts/api.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md); as
+tarefas da E1 estão em
+[`tasks.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/tasks.md) e as da E2 serão geradas
+depois que a E1 for validada. Inclui o provedor de autenticação simulado, as migrações e o seed
+de dados de teste.
 
 **2. Implementar o aplicativo (fase F1)** — login e sessão, avisos, turmas, solicitações, perfil e
 cache local. 66 tarefas em
 [`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md); depende da API no ar.
 
-**3. Especificar e implementar a plataforma web (E2)** — a interface ainda não tem documento
-próprio: só o contrato dos endpoints `/gestao/*` e as 16 telas desenhadas. Falta a spec, o plano e
-o projeto React/Next.js.
+**3. Implementar a plataforma web (fase F1)** — login com sessão em cookie, painel, avisos com
+destinos e histórico, turmas, vínculos, solicitações, usuários e perfis. 74 tarefas em
+[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md); depende da API no ar.
 
-**4. Especificar a agenda e os horários (E3)** — os endpoints `GET /eventos`,
-`GET /eventos/{id}` e `GET /turmas/{id}/horarios` existem apenas como visão geral. A fase F2 do
-aplicativo está bloqueada até essa spec existir. Uma pendência concreta já registrada: se
-`GET /eventos` aceitará filtro por intervalo de datas — a visão de mês do calendário depende
-disso.
+**4. Especificar a agenda e os horários (E3)** — os endpoints de eventos e de horários existem
+apenas como visão geral. A fase F2 **do aplicativo e da plataforma web** está bloqueada até essa
+spec existir. Duas pendências concretas já registradas: se `GET /eventos` aceitará filtro por
+intervalo de datas — a visão de mês do calendário depende disso — e se a grade de horários terá
+verificação de conflito de sala ou de docente.
 
 **5. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado. A integração
 real só pode ser validada quando houver acesso à API da instituição, e os testes dela são
@@ -144,10 +150,12 @@ implementação:
 
 - API: [`projeto-api/.specify/memory/constitution.md`](projeto-api/.specify/memory/constitution.md)
 - Aplicativo: [`projeto-mobile/.specify/memory/constitution.md`](projeto-mobile/.specify/memory/constitution.md)
+- Plataforma web: [`projeto-web/.specify/memory/constitution.md`](projeto-web/.specify/memory/constitution.md)
 
 Para rodar a API localmente quando ela existir, veja
 [`quickstart.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/quickstart.md); para o
-aplicativo, [`quickstart.md`](projeto-mobile/specs/001-app-conecta/quickstart.md).
+aplicativo, [`quickstart.md`](projeto-mobile/specs/001-app-conecta/quickstart.md); para a
+plataforma web, [`quickstart.md`](projeto-web/specs/001-plataforma-gestao/quickstart.md).
 
 ## Autor
 

@@ -8,16 +8,18 @@ divergência, aquele documento prevalece e esta spec é revista.
 
 ## Convenções do cliente
 
-- Base: `API_BASE_URL`, variável de ambiente **do servidor**, sem prefixo público.
-- Toda chamada parte do servidor da plataforma (Server Component, Server Action ou Route
-  Handler). O navegador nunca fala com a API (Princípio IV).
-- Cabeçalhos: `Content-Type: application/json`, `Accept: application/json` e
-  `Authorization: Bearer <token do cookie>` em tudo, exceto o login.
+- Base: `VITE_API_BASE_URL`, embutida no build. É pública por natureza e aponta para o caminho da
+  API na mesma origem (por exemplo `/api`).
+- Toda chamada parte do navegador, com `credentials: 'include'`; a autenticação viaja no cookie de
+  sessão emitido pela API, nunca em cabeçalho montado pelo JavaScript (Princípio III).
+- Cabeçalhos: `Content-Type: application/json`, `Accept: application/json` e, nos métodos de
+  escrita, o cabeçalho de proteção CSRF definido pela API.
 - Timeout de 15 s; sem repetição automática — repetir é ação do usuário.
 - Toda resposta 2xx é validada por esquema `zod` antes de virar tipo; fora do esquema →
   `RESPOSTA_INVALIDA`.
 - Listas sempre com `limit` e `offset` vindos da URL da página.
-- `401` em qualquer chamada: apaga o cookie, guarda o destino e leva ao login.
+- `401` em qualquer chamada: a plataforma chama `DELETE /auth/sessao`, descarta o estado local,
+  guarda o destino pretendido e leva ao login.
 - A plataforma **não** chama os endpoints de aluno (`/turmas/disponiveis`,
   `/solicitacoes/minhas`, `POST /turmas/{id}/solicitacoes`, `GET /avisos`).
 
@@ -27,13 +29,15 @@ divergência, aquele documento prevalece e esta spec é revista.
 
 ### `POST /auth/login`
 
-**Origem**: T01, via `POST /api/sessao` · **Sem token**
+**Origem**: T01 · **Sem sessão**
 
-**Envia**: `{ username, password }` · **Recebe 200**: `access_token`, `expires_in`, `usuario`
+**Envia**: `{ username, password }` com `credentials: 'include'` ·
+**Recebe 200**: `usuario`, `expires_in` e o cookie de sessão em `Set-Cookie` (o corpo também traz
+`access_token`, que a plataforma **ignora** — ele existe para o aplicativo mobile).
 
-**Efeito**: o handler chama em seguida `GET /me`. Se o perfil for `aluno`, **não grava cookie** e
-responde com destino `/sem-permissao`. Nos demais, grava o cookie `httpOnly` com validade de
-`expires_in` e responde com o destino pretendido ou `/painel`.
+**Efeito**: a plataforma chama em seguida `GET /me`. Se o perfil for `aluno`, encerra a sessão
+(`DELETE /auth/sessao`) e leva a `/sem-permissao`. Nos demais, segue para o destino pretendido ou
+para `/painel`.
 
 | code | Status | Tratamento |
 |---|---|---|
@@ -43,6 +47,14 @@ responde com destino `/sem-permissao`. Nos demais, grava o cookie `httpOnly` com
 | `SEM_REDE` / `TIMEOUT` | — | "Não foi possível conectar."; nada é gravado |
 
 **Requisitos**: RW-01, RW-02, RW-06.
+
+### `DELETE /auth/sessao`
+
+**Origem**: botão Sair e todo encerramento automático (aluno autenticado, `401`,
+`403 USUARIO_INATIVO`). Remove o cookie de sessão no servidor da API. A plataforma descarta o
+estado local em seguida.
+
+**Requisitos**: RW-05, RW-06, RW-09.
 
 ### `GET /me`
 
@@ -100,7 +112,7 @@ A aba "Agendados" é um filtro da plataforma sobre `situacao=ativo` com `publica
 
 ### `POST /gestao/avisos`
 
-**Origem**: T04 e T15, via Server Action.
+**Origem**: T04 e T15.
 
 **Envia**: `{ titulo, conteudo, publicar_em?, destinos[] }` — `destinos` com 1 a 20 itens no
 formato `{ tipo, turma_id? , semestre? }`.
@@ -138,7 +150,7 @@ formato `{ tipo, turma_id? , semestre? }`.
 
 ### `POST /gestao/avisos/{id}/arquivar` · `POST /gestao/avisos/{id}/desarquivar` · `DELETE /gestao/avisos/{id}`
 
-**Origem**: T03 e detalhe, via Server Action, com confirmação prévia em arquivar e excluir.
+**Origem**: T03 e detalhe, com confirmação prévia em arquivar e excluir.
 
 | code | Status | Tratamento |
 |---|---|---|

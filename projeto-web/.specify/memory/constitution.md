@@ -1,21 +1,23 @@
 <!--
 Sync Impact Report
-Version: 1.0.0 (2026-10-13) — ratificação inicial da constituição da plataforma web.
-Derivada de projeto-api/.specify/memory/constitution.md v2.0.0, que continua prevalecendo
-sobre regras de negócio; este documento governa apenas o cliente web de gestão.
-Added sections:
-  - Core Principles: I. Cliente Sem Regra de Negócio, II. Contrato da API como Fonte da Verdade,
-    III. Token Fora do Navegador, IV. Dados no Servidor, Interação no Cliente,
-    V. Design System Compartilhado e Acessibilidade, VI. Simplicidade de Dependências
-  - Tecnologia e Restrições
-  - Fluxo de Desenvolvimento (SDD)
-  - Governance
+Version change: 1.0.0 → 2.0.0 (2026-10-13)
+Modified principles:
+  - III. Token Fora do Navegador — o token continua inacessível ao JavaScript, mas o cookie passa
+    a ser emitido pela própria API, não por um servidor da plataforma. Acrescenta proteção CSRF e
+    a exigência de mesma origem entre web e API.
+  - IV. Dados no Servidor, Interação no Cliente → IV. Build Estático, Sem Servidor Próprio
+    (redefinição incompatível ⇒ MAJOR). Motivo: a infraestrutura do IFSul hospeda a API em Python
+    e serve a plataforma como arquivos estáticos; não há servidor Node. Server Components e
+    Server Actions deixam de existir, e toda chamada à API passa a sair do navegador.
+Version 1.0.0 (2026-10-13): ratificação inicial, com sessão em cookie escrito por servidor Next.
+Added sections: nenhuma.
+Removed sections: nenhuma.
 Follow-up TODOs: nenhum.
 -->
 
 # CONECTA Web Constitution
 
-Esta constituição governa a plataforma web de gestão do CONECTA (Next.js). A constituição da API
+Esta constituição governa a plataforma web de gestão do CONECTA. A constituição da API
 (`projeto-api/.specify/memory/constitution.md`) prevalece em tudo que diz respeito a regra de
 negócio, autenticação e autorização; aqui tratamos apenas do cliente. Onde esta e a do aplicativo
 mobile tratam do mesmo assunto, elas MUST dizer a mesma coisa — as duas são clientes da mesma API.
@@ -40,26 +42,35 @@ O comportamento diante de um erro MUST ser decidido pelo campo `code`, nunca pel
 `detail` nem pelo status isolado. Campos, nomes e tipos seguem
 `projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md`. Nenhum endpoint é consumido
 sem estar nesse contrato: funcionalidade que dependa de endpoint ainda não especificado fica
-bloqueada até a spec existir (caso de agenda e horários, E3).
+bloqueada até a spec existir.
 
-### III. Token Fora do Navegador (NON-NEGOTIABLE)
+### III. Token Fora do Alcance do JavaScript (NON-NEGOTIABLE)
 
-O JWT emitido pela API MUST ser guardado em cookie `httpOnly`, `Secure` e `SameSite=Lax`, escrito
-e lido apenas pelo servidor da própria plataforma. O token MUST NOT ser exposto a código que roda
-no navegador — nada de `localStorage`, `sessionStorage`, variável global ou corpo de resposta
-visível ao cliente. Chamadas à API partem do servidor, que anexa o token; o navegador conversa
-apenas com a própria plataforma.
+A plataforma MUST autenticar por sessão em cookie `httpOnly`, `Secure` e `SameSite=Strict`,
+**emitido pela própria API** no login. O token MUST NOT ser lido, guardado ou manipulado por
+código que roda no navegador — nada de `localStorage`, `sessionStorage`, variável global ou
+cópia em memória. O navegador apenas carrega o cookie automaticamente a cada requisição
+(`credentials: 'include'`).
 
-A senha do usuário MUST NOT ser persistida nem registrada em log. Qualquer `401` da API encerra a
-sessão: o cookie é removido e o usuário vai ao login. `403 USUARIO_INATIVO` também encerra.
+Disso decorrem duas obrigações: toda requisição de escrita MUST carregar proteção contra CSRF, na
+forma definida pela API; e a plataforma MUST ser servida na **mesma origem** da API, que fica
+atrás de um caminho reservado (por exemplo `/api`) no mesmo domínio.
 
-### IV. Dados no Servidor, Interação no Cliente
+A senha do usuário MUST NOT ser persistida nem registrada em log. Qualquer `401` encerra a
+sessão: a plataforma descarta o estado local e leva ao login; `403 USUARIO_INATIVO` também
+encerra.
 
-Leitura de dados MUST acontecer no servidor (Server Components e Route Handlers); componentes de
-cliente existem para interação — formulários, seleção, modais, tabelas que filtram. Operações de
-escrita MUST passar por Server Actions ou Route Handlers, nunca por chamada direta do navegador à
-API. Nenhum segredo, URL interna ou cabeçalho de autorização MUST chegar ao pacote JavaScript
-enviado ao navegador.
+### IV. Build Estático, Sem Servidor Próprio
+
+A plataforma MUST ser distribuída como arquivos estáticos (HTML, CSS e JavaScript) servidos por
+um servidor web comum, sem processo de aplicação próprio. Nenhuma funcionalidade MUST depender de
+renderização no servidor, de rota de API própria ou de segredo em tempo de execução: **não existe
+lugar seguro para segredo nesta camada**. Toda configuração embutida no build é pública por
+natureza, e a URL da API é a única que pode estar ali.
+
+Toda chamada à API parte do navegador, autenticada pelo cookie de sessão. A plataforma MUST
+funcionar quando servida por nginx, Apache ou qualquer servidor de arquivos, sem configuração
+além do redirecionamento de rotas desconhecidas para `index.html`.
 
 ### V. Design System Compartilhado e Acessibilidade
 
@@ -75,23 +86,24 @@ chips sempre trazem texto.
 
 ### VI. Simplicidade de Dependências
 
-A plataforma prefere o que o framework já oferece. Uma dependência nova só entra quando resolve
-uma necessidade concreta já encontrada e MUST ser justificada no `plan.md` da funcionalidade que
-a introduziu. Não se adota biblioteca de estado global, de cliente HTTP nem de formulário sem que
-a falta dela tenha causado um problema real. Nenhuma abstração é criada "para o futuro" — YAGNI.
+A plataforma prefere o que a linguagem e o navegador já oferecem. Uma dependência nova só entra
+quando resolve uma necessidade concreta já encontrada e MUST ser justificada no `plan.md` da
+funcionalidade que a introduziu. Não se adota biblioteca de estado global, de cliente HTTP nem de
+formulário sem que a falta dela tenha causado um problema real. Nenhuma abstração é criada "para
+o futuro" — YAGNI.
 
 ## Tecnologia e Restrições
 
-- Framework: Next.js (App Router) com TypeScript em modo estrito.
+- Build: Vite com React e TypeScript em modo estrito; saída estática.
 - Estilo: Tailwind CSS, configurado a partir dos tokens de `design/README.md`.
-- Dados: Server Components para leitura; Server Actions para escrita; `fetch` nativo.
-- Sessão: cookie `httpOnly` escrito pelo servidor da plataforma.
+- Dados: `fetch` do navegador com `credentials: 'include'`; roteamento no cliente.
+- Sessão: cookie `httpOnly` emitido pela API, em mesma origem.
 - Público-alvo: administração, coordenação e docentes. Alunos usam o aplicativo mobile e recebem
   `403` em qualquer rota de gestão.
 - Idioma da interface: português do Brasil; datas e horas no fuso de quem acessa.
 - Navegadores: duas últimas versões de Chrome, Firefox, Safari e Edge. Resolução mínima de
   projeto: 1280 px de largura.
-- Backend: exclusivamente a API do CONECTA, por HTTPS em homologação e produção.
+- Implantação: arquivos estáticos na infraestrutura do IFSul, no mesmo domínio da API, por HTTPS.
 
 ## Fluxo de Desenvolvimento (SDD)
 
@@ -120,6 +132,7 @@ Política de versionamento:
 - PATCH: esclarecimentos e correções de redação.
 
 Toda spec, plano e revisão de código MUST verificar conformidade com os princípios acima,
-especialmente I (cliente sem regra de negócio) e III (token fora do navegador).
+especialmente I (cliente sem regra de negócio), III (token fora do alcance do JavaScript) e IV
+(build estático).
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-13 | **Last Amended**: 2026-10-13
+**Version**: 2.0.0 | **Ratified**: 2026-10-13 | **Last Amended**: 2026-10-13

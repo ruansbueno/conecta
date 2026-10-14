@@ -1,4 +1,4 @@
-# Feature Specification: Plataforma Web de Gestão (Next.js)
+# Feature Specification: Plataforma Web de Gestão
 
 **Feature Branch**: `001-plataforma-gestao`
 
@@ -116,7 +116,8 @@ Rotas: `/login`, `/painel`, `/avisos`, `/avisos/novo`, `/avisos/[id]`, `/avisos/
 **Acceptance Scenarios**:
 
 1. **Given** credenciais válidas de coordenação, **When** o usuário entra, **Then** a sessão é
-   criada no servidor, o token fica em cookie `httpOnly` e ele chega ao painel da coordenação.
+   criada pela API em cookie `httpOnly`, inacessível ao JavaScript, e ele chega ao painel da
+   coordenação.
 2. **Given** credenciais válidas de docente, **When** entra, **Then** chega ao painel do docente,
    com a navegação restrita às suas turmas.
 3. **Given** credenciais de aluno, **When** entra, **Then** vê a tela de sem permissão explicando
@@ -288,11 +289,13 @@ Fase entre colchetes. A coluna de rastreabilidade liga cada requisito ao da API.
 
 ### Sessão e acesso
 
-- **RW-01 [F1]**: A plataforma MUST autenticar por `POST /auth/login` e guardar o token em cookie
-  `httpOnly`, `Secure`, `SameSite=Lax`, com validade alinhada à do token (RF-01, RF-04).
-- **RW-02 [F1]**: O token MUST NOT ser acessível a código do navegador em nenhuma hipótese
-  (Princípio III).
-- **RW-03 [F1]**: Toda chamada à API MUST partir do servidor da plataforma, que anexa o token.
+- **RW-01 [F1]**: A plataforma MUST autenticar por `POST /auth/login` enviando
+  `credentials: 'include'`, e a **API** MUST responder com o cookie de sessão `httpOnly`,
+  `Secure`, `SameSite=Strict`, válido por 24 h (RF-01, RF-04, RF-32).
+- **RW-02 [F1]**: O token MUST NOT ser lido, guardado ou manipulado por código do navegador em
+  nenhuma hipótese (Princípio III).
+- **RW-03 [F1]**: Toda chamada à API MUST ser feita com `credentials: 'include'` e, nos métodos
+  de escrita, MUST carregar a proteção CSRF definida pela API (RF-32).
 - **RW-04 [F1]**: Ao receber `401`, a plataforma MUST remover o cookie e levar ao login com aviso
   de sessão expirada, preservando o destino pretendido (RF-05).
 - **RW-05 [F1]**: Ao receber `403 USUARIO_INATIVO`, MUST encerrar a sessão com mensagem própria
@@ -395,8 +398,12 @@ Fase entre colchetes. A coluna de rastreabilidade liga cada requisito ao da API.
   rede, e marcar os campos devolvidos em `errors[]` de `VALIDATION_ERROR`.
 - **RW-43 [F1]**: Nenhuma regra de visibilidade, permissão ou elegibilidade MUST ser
   reimplementada na plataforma (Princípio I).
-- **RW-44 [F1]**: Nenhum segredo, token ou URL interna da API MUST chegar ao pacote JavaScript
-  enviado ao navegador (Princípio IV).
+- **RW-44 [F1]**: O build MUST NOT conter segredo de qualquer natureza — chave, credencial ou
+  token. A única configuração embutida é a URL base da API, que é pública por natureza
+  (Princípio IV).
+- **RW-45 [F1]**: A plataforma MUST ser distribuída como arquivos estáticos, servida na mesma
+  origem da API, e MUST funcionar em qualquer servidor web com o redirecionamento de rotas
+  desconhecidas para `index.html` (Princípio IV).
 
 ### Key Entities
 
@@ -487,8 +494,8 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
   aplicativo respeitando o público — é demonstrável de ponta a ponta (RF-30 da API).
 - **SC-002**: 100% das ações fora da matriz de permissões resultam em recusa visível e
   compreensível, sem vazamento de dados.
-- **SC-003**: O token não aparece em nenhum ponto acessível ao navegador — verificável por
-  inspeção do HTML, do JavaScript e do `document.cookie`.
+- **SC-003**: O token não aparece em nenhum ponto acessível ao JavaScript — verificável por
+  inspeção de `document.cookie`, `localStorage`, `sessionStorage` e do pacote servido.
 - **SC-004**: Toda tela é operável apenas com teclado, do login à exclusão de um aviso.
 - **SC-005**: 100% das telas passam na verificação de contraste AA.
 - **SC-006**: Nenhuma edição perde o que foi digitado por erro da API ou queda de rede.
@@ -499,13 +506,18 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 
 ## 9. Assumptions
 
-- A API está disponível em uma URL configurável por ambiente, acessível a partir do servidor da
-  plataforma.
+- A plataforma e a API são servidas no **mesmo domínio**, com a API atrás de um caminho reservado
+  (por exemplo `/api`), por proxy reverso na infraestrutura do IFSul. É o que viabiliza o cookie
+  de sessão com `SameSite=Strict`.
+- A API emite o cookie de sessão no login e aceita autenticação por cookie nos endpoints de
+  gestão, mantendo o cabeçalho `Bearer` para o aplicativo mobile (RF-32).
 - O contrato E2 é o que está em `contracts/api.md`; mudanças exigem revisão desta spec.
 - Não existe endpoint de resumo para o painel: os números vêm do campo `total` de listas
   consultadas com `limit` pequeno.
 - Os endpoints de agenda e horários seguirão o mesmo padrão; F2 começa com a spec E3 publicada.
 - Uso em desktop, a partir de 1280 px; não há projeto para telefone.
+- A plataforma é um build estático: não há servidor de aplicação próprio, e portanto não há lugar
+  para segredo em tempo de execução.
 - O provedor de autenticação é o mesmo da API (mock hoje, Moodle depois) e é indiferente para a
   plataforma.
 
@@ -514,8 +526,13 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 ### Sessão 2026-10-13
 
 - **P: Onde fica o token?**
-  R: Em cookie `httpOnly` escrito pelo servidor da plataforma. O navegador nunca o vê, e as
-  chamadas à API saem do servidor (RW-01 a RW-03, Princípio III).
+  R: Em cookie `httpOnly` emitido **pela própria API** no login. O JavaScript da página nunca o
+  alcança; o navegador o envia automaticamente em cada chamada. Isso exige mesma origem entre web
+  e API e proteção CSRF nas escritas (RW-01 a RW-03, Princípio III).
+  *Revisto em 13/10/2026*: a versão anterior previa um servidor Next guardando o cookie. A
+  infraestrutura do IFSul hospeda a API em Python e serve a plataforma como arquivos estáticos,
+  sem servidor Node — daí a mudança, que manteve o objetivo (token fora do alcance do JavaScript)
+  trocando o meio.
 - **P: O que acontece quando um aluno entra na web?**
   R: A autenticação funciona — a API aceita as credenciais —, mas a plataforma mostra a tela de
   sem permissão com orientação para usar o aplicativo e encerra a sessão (RW-06).

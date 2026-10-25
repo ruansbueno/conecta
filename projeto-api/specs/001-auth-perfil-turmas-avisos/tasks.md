@@ -197,20 +197,20 @@ serviço/seed → turma em "minhas turmas".
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T053 [P] [US4] Contract test `GET /avisos` e `GET /avisos/{id}` (200, 404 `AVISO_NAO_ENCONTRADO`, filtros `situacao`/`turma_id`, paginação, 422) em `tests/contract/test_avisos.py` (RF-20, RF-23, RF-29)
-- [ ] T054 [P] [US4] Integration test das regras de visibilidade — `todos`; aviso com 3 turmas (visto uma única vez por quem está em 1, 2 ou 3 delas; não visto por quem está só na D); `semestre`; `docentes`; agendado futuro/ao chegar a data; arquivado (só na lista de arquivados); excluído (nunca); coordenação/administração veem só `todos`; turma desativada suspende entrega; vínculo removido corta acesso — em `tests/integration/test_avisos_visibilidade.py` (RF-21, RF-22, RF-23)
-- [ ] T055 [P] [US4] Contract test da matriz de permissões da E1 (aluno em rotas de turma/solicitação de aluno; não-aluno recebe 403) em `tests/contract/test_permissoes_matriz.py` (RF-10)
+- [x] T053 [P] [US4] Contract test `GET /avisos` e `GET /avisos/{id}` (200, 404 `AVISO_NAO_ENCONTRADO`, filtros `situacao`/`turma_id`, paginação, 422) em `tests/contract/test_avisos.py` (RF-20, RF-23, RF-29)
+- [x] T054 [P] [US4] Integration test das regras de visibilidade — `todos`; aviso com 3 turmas (visto uma única vez por quem está em 1, 2 ou 3 delas; não visto por quem está só na D); `semestre`; `docentes`; agendado futuro/ao chegar a data; arquivado (só na lista de arquivados); excluído (nunca); coordenação/administração veem só `todos`; turma desativada suspende entrega; vínculo removido corta acesso — em `tests/integration/test_avisos_visibilidade.py` (RF-21, RF-22, RF-23)
+- [x] T055 [P] [US4] Contract test da matriz de permissões da E1 (aluno em rotas de turma/solicitação de aluno; não-aluno recebe 403) em `tests/contract/test_permissoes_matriz.py` (RF-10)
 
 ### Implementation for User Story 4
 
-- [ ] T056 [P] [US4] `src/models/aviso.py`: `Aviso` (`autor_id`, `situacao`, `publicar_em`, `versao_atual`, `editado_em`, `arquivado_em`, `excluido_em`, `criado_em`) e `AvisoDestino` (`tipo`, `turma_id`, `semestre`; `CHECK` de consistência e unicidade) (dep. T009, T015, T042)
-- [ ] T057 [US4] Gerar migração Alembic para `aviso` e `aviso_destino` (dep. T010, T056)
-- [ ] T058 [P] [US4] `src/schemas/aviso.py`: `AvisoOut` (com `autor`, `destinos[]`, `publicado_em`, `editado_em`) e `DestinoOut`
-- [ ] T059 [US4] `src/repositories/aviso_repository.py`: `listar_para_usuario(usuario, situacao, turma_id, page)` e `get_para_usuario(usuario, aviso_id)` — regra de visibilidade de `data-model.md` com `EXISTS` sobre destinos, `DISTINCT`, ordenação por `publicado_em` desc (dep. T043, T056)
-- [ ] T060 [US4] `src/services/aviso_service.py`: encapsula o repositório (dep. T059)
-- [ ] T061 [US4] `src/api/routes/avisos.py`: `GET /avisos` e `GET /avisos/{aviso_id}` (dep. T058, T060)
-- [ ] T062 [US4] Registrar o router de avisos em `src/main.py` (dep. T020, T061)
-- [ ] T063 [US4] Seed de avisos de teste cobrindo todos os casos do T054, incluindo um aviso com 3 turmas (dep. T052, T056)
+- [x] T056 [P] [US4] `src/models/aviso.py`: `Aviso` (`autor_id`, `situacao`, `publicar_em`, `versao_atual`, `editado_em`, `arquivado_em`, `excluido_em`, `criado_em`) e `AvisoDestino` (`tipo`, `turma_id`, `semestre`; `CHECK` de consistência e unicidade) (dep. T009, T015, T042)
+- [x] T057 [US4] Gerar migração Alembic para `aviso` e `aviso_destino` (dep. T010, T056)
+- [x] T058 [P] [US4] `src/schemas/aviso.py`: `AvisoOut` (com `autor`, `destinos[]`, `publicado_em`, `editado_em`) e `DestinoOut`
+- [x] T059 [US4] `src/repositories/aviso_repository.py`: `listar_para_usuario(usuario, situacao, turma_id, page)` e `get_para_usuario(usuario, aviso_id)` — regra de visibilidade de `data-model.md` com `EXISTS` sobre destinos, `DISTINCT`, ordenação por `publicado_em` desc (dep. T043, T056)
+- [x] T060 [US4] `src/services/aviso_service.py`: encapsula o repositório (dep. T059)
+- [x] T061 [US4] `src/api/routes/avisos.py`: `GET /avisos` e `GET /avisos/{aviso_id}` (dep. T058, T060)
+- [x] T062 [US4] Registrar o router de avisos em `src/main.py` (dep. T020, T061)
+- [x] T063 [US4] Seed de avisos de teste cobrindo todos os casos do T054, incluindo um aviso com 3 turmas (dep. T052, T056)
 
 **Checkpoint**: Todas as 4 user stories da E1 funcionam isoladamente e juntas.
 

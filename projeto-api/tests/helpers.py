@@ -4,6 +4,8 @@ from http.cookies import SimpleCookie
 
 from sqlalchemy import update
 
+from src.core.security import create_access_token
+from src.models.aviso import Aviso, AvisoDestino
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -78,3 +80,30 @@ async def entrar(client, db, username="aluno.teste", perfil=None):
         await db.execute(update(Usuario).where(Usuario.id == usuario_id).values(perfil=perfil))
         await db.commit()
     return {"Authorization": f"Bearer {body['access_token']}"}, usuario_id
+
+
+def bearer(usuario) -> dict:
+    return {"Authorization": f"Bearer {create_access_token(usuario.id, usuario.perfil)}"}
+
+
+async def criar_aviso(db, autor, destinos, **campos):
+    """`destinos`: lista de dicts como {"tipo": "turma", "turma_id": ...}."""
+    campos.setdefault("titulo", "Aviso de teste")
+    campos.setdefault("conteudo", "Conteúdo do aviso de teste.")
+    aviso = Aviso(autor_id=autor.id, **campos)
+    aviso.destinos = [AvisoDestino(**d) for d in destinos]
+    db.add(aviso)
+    await db.commit()
+    return aviso
+
+
+TODOS = {"tipo": "todos"}
+DOCENTES = {"tipo": "docentes"}
+
+
+def turma_destino(turma) -> dict:
+    return {"tipo": "turma", "turma_id": turma.id}
+
+
+def semestre_destino(semestre: int) -> dict:
+    return {"tipo": "semestre", "semestre": semestre}

@@ -6,13 +6,15 @@ aqui; na E2, pelo administrador (RF-08). Pode ser executado várias vezes.
 """
 
 import asyncio
-from datetime import UTC, datetime
+import uuid
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.session import get_sessionmaker
+from src.models.aviso import Aviso, AvisoDestino
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -56,6 +58,24 @@ SOLICITACOES_TESTE = [
 ]
 
 
+AVISOS_TESTE_TITULOS: dict[str, str] = {
+    "todos": "Boas-vindas ao semestre 2026/2",
+    "tres_turmas": "Visita técnica das turmas do 3º semestre",
+    "semestre": "Prazo de entrega do projeto integrador (3º semestre)",
+    "docentes": "Reunião pedagógica dos docentes",
+    "agendado": "Recesso acadêmico (agendado)",
+    "arquivado": "Mudança de sala da turma A",
+    "excluido": "Aviso publicado por engano",
+}
+
+# Ids fixos derivados da chave: o seed reconhece os avisos que já criou.
+_NAMESPACE_AVISOS = uuid.UUID("5f0c8a52-3c1e-4a8e-9b1d-2e6f7a9c0d13")
+
+
+def _aviso_id(chave: str) -> uuid.UUID:
+    return uuid.uuid5(_NAMESPACE_AVISOS, chave)
+
+
 async def seed(session: AsyncSession) -> None:
     await _usuarios(session)
     await _turmas(session)
@@ -64,6 +84,7 @@ async def seed(session: AsyncSession) -> None:
     turmas = dict((await session.execute(select(Turma.codigo, Turma.id))).all())
     await _vinculos(session, usuarios, turmas)
     await _solicitacoes(session, usuarios, turmas)
+    await _avisos(session, usuarios, turmas)
     await session.commit()
 
 
@@ -136,12 +157,52 @@ async def _solicitacoes(session: AsyncSession, usuarios: dict, turmas: dict) -> 
             )
 
 
+async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
+    agora = datetime.now(UTC)
+    # chave: (destinos, campos extras)
+    avisos = {
+        "todos": ([("todos", None, None)], {}),
+        "tres_turmas": (
+            [("turma", turmas[f"TADS-{t}-2026-2"], None) for t in ("3A", "3B", "3C")],
+            {},
+        ),
+        "semestre": ([("semestre", None, 3)], {}),
+        "docentes": ([("docentes", None, None)], {}),
+        "agendado": ([("todos", None, None)], {"publicar_em": agora + timedelta(days=7)}),
+        "arquivado": (
+            [("turma", turmas["TADS-3A-2026-2"], None)],
+            {"situacao": "arquivado", "arquivado_em": agora},
+        ),
+        "excluido": ([("todos", None, None)], {"situacao": "excluido", "excluido_em": agora}),
+    }
+    for chave, (destinos, extras) in avisos.items():
+        aviso_id = _aviso_id(chave)
+        await session.execute(
+            insert(Aviso)
+            .values(
+                id=aviso_id,
+                titulo=AVISOS_TESTE_TITULOS[chave],
+                conteudo=f"Conteúdo fictício de demonstração: {AVISOS_TESTE_TITULOS[chave]}.",
+                autor_id=usuarios["coord.teste"],
+                **extras,
+            )
+            .on_conflict_do_nothing()
+        )
+        for tipo, turma_id, semestre in destinos:
+            await session.execute(
+                insert(AvisoDestino)
+                .values(aviso_id=aviso_id, tipo=tipo, turma_id=turma_id, semestre=semestre)
+                .on_conflict_do_nothing()
+            )
+
+
 async def main() -> None:
     async with get_sessionmaker()() as session:
         await seed(session)
     print(
         f"Seed concluído: {len(PERFIS_TESTE)} usuários de teste (senha: senha-teste), "
-        f"{len(TURMAS_TESTE)} turmas, {len(VINCULOS_TESTE)} vínculos."
+        f"{len(TURMAS_TESTE)} turmas, {len(VINCULOS_TESTE)} vínculos, "
+        f"{len(AVISOS_TESTE_TITULOS)} avisos."
     )
 
 

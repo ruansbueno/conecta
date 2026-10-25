@@ -32,6 +32,10 @@ extend-exclude = ["docs", ".specify"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# Migrações são geradas pelo Alembic; SQL longo em CHECKs não é quebrado.
+"alembic/versions/*" = ["E501"]
+
 [tool.ruff.lint.isort]
 # A pasta alembic/ do projeto não é o pacote alembic.
 known-third-party = ["alembic"]

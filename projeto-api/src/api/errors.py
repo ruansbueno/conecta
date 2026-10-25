@@ -72,6 +72,11 @@ class SolicitacaoNaoPendente(DomainError):
         super().__init__(409, "SOLICITACAO_NAO_PENDENTE", "A solicitação já foi decidida")
 
 
+class AvisoNaoEncontrado(DomainError):
+    def __init__(self):
+        super().__init__(404, "AVISO_NAO_ENCONTRADO", "Aviso não encontrado")
+
+
 _MENSAGENS = {
     "missing": "campo obrigatório",
     "string_type": "deve ser um texto",

@@ -3,7 +3,8 @@
 import pytest
 from sqlalchemy import func, select
 
-from scripts.seed_dev_data import PERFIS_TESTE, seed
+from scripts.seed_dev_data import AVISOS_TESTE_TITULOS, PERFIS_TESTE, seed
+from src.models.aviso import Aviso, AvisoDestino
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -96,3 +97,39 @@ async def test_aluno_sem_turma_tem_turmas_disponiveis_apos_o_seed(client, db):
     r = await client.get("/turmas/disponiveis", headers=headers)
 
     assert r.json()["total"] >= 1
+
+
+async def _titulos(client, db, username, situacao="ativo") -> set[str]:
+    headers, _ = await entrar(client, db, username)
+    r = await client.get(f"/avisos?situacao={situacao}&limit=100", headers=headers)
+    return {a["titulo"] for a in r.json()["items"]}
+
+
+async def test_seed_de_avisos_cobre_os_casos_de_visibilidade(client, db):
+    await seed(db)
+    t = AVISOS_TESTE_TITULOS
+
+    assert await _titulos(client, db, "aluno.teste") == {
+        t["todos"],
+        t["tres_turmas"],
+        t["semestre"],
+    }
+    assert await _titulos(client, db, "aluno.teste", "arquivado") == {t["arquivado"]}
+    assert await _titulos(client, db, "aluno.sem.turma") == {t["todos"]}
+    assert await _titulos(client, db, "docente.teste") == {
+        t["todos"],
+        t["tres_turmas"],
+        t["semestre"],
+        t["docentes"],
+    }
+    assert await _titulos(client, db, "coord.teste") == {t["todos"]}
+
+
+async def test_seed_de_avisos_e_idempotente(db):
+    await seed(db)
+    contagens = [await _contar(db, m) for m in (Aviso, AvisoDestino)]
+
+    await seed(db)
+
+    assert [await _contar(db, m) for m in (Aviso, AvisoDestino)] == contagens
+    assert contagens[0] == len(AVISOS_TESTE_TITULOS)

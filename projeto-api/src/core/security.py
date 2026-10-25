@@ -3,16 +3,18 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.deps.csrf import verificar_csrf
 from src.api.errors import NaoAutenticado, SemPermissao, UsuarioInativo
 from src.core.config import get_settings
 from src.db.session import get_session
 from src.models.usuario import Usuario
 
 ALGORITHM = "HS256"
+SESSION_COOKIE = "conecta_sessao"
 
 
 class TokenInvalido(Exception):
@@ -44,13 +46,22 @@ _bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     session: AsyncSession = Depends(get_session),
 ) -> Usuario:
-    if credentials is None:
+    """Autentica por `Bearer` (app) ou pelo cookie de sessão (web), com o mesmo token (RF-32).
+
+    O cabeçalho, quando presente, tem precedência: não se cai para o cookie se ele for inválido.
+    """
+    if credentials is not None:
+        token, via = credentials.credentials, "bearer"
+    elif SESSION_COOKIE in request.cookies:
+        token, via = request.cookies[SESSION_COOKIE], "cookie"
+    else:
         raise NaoAutenticado()
     try:
-        usuario_id = decode_access_token(credentials.credentials)
+        usuario_id = decode_access_token(token)
     except TokenInvalido:
         raise NaoAutenticado("Token inválido ou expirado") from None
 
@@ -60,6 +71,9 @@ async def get_current_user(
         raise NaoAutenticado("Token inválido ou expirado")
     if not usuario.ativo:
         raise UsuarioInativo()
+    if via == "cookie":
+        verificar_csrf(request)
+    request.state.auth_via = via
     return usuario
 
 

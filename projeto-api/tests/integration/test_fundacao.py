@@ -46,6 +46,9 @@ async def mini_client(session_factory):
     async def lista(page: PaginationParams = Depends()):
         return Page(items=[], total=0, limit=page.limit, offset=page.offset)
 
+    @app.post("/protegida")
+    @app.patch("/protegida")
+    @app.delete("/protegida")
     @app.get("/protegida")
     async def protegida(usuario: Usuario = Depends(get_current_user)):
         return {"perfil": usuario.perfil}
@@ -194,3 +197,59 @@ async def test_perfil_sem_permissao_e_403(mini_client, db):
 
     assert r.status_code == 403
     assert r.json()["code"] == "SEM_PERMISSAO"
+
+
+# --- Sessão por cookie (RF-32) e CSRF (RF-33) -----------------------------------------------
+
+
+def _cookies(usuario_id, csrf="csrf-valido"):
+    return {"conecta_sessao": create_access_token(usuario_id, "aluno"), "conecta_csrf": csrf}
+
+
+async def test_leitura_so_com_cookie_de_sessao_funciona_sem_csrf(mini_client, db):
+    usuario = await _criar_usuario(db)
+    mini_client.cookies.update({"conecta_sessao": create_access_token(usuario.id, "aluno")})
+
+    r = await mini_client.get("/protegida")
+
+    assert r.status_code == 200
+
+
+@pytest.mark.parametrize("metodo", ["POST", "PATCH", "DELETE"])
+async def test_escrita_por_cookie_exige_csrf(mini_client, db, metodo):
+    usuario = await _criar_usuario(db)
+    mini_client.cookies.update(_cookies(usuario.id))
+
+    sem = await mini_client.request(metodo, "/protegida")
+    errado = await mini_client.request(metodo, "/protegida", headers={"X-CSRF-Token": "x"})
+    certo = await mini_client.request(metodo, "/protegida", headers={"X-CSRF-Token": "csrf-valido"})
+
+    assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")
+    assert (errado.status_code, errado.json()["code"]) == (403, "CSRF_INVALIDO")
+    assert certo.status_code == 200
+
+
+async def test_escrita_por_cookie_sem_cookie_csrf_e_403(mini_client, db):
+    usuario = await _criar_usuario(db)
+    mini_client.cookies.update({"conecta_sessao": create_access_token(usuario.id, "aluno")})
+
+    r = await mini_client.post("/protegida", headers={"X-CSRF-Token": ""})
+
+    assert r.json()["code"] == "CSRF_INVALIDO"
+
+
+async def test_bearer_tem_precedencia_sobre_o_cookie(mini_client, db):
+    usuario = await _criar_usuario(db)
+    mini_client.cookies.update(_cookies(usuario.id))
+
+    r = await mini_client.get("/protegida", headers={"Authorization": "Bearer lixo"})
+
+    assert r.status_code == 401
+
+
+async def test_cookie_de_sessao_invalido_e_401(mini_client):
+    mini_client.cookies.update({"conecta_sessao": "lixo"})
+
+    r = await mini_client.get("/protegida")
+
+    assert (r.status_code, r.json()["code"]) == (401, "NAO_AUTENTICADO")

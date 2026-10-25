@@ -138,16 +138,16 @@ Projeto único (web-service), conforme `plan.md`: `src/`, `tests/`, `alembic/` n
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T031 [P] [US2] Contract test `GET /me` (200 com `turmas`, 401, 403 `USUARIO_INATIVO`) em
+- [x] T031 [P] [US2] Contract test `GET /me` (200 com `turmas`, 401, 403 `USUARIO_INATIVO`) em
       `tests/contract/test_me.py` `@mock_auth` (RF-11)
-- [ ] T032 [P] [US2] Integration test: alterar o perfil no banco muda a resposta/autorização da
+- [x] T032 [P] [US2] Integration test: alterar o perfil no banco muda a resposta/autorização da
       requisição seguinte, sem novo login, em `tests/integration/test_perfil_efeito_imediato.py` (RF-04)
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] `src/schemas/usuario.py`: `UsuarioOut` e `MeOut` (com `turmas[]`)
-- [ ] T034 [US2] `src/api/routes/me.py`: `GET /me` com `get_current_user`; lista `turmas` via repositório de vínculos quando disponível (dep. T019, T033)
-- [ ] T035 [US2] Registrar o router de `me` em `src/main.py` (dep. T020, T034)
+- [x] T033 [P] [US2] `src/schemas/usuario.py`: `UsuarioOut` e `MeOut` (com `turmas[]`)
+- [x] T034 [US2] `src/api/routes/me.py`: `GET /me` com `get_current_user`; lista `turmas` via repositório de vínculos quando disponível (dep. T019, T033)
+- [x] T035 [US2] Registrar o router de `me` em `src/main.py` (dep. T020, T034)
 
 **Checkpoint**: Login + Perfil.
 

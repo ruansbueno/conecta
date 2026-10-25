@@ -164,26 +164,26 @@ serviço/seed → turma em "minhas turmas".
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T036 [P] [US3] Contract test `GET /turmas/disponiveis` (200, 403 para não aluno, paginação) em `tests/contract/test_turmas_disponiveis.py` (RF-12)
-- [ ] T037 [P] [US3] Contract test `POST /turmas/{id}/solicitacoes` (201, 403, 404 `TURMA_INDISPONIVEL`, 409 `JA_VINCULADO`, 409 `SOLICITACAO_DUPLICADA`, 422) em `tests/contract/test_solicitacoes.py` (RF-13, RF-14)
-- [ ] T038 [P] [US3] Contract test `GET /turmas/minhas` em `tests/contract/test_turmas_minhas.py` (RF-16)
-- [ ] T039 [P] [US3] Contract test `GET /solicitacoes/minhas` e `DELETE /solicitacoes/{id}` (204, 404, 409 `SOLICITACAO_NAO_PENDENTE`) em `tests/contract/test_solicitacoes_minhas.py` (RF-15)
-- [ ] T040 [P] [US3] Integration test do fluxo disponíveis → solicitar → (aprovação aplicada pelo serviço) → minhas turmas, em `tests/integration/test_turmas_flow.py`
-- [ ] T041 [P] [US3] Integration test: solicitação duplicada, solicitação após recusa/cancelamento permitida, turma sai de "disponíveis" enquanto há pendente, em `tests/integration/test_solicitacao_duplicada.py` (RF-14)
+- [x] T036 [P] [US3] Contract test `GET /turmas/disponiveis` (200, 403 para não aluno, paginação) em `tests/contract/test_turmas_disponiveis.py` (RF-12)
+- [x] T037 [P] [US3] Contract test `POST /turmas/{id}/solicitacoes` (201, 403, 404 `TURMA_INDISPONIVEL`, 409 `JA_VINCULADO`, 409 `SOLICITACAO_DUPLICADA`, 422) em `tests/contract/test_solicitacoes.py` (RF-13, RF-14)
+- [x] T038 [P] [US3] Contract test `GET /turmas/minhas` em `tests/contract/test_turmas_minhas.py` (RF-16)
+- [x] T039 [P] [US3] Contract test `GET /solicitacoes/minhas` e `DELETE /solicitacoes/{id}` (204, 404, 409 `SOLICITACAO_NAO_PENDENTE`) em `tests/contract/test_solicitacoes_minhas.py` (RF-15)
+- [x] T040 [P] [US3] Integration test do fluxo disponíveis → solicitar → (aprovação aplicada pelo serviço) → minhas turmas, em `tests/integration/test_turmas_flow.py`
+- [x] T041 [P] [US3] Integration test: solicitação duplicada, solicitação após recusa/cancelamento permitida, turma sai de "disponíveis" enquanto há pendente, em `tests/integration/test_solicitacao_duplicada.py` (RF-14)
 
 ### Implementation for User Story 3
 
-- [ ] T042 [P] [US3] `src/models/turma.py`: `Turma` (`codigo` único, `nome`, `semestre_curso` 1–12, `periodo_letivo`, `inscricoes_abertas`, `ativa`, timestamps) (dep. T009)
-- [ ] T043 [P] [US3] `src/models/vinculo_turma.py`: `VinculoTurma` (`papel`, `origem`, `criado_por`; único `turma_id`+`usuario_id`) (dep. T009, T015)
-- [ ] T044 [P] [US3] `src/models/solicitacao_inscricao.py`: `SolicitacaoInscricao` (`status`, decisão; índice único parcial por pendente) (dep. T009, T015, T042)
-- [ ] T045 [US3] Gerar migração Alembic para `turma`, `vinculo_turma` e `solicitacao_inscricao`, com as constraints de `data-model.md` (dep. T010, T042, T043, T044)
-- [ ] T046 [P] [US3] `src/schemas/turma.py`: `TurmaOut`, `TurmaMinhaOut` (com `papel`), `SolicitacaoOut`, `SolicitacaoMinhaOut`
-- [ ] T047 [US3] `src/repositories/turma_repository.py`: `list_disponiveis(aluno_id)` (ativa + abertas, sem vínculo e sem pendente), `list_minhas(usuario_id)`, `get_by_id` (dep. T042, T043, T044)
-- [ ] T048 [US3] `src/repositories/solicitacao_repository.py`: `create`, `get`, `list_by_aluno(status)`, `cancel`, `exists_pendente`, e `approve`/`refuse` (usados por seed/testes na E1 e pelos endpoints da E2) — `approve` cria o vínculo na mesma transação (dep. T043, T044)
-- [ ] T049 [US3] `src/services/turma_service.py`: `listar_disponiveis`, `listar_minhas`, `solicitar` (404 `TURMA_INDISPONIVEL`, 409 `JA_VINCULADO`, 409 `SOLICITACAO_DUPLICADA`), `listar_solicitacoes`, `cancelar` (dep. T047, T048)
-- [ ] T050 [US3] `src/api/routes/turmas.py` e `src/api/routes/solicitacoes.py`: endpoints das seções 3–7 do contrato, com `require_perfil("aluno")` onde aplicável (dep. T046, T049)
-- [ ] T051 [US3] Registrar os routers em `src/main.py` e completar `GET /me` com `turmas[]` (dep. T020, T050)
-- [ ] T052 [US3] Seed: turmas A, B, C (3º semestre) e D (5º), algumas com inscrições abertas; vínculos de aluno e docente; uma solicitação pendente; e `scripts/aprovar_solicitacao.py <id>`, que aplica a aprovação via `solicitacao_repository.approve` enquanto o endpoint de gestão (E2) não existe (dep. T030, T042, T043, T048)
+- [x] T042 [P] [US3] `src/models/turma.py`: `Turma` (`codigo` único, `nome`, `semestre_curso` 1–12, `periodo_letivo`, `inscricoes_abertas`, `ativa`, timestamps) (dep. T009)
+- [x] T043 [P] [US3] `src/models/vinculo_turma.py`: `VinculoTurma` (`papel`, `origem`, `criado_por`; único `turma_id`+`usuario_id`) (dep. T009, T015)
+- [x] T044 [P] [US3] `src/models/solicitacao_inscricao.py`: `SolicitacaoInscricao` (`status`, decisão; índice único parcial por pendente) (dep. T009, T015, T042)
+- [x] T045 [US3] Gerar migração Alembic para `turma`, `vinculo_turma` e `solicitacao_inscricao`, com as constraints de `data-model.md` (dep. T010, T042, T043, T044)
+- [x] T046 [P] [US3] `src/schemas/turma.py`: `TurmaOut`, `TurmaMinhaOut` (com `papel`), `SolicitacaoOut`, `SolicitacaoMinhaOut`
+- [x] T047 [US3] `src/repositories/turma_repository.py`: `list_disponiveis(aluno_id)` (ativa + abertas, sem vínculo e sem pendente), `list_minhas(usuario_id)`, `get_by_id` (dep. T042, T043, T044)
+- [x] T048 [US3] `src/repositories/solicitacao_repository.py`: `create`, `get`, `list_by_aluno(status)`, `cancel`, `exists_pendente`, e `approve`/`refuse` (usados por seed/testes na E1 e pelos endpoints da E2) — `approve` cria o vínculo na mesma transação (dep. T043, T044)
+- [x] T049 [US3] `src/services/turma_service.py`: `listar_disponiveis`, `listar_minhas`, `solicitar` (404 `TURMA_INDISPONIVEL`, 409 `JA_VINCULADO`, 409 `SOLICITACAO_DUPLICADA`), `listar_solicitacoes`, `cancelar` (dep. T047, T048)
+- [x] T050 [US3] `src/api/routes/turmas.py` e `src/api/routes/solicitacoes.py`: endpoints das seções 3–7 do contrato, com `require_perfil("aluno")` onde aplicável (dep. T046, T049)
+- [x] T051 [US3] Registrar os routers em `src/main.py` e completar `GET /me` com `turmas[]` (dep. T020, T050)
+- [x] T052 [US3] Seed: turmas A, B, C (3º semestre) e D (5º), algumas com inscrições abertas; vínculos de aluno e docente; uma solicitação pendente; e `scripts/aprovar_solicitacao.py <id>`, que aplica a aprovação via `solicitacao_repository.approve` enquanto o endpoint de gestão (E2) não existe (dep. T030, T042, T043, T048)
 
 **Checkpoint**: Login + Perfil + Turmas.
 

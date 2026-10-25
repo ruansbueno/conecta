@@ -16,4 +16,4 @@ class Base(DeclarativeBase):
 
 
 # Import central dos models: registra as tabelas em Base.metadata para o Alembic.
-from src.models import usuario  # noqa: E402, F401
+from src.models import solicitacao_inscricao, turma, usuario, vinculo_turma  # noqa: E402, F401

@@ -43,6 +43,35 @@ class CsrfInvalido(DomainError):
         super().__init__(403, "CSRF_INVALIDO", "Token CSRF ausente ou inválido")
 
 
+class TurmaIndisponivel(DomainError):
+    def __init__(self):
+        super().__init__(
+            404, "TURMA_INDISPONIVEL", "Turma inexistente, inativa ou com inscrições fechadas"
+        )
+
+
+class JaVinculado(DomainError):
+    def __init__(self):
+        super().__init__(409, "JA_VINCULADO", "Você já está vinculado a esta turma")
+
+
+class SolicitacaoDuplicada(DomainError):
+    def __init__(self):
+        super().__init__(
+            409, "SOLICITACAO_DUPLICADA", "Já existe uma solicitação pendente para esta turma"
+        )
+
+
+class SolicitacaoNaoEncontrada(DomainError):
+    def __init__(self):
+        super().__init__(404, "SOLICITACAO_NAO_ENCONTRADA", "Solicitação não encontrada")
+
+
+class SolicitacaoNaoPendente(DomainError):
+    def __init__(self):
+        super().__init__(409, "SOLICITACAO_NAO_PENDENTE", "A solicitação já foi decidida")
+
+
 _MENSAGENS = {
     "missing": "campo obrigatório",
     "string_type": "deve ser um texto",

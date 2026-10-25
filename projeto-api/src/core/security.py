@@ -84,3 +84,6 @@ def require_perfil(*perfis: str) -> Callable:
         return usuario
 
     return _dependency
+
+
+apenas_aluno = require_perfil("aluno")

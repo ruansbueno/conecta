@@ -253,3 +253,38 @@ async def test_cookie_de_sessao_invalido_e_401(mini_client):
     r = await mini_client.get("/protegida")
 
     assert (r.status_code, r.json()["code"]) == (401, "NAO_AUTENTICADO")
+
+
+# --- Erros genéricos também seguem {detail, code} (RF-29) -----------------------------------
+
+
+async def test_rota_inexistente_e_404_padronizado(client):
+    r = await client.get("/nao-existe")
+
+    assert r.status_code == 404
+    assert r.json() == {"detail": "Recurso não encontrado", "code": "NAO_ENCONTRADO"}
+
+
+async def test_metodo_nao_permitido_e_405_padronizado(client):
+    r = await client.get("/auth/login")
+
+    assert r.status_code == 405
+    assert r.json() == {"detail": "Método não permitido", "code": "METODO_NAO_PERMITIDO"}
+    assert "POST" in r.headers["allow"]
+
+
+async def test_erro_inesperado_e_500_padronizado_sem_detalhes_internos():
+    app = FastAPI()
+    register_error_handlers(app)
+
+    @app.get("/quebra")
+    async def quebra():
+        raise RuntimeError("senha do banco: hunter2")
+
+    transport = ASGITransport(app=app, raise_app_exceptions=False)
+    async with AsyncClient(transport=transport, base_url="https://test") as c:
+        r = await c.get("/quebra")
+
+    assert r.status_code == 500
+    assert r.json() == {"detail": "Erro interno", "code": "ERRO_INTERNO"}
+    assert "hunter2" not in r.text

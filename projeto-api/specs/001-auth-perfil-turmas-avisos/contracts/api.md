@@ -59,6 +59,10 @@ O app deve decidir comportamento por `code`, nunca pelo texto de `detail`.
 | 409 | `AVISO_NAO_EDITAVEL` | Aviso arquivado ou excluído |
 | 409 | `AVISO_SITUACAO_INVALIDA` | Arquivar o já arquivado / desarquivar o não arquivado |
 | 422 | `VALIDATION_ERROR` | Corpo ou parâmetros inválidos |
+| 404 | `NAO_ENCONTRADO` | Rota inexistente |
+| 405 | `METODO_NAO_PERMITIDO` | Método HTTP não suportado pela rota |
+| 4xx | `ERRO_HTTP` | Outro erro HTTP do framework sem código próprio (ex.: 413) |
+| 500 | `ERRO_INTERNO` | Falha inesperada no servidor (sem detalhes internos na resposta) |
 
 ### Paginação
 

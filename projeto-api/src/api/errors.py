@@ -1,6 +1,11 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+logger = logging.getLogger(__name__)
 
 
 class DomainError(Exception):
@@ -83,6 +88,27 @@ async def _validation_error_handler(_: Request, exc: RequestValidationError) -> 
     )
 
 
+# Erros do próprio framework (rota inexistente, método errado) também levam `code`.
+_HTTP_GENERICOS = {
+    404: ("NAO_ENCONTRADO", "Recurso não encontrado"),
+    405: ("METODO_NAO_PERMITIDO", "Método não permitido"),
+}
+
+
+async def _http_error_handler(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+    code, detail = _HTTP_GENERICOS.get(exc.status_code, ("ERRO_HTTP", str(exc.detail)))
+    return JSONResponse(
+        {"detail": detail, "code": code}, status_code=exc.status_code, headers=exc.headers
+    )
+
+
+async def _unexpected_error_handler(_: Request, exc: Exception) -> JSONResponse:
+    logger.error("Erro inesperado", exc_info=exc)
+    return JSONResponse({"detail": "Erro interno", "code": "ERRO_INTERNO"}, status_code=500)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, _domain_error_handler)
     app.add_exception_handler(RequestValidationError, _validation_error_handler)
+    app.add_exception_handler(StarletteHTTPException, _http_error_handler)
+    app.add_exception_handler(Exception, _unexpected_error_handler)

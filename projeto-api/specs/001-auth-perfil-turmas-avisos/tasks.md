@@ -27,16 +27,16 @@ Projeto único (web-service), conforme `plan.md`: `src/`, `tests/`, `alembic/` n
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Criar a árvore de diretórios conforme `plan.md`:
+- [x] T001 Criar a árvore de diretórios conforme `plan.md`:
       `src/{core,db,models,schemas,providers/auth,repositories,services,api/routes}`,
       `tests/{contract,integration,unit}`, `alembic/versions`, com `__init__.py` nos pacotes
-- [ ] T002 Criar `pyproject.toml` com `fastapi`, `uvicorn[standard]`, `sqlalchemy>=2.0`, `alembic`,
+- [x] T002 Criar `pyproject.toml` com `fastapi`, `uvicorn[standard]`, `sqlalchemy>=2.0`, `alembic`,
       `asyncpg`, `pydantic-settings`, `pyjwt` e, para testes, `pytest`, `pytest-asyncio`, `httpx`
-- [ ] T003 [P] Configurar lint/format (ruff) em `pyproject.toml`
-- [ ] T004 [P] Criar `docker-compose.yml` (serviço `db` Postgres, só para desenvolvimento) e
+- [x] T003 [P] Configurar lint/format (ruff) em `pyproject.toml`
+- [x] T004 [P] Criar `docker-compose.yml` (serviço `db` Postgres, só para desenvolvimento) e
       `.env.example` com `DATABASE_URL`, `AUTH_PROVIDER`, `JWT_SECRET`
-- [ ] T005 [P] Criar `Dockerfile` da aplicação (mesma imagem para dev/staging/produção)
-- [ ] T006 [P] Registrar em `pyproject.toml` os marcadores pytest `mock_auth` e `moodle_real`, e
+- [x] T005 [P] Criar `Dockerfile` da aplicação (mesma imagem para dev/staging/produção)
+- [x] T006 [P] Registrar em `pyproject.toml` os marcadores pytest `mock_auth` e `moodle_real`, e
       configurar `moodle_real` para ser ignorado quando `MOODLE_*` não estiver definido (RF-02; `spec.md` §9.1)
 
 **Checkpoint**: estrutura, dependências e marcadores prontos.

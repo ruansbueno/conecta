@@ -21,7 +21,7 @@ docker compose up -d db
 ```bash
 cp .env.example .env
 # .env deve conter, no mínimo:
-#   DATABASE_URL=postgresql+asyncpg://conecta:conecta@localhost:5432/conecta_dev
+#   DATABASE_URL=postgresql+asyncpg://conecta:conecta@localhost:5433/conecta_dev
 #   AUTH_PROVIDER=mock
 #   JWT_SECRET=<segredo local de desenvolvimento>
 ```

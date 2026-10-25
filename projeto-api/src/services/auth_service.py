@@ -23,9 +23,10 @@ async def login(
 ) -> Sessao:
     try:
         autenticado = await provider.authenticate(username, password)
-    except Exception:
-        # Indisponibilidade do provedor não é revelada ao cliente (RF-06).
-        logger.exception("Falha no provedor de autenticação")
+    except Exception as exc:
+        # Indisponibilidade do provedor não é revelada ao cliente (RF-06). Só o tipo vai ao log:
+        # a mensagem de um erro HTTP pode trazer a URL com a senha (Princípio II).
+        logger.error("Falha no provedor de autenticação: %s", type(exc).__name__)
         raise CredenciaisInvalidas() from None
     if autenticado is None:
         raise CredenciaisInvalidas()

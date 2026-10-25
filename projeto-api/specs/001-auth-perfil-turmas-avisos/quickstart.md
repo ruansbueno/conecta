@@ -13,7 +13,7 @@ substitui a validação da integração real com o Moodle (`spec.md` §9.4).
 ## 1. Subir o Postgres local
 
 ```bash
-docker compose up -d db
+docker compose up -d --wait db
 ```
 
 ## 2. Configurar variáveis de ambiente
@@ -32,8 +32,8 @@ e as variáveis `MOODLE_*` — nenhuma outra configuração muda (ver `research.
 ## 3. Aplicar migrações e seed
 
 ```bash
-alembic upgrade head
-python -m scripts.seed_dev_data
+uv run alembic upgrade head
+uv run python -m scripts.seed_dev_data
 ```
 
 O seed cria: usuários de teste (`admin.teste`, `coord.teste`, `docente.teste`, `aluno.teste`,
@@ -44,7 +44,7 @@ para as turmas A+B+C, `semestre` 3, `docentes`, agendado, arquivado, excluído).
 ## 4. Subir a API
 
 ```bash
-uvicorn src.main:app --reload
+uv run uvicorn src.main:app --reload
 ```
 
 ## 5. Validar os fluxos principais
@@ -72,7 +72,7 @@ curl http://localhost:8000/solicitacoes/minhas -H "Authorization: Bearer <token>
 ```
 Esperado: `201` com `status: "pendente"`; a turma deixa de aparecer em "disponíveis"; **não** aparece
 em "minhas turmas" até a aprovação. Na E1 a aprovação é aplicada pelo seed/serviço
-(`python -m scripts.aprovar_solicitacao <id>`); na E2 será pelo endpoint de gestão.
+(`uv run python -m scripts.aprovar_solicitacao <id>`); na E2 será pelo endpoint de gestão.
 
 **Avisos (US4)**
 ```bash

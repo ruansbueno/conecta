@@ -218,14 +218,14 @@ serviço/seed → turma em "minhas turmas".
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T064 [P] Unit tests da suíte de contrato do `AuthProvider`, parametrizada para os dois provedores (mock: sucesso/credencial inválida/`@mock_auth`; Moodle: `@moodle_real`, ignorada sem credenciais) em `tests/unit/test_auth_provider.py` (RF-01, RF-02)
-- [ ] T065 [P] Unit tests de emissão/validação de JWT (expiração, assinatura inválida, claims) em `tests/unit/test_security.py` (RF-04)
-- [ ] T066 [P] Contract tests do formato de erro `{detail, code}` e do 422 com `errors[]`, e da paginação (`limit`, `offset`, `total`) em `tests/contract/test_erro_padrao.py` e `tests/contract/test_paginacao.py` (RF-29)
-- [ ] T067 Revisar 401 vs 403 em todas as rotas protegidas (Princípio III)
-- [ ] T068 [P] `README.md` com setup local referenciando `quickstart.md` e a estratégia de testes mock × real
-- [ ] T069 Configurar o relatório de testes para listar separadamente os grupos `mock_auth` e `moodle_real` (`spec.md` §9.1) e arquivar a saída como evidência (O14)
-- [ ] T070 Executar a validação manual completa de `quickstart.md`
-- [ ] T071 Revisão de segurança: nenhuma senha logada, serializada ou persistida (Princípio II); perfil nunca alterado pelo login
+- [x] T064 [P] Unit tests da suíte de contrato do `AuthProvider`, parametrizada para os dois provedores (mock: sucesso/credencial inválida/`@mock_auth`; Moodle: `@moodle_real`, ignorada sem credenciais) em `tests/unit/test_auth_provider.py` (RF-01, RF-02)
+- [x] T065 [P] Unit tests de emissão/validação de JWT (expiração, assinatura inválida, claims) em `tests/unit/test_security.py` (RF-04)
+- [x] T066 [P] Contract tests do formato de erro `{detail, code}` e do 422 com `errors[]`, e da paginação (`limit`, `offset`, `total`) em `tests/contract/test_erro_padrao.py` e `tests/contract/test_paginacao.py` (RF-29)
+- [x] T067 Revisar 401 vs 403 em todas as rotas protegidas (Princípio III)
+- [x] T068 [P] `README.md` com setup local referenciando `quickstart.md` e a estratégia de testes mock × real
+- [x] T069 Configurar o relatório de testes para listar separadamente os grupos `mock_auth` e `moodle_real` (`spec.md` §9.1) e arquivar a saída como evidência (O14)
+- [x] T070 Executar a validação manual completa de `quickstart.md`
+- [x] T071 Revisão de segurança: nenhuma senha logada, serializada ou persistida (Princípio II); perfil nunca alterado pelo login
 - [ ] T072 Preencher o checklist de validação da integração real (`spec.md` §9.4) quando houver acesso ao Moodle (tarefa pendente de dependência externa; não bloqueia o fim da E1)
 
 ---

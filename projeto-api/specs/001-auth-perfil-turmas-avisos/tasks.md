@@ -47,35 +47,35 @@ Projeto único (web-service), conforme `plan.md`: `src/`, `tests/`, `alembic/` n
 
 **⚠️ CRITICAL**: nenhuma user story começa antes desta fase.
 
-- [ ] T007 `src/core/config.py`: `Settings` (pydantic-settings) com `DATABASE_URL`,
+- [x] T007 `src/core/config.py`: `Settings` (pydantic-settings) com `DATABASE_URL`,
       `AUTH_PROVIDER` (`mock|moodle`), `JWT_SECRET`, `JWT_EXPIRES_SECONDS` (padrão 86400)
-- [ ] T008 `src/db/session.py`: engine assíncrono e `async_sessionmaker` a partir de `DATABASE_URL` (dep. T007)
-- [ ] T009 `src/db/base.py`: `Base` declarativa e import central dos models para o Alembic
-- [ ] T010 [P] Inicializar Alembic (`alembic/env.py`) lendo `DATABASE_URL` do mesmo `Settings` (dep. T007, T009)
-- [ ] T011 [P] `src/providers/auth/base.py`: interface `AuthProvider`
+- [x] T008 `src/db/session.py`: engine assíncrono e `async_sessionmaker` a partir de `DATABASE_URL` (dep. T007)
+- [x] T009 `src/db/base.py`: `Base` declarativa e import central dos models para o Alembic
+- [x] T010 [P] Inicializar Alembic (`alembic/env.py`) lendo `DATABASE_URL` do mesmo `Settings` (dep. T007, T009)
+- [x] T011 [P] `src/providers/auth/base.py`: interface `AuthProvider`
       (`authenticate(username, password) -> AuthenticatedUser | None`) e `AuthenticatedUser`
       com **apenas `username` e `nome`** — o provedor não informa perfil (RF-02, RF-08)
-- [ ] T012 [P] `src/providers/auth/mock_moodle.py`: `MockMoodleAuthProvider` com usuários de teste
+- [x] T012 [P] `src/providers/auth/mock_moodle.py`: `MockMoodleAuthProvider` com usuários de teste
       (username, senha, nome) para os papéis `aluno`, `docente`, `coordenacao` e `administrador`;
       os perfis de teste são aplicados pelo seed no banco (RF-03) (dep. T011)
-- [ ] T013 [P] `src/providers/auth/moodle.py`: `MoodleAuthProvider` stub (`NotImplementedError`
+- [x] T013 [P] `src/providers/auth/moodle.py`: `MoodleAuthProvider` stub (`NotImplementedError`
       explicativo) (dep. T011)
-- [ ] T014 `src/core/security.py`: emissão de JWT (`sub`, `perfil` informativo, `exp` = 24 h) e
+- [x] T014 `src/core/security.py`: emissão de JWT (`sub`, `perfil` informativo, `exp` = 24 h) e
       validação de assinatura/expiração (dep. T007)
-- [ ] T015 `src/models/usuario.py`: `Usuario` — `id`, `username` (único), `nome`, `perfil` (enum
+- [x] T015 `src/models/usuario.py`: `Usuario` — `id`, `username` (único), `nome`, `perfil` (enum
       `administrador|coordenacao|docente|aluno`, padrão `aluno`), `ativo` (padrão `true`),
       `criado_em`, `atualizado_em`, `ultimo_login_em` (`data-model.md`) (dep. T009)
-- [ ] T016 Gerar migração Alembic para `usuario` (dep. T010, T015)
-- [ ] T017 `src/api/errors.py`: exceções de domínio com `code` e handlers que produzem
+- [x] T016 Gerar migração Alembic para `usuario` (dep. T010, T015)
+- [x] T017 `src/api/errors.py`: exceções de domínio com `code` e handlers que produzem
       `{detail, code}`; handler de `RequestValidationError` → 422 `VALIDATION_ERROR` com `errors[]`
       (RF-05, RF-29; catálogo em `contracts/api.md`)
-- [ ] T018 [P] `src/schemas/common.py`: `Page[T]` (`items`, `total`, `limit`, `offset`) e
+- [x] T018 [P] `src/schemas/common.py`: `Page[T]` (`items`, `total`, `limit`, `offset`) e
       dependência `PaginationParams` (`limit` 1–100 padrão 20; `offset` ≥ 0) (RF-29)
-- [ ] T019 `src/core/security.py` (continuação): dependência `get_current_user` que valida o token,
+- [x] T019 `src/core/security.py` (continuação): dependência `get_current_user` que valida o token,
       **recarrega o `Usuario` do banco** e usa o perfil e o `ativo` do banco (401 `NAO_AUTENTICADO`;
       403 `USUARIO_INATIVO`) e `require_perfil(*perfis)` (403 `SEM_PERMISSAO`) (RF-04, RF-05, RF-07, RF-10)
       (dep. T014, T015, T017)
-- [ ] T020 `src/main.py`: instância FastAPI, registro dos handlers de T017 e ponto de registro de routers (dep. T017)
+- [x] T020 `src/main.py`: instância FastAPI, registro dos handlers de T017 e ponto de registro de routers (dep. T017)
 
 **Checkpoint**: fundação pronta.
 

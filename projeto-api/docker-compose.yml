@@ -1,0 +1,22 @@
+# Postgres local SOMENTE para desenvolvimento e testes.
+# Em produção, DATABASE_URL aponta para o banco do servidor da faculdade.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: conecta
+      POSTGRES_PASSWORD: conecta
+      POSTGRES_DB: conecta_dev
+    ports:
+      - "${CONECTA_DB_PORT:-5433}:5432"
+    volumes:
+      - conecta_pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conecta -d conecta_dev"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  conecta_pgdata:

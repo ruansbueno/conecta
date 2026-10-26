@@ -12,7 +12,7 @@ import pytest  # noqa: E402
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
 from httpx import ASGITransport, AsyncClient  # noqa: E402
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import make_url, text  # noqa: E402
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine  # noqa: E402
 from sqlalchemy.pool import NullPool  # noqa: E402
 
@@ -20,8 +20,18 @@ from src.db.base import Base  # noqa: E402
 from src.db.session import get_session  # noqa: E402
 
 
+def exigir_banco_de_teste(url: str) -> None:
+    """A suíte apaga o banco (downgrade base): só aceita um cujo nome termine em _test."""
+    nome = make_url(url).database or ""
+    if not nome.endswith("_test"):
+        raise pytest.UsageError(
+            f"TEST_DATABASE_URL aponta para o banco '{nome}'; a suíte só roda num banco *_test."
+        )
+
+
 @pytest.fixture(scope="session")
 def migrated_db():
+    exigir_banco_de_teste(TEST_DATABASE_URL)
     # Esquema criado pelas migrações reais, não por create_all: valida o Alembic.
     cfg = Config(os.path.join(os.path.dirname(__file__), "..", "alembic.ini"))
     command.downgrade(cfg, "base")

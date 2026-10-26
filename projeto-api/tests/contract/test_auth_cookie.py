@@ -100,3 +100,48 @@ async def test_encerrar_sessao_sem_autenticacao_e_401(client):
 
     assert r.status_code == 401
     assert r.json()["code"] == "NAO_AUTENTICADO"
+
+
+async def test_usuario_desativado_consegue_encerrar_a_sessao_web(client, session_factory):
+    # Computador compartilhado: o cookie é HttpOnly, só a API consegue apagá-lo.
+    from sqlalchemy import update
+
+    from src.models.usuario import Usuario
+
+    await login(client)
+    async with session_factory() as s:
+        await s.execute(
+            update(Usuario).where(Usuario.username == "aluno.teste").values(ativo=False)
+        )
+        await s.commit()
+
+    r = await client.delete(
+        "/auth/sessao", headers={"X-CSRF-Token": client.cookies["conecta_csrf"]}
+    )
+
+    assert r.status_code == 204
+    assert set_cookies(r)["conecta_sessao"]["max-age"] == "0"
+    assert "conecta_sessao" not in client.cookies
+
+
+async def test_cookie_de_sessao_expirado_tambem_e_apagado_no_logout(client):
+    client.cookies.update({"conecta_sessao": "token-expirado-ou-invalido", "conecta_csrf": "c"})
+
+    r = await client.delete("/auth/sessao", headers={"X-CSRF-Token": "c"})
+
+    assert r.status_code == 204
+    assert set_cookies(r)["conecta_sessao"]["max-age"] == "0"
+
+
+async def test_logout_por_cookie_continua_exigindo_csrf_mesmo_com_token_invalido(client):
+    client.cookies.update({"conecta_sessao": "qualquer", "conecta_csrf": "c"})
+
+    r = await client.delete("/auth/sessao")
+
+    assert (r.status_code, r.json()["code"]) == (403, "CSRF_INVALIDO")
+
+
+async def test_logout_por_bearer_invalido_e_401(client):
+    r = await client.delete("/auth/sessao", headers={"Authorization": "Bearer lixo"})
+
+    assert (r.status_code, r.json()["code"]) == (401, "NAO_AUTENTICADO")

@@ -8,6 +8,9 @@ class MoodleAuthProvider:
     e executar o checklist de spec.md §9.4. Nenhuma rota, serviço ou contrato muda.
     """
 
+    # Passa a True quando `authenticate` for implementado; até lá a API não sobe com ele.
+    IMPLEMENTADO = False
+
     async def authenticate(self, username: str, password: str) -> AuthenticatedUser | None:
         raise NotImplementedError(
             "MoodleAuthProvider ainda não implementado: aguardando acesso à API do Moodle. "

@@ -23,7 +23,9 @@ cp .env.example .env
 # .env deve conter, no mínimo:
 #   DATABASE_URL=postgresql+asyncpg://conecta:conecta@localhost:5433/conecta_dev
 #   AUTH_PROVIDER=mock
-#   JWT_SECRET=<segredo local de desenvolvimento>
+#   JWT_SECRET=<ao menos 32 bytes; gere com:
+#     python -c 'import secrets; print(secrets.token_urlsafe(48))'>
+# A API não sobe com o valor de exemplo do .env.example.
 ```
 
 `AUTH_PROVIDER=mock` seleciona o `MockMoodleAuthProvider`. Para o Moodle real: `AUTH_PROVIDER=moodle`

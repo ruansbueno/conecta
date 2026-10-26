@@ -17,7 +17,7 @@ async def test_token_emitido_antes_da_desativacao_e_rejeitado(client, session_fa
         )
         await s.commit()
 
-    r = await client.delete("/auth/sessao", headers={"Authorization": f"Bearer {token}"})
+    r = await client.get("/me", headers={"Authorization": f"Bearer {token}"})
 
     assert r.status_code == 403
     assert r.json()["code"] == "USUARIO_INATIVO"

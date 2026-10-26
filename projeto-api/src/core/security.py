@@ -42,12 +42,12 @@ def decode_access_token(token: str) -> uuid.UUID:
         raise TokenInvalido from exc
 
 
-_bearer = HTTPBearer(auto_error=False)
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
     request: Request,
-    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     session: AsyncSession = Depends(get_session),
 ) -> Usuario:
     """Autentica por `Bearer` (app) ou pelo cookie de sessão (web), com o mesmo token (RF-32).

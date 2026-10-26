@@ -46,10 +46,7 @@ async def test_stub_do_moodle_configurado_responde_401_generico(app, client):
     assert r.json() == RESPOSTA_GENERICA
 
 
-@pytest.mark.parametrize(
-    ("valor", "classe"), [("mock", MockMoodleAuthProvider), ("moodle", MoodleAuthProvider)]
-)
-def test_auth_provider_e_escolhido_pela_configuracao(valor, classe):
-    settings = Settings(DATABASE_URL="postgresql+asyncpg://x", JWT_SECRET="x", AUTH_PROVIDER=valor)
+def test_mock_e_escolhido_pela_configuracao():
+    settings = Settings(DATABASE_URL="postgresql+asyncpg://x", JWT_SECRET="s" * 32)
 
-    assert isinstance(provider_from_settings(settings), classe)
+    assert isinstance(provider_from_settings(settings), MockMoodleAuthProvider)

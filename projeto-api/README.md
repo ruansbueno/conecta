@@ -11,7 +11,7 @@ Pré-requisitos: Docker e [`uv`](https://docs.astral.sh/uv/) (instala o Python 3
 
 ```bash
 docker compose up -d --wait db        # Postgres local na porta 5433 (CONECTA_DB_PORT muda)
-cp .env.example .env
+cp .env.example .env                  # e troque JWT_SECRET (instruções no arquivo)
 uv sync
 uv run alembic upgrade head
 uv run python -m scripts.seed_dev_data

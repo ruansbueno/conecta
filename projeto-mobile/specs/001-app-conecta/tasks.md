@@ -78,7 +78,7 @@ Projeto Flutter único, conforme `plan.md`: `lib/`, `test/`, `integration_test/`
       isolamento entre usuários e limpeza no logout
 - [x] T019 `lib/state/session_controller.dart`: usuário corrente, login, logout, reação ao evento
       de `401` e a `403 USUARIO_INATIVO`, com encerramento único (RM-04, RM-05, RM-10)
-- [ ] T020 `lib/config/rotas.dart` + `lib/main.dart`: providers raiz, tema, tabela de rotas e
+- [x] T020 `lib/config/rotas.dart` + `lib/main.dart`: providers raiz, tema, tabela de rotas e
       decisão inicial (token ausente → `/login`; presente → valida com `GET /me`) (RM-07)
 - [x] T021 [P] `lib/ui/comum/`: `EstadoVazio`, `EstadoErro` (com repetir), `EsqueletoLista`,
       `FaixaCache`, `ChipDestino`, `SeloSituacao` — todos a partir do tema (RM-32, RM-33)
@@ -104,15 +104,15 @@ e confirmar a volta ao login.
       sobre o `ApiClient` (contrato §1 e §2)
 - [x] T026 [P] [US1] `test/unit/auth_repository_test.dart`: 200, `CREDENCIAIS_INVALIDAS`,
       `USUARIO_INATIVO`, `VALIDATION_ERROR` e falha de rede
-- [ ] T027 [US1] `lib/ui/login/login_page.dart`: campos de usuário e senha, validação local,
+- [x] T027 [US1] `lib/ui/login/login_page.dart`: campos de usuário e senha, validação local,
       estado de envio, erro acima do botão e limpeza da senha a cada falha (RM-01, US1 cenários 2–5)
-- [ ] T028 [US1] Ligar `SessionController` ao login: gravar token no cofre, carregar o usuário e
+- [x] T028 [US1] Ligar `SessionController` ao login: gravar token no cofre, carregar o usuário e
       navegar para a casca de abas (RM-01, RM-03)
-- [ ] T029 [US1] `lib/ui/casca/casca_abas.dart`: barra de cinco abas com `IndexedStack`, abas de
+- [x] T029 [US1] `lib/ui/casca/casca_abas.dart`: barra de cinco abas com `IndexedStack`, abas de
       F2 ocultas nesta fase (seção 3 da spec)
-- [ ] T030 [P] [US1] `test/widget/login_test.dart`: campo vazio, credencial inválida, usuário
+- [x] T030 [P] [US1] `test/widget/login_test.dart`: campo vazio, credencial inválida, usuário
       inativo, sem rede e sucesso
-- [ ] T031 [P] [US1] `integration_test/sessao_test.dart`: abertura com token válido, abertura com
+- [x] T031 [P] [US1] `integration_test/sessao_test.dart`: abertura com token válido, abertura com
       token inválido, `401` no meio da navegação e logout limpando token e cache (RM-04, RM-30)
 
 **Checkpoint**: entrar, permanecer e sair funcionam de ponta a ponta.

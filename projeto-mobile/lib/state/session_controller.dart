@@ -88,6 +88,18 @@ class SessionController extends ChangeNotifier {
     unawaited(_completarPerfil());
   }
 
+  /// Reavalia perfil e turmas (RM-09). 401/403 encerram pelo evento central; sem rede, mantém.
+  Future<void> recarregarPerfil() async {
+    if (_estado != EstadoSessao.logado) return;
+    try {
+      _usuario = await _auth.me();
+      _perfilDoCache = null;
+      notifyListeners();
+    } on ApiFailure {
+      // Mantém os dados atuais; o encerramento por 401/403 já veio pelo evento central.
+    }
+  }
+
   Future<void> logout() async {
     _mensagemEncerramento = null;
     await _limpar(_usuario?.id);

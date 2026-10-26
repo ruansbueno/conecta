@@ -35,7 +35,8 @@ class ServidorFalso {
   /// Atraso aplicado a toda resposta.
   Duration lentidao = Duration.zero;
 
-  String get url => 'http://${InternetAddress.loopbackIPv4.address}:$_porta';
+  // "localhost": é o host liberado para HTTP em claro na configuração de rede do Android.
+  String get url => 'http://localhost:$_porta';
 
   void responder(String rota, String corpo, {int status = 200}) =>
       _rotas[rota] = (_) => (status, corpo);

@@ -29,20 +29,20 @@ Projeto Flutter único, conforme `plan.md`: `lib/`, `test/`, `integration_test/`
 
 ## Phase 1: Setup
 
-- [ ] T001 Criar o projeto Flutter na raiz de `projeto-mobile/` (`flutter create .`, org
+- [x] T001 Criar o projeto Flutter na raiz de `projeto-mobile/` (`flutter create .`, org
       `br.ifsul.conecta`, plataformas android e ios), preservando `specs/` e `.specify/`
-- [ ] T002 Criar a árvore de `lib/` conforme `plan.md`: `config/`, `theme/`, `models/`,
+- [x] T002 Criar a árvore de `lib/` conforme `plan.md`: `config/`, `theme/`, `models/`,
       `services/`, `repositories/`, `state/`, `ui/{login,casca,avisos,turmas,solicitacoes,perfil,comum}`
-- [ ] T003 Declarar em `pubspec.yaml` as dependências de produção `provider`, `http`,
+- [x] T003 Declarar em `pubspec.yaml` as dependências de produção `provider`, `http`,
       `flutter_secure_storage`, `shared_preferences`, `intl` e, em `dev_dependencies`,
       `flutter_test`, `integration_test`, `mocktail`
-- [ ] T004 [P] Configurar `analysis_options.yaml` com `flutter_lints` e a regra que proíbe literal
+- [x] T004 [P] Configurar `analysis_options.yaml` com `flutter_lints` e a regra que proíbe literal
       de cor fora de `lib/theme/` (Princípio V)
-- [ ] T005 [P] Criar `lib/config/ambiente.dart` lendo `API_BASE_URL` por `String.fromEnvironment`,
+- [x] T005 [P] Criar `lib/config/ambiente.dart` lendo `API_BASE_URL` por `String.fromEnvironment`,
       com padrão `http://localhost:8000` (D12)
-- [ ] T006 [P] Liberar HTTP em claro apenas para `localhost` e `10.0.2.2` na configuração de rede
+- [x] T006 [P] Liberar HTTP em claro apenas para `localhost` e `10.0.2.2` na configuração de rede
       do Android, mantendo HTTPS obrigatório nos demais hosts
-- [ ] T007 [P] Adicionar a fonte Inter (pesos 400–800) em `assets/fonts/` e declará-la no
+- [x] T007 [P] Adicionar a fonte Inter (pesos 400–800) em `assets/fonts/` e declará-la no
       `pubspec.yaml`
 
 **Checkpoint**: `flutter run` abre um app vazio apontando para a API local.

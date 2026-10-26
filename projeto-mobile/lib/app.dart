@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'config/rotas.dart';
 import 'repositories/auth_repository.dart';
+import 'repositories/avisos_repository.dart';
 import 'services/api_client.dart';
 import 'services/api_failure.dart';
 import 'services/cache_local.dart';
@@ -38,6 +39,7 @@ class ConectaApp extends StatelessWidget {
         Provider.value(value: d.api),
         Provider.value(value: d.cache),
         Provider.value(value: auth),
+        Provider(create: (_) => AvisosRepository(d.api, d.cache)),
         ChangeNotifierProvider(
           create: (_) =>
               SessionController(api: d.api, auth: auth, cofre: d.cofre, cache: d.cache)..iniciar(),

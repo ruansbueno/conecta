@@ -71,6 +71,18 @@ void main() {
     expect(api.pedidos, isEmpty);
   });
 
+  testWidgets('o aviso de campo vazio some assim que o usuário digita', (tester) async {
+    await abrir(tester);
+    await tester.tap(find.text('Entrar'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('campo-usuario')), 'aluno.teste');
+    await tester.pump();
+
+    expect(find.text('Informe o usuário.'), findsNothing);
+    expect(find.text('Informe a senha.'), findsOneWidget);
+  });
+
   testWidgets('credencial inválida: mensagem, senha limpa, permanece', (tester) async {
     await abrir(tester);
     api.responder('POST /auth/login', erroCredenciaisInvalidasJson, 401);
@@ -80,6 +92,8 @@ void main() {
     expect(find.text('Usuário ou senha incorretos.'), findsOneWidget);
     expect(senhaDigitada(tester), isEmpty);
     expect(sessao.estado, isNot(EstadoSessao.logado));
+    // A senha foi limpa pelo app, não esquecida pelo usuário: sem "Informe a senha." junto.
+    expect(find.text('Informe a senha.'), findsNothing);
   });
 
   testWidgets('usuário desativado: mensagem própria', (tester) async {

@@ -26,6 +26,18 @@ class _LoginPageState extends State<LoginPage> {
   ApiFailure? _falha;
 
   @override
+  void initState() {
+    super.initState();
+    // Os avisos dos campos acompanham a digitação, não só o próximo toque em Entrar.
+    _usuario.addListener(_aoDigitar);
+    _senha.addListener(_aoDigitar);
+  }
+
+  void _aoDigitar() {
+    if (_tentou || (_falha?.errors.isNotEmpty ?? false)) setState(() {});
+  }
+
+  @override
   void dispose() {
     _usuario.dispose();
     _senha.dispose();
@@ -57,6 +69,8 @@ class _LoginPageState extends State<LoginPage> {
         _falha = falha;
         // Falha de credencial limpa a senha; sem rede, ela fica para o "Tentar de novo".
         if (falha.efeito != EfeitoFalha.repetir) _senha.clear();
+        // Campo vazio por limpeza do app não é "campo faltando": só a mensagem da falha.
+        _tentou = false;
       });
     } finally {
       if (mounted) setState(() => _enviando = false);

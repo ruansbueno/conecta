@@ -126,24 +126,24 @@ e confirmar a volta ao login.
 **Teste independente**: com as fixtures de avisos, percorrer lista, paginação, vazio, detalhe e
 modo offline.
 
-- [ ] T032 [US2] `lib/repositories/avisos_repository.dart`: `listar(situacao, limit, offset)` e
+- [x] T032 [US2] `lib/repositories/avisos_repository.dart`: `listar(situacao, limit, offset)` e
       `obter(id)`, com gravação em cache apenas da primeira página de ativos (contrato §3 e §4)
-- [ ] T033 [P] [US2] `test/unit/avisos_repository_test.dart`: paginação, `situacao=arquivado`,
+- [x] T033 [P] [US2] `test/unit/avisos_repository_test.dart`: paginação, `situacao=arquivado`,
       `AVISO_NAO_ENCONTRADO`, uso de cache sem rede
-- [ ] T034 [US2] `lib/state/avisos_controller.dart`: estado da lista (carregando, conteúdo, vazio,
+- [x] T034 [US2] `lib/state/avisos_controller.dart`: estado da lista (carregando, conteúdo, vazio,
       erro), `temMais`, carregar mais e recarregar (RM-11, RM-14, RM-15, RM-32)
-- [ ] T035 [US2] `lib/ui/avisos/aviso_card.dart`: autor, iniciais, data relativa, marca de
+- [x] T035 [US2] `lib/ui/avisos/aviso_card.dart`: autor, iniciais, data relativa, marca de
       editado, título, trecho e chips de destino (RM-16, data-model.md)
-- [ ] T036 [US2] `lib/ui/avisos/lista_page.dart`: alternância ativos/arquivados, puxar para
+- [x] T036 [US2] `lib/ui/avisos/lista_page.dart`: alternância ativos/arquivados, puxar para
       recarregar, rolagem infinita, estado vazio com atalho para turmas (só `aluno`) e faixa de
       cache (RM-11, RM-12, RM-29)
-- [ ] T037 [US2] `lib/ui/avisos/detalhe_page.dart`: abre com o dado da lista, revalida por
+- [x] T037 [US2] `lib/ui/avisos/detalhe_page.dart`: abre com o dado da lista, revalida por
       `GET /avisos/{id}`, trata `404` voltando e recarregando (RM-13, RM-17)
-- [ ] T038 [P] [US2] `test/widget/avisos_lista_test.dart`: os quatro estados, aviso com vários
+- [x] T038 [P] [US2] `test/widget/avisos_lista_test.dart`: os quatro estados, aviso com vários
       destinos aparecendo uma vez, marca de editado e carregamento da segunda página
-- [ ] T039 [P] [US2] `test/widget/aviso_detalhe_test.dart`: conteúdo completo, linha de edição e
+- [x] T039 [P] [US2] `test/widget/aviso_detalhe_test.dart`: conteúdo completo, linha de edição e
       caminho do `404`
-- [ ] T040 [P] [US2] `integration_test/avisos_test.dart`: primeira carga, paginação, recarga e
+- [x] T040 [P] [US2] `integration_test/avisos_test.dart`: primeira carga, paginação, recarga e
       abertura offline com faixa de data (RM-28, RM-29)
 
 **Checkpoint**: a aba Avisos está completa, inclusive sem rede.

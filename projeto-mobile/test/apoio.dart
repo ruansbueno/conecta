@@ -14,6 +14,9 @@ http.Response respostaJson(String corpo, [int status = 200]) =>
 /// API falsa por rota: `'GET /me'` → resposta. Rota ausente responde 404 genérico.
 class ApiFalsa {
   final rotas = <String, http.Response Function(http.Request)>{};
+
+  /// Respostas que só chegam quando o teste quiser (estado de carregando).
+  final rotasAssincronas = <String, Future<http.Response> Function(http.Request)>{};
   final pedidos = <http.Request>[];
 
   void responder(String rota, String corpo, [int status = 200]) =>
@@ -24,6 +27,8 @@ class ApiFalsa {
 
   late final client = MockClient((r) async {
     pedidos.add(r);
+    final assincrona = rotasAssincronas['${r.method} ${r.url.path}'];
+    if (assincrona != null) return assincrona(r);
     final rota = rotas['${r.method} ${r.url.path}'];
     if (rota == null) {
       return respostaJson('{"detail": "Recurso não encontrado", "code": "NAO_ENCONTRADO"}', 404);

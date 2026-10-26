@@ -53,40 +53,40 @@ Projeto Flutter único, conforme `plan.md`: `lib/`, `test/`, `integration_test/`
 
 **⚠️ CRÍTICO**: nenhuma user story começa antes desta fase.
 
-- [ ] T008 `lib/theme/cores.dart`: transcrever os tokens de `design/README.md` como constantes
+- [x] T008 `lib/theme/cores.dart`: transcrever os tokens de `design/README.md` como constantes
       nomeadas (RM-33)
-- [ ] T009 [P] `lib/theme/tipografia.dart`: escala Inter (11 a 26) com os pesos e a entreletra
+- [x] T009 [P] `lib/theme/tipografia.dart`: escala Inter (11 a 26) com os pesos e a entreletra
       usados nas telas
-- [ ] T010 `lib/theme/tema.dart`: `ThemeData` do app a partir de T008 e T009, com alvo mínimo de
+- [x] T010 `lib/theme/tema.dart`: `ThemeData` do app a partir de T008 e T009, com alvo mínimo de
       toque de 48 dp nos componentes interativos (RM-34)
-- [ ] T011 [P] `lib/models/`: `Destino`, `Turma`/`TurmaVinculada`, `Usuario`, `Solicitacao`,
+- [x] T011 [P] `lib/models/`: `Destino`, `Turma`/`TurmaVinculada`, `Usuario`, `Solicitacao`,
       `Aviso`, `Pagina<T>` com `fromJson`, igualdade por valor e os enums de `data-model.md`
-- [ ] T012 [P] `test/unit/models_test.dart`: conversão a partir dos exemplos de JSON do contrato,
+- [x] T012 [P] `test/unit/models_test.dart`: conversão a partir dos exemplos de JSON do contrato,
       incluindo campo nulo, enum desconhecido e destino de tipo novo (data-model.md)
-- [ ] T013 `lib/services/api_failure.dart`: `ApiFailure` (code, status, detail, errors) e o mapa
+- [x] T013 `lib/services/api_failure.dart`: `ApiFailure` (code, status, detail, errors) e o mapa
       único `code → (mensagem, efeito)` da seção 6 da spec, com fallback genérico (RM-06, RM-38)
-- [ ] T014 `lib/services/api_client.dart`: `http.Client` injetado, cabeçalhos, token, timeout de
+- [x] T014 `lib/services/api_client.dart`: `http.Client` injetado, cabeçalhos, token, timeout de
       15 s, decodificação, conversão de erro em `ApiFailure` e notificação de sessão inválida no
       `401` (RM-03, RM-04, D3, D6)
-- [ ] T015 [P] `test/unit/api_client_test.dart`: sucesso, erro com `code`, corpo inesperado,
+- [x] T015 [P] `test/unit/api_client_test.dart`: sucesso, erro com `code`, corpo inesperado,
       timeout, ausência de rede e emissão única do evento de sessão inválida
-- [ ] T016 [P] `lib/services/cofre_sessao.dart`: gravar, ler e apagar token em
+- [x] T016 [P] `lib/services/cofre_sessao.dart`: gravar, ler e apagar token em
       `flutter_secure_storage` (RM-01, RM-02)
-- [ ] T017 [P] `lib/services/cache_local.dart`: escrever e ler `cache:{usuarioId}:{recurso}` com
+- [x] T017 [P] `lib/services/cache_local.dart`: escrever e ler `cache:{usuarioId}:{recurso}` com
       `coletado_em`, informar a idade do dado e apagar tudo de um usuário (RM-28 a RM-31)
-- [ ] T018 [P] `test/unit/cache_local_test.dart`: gravação só após sucesso, idade do dado,
+- [x] T018 [P] `test/unit/cache_local_test.dart`: gravação só após sucesso, idade do dado,
       isolamento entre usuários e limpeza no logout
-- [ ] T019 `lib/state/session_controller.dart`: usuário corrente, login, logout, reação ao evento
+- [x] T019 `lib/state/session_controller.dart`: usuário corrente, login, logout, reação ao evento
       de `401` e a `403 USUARIO_INATIVO`, com encerramento único (RM-04, RM-05, RM-10)
 - [ ] T020 `lib/config/rotas.dart` + `lib/main.dart`: providers raiz, tema, tabela de rotas e
       decisão inicial (token ausente → `/login`; presente → valida com `GET /me`) (RM-07)
-- [ ] T021 [P] `lib/ui/comum/`: `EstadoVazio`, `EstadoErro` (com repetir), `EsqueletoLista`,
+- [x] T021 [P] `lib/ui/comum/`: `EstadoVazio`, `EstadoErro` (com repetir), `EsqueletoLista`,
       `FaixaCache`, `ChipDestino`, `SeloSituacao` — todos a partir do tema (RM-32, RM-33)
-- [ ] T022 [P] `test/widget/comum_test.dart`: cada componente comum renderiza, respeita o alvo de
+- [x] T022 [P] `test/widget/comum_test.dart`: cada componente comum renderiza, respeita o alvo de
       48 dp e expõe rótulo semântico (RM-34, RM-35)
-- [ ] T023 [P] `test/fixtures/`: respostas JSON copiadas dos exemplos de `contracts/api.md`
+- [x] T023 [P] `test/fixtures/`: respostas JSON copiadas dos exemplos de `contracts/api.md`
       (login, me, avisos, turmas, solicitações) e os corpos de erro de cada `code` tratado
-- [ ] T024 [P] `integration_test/servidor_falso.dart`: `HttpServer` em memória que responde pelas
+- [x] T024 [P] `integration_test/servidor_falso.dart`: `HttpServer` em memória que responde pelas
       fixtures, com gatilhos para forçar `401`, `409`, lentidão e queda (D9)
 
 **Checkpoint**: tema, modelos, rede, sessão e componentes comuns prontos e testados.
@@ -100,9 +100,9 @@ Projeto Flutter único, conforme `plan.md`: `lib/`, `test/`, `integration_test/`
 **Teste independente**: entrar com credenciais válidas e inválidas; forçar `401` no servidor falso
 e confirmar a volta ao login.
 
-- [ ] T025 [US1] `lib/repositories/auth_repository.dart`: `login(username, password)` e `me()`
+- [x] T025 [US1] `lib/repositories/auth_repository.dart`: `login(username, password)` e `me()`
       sobre o `ApiClient` (contrato §1 e §2)
-- [ ] T026 [P] [US1] `test/unit/auth_repository_test.dart`: 200, `CREDENCIAIS_INVALIDAS`,
+- [x] T026 [P] [US1] `test/unit/auth_repository_test.dart`: 200, `CREDENCIAIS_INVALIDAS`,
       `USUARIO_INATIVO`, `VALIDATION_ERROR` e falha de rede
 - [ ] T027 [US1] `lib/ui/login/login_page.dart`: campos de usuário e senha, validação local,
       estado de envio, erro acima do botão e limpeza da senha a cada falha (RM-01, US1 cenários 2–5)

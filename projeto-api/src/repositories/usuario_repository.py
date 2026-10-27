@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import case, func, select
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,3 +37,38 @@ class UsuarioRepository:
             },
         ).returning(Usuario)
         return await self.session.scalar(stmt, execution_options={"populate_existing": True})
+
+    async def get_for_update(self, usuario_id: uuid.UUID) -> Usuario | None:
+        return await self.session.get(Usuario, usuario_id, with_for_update=True)
+
+    async def listar(
+        self,
+        q: str | None,
+        perfil: str | None,
+        ativo: bool | None,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[Usuario], int]:
+        stmt = select(Usuario)
+        if q:
+            termo = f"%{q.strip()}%"
+            stmt = stmt.where(or_(Usuario.nome.ilike(termo), Usuario.username.ilike(termo)))
+        if perfil is not None:
+            stmt = stmt.where(Usuario.perfil == perfil)
+        if ativo is not None:
+            stmt = stmt.where(Usuario.ativo == ativo)
+        total = await self.session.scalar(select(func.count()).select_from(stmt.subquery()))
+        usuarios = await self.session.scalars(
+            stmt.order_by(Usuario.nome, Usuario.username).limit(limit).offset(offset)
+        )
+        return list(usuarios), total
+
+    async def administradores_ativos_para_update(self) -> list[uuid.UUID]:
+        """Trava os administradores ativos: mudanças simultâneas não zeram a lista."""
+        ids = await self.session.scalars(
+            select(Usuario.id)
+            .where(Usuario.perfil == "administrador", Usuario.ativo)
+            .order_by(Usuario.id)  # ordem fixa de travamento: sem deadlock entre PATCHes
+            .with_for_update()
+        )
+        return list(ids)

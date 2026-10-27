@@ -42,3 +42,15 @@ async def turmas_que_leciona(session: AsyncSession, usuario: Usuario) -> set[uui
         )
     )
     return set(ids)
+
+
+def papel_do_perfil(perfil: str) -> str | None:
+    """Papel de vínculo compatível com o perfil; administração e coordenação não têm vínculo."""
+    return {"aluno": "aluno", "docente": "docente"}.get(perfil)
+
+
+async def papeis_de_vinculo(session: AsyncSession, usuario_id: uuid.UUID) -> set[str]:
+    papeis = await session.scalars(
+        select(VinculoTurma.papel).where(VinculoTurma.usuario_id == usuario_id).distinct()
+    )
+    return set(papeis)

@@ -43,15 +43,15 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 2: US5 — Usuários e perfis (RF-09)
 
-- [ ] T108 [P] [US5] Contract test `GET /gestao/usuarios` (filtros `q`, `perfil`, `ativo`;
+- [x] T108 [P] [US5] Contract test `GET /gestao/usuarios` (filtros `q`, `perfil`, `ativo`;
       paginação; coordenação lê; docente 403), `GET /gestao/usuarios/{id}` (com `turmas`; 404) e
       `PATCH /gestao/usuarios/{id}` (200; coordenação 403; 404; 409 `PERFIL_INCOMPATIVEL`; 422) em
       `tests/contract/gestao/test_gestao_usuarios.py`
-- [ ] T109 [P] [US5] Integration test: perfil alterado vale na requisição seguinte do usuário;
+- [x] T109 [P] [US5] Integration test: perfil alterado vale na requisição seguinte do usuário;
       desativar corta o token em uso; administrador não desativa a si próprio; último
       administrador ativo não é rebaixado nem desativado (D-E2-9), em
       `tests/integration/gestao/test_usuarios_regras.py` (US5 cenários 1–2)
-- [ ] T110 [US5] Schemas, repositório (busca, filtros, contagem), `usuarios_gestao_service` e
+- [x] T110 [US5] Schemas, repositório (busca, filtros, contagem), `usuarios_gestao_service` e
       rotas `src/api/routes/gestao/usuarios.py`; `atualizado_em` atualizado em mudança de
       perfil/ativo
 

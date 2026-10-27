@@ -9,3 +9,8 @@ router = APIRouter(
     tags=["gestão"],
     dependencies=[Depends(require_perfil("administrador", "coordenacao", "docente"))],
 )
+
+
+from src.api.routes.gestao import usuarios  # noqa: E402
+
+router.include_router(usuarios.router)

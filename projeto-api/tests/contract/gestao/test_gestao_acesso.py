@@ -27,6 +27,13 @@ ROTAS_GESTAO = [
     ("GET", "/gestao/solicitacoes"),
     ("POST", f"/gestao/solicitacoes/{ID}/aprovar"),
     ("POST", f"/gestao/solicitacoes/{ID}/recusar"),
+    ("GET", "/gestao/avisos"),
+    ("POST", "/gestao/avisos"),
+    ("GET", f"/gestao/avisos/{ID}"),
+    ("PATCH", f"/gestao/avisos/{ID}"),
+    ("POST", f"/gestao/avisos/{ID}/arquivar"),
+    ("POST", f"/gestao/avisos/{ID}/desarquivar"),
+    ("DELETE", f"/gestao/avisos/{ID}"),
 ]
 ESCRITAS = [(m, r) for m, r in ROTAS_GESTAO if m in {"POST", "PATCH", "DELETE"}]
 

@@ -109,26 +109,26 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 6: US6 — Avisos: publicação e ciclo de vida (RF-24, RF-25, RF-26, RF-34)
 
-- [ ] T120 [P] [US6] Contract test `POST /gestao/avisos` (201 no formato de gestão com
+- [x] T120 [P] [US6] Contract test `POST /gestao/avisos` (201 no formato de gestão com
       `versao_atual: 1`; 403 `DESTINO_NAO_PERMITIDO`; 404 `TURMA_NAO_ENCONTRADA`; 422: campos,
       `publicar_em` no passado, destino repetido, turma inativa, `turma_id`/`semestre` no tipo
       errado, 0 ou 21 destinos) em `tests/contract/gestao/test_gestao_avisos_criar.py`
-- [ ] T121 [P] [US6] Contract test `GET /gestao/avisos` (filtros `situacao` incl. `agendado` e
+- [x] T121 [P] [US6] Contract test `GET /gestao/avisos` (filtros `situacao` incl. `agendado` e
       `excluido`, `autor_id`, `turma_id`, `q`; docente só os seus; `excluido` 403 ao docente) e
       `GET /gestao/avisos/{id}` (403 docente/aviso alheio; 404) em
       `tests/contract/gestao/test_gestao_avisos_listar.py`
-- [ ] T122 [P] [US6] Contract test `PATCH /gestao/avisos/{id}` (200 com `versao_atual` + 1 e
+- [x] T122 [P] [US6] Contract test `PATCH /gestao/avisos/{id}` (200 com `versao_atual` + 1 e
       `editado_em`; `destinos` substitui a lista; 409 `AVISO_NAO_EDITAVEL`; 422 "nenhuma
       alteração"; 403), `POST …/arquivar`, `POST …/desarquivar` (409 `AVISO_SITUACAO_INVALIDA`) e
       `DELETE` (204; some de `/avisos` e de `/gestao/avisos`) em
       `tests/contract/gestao/test_gestao_avisos_ciclo.py`
-- [ ] T123 [P] [US6] Integration test: docente publica só para turmas em que leciona e só com
+- [x] T123 [P] [US6] Integration test: docente publica só para turmas em que leciona e só com
       destinos `turma` (US6 cenário 2); docente não edita aviso alheio (cenário 6); edição que
       remove um destino tira o aviso de quem deixou de ser alcançado; agendado aparece em
       `situacao=agendado` e não em `ativo` até a data; `publicar_em` alterado/anulado (D-E2-6),
       em `tests/integration/gestao/test_docente_destinos_permitidos.py` e
       `tests/integration/gestao/test_aviso_ciclo_de_vida.py`
-- [ ] T124 [US6] `src/models` sem mudança; repositórios de versão e evento; `avisos_gestao_service`
+- [x] T124 [US6] `src/models` sem mudança; repositórios de versão e evento; `avisos_gestao_service`
       (validação de destinos e permissões, transação única com versão e evento, diff para
       `alteracoes`, lock por aviso) e rotas `src/api/routes/gestao/avisos.py`
 

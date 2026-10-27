@@ -39,7 +39,10 @@ class UsuarioRepository:
         return await self.session.scalar(stmt, execution_options={"populate_existing": True})
 
     async def get_for_update(self, usuario_id: uuid.UUID) -> Usuario | None:
-        return await self.session.get(Usuario, usuario_id, with_for_update=True)
+        # populate_existing: o objeto pode já estar na sessão (o próprio requisitante).
+        return await self.session.get(
+            Usuario, usuario_id, with_for_update=True, populate_existing=True
+        )
 
     async def listar(
         self,

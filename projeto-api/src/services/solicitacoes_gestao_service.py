@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import false, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -103,8 +104,20 @@ async def aprovar(
     if aluno.perfil != "aluno":
         raise PerfilIncompativel("O solicitante não tem mais perfil de aluno")
 
-    await repo.approve(solicitacao, decisor_id)
-    await session.commit()
+    try:
+        await repo.approve(solicitacao, decisor_id)
+        await session.commit()
+    except IntegrityError as exc:
+        # Vínculo criado por outra via entre a checagem e a aprovação: mesma auto-recusa.
+        await session.rollback()
+        if "uq_vinculo_turma_turma_usuario" not in str(exc.orig):
+            raise
+        # O rollback expira os objetos da sessão; a permissão já foi checada: só trava de novo.
+        solicitacao = await repo.get(solicitacao_id, for_update=True)
+        if solicitacao.status == "pendente":
+            await repo.refuse(solicitacao, decisor_id, MOTIVO_JA_VINCULADO)
+            await session.commit()
+        raise JaVinculado() from None
     return await _linha(session, solicitacao_id)
 
 

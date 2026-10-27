@@ -67,13 +67,28 @@ async def _validar_destinos(
     for d in destinos:
         if d.turma_id is not None and d.turma_id not in turmas:
             raise TurmaNaoEncontrada()
-    if not gere_tudo(usuario):
-        for d in destinos:
-            if d.tipo != "turma" or not await leciona(session, usuario, d.turma_id):
-                raise DestinoNaoPermitido()
+    await _exigir_destinos_do_docente(session, usuario, destinos)
     for i, d in enumerate(destinos):
         if d.turma_id is not None and not turmas[d.turma_id].ativa:
             raise ErroDeValidacao(f"destinos.{i}.turma_id", "turma inativa")
+
+
+async def _exigir_destinos_do_docente(
+    session: AsyncSession, usuario: Usuario, destinos: list[DestinoIn]
+) -> None:
+    """Docente: todos os destinos são turmas em que leciona (spec §3.3)."""
+    if gere_tudo(usuario):
+        return
+    for d in destinos:
+        if d.tipo != "turma" or not await leciona(session, usuario, d.turma_id):
+            raise DestinoNaoPermitido()
+
+
+def _destinos_atuais(aviso: Aviso) -> list[DestinoIn]:
+    return [
+        DestinoIn.model_construct(tipo=d.tipo, turma_id=d.turma_id, semestre=d.semestre)
+        for d in aviso.destinos
+    ]
 
 
 def _exigir_futuro(publicar_em: datetime | None) -> None:
@@ -88,8 +103,10 @@ def _novos_destinos(destinos: list[DestinoIn]) -> list[AvisoDestino]:
 async def criar(session: AsyncSession, autor: Usuario, dados: AvisoCreate) -> Aviso:
     _exigir_futuro(dados.publicar_em)
     await _validar_destinos(session, autor, dados.destinos)
+    agora = _agora()
     aviso = Aviso(
         autor_id=autor.id,
+        criado_em=agora,
         titulo=dados.titulo,
         conteudo=dados.conteudo,
         publicar_em=dados.publicar_em,
@@ -99,8 +116,8 @@ async def criar(session: AsyncSession, autor: Usuario, dados: AvisoCreate) -> Av
     session.add(aviso)
     await session.flush()
     auditoria = AuditoriaRepository(session)
-    auditoria.registrar_versao(aviso, autor.id)
-    auditoria.registrar_evento(aviso, "criado", autor.id, versao=1)
+    auditoria.registrar_versao(aviso, autor.id, agora)
+    auditoria.registrar_evento(aviso, "criado", autor.id, agora, versao=1)
     await session.commit()
     return await _carregar(session, aviso.id)
 
@@ -170,6 +187,10 @@ async def editar(
     _exigir_autoria(usuario, aviso)
     if aviso.situacao != "ativo":  # arquivado ou excluído (contrato §14)
         raise AvisoNaoEditavel()
+    if dados.destinos is None:
+        # Docente só edita aviso cujos destinos atuais são todos turmas em que leciona (§3.3).
+        await _exigir_destinos_do_docente(session, usuario, _destinos_atuais(aviso))
+    agora = _agora()
 
     enviados = dados.model_fields_set
     alteracoes: dict[str, dict] = {}
@@ -202,20 +223,22 @@ async def editar(
         if campo in alteracoes:
             setattr(aviso, campo, getattr(dados, campo))
     if "publicar_em" in alteracoes:
-        aviso.publicar_em = dados.publicar_em
+        # null publica já: grava a hora da publicação, não cai na data de criação.
+        aviso.publicar_em = dados.publicar_em or agora
+        alteracoes["publicar_em"]["para"] = _iso(aviso.publicar_em)
     if "destinos" in alteracoes:
         # Duas etapas: os destinos antigos saem antes de os novos entrarem (índice único).
         aviso.destinos.clear()
         await session.flush()
         aviso.destinos.extend(_novos_destinos(dados.destinos))
     aviso.versao_atual += 1
-    aviso.editado_em = _agora()
+    aviso.editado_em = agora
     await session.flush()
 
     auditoria = AuditoriaRepository(session)
-    auditoria.registrar_versao(aviso, usuario.id)
+    auditoria.registrar_versao(aviso, usuario.id, agora)
     auditoria.registrar_evento(
-        aviso, "editado", usuario.id, versao=aviso.versao_atual, alteracoes=alteracoes
+        aviso, "editado", usuario.id, agora, versao=aviso.versao_atual, alteracoes=alteracoes
     )
     await session.commit()
     return await _carregar(session, aviso.id)
@@ -236,6 +259,9 @@ async def _mudar_situacao(
     _exigir_autoria(usuario, aviso)
     if aviso.situacao != de:
         raise AvisoSituacaoInvalida(erro)
+    if para == "ativo":
+        # Desarquivar devolve o alcance: mesma regra de destinos da edição.
+        await _exigir_destinos_do_docente(session, usuario, _destinos_atuais(aviso))
     aviso.situacao = para
     agora = _agora()
     if para == "arquivado":
@@ -244,7 +270,7 @@ async def _mudar_situacao(
         aviso.arquivado_em = None
     else:
         aviso.excluido_em = agora
-    AuditoriaRepository(session).registrar_evento(aviso, evento, usuario.id)
+    AuditoriaRepository(session).registrar_evento(aviso, evento, usuario.id, agora)
     await session.commit()
     return await _carregar(session, aviso.id)
 

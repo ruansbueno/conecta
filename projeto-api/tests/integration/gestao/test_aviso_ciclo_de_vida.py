@@ -134,7 +134,7 @@ async def test_reagendar_e_publicar_ja_um_agendado(client, db):
     )
 
     assert reagendado.status_code == 200
-    assert agora.status_code == 200 and agora.json()["publicar_em"] is None
+    assert agora.status_code == 200  # publicar_em passa a ser a hora da publicação
     assert await _titulos(client, aluno) == ["Futuro"]
 
 

@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,7 +27,7 @@ class AuditoriaRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    def registrar_versao(self, aviso: Aviso, autor_id: uuid.UUID) -> None:
+    def registrar_versao(self, aviso: Aviso, autor_id: uuid.UUID, quando: datetime) -> None:
         self.session.add(
             AvisoVersao(
                 aviso_id=aviso.id,
@@ -36,6 +37,7 @@ class AuditoriaRepository:
                 destinos=destinos_canonicos(aviso),
                 publicar_em=aviso.publicar_em,
                 criada_por=autor_id,
+                criada_em=quando,
             )
         )
 
@@ -44,6 +46,7 @@ class AuditoriaRepository:
         aviso: Aviso,
         tipo: str,
         usuario_id: uuid.UUID,
+        quando: datetime,
         versao: int | None = None,
         alteracoes: dict | None = None,
     ) -> None:
@@ -52,6 +55,8 @@ class AuditoriaRepository:
                 aviso_id=aviso.id,
                 tipo=tipo,
                 usuario_id=usuario_id,
+                # Hora aplicada sob o lock do aviso: o histórico segue a ordem real das escritas.
+                ocorrido_em=quando,
                 versao=versao,
                 alteracoes=alteracoes,
             )

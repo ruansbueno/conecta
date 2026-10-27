@@ -9,7 +9,7 @@ import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -192,17 +192,34 @@ async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
     for chave, (destinos, extras) in avisos.items():
         aviso_id = _aviso_id(chave)
         conteudo = f"Conteúdo fictício de demonstração: {AVISOS_TESTE_TITULOS[chave]}."
+        stmt = insert(Aviso).values(
+            id=aviso_id,
+            titulo=AVISOS_TESTE_TITULOS[chave],
+            conteudo=conteudo,
+            autor_id=autor,
+            criado_em=criado_em,
+            **extras,
+        )
+        # Aviso de um banco semeado antes da E2 (sem auditoria) ganha o estado coerente com as
+        # versões que _auditoria vai gravar; depois disso, nada mais é reescrito.
+        sem_auditoria = ~exists().where(AvisoVersao.aviso_id == aviso_id)
         await session.execute(
-            insert(Aviso)
-            .values(
-                id=aviso_id,
-                titulo=AVISOS_TESTE_TITULOS[chave],
-                conteudo=conteudo,
-                autor_id=autor,
-                criado_em=criado_em,
-                **extras,
+            stmt.on_conflict_do_update(
+                index_elements=[Aviso.id],
+                set_={
+                    campo: stmt.excluded[campo]
+                    for campo in (
+                        "criado_em",
+                        "versao_atual",
+                        "editado_em",
+                        "situacao",
+                        "publicar_em",
+                        "arquivado_em",
+                        "excluido_em",
+                    )
+                },
+                where=sem_auditoria,
             )
-            .on_conflict_do_nothing()
         )
         for tipo, turma_id, semestre in destinos:
             await session.execute(

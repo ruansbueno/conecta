@@ -19,20 +19,20 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 1: Foundational E2 (bloqueia as demais)
 
-- [ ] T101 `src/models/aviso_versao.py` e `src/models/aviso_evento.py` conforme `data-model.md`
+- [x] T101 `src/models/aviso_versao.py` e `src/models/aviso_evento.py` conforme `data-model.md`
       (JSONB para `destinos` e `alteracoes`; `tipo` do evento com `CHECK`; único
       `aviso_id`+`versao` na versão) e registro em `src/db/base.py`
-- [ ] T102 Migração Alembic de `aviso_versao` e `aviso_evento`, com os triggers que rejeitam
+- [x] T102 Migração Alembic de `aviso_versao` e `aviso_evento`, com os triggers que rejeitam
       `UPDATE`/`DELETE` (D-E2-3)
-- [ ] T103 [P] Teste de integração da imutabilidade: `UPDATE` e `DELETE` em versão e evento falham
+- [x] T103 [P] Teste de integração da imutabilidade: `UPDATE` e `DELETE` em versão e evento falham
       no banco, em `tests/integration/gestao/test_auditoria_imutavel.py` (spec §3.5)
-- [ ] T104 `src/services/permissoes.py`: `exigir_perfil`, `leciona(usuario, turma_id)`,
+- [x] T104 `src/services/permissoes.py`: `exigir_perfil`, `leciona(usuario, turma_id)`,
       `turmas_que_leciona(usuario)` e mensagens 403 (`SEM_PERMISSAO`, `DESTINO_NAO_PERMITIDO`)
-- [ ] T105 [P] Novos erros de domínio em `src/api/errors.py`: `TURMA_NAO_ENCONTRADA`,
+- [x] T105 [P] Novos erros de domínio em `src/api/errors.py`: `TURMA_NAO_ENCONTRADA`,
       `USUARIO_NAO_ENCONTRADO`, `VINCULO_NAO_ENCONTRADO`, `PERFIL_INCOMPATIVEL`,
       `CODIGO_TURMA_DUPLICADO`, `AVISO_NAO_EDITAVEL`, `AVISO_SITUACAO_INVALIDA`,
       `DESTINO_NAO_PERMITIDO`
-- [ ] T106 Pacote `src/api/routes/gestao/` com router `/gestao` registrado em `src/main.py`
+- [x] T106 Pacote `src/api/routes/gestao/` com router `/gestao` registrado em `src/main.py`
 - [ ] T107 [P] Contract test: aluno recebe 403 `SEM_PERMISSAO` em toda rota `/gestao/*`; sem
       autenticação, 401; escrita por cookie sem CSRF, 403 `CSRF_INVALIDO`, em
       `tests/contract/gestao/test_gestao_acesso.py` (RF-10)

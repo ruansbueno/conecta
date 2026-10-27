@@ -72,6 +72,60 @@ class SolicitacaoNaoPendente(DomainError):
         super().__init__(409, "SOLICITACAO_NAO_PENDENTE", "A solicitação já foi decidida")
 
 
+class TurmaNaoEncontrada(DomainError):
+    def __init__(self):
+        super().__init__(404, "TURMA_NAO_ENCONTRADA", "Turma não encontrada")
+
+
+class UsuarioNaoEncontrado(DomainError):
+    def __init__(self):
+        super().__init__(404, "USUARIO_NAO_ENCONTRADO", "Usuário não encontrado")
+
+
+class VinculoNaoEncontrado(DomainError):
+    def __init__(self):
+        super().__init__(404, "VINCULO_NAO_ENCONTRADO", "Vínculo não encontrado")
+
+
+class PerfilIncompativel(DomainError):
+    def __init__(self, detail: str):
+        super().__init__(409, "PERFIL_INCOMPATIVEL", detail)
+
+
+class CodigoTurmaDuplicado(DomainError):
+    def __init__(self):
+        super().__init__(409, "CODIGO_TURMA_DUPLICADO", "Já existe uma turma com este código")
+
+
+class AvisoNaoEditavel(DomainError):
+    def __init__(self):
+        super().__init__(
+            409, "AVISO_NAO_EDITAVEL", "Aviso arquivado ou excluído não pode ser editado"
+        )
+
+
+class AvisoSituacaoInvalida(DomainError):
+    def __init__(self, detail: str):
+        super().__init__(409, "AVISO_SITUACAO_INVALIDA", detail)
+
+
+class DestinoNaoPermitido(DomainError):
+    def __init__(self):
+        super().__init__(
+            403,
+            "DESTINO_NAO_PERMITIDO",
+            "Docente só publica para as turmas em que leciona",
+        )
+
+
+class ErroDeValidacao(DomainError):
+    """422 de regra de negócio, no mesmo formato do de esquema (com `errors[]`)."""
+
+    def __init__(self, campo: str, mensagem: str):
+        super().__init__(422, "VALIDATION_ERROR", "Dados inválidos")
+        self.errors = [{"campo": campo, "mensagem": mensagem}]
+
+
 class AvisoNaoEncontrado(DomainError):
     def __init__(self):
         super().__init__(404, "AVISO_NAO_ENCONTRADO", "Aviso não encontrado")
@@ -111,7 +165,10 @@ def _campo(loc: tuple) -> str:
 
 
 async def _domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
-    return JSONResponse({"detail": exc.detail, "code": exc.code}, status_code=exc.status_code)
+    corpo = {"detail": exc.detail, "code": exc.code}
+    if isinstance(exc, ErroDeValidacao):
+        corpo["errors"] = exc.errors
+    return JSONResponse(corpo, status_code=exc.status_code)
 
 
 async def _validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:

@@ -45,6 +45,16 @@ class TurmaRepository:
         rows = await self.session.execute(self._minhas(usuario_id).order_by(*_ORDEM))
         return [(turma, papel) for turma, papel in rows]
 
+    async def list_todas_do_usuario(self, usuario_id: uuid.UUID) -> list[tuple[Turma, str]]:
+        """Todas as turmas do usuário, ativas ou não (visão de gestão)."""
+        rows = await self.session.execute(
+            select(Turma, VinculoTurma.papel)
+            .join(VinculoTurma, VinculoTurma.turma_id == Turma.id)
+            .where(VinculoTurma.usuario_id == usuario_id)
+            .order_by(*_ORDEM)
+        )
+        return [(turma, papel) for turma, papel in rows]
+
     async def is_vinculado(self, turma_id: uuid.UUID, usuario_id: uuid.UUID) -> bool:
         return bool(
             await self.session.scalar(

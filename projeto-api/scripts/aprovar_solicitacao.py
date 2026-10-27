@@ -9,28 +9,24 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.errors import SolicitacaoNaoEncontrada
+from src.api.errors import UsuarioNaoEncontrado
 from src.db.session import get_sessionmaker
-from src.models.vinculo_turma import VinculoTurma
-from src.repositories.solicitacao_repository import SolicitacaoRepository
 from src.repositories.usuario_repository import UsuarioRepository
+from src.services import solicitacoes_gestao_service
 
 
 async def aprovar(
     session: AsyncSession, solicitacao_id: uuid.UUID | str, decisor_username: str | None
-) -> VinculoTurma:
-    decisor_id = None
+):
+    """Mesmo serviço do endpoint de gestão (plan-e2 D-E2-10), com as mesmas regras."""
+    decisor = None
     if decisor_username is not None:
         decisor = await UsuarioRepository(session).get_by_username(decisor_username)
-        decisor_id = decisor.id if decisor else None
-
-    repo = SolicitacaoRepository(session)
-    solicitacao = await repo.get(uuid.UUID(str(solicitacao_id)), for_update=True)
-    if solicitacao is None:
-        raise SolicitacaoNaoEncontrada()
-    vinculo = await repo.approve(solicitacao, decisor_id)
-    await session.commit()
-    return vinculo
+        if decisor is None:
+            raise UsuarioNaoEncontrado()
+    return await solicitacoes_gestao_service.aprovar(
+        session, decisor, uuid.UUID(str(solicitacao_id))
+    )
 
 
 async def main() -> None:
@@ -39,8 +35,8 @@ async def main() -> None:
     parser.add_argument("--decisor", default="admin.conecta")
     args = parser.parse_args()
     async with get_sessionmaker()() as session:
-        vinculo = await aprovar(session, args.solicitacao_id, args.decisor)
-    print(f"Solicitação aprovada; vínculo {vinculo.id} criado.")
+        await aprovar(session, args.solicitacao_id, args.decisor)
+    print("Solicitação aprovada; vínculo criado.")
 
 
 if __name__ == "__main__":

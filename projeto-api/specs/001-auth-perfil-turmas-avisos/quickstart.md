@@ -84,6 +84,27 @@ curl "http://localhost:8000/avisos?situacao=arquivado" -H "Authorization: Bearer
 Esperado: o usuário vê somente avisos que o alcançam por algum destino, sem duplicatas, já
 publicados. Compare `aluno.teste` (turma A), `aluno3.teste` (turma C) e `aluno.sem.turma`.
 
+## 5b. Gestão (E2) — como `coord.teste`
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" \
+  -d '{"username": "coord.teste", "password": "senha-teste"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["access_token"])')
+H="Authorization: Bearer $TOKEN"
+
+curl http://localhost:8000/gestao/turmas -H "$H"                      # turmas com totais
+curl -X POST http://localhost:8000/gestao/avisos -H "$H" -H "Content-Type: application/json" \
+  -d '{"titulo": "Aviso de teste", "conteudo": "Texto.", "destinos": [{"tipo": "todos"}]}'
+curl "http://localhost:8000/gestao/avisos?situacao=agendado" -H "$H"   # agendados (RF-34)
+curl http://localhost:8000/gestao/avisos/<id>/historico -H "$H"        # criado, editado, …
+curl http://localhost:8000/gestao/solicitacoes -H "$H"                 # fila de pendentes
+curl -X POST http://localhost:8000/gestao/solicitacoes/<id>/aprovar -H "$H"
+```
+
+Esperado: a coordenação vê tudo; `docente.teste` vê só as turmas em que leciona (3A e 5A), publica
+apenas para elas (`todos` → 403 `DESTINO_NAO_PERMITIDO`) e decide só as solicitações delas;
+`aluno.teste` recebe 403 em qualquer `/gestao/*`. O roteiro completo da `spec.md` §9.3 roda
+automatizado em `tests/e2e/test_fluxo_publicar_receber.py`.
+
 ## 6. Rodar a suíte automatizada
 
 ```bash

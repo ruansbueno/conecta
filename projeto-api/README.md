@@ -1,9 +1,16 @@
 # CONECTA — API
 
 API REST do CONECTA em FastAPI. Atende o aplicativo mobile (token `Bearer`) e a plataforma web
-(cookie de sessão com CSRF). Implementa a **Entrega 1**: login, perfil, turmas e solicitações de
-inscrição, e consulta de avisos. Especificação, contrato e tarefas em
-[`specs/001-auth-perfil-turmas-avisos/`](specs/001-auth-perfil-turmas-avisos/).
+(cookie de sessão com CSRF). Implementa:
+
+- **Entrega 1** (aplicativo): login, perfil, turmas e solicitações de inscrição, consulta de
+  avisos.
+- **Entrega 2** (gestão, `/gestao/*`): usuários e perfis, turmas, vínculos, decisão de
+  solicitações, publicação e ciclo de vida de avisos, com versões e histórico imutáveis.
+
+Especificação, contrato e tarefas em
+[`specs/001-auth-perfil-turmas-avisos/`](specs/001-auth-perfil-turmas-avisos/) (`tasks.md` para a
+E1; `plan-e2.md` e `tasks-e2.md` para a E2).
 
 ## Rodando localmente
 
@@ -24,9 +31,10 @@ O seed cria usuários fictícios para os quatro perfis, todos com a senha `senha
 vínculos, solicitações e avisos de exemplo. Pode ser executado de novo sem duplicar nada.
 
 Para validar os fluxos de ponta a ponta com `curl`, siga o
-[`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md). Enquanto o endpoint de
-gestão (E2) não existe, uma solicitação é aprovada com
-`uv run python -m scripts.aprovar_solicitacao <id>`.
+[`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md). Os avisos do seed já vêm com
+versões e histórico (um editado, um arquivado e um excluído), para a plataforma web exibir a linha
+do tempo. Solicitações são decididas em `POST /gestao/solicitacoes/{id}/aprovar|recusar`; o
+script `scripts.aprovar_solicitacao` segue disponível e usa as mesmas regras.
 
 ## Testes
 
@@ -36,7 +44,9 @@ uv run pytest -m "not moodle_real" # explicitamente sem a integração real
 uv run ruff check . && uv run ruff format --check .
 ```
 
-Os testes de integração usam o banco `conecta_test`, recriado pelas migrações a cada execução.
+Os testes de integração usam o banco `conecta_test`, recriado pelas migrações a cada execução
+(a suíte recusa qualquer banco cujo nome não termine em `_test`). `tests/e2e/` executa o roteiro
+de ponta a ponta da `spec.md` §9.3: publicar pela gestão e receber no aplicativo.
 
 **Mock × real.** Testes que dependem do provedor simulado levam `@pytest.mark.mock_auth`; os da
 integração real com o Moodle, `@pytest.mark.moodle_real`, e só rodam com `MOODLE_URL`
@@ -64,8 +74,14 @@ mock pelo Moodle é implementar `MoodleAuthProvider` e definir `AUTH_PROVIDER=mo
 em rotas, serviços ou contratos. Migrações em `alembic/`, scripts de desenvolvimento em
 `scripts/`.
 
+## Auditoria dos avisos
+
+Toda criação, edição, arquivamento, desarquivamento e exclusão grava, na mesma transação, a
+versão completa (quando há conteúdo novo) e um evento com usuário, data e o que mudou. As tabelas
+`aviso_versao` e `aviso_evento` são imutáveis: o próprio banco recusa `UPDATE` e `DELETE`.
+
 ## Pendente
 
 - **Integração real com o Moodle** (T072): implementar `MoodleAuthProvider` e preencher o
   checklist da `spec.md` §9.4 quando houver acesso à API da instituição (data-limite 13/11/2026).
-- **Entrega 2**: endpoints `/gestao/*` da plataforma web, já contratados em `contracts/api.md`.
+- **Entrega 3**: agenda e horários (`specs/002-agenda-horarios`), com plano e tarefas a gerar.

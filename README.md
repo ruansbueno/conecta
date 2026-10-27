@@ -111,14 +111,14 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## O que está faltando
 
-A API da E1 está implementada (veja [`projeto-api/README.md`](projeto-api/README.md)); o
+A API das entregas E1 e E2 está implementada (veja [`projeto-api/README.md`](projeto-api/README.md)); o
 restante, em ordem de dependência:
 
-**1. API — entrega E1** ✅ — as 9 rotas do aplicativo, contratadas em
-[`contracts/api.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md), com o
-provedor de autenticação simulado, as migrações, o seed de dados de teste e a sessão por cookie
-para a web. Falta só validar a integração real com o Moodle (T072), que depende de acesso à API
-da instituição. Próximo passo da API: planejar e gerar as tarefas da E2 (`/gestao/*`).
+**1. API — entregas E1 e E2** ✅ — as 9 rotas do aplicativo e as rotas de gestão (`/gestao/*`),
+contratadas em
+[`contracts/api.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md), com
+versões e histórico imutáveis dos avisos e o teste de ponta a ponta da spec §9.3. Falta só
+validar a integração real com o Moodle (T072), que depende de acesso à API da instituição.
 
 **2. Implementar o aplicativo (fase F1)** — login e sessão, avisos, turmas, solicitações, perfil e
 cache local. 66 tarefas em

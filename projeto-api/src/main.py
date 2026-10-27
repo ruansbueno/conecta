@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.api.errors import register_error_handlers
-from src.api.routes import auth, avisos, me, solicitacoes, turmas
+from src.api.routes import auth, avisos, gestao, me, solicitacoes, turmas
 from src.core.config import get_settings
 from src.providers.auth.factory import provider_from_settings
 
@@ -23,3 +23,4 @@ app.include_router(me.router)
 app.include_router(turmas.router)
 app.include_router(solicitacoes.router)
 app.include_router(avisos.router)
+app.include_router(gestao.router)

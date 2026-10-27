@@ -168,8 +168,8 @@ encaminhado para a API local.
 
 - [ ] T044 [US3] `src/paginas/avisos/lista.tsx`: tabela com
       abas de situação, busca, filtros por autor e turma, e paginação pela URL (T03, RW-13, RW-14)
-- [ ] T045 [US3] Derivar a situação "Agendado" de `ativo` + `publicar_em` futuro, documentada
-      como apresentação, não como estado da API (data-model.md)
+- [ ] T045 [US3] Selo "Agendado" derivado de `ativo` + `publicar_em` futuro (apresentação, não
+      estado da API); a aba "Agendados" usa `situacao=agendado` da API (RF-34) (data-model.md)
 - [ ] T046 [US3] Ações de ciclo de vida na lista e no detalhe, com confirmação que descreve a
       consequência (RW-19, RW-41)
 - [ ] T047 [US3] `src/paginas/avisos/historico.tsx` com

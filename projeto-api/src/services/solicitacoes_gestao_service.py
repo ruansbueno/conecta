@@ -9,6 +9,7 @@ from src.api.errors import (
     PerfilIncompativel,
     SemPermissao,
     SolicitacaoNaoEncontrada,
+    TurmaNaoEncontrada,
 )
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
@@ -43,6 +44,9 @@ async def listar(
     offset: int,
 ) -> tuple[list[Linha], int]:
     stmt = _consulta().where(SolicitacaoInscricao.status == status)
+    # Turma inexistente é 404 para todos os perfis, antes da permissão (como no detalhe da turma).
+    if turma_id is not None and await session.get(Turma, turma_id) is None:
+        raise TurmaNaoEncontrada()
     if not gere_tudo(usuario):
         # Docente decide só nas turmas em que leciona (spec §2.3).
         minhas = await turmas_que_leciona(session, usuario)

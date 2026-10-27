@@ -100,8 +100,10 @@ correspondente mostra estado de erro com ação de recarregar.
 **Origem**: T03 · **Parâmetros**: `situacao`, `autor_id`, `turma_id`, `q`, `limit`, `offset` —
 todos vindos da URL.
 
-A aba "Agendados" é um filtro da plataforma sobre `situacao=ativo` com `publicar_em` no futuro;
-"Excluídos" usa `situacao=excluido` e só aparece para administração e coordenação.
+Cada aba pede a sua situação à API: "Ativos" usa `situacao=ativo` (já publicados), "Agendados"
+usa `situacao=agendado` (ativos com `publicar_em` no futuro — RF-34, emenda v2.1 da API), e
+"Excluídos" usa `situacao=excluido`, que só aparece para administração e coordenação. O filtro de
+agendados fica na API para que `total` e a paginação da aba saiam corretos.
 
 | code | Status | Tratamento |
 |---|---|---|

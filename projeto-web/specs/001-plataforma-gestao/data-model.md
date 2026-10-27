@@ -161,9 +161,10 @@ tem três — "agendado" é derivado, não um estado do contrato:
 | `Arquivado` | `situacao = arquivado` |
 | `Excluído` | `situacao = excluido` |
 
-A aba "Agendados" da lista é, portanto, um filtro da própria plataforma sobre os ativos — e isso
-está registrado aqui porque é o único ponto em que a interface apresenta algo que a API não
-nomeia. Nenhuma decisão de negócio depende disso: quem oculta o aviso até a data é a API.
+O **selo** de cada item é derivado aqui, porque o item vem da API com `situacao: "ativo"` também
+quando está agendado. A **aba** "Agendados", por outro lado, não filtra no cliente: pede
+`situacao=agendado` à API (RF-34, emenda v2.1), para que `total` e a paginação saiam corretos.
+Nenhuma decisão de negócio depende do selo: quem oculta o aviso até a data é a API.
 
 Outros derivados: `foiEditado` = `editadoEm != null` → marca "editado" e o número da versão;
 `podeEditar` = `situacao === 'ativo'` (conveniência; a API responde `409 AVISO_NAO_EDITAVEL`).

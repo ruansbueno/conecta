@@ -153,3 +153,12 @@ async def test_docente_da_turma_decide_e_docente_alheio_recebe_403(client, db, p
 
     assert (nao.status_code, nao.json()["code"]) == (403, "SEM_PERMISSAO")
     assert ok.status_code == 200
+
+
+@pytest.mark.parametrize("perfil", ["coordenacao", "administrador", "docente"])
+async def test_filtro_por_turma_inexistente_e_404_para_todos(client, db, perfil):
+    usuario = await criar_usuario(db, username=f"{perfil}.filtro", perfil=perfil)
+
+    r = await client.get(f"/gestao/solicitacoes?turma_id={uuid.uuid4()}", headers=bearer(usuario))
+
+    assert (r.status_code, r.json()["code"]) == (404, "TURMA_NAO_ENCONTRADA")

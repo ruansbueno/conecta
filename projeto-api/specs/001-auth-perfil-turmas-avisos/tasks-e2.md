@@ -33,7 +33,7 @@ levam `@pytest.mark.mock_auth`.
       `CODIGO_TURMA_DUPLICADO`, `AVISO_NAO_EDITAVEL`, `AVISO_SITUACAO_INVALIDA`,
       `DESTINO_NAO_PERMITIDO`
 - [x] T106 Pacote `src/api/routes/gestao/` com router `/gestao` registrado em `src/main.py`
-- [ ] T107 [P] Contract test: aluno recebe 403 `SEM_PERMISSAO` em toda rota `/gestao/*`; sem
+- [x] T107 [P] Contract test: aluno recebe 403 `SEM_PERMISSAO` em toda rota `/gestao/*`; sem
       autenticação, 401; escrita por cookie sem CSRF, 403 `CSRF_INVALIDO`, em
       `tests/contract/gestao/test_gestao_acesso.py` (RF-10)
 

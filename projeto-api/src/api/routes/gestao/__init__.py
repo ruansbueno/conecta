@@ -11,7 +11,8 @@ router = APIRouter(
 )
 
 
-from src.api.routes.gestao import turmas, usuarios  # noqa: E402
+from src.api.routes.gestao import turmas, usuarios, vinculos  # noqa: E402
 
 router.include_router(usuarios.router)
 router.include_router(turmas.router)
+router.include_router(vinculos.router)

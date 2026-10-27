@@ -75,16 +75,16 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 4: US5 — Vínculos (RF-19)
 
-- [ ] T114 [P] [US5] Contract test `GET /gestao/turmas/{id}/vinculos` (filtro `papel`; docente da
+- [x] T114 [P] [US5] Contract test `GET /gestao/turmas/{id}/vinculos` (filtro `papel`; docente da
       turma lê; docente alheio 403), `POST` (201; 404 turma/usuário; 409 `JA_VINCULADO`; 409
       `PERFIL_INCOMPATIVEL`; 422) e `DELETE …/vinculos/{usuario_id}` (204; 404
       `VINCULO_NAO_ENCONTRADO`) em `tests/contract/gestao/test_gestao_vinculos.py`
-- [ ] T115 [P] [US5] Integration test: coordenação vincula docente → docente passa a receber os
+- [x] T115 [P] [US5] Integration test: coordenação vincula docente → docente passa a receber os
       avisos da turma e pode aprovar as solicitações dela; docente não vincula aluno (403);
       remover vínculo corta o acesso aos avisos na hora; vínculo criado por gestão tem
       `origem = gestao` e `criado_por`, em `tests/integration/gestao/test_vinculos_regras.py`
       (US5 cenários 3–4)
-- [ ] T116 [US5] Schemas, `vinculos_service` (papel = perfil; administração/coordenação sem
+- [x] T116 [US5] Schemas, `vinculos_service` (papel = perfil; administração/coordenação sem
       vínculo) e rotas `src/api/routes/gestao/vinculos.py`; `PATCH` de usuário passa a usar a
       mesma regra para `PERFIL_INCOMPATIVEL`
 

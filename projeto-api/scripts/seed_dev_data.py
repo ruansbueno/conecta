@@ -15,6 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.session import get_sessionmaker
 from src.models.aviso import Aviso, AvisoDestino
+from src.models.aviso_evento import AvisoEvento
+from src.models.aviso_versao import AvisoVersao
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -157,8 +159,14 @@ async def _solicitacoes(session: AsyncSession, usuarios: dict, turmas: dict) -> 
             )
 
 
+# O aviso "semestre" nasce editado (2 versões), para a web exibir versões e linha do tempo.
+_CONTEUDO_ORIGINAL_SEMESTRE = "Conteúdo fictício de demonstração: prazo original do projeto."
+
+
 async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
     agora = datetime.now(UTC)
+    criado_em = agora - timedelta(hours=2)
+    autor = usuarios["coord.teste"]
     # chave: (destinos, campos extras)
     avisos = {
         "todos": ([("todos", None, None)], {}),
@@ -166,24 +174,32 @@ async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
             [("turma", turmas[f"TADS-{t}-2026-2"], None) for t in ("3A", "3B", "3C")],
             {},
         ),
-        "semestre": ([("semestre", None, 3)], {}),
+        "semestre": (
+            [("semestre", None, 3)],
+            {"versao_atual": 2, "editado_em": agora - timedelta(hours=1)},
+        ),
         "docentes": ([("docentes", None, None)], {}),
         "agendado": ([("todos", None, None)], {"publicar_em": agora + timedelta(days=7)}),
         "arquivado": (
             [("turma", turmas["TADS-3A-2026-2"], None)],
-            {"situacao": "arquivado", "arquivado_em": agora},
+            {"situacao": "arquivado", "arquivado_em": agora - timedelta(minutes=30)},
         ),
-        "excluido": ([("todos", None, None)], {"situacao": "excluido", "excluido_em": agora}),
+        "excluido": (
+            [("todos", None, None)],
+            {"situacao": "excluido", "excluido_em": agora - timedelta(minutes=30)},
+        ),
     }
     for chave, (destinos, extras) in avisos.items():
         aviso_id = _aviso_id(chave)
+        conteudo = f"Conteúdo fictício de demonstração: {AVISOS_TESTE_TITULOS[chave]}."
         await session.execute(
             insert(Aviso)
             .values(
                 id=aviso_id,
                 titulo=AVISOS_TESTE_TITULOS[chave],
-                conteudo=f"Conteúdo fictício de demonstração: {AVISOS_TESTE_TITULOS[chave]}.",
-                autor_id=usuarios["coord.teste"],
+                conteudo=conteudo,
+                autor_id=autor,
+                criado_em=criado_em,
                 **extras,
             )
             .on_conflict_do_nothing()
@@ -194,6 +210,63 @@ async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
                 .values(aviso_id=aviso_id, tipo=tipo, turma_id=turma_id, semestre=semestre)
                 .on_conflict_do_nothing()
             )
+        await _auditoria(session, chave, aviso_id, autor, destinos, conteudo, extras, criado_em)
+
+
+async def _auditoria(session, chave, aviso_id, autor, destinos, conteudo, extras, criado_em):
+    """Versões e eventos coerentes com o aviso; só na primeira vez (auditoria é imutável)."""
+    if await session.scalar(select(AvisoVersao.id).where(AvisoVersao.aviso_id == aviso_id)):
+        return
+    canonicos = sorted(
+        (
+            {"tipo": t, "turma_id": str(tid) if tid else None, "semestre": sem}
+            for t, tid, sem in destinos
+        ),
+        key=lambda d: (d["tipo"], d["turma_id"] or "", d["semestre"] or 0),
+    )
+    titulo = AVISOS_TESTE_TITULOS[chave]
+    publicar_em = extras.get("publicar_em")
+    editado = chave == "semestre"
+
+    def versao(numero, texto, quando):
+        session.add(
+            AvisoVersao(
+                aviso_id=aviso_id,
+                versao=numero,
+                titulo=titulo,
+                conteudo=texto,
+                destinos=canonicos,
+                publicar_em=publicar_em,
+                criada_por=autor,
+                criada_em=quando,
+            )
+        )
+
+    def evento(tipo, quando, numero=None, alteracoes=None):
+        session.add(
+            AvisoEvento(
+                aviso_id=aviso_id,
+                tipo=tipo,
+                usuario_id=autor,
+                ocorrido_em=quando,
+                versao=numero,
+                alteracoes=alteracoes,
+            )
+        )
+
+    versao(1, _CONTEUDO_ORIGINAL_SEMESTRE if editado else conteudo, criado_em)
+    evento("criado", criado_em, 1)
+    if editado:
+        versao(2, conteudo, extras["editado_em"])
+        evento(
+            "editado",
+            extras["editado_em"],
+            2,
+            {"conteudo": {"de": _CONTEUDO_ORIGINAL_SEMESTRE, "para": conteudo}},
+        )
+    if chave in ("arquivado", "excluido"):
+        evento(chave, extras[f"{chave}_em"])
+    await session.flush()
 
 
 async def main() -> None:

@@ -133,3 +133,34 @@ async def test_seed_de_avisos_e_idempotente(db):
 
     assert [await _contar(db, m) for m in (Aviso, AvisoDestino)] == contagens
     assert contagens[0] == len(AVISOS_TESTE_TITULOS)
+
+
+async def test_seed_de_avisos_tem_versoes_e_historico_coerentes(client, db):
+    from src.models.aviso_evento import AvisoEvento
+    from src.models.aviso_versao import AvisoVersao
+    from tests.helpers import bearer
+
+    await seed(db)
+    await seed(db)  # idempotente também para a auditoria
+
+    avisos = (await db.scalars(select(Aviso))).all()
+    for aviso in avisos:
+        versoes = await db.scalar(
+            select(func.count()).select_from(AvisoVersao).where(AvisoVersao.aviso_id == aviso.id)
+        )
+        tipos = (
+            await db.scalars(
+                select(AvisoEvento.tipo)
+                .where(AvisoEvento.aviso_id == aviso.id)
+                .order_by(AvisoEvento.ocorrido_em)
+            )
+        ).all()
+        assert versoes == aviso.versao_atual, aviso.titulo
+        assert tipos[0] == "criado", aviso.titulo
+    editado = next(a for a in avisos if a.versao_atual == 2)
+    assert editado.editado_em is not None
+
+    coord = await db.scalar(select(Usuario).where(Usuario.username == "coord.teste"))
+    arquivado = next(a for a in avisos if a.situacao == "arquivado")
+    historico = await client.get(f"/gestao/avisos/{arquivado.id}/historico", headers=bearer(coord))
+    assert [e["tipo"] for e in historico.json()["items"]] == ["arquivado", "criado"]

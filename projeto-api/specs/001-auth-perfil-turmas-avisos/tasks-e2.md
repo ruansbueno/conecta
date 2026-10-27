@@ -149,15 +149,15 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 8: Ponta a ponta e polimento
 
-- [ ] T128 [P] E2E `tests/e2e/test_fluxo_publicar_receber.py`: roteiro completo da `spec.md` §9.3
+- [x] T128 [P] E2E `tests/e2e/test_fluxo_publicar_receber.py`: roteiro completo da `spec.md` §9.3
       (8 passos) só pelos endpoints, com logins pelo mock (RF-30, SC-007)
-- [ ] T129 [P] Matriz de permissões da E2 em `tests/contract/gestao/test_permissoes_matriz_e2.py`:
+- [x] T129 [P] Matriz de permissões da E2 em `tests/contract/gestao/test_permissoes_matriz_e2.py`:
       cada rota `/gestao/*` × quatro perfis (RF-10)
-- [ ] T130 Seed: avisos de exemplo passam a ter versão 1 e evento `criado`; um aviso editado (2
+- [x] T130 Seed: avisos de exemplo passam a ter versão 1 e evento `criado`; um aviso editado (2
       versões) e um com histórico de arquivamento, para a web exibir linha do tempo
-- [ ] T131 [P] Atualizar `README.md` da API, `quickstart.md` (fluxos de gestão com `curl`) e o
+- [x] T131 [P] Atualizar `README.md` da API, `quickstart.md` (fluxos de gestão com `curl`) e o
       README raiz
-- [ ] T132 Validação manual do quickstart de gestão e evidência de testes arquivada em
+- [x] T132 Validação manual do quickstart de gestão e evidência de testes arquivada em
       `evidencias/`
 
 **Checkpoint**: E2 completa; a plataforma web (fase F1) pode ser implementada contra a API.

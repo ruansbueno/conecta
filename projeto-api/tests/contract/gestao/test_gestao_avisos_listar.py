@@ -79,3 +79,12 @@ async def test_detalhe_404_e_403_para_docente_em_aviso_alheio(client, db, coord,
     assert ok.json() == aviso
     assert (alheio.status_code, alheio.json()["code"]) == (403, "SEM_PERMISSAO")
     assert (inexistente.status_code, inexistente.json()["code"]) == (404, "AVISO_NAO_ENCONTRADO")
+
+
+@pytest.mark.parametrize("perfil", ["coordenacao", "administrador", "docente"])
+async def test_filtro_por_turma_inexistente_e_404_para_todos(client, db, perfil):
+    usuario = await criar_usuario(db, username=f"{perfil}.filtro", perfil=perfil)
+
+    r = await client.get(f"/gestao/avisos?turma_id={uuid.uuid4()}", headers=bearer(usuario))
+
+    assert (r.status_code, r.json()["code"]) == (404, "TURMA_NAO_ENCONTRADA")

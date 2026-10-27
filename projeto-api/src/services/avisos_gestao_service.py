@@ -116,6 +116,9 @@ async def listar(
     offset: int,
 ) -> tuple[list[Aviso], int]:
     stmt = select(Aviso)
+    # Turma inexistente é 404 para todos os perfis, antes da permissão (como em solicitações).
+    if turma_id is not None and await session.get(Turma, turma_id) is None:
+        raise TurmaNaoEncontrada()
     if not gere_tudo(usuario):
         if situacao == "excluido":
             raise SemPermissao()

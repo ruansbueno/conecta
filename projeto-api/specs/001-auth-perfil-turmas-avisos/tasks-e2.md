@@ -59,16 +59,16 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 3: US5 — Turmas (RF-18)
 
-- [ ] T111 [P] [US5] Contract test `POST /gestao/turmas` (201 com `ativa`, `criado_em`; 409
+- [x] T111 [P] [US5] Contract test `POST /gestao/turmas` (201 com `ativa`, `criado_em`; 409
       `CODIGO_TURMA_DUPLICADO`; 422 de cada campo, `periodo_letivo` `AAAA/N`), `GET /gestao/turmas`
       (filtros, `total_alunos`, `total_docentes`), `GET /gestao/turmas/{id}` (404),
       `PATCH` (parcial; `ativa`; 409; 422) e `DELETE` (204 lógico; 404) em
       `tests/contract/gestao/test_gestao_turmas.py`
-- [ ] T112 [P] [US5] Integration test: docente lista só as turmas em que leciona e recebe 403 no
+- [x] T112 [P] [US5] Integration test: docente lista só as turmas em que leciona e recebe 403 no
       detalhe de turma alheia (D-E2-1); docente não cria nem edita turma; turma desativada
       preserva vínculos e suspende avisos por turma/semestre, em
       `tests/integration/gestao/test_turmas_regras.py`
-- [ ] T113 [US5] Schemas, repositório (filtros e contagens por papel), `turmas_gestao_service` e
+- [x] T113 [US5] Schemas, repositório (filtros e contagens por papel), `turmas_gestao_service` e
       rotas `src/api/routes/gestao/turmas.py`
 
 ---

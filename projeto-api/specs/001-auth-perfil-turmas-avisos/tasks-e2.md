@@ -92,16 +92,16 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 5: US3 (E2) — Decisão de solicitações (RF-17)
 
-- [ ] T117 [P] [US3] Contract test `GET /gestao/solicitacoes` (padrão `pendente`; filtros
+- [x] T117 [P] [US3] Contract test `GET /gestao/solicitacoes` (padrão `pendente`; filtros
       `status`, `turma_id`; docente vê só as suas turmas), `POST …/aprovar` e `POST …/recusar`
       (200 com `decidida_por`/`decidida_em`; `motivo` até 300; 403 docente alheio; 404; 409
       `SOLICITACAO_NAO_PENDENTE`; 409 `JA_VINCULADO`) em
       `tests/contract/gestao/test_gestao_solicitacoes.py`
-- [ ] T118 [P] [US3] Integration test: aprovar cria o vínculo na mesma transação; aprovação com
+- [x] T118 [P] [US3] Integration test: aprovar cria o vínculo na mesma transação; aprovação com
       vínculo já existente marca `recusada` e responde 409 (D-E2-8); decisões simultâneas sobre a
       mesma solicitação → uma vence, a outra 409; docente da turma A não decide na B (US5 cenário 5),
       em `tests/integration/gestao/test_aprovacao_cria_vinculo.py`
-- [ ] T119 [US3] Schemas, `solicitacoes_gestao_service` (lock, regras de docente, auto-recusa) e
+- [x] T119 [US3] Schemas, `solicitacoes_gestao_service` (lock, regras de docente, auto-recusa) e
       rotas `src/api/routes/gestao/solicitacoes.py`; `scripts/aprovar_solicitacao.py` passa a usar o
       serviço (D-E2-10)
 

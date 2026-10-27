@@ -136,14 +136,14 @@ levam `@pytest.mark.mock_auth`.
 
 ## Phase 7: US6 — Versões e histórico (RF-27, RF-28)
 
-- [ ] T125 [P] [US6] Contract test `GET /gestao/avisos/{id}/versoes` e `…/historico` (da mais
+- [x] T125 [P] [US6] Contract test `GET /gestao/avisos/{id}/versoes` e `…/historico` (da mais
       recente para a mais antiga; paginação; docente só dos seus; excluído consultável por
       administração/coordenação; 403; 404) em `tests/contract/gestao/test_gestao_avisos_auditoria.py`
-- [ ] T126 [P] [US6] Integration test: cada operação gera exatamente um evento com usuário e data;
+- [x] T126 [P] [US6] Integration test: cada operação gera exatamente um evento com usuário e data;
       edição registra só os campos alterados com `de`/`para`; versões preservam o conteúdo de cada
       versão; falha no meio da operação não deixa versão nem evento órfão (D-E2-4), em
       `tests/integration/gestao/test_aviso_auditoria.py`
-- [ ] T127 [US6] Rotas de versões e histórico em `src/api/routes/gestao/avisos.py`
+- [x] T127 [US6] Rotas de versões e histórico em `src/api/routes/gestao/avisos.py`
 
 ---
 

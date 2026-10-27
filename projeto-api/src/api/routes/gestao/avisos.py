@@ -7,7 +7,15 @@ from src.core.security import get_current_user
 from src.db.session import get_session
 from src.models.usuario import Usuario
 from src.schemas.common import Page, PaginationParams
-from src.schemas.gestao.avisos import AvisoCreate, AvisoGestaoOut, AvisoPatch, SituacaoGestao
+from src.schemas.gestao.avisos import (
+    AvisoCreate,
+    AvisoGestaoOut,
+    AvisoPatch,
+    EventoOut,
+    PessoaOut,
+    SituacaoGestao,
+    VersaoOut,
+)
 from src.services import avisos_gestao_service as service
 
 router = APIRouter(prefix="/avisos")
@@ -87,3 +95,48 @@ async def excluir(
     session: AsyncSession = Depends(get_session),
 ) -> None:
     await service.excluir(session, usuario, aviso_id)
+
+
+@router.get("/{aviso_id}/versoes", response_model=Page[VersaoOut])
+async def versoes(
+    aviso_id: uuid.UUID,
+    page: PaginationParams = Depends(),
+    usuario: Usuario = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> Page[VersaoOut]:
+    linhas, total = await service.versoes(session, usuario, aviso_id, page.limit, page.offset)
+    itens = [
+        VersaoOut(
+            versao=v.versao,
+            titulo=v.titulo,
+            conteudo=v.conteudo,
+            publicar_em=v.publicar_em,
+            destinos=v.destinos,
+            criada_por=PessoaOut.model_validate(autor),
+            criada_em=v.criada_em,
+        )
+        for v, autor in linhas
+    ]
+    return Page(items=itens, total=total, limit=page.limit, offset=page.offset)
+
+
+@router.get("/{aviso_id}/historico", response_model=Page[EventoOut])
+async def historico(
+    aviso_id: uuid.UUID,
+    page: PaginationParams = Depends(),
+    usuario: Usuario = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> Page[EventoOut]:
+    linhas, total = await service.historico(session, usuario, aviso_id, page.limit, page.offset)
+    itens = [
+        EventoOut(
+            id=e.id,
+            tipo=e.tipo,
+            usuario=PessoaOut.model_validate(autor),
+            ocorrido_em=e.ocorrido_em,
+            versao=e.versao,
+            alteracoes=e.alteracoes,
+        )
+        for e, autor in linhas
+    ]
+    return Page(items=itens, total=total, limit=page.limit, offset=page.offset)

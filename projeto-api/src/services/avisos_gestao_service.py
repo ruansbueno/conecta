@@ -21,6 +21,8 @@ from src.api.errors import (
     TurmaNaoEncontrada,
 )
 from src.models.aviso import Aviso, AvisoDestino
+from src.models.aviso_evento import AvisoEvento
+from src.models.aviso_versao import AvisoVersao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.repositories.auditoria_repository import AuditoriaRepository, destinos_canonicos
@@ -274,3 +276,45 @@ async def excluir(session: AsyncSession, usuario: Usuario, aviso_id: uuid.UUID) 
     if aviso.situacao == "excluido":
         raise AvisoNaoEncontrado()
     await _mudar_situacao(session, usuario, aviso_id, aviso.situacao, "excluido", "excluido", "")
+
+
+async def _auditavel(session: AsyncSession, usuario: Usuario, aviso_id: uuid.UUID) -> None:
+    """Gestão audita qualquer aviso, inclusive excluído; docente só os próprios (RF-28)."""
+    aviso = await session.get(Aviso, aviso_id)
+    if aviso is None or (aviso.situacao == "excluido" and not gere_tudo(usuario)):
+        raise AvisoNaoEncontrado()
+    _exigir_autoria(usuario, aviso)
+
+
+async def versoes(
+    session: AsyncSession, usuario: Usuario, aviso_id: uuid.UUID, limit: int, offset: int
+) -> tuple[list[tuple[AvisoVersao, Usuario]], int]:
+    await _auditavel(session, usuario, aviso_id)
+    stmt = (
+        select(AvisoVersao, Usuario)
+        .join(Usuario, Usuario.id == AvisoVersao.criada_por)
+        .where(AvisoVersao.aviso_id == aviso_id)
+    )
+    total = await session.scalar(select(func.count()).select_from(stmt.subquery()))
+    linhas = await session.execute(
+        stmt.order_by(AvisoVersao.versao.desc()).limit(limit).offset(offset)
+    )
+    return [(v, u) for v, u in linhas], total
+
+
+async def historico(
+    session: AsyncSession, usuario: Usuario, aviso_id: uuid.UUID, limit: int, offset: int
+) -> tuple[list[tuple[AvisoEvento, Usuario]], int]:
+    await _auditavel(session, usuario, aviso_id)
+    stmt = (
+        select(AvisoEvento, Usuario)
+        .join(Usuario, Usuario.id == AvisoEvento.usuario_id)
+        .where(AvisoEvento.aviso_id == aviso_id)
+    )
+    total = await session.scalar(select(func.count()).select_from(stmt.subquery()))
+    linhas = await session.execute(
+        stmt.order_by(AvisoEvento.ocorrido_em.desc(), AvisoEvento.versao.desc().nulls_first())
+        .limit(limit)
+        .offset(offset)
+    )
+    return [(e, u) for e, u in linhas], total

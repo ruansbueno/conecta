@@ -97,3 +97,35 @@ class AvisoGestaoOut(BaseModel):
     editado_em: datetime | None
     arquivado_em: datetime | None
     destinos: list[DestinoOut]
+
+
+class PessoaOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    nome: str
+
+
+class DestinoVersaoOut(BaseModel):
+    tipo: str
+    turma_id: uuid.UUID | None
+    semestre: int | None
+
+
+class VersaoOut(BaseModel):
+    versao: int
+    titulo: str
+    conteudo: str
+    publicar_em: datetime | None
+    destinos: list[DestinoVersaoOut]
+    criada_por: PessoaOut
+    criada_em: datetime
+
+
+class EventoOut(BaseModel):
+    id: uuid.UUID
+    tipo: str
+    usuario: PessoaOut
+    ocorrido_em: datetime
+    versao: int | None
+    alteracoes: dict | None

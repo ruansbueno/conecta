@@ -124,6 +124,36 @@ void main() {
     }
   });
 
+  test('falha de TLS (portal cativo) também é SEM_REDE, nunca exceção crua', () async {
+    final api = cliente((_) async => throw const HandshakeException('certificado inválido'));
+
+    expect(
+      () => api.get('/me'),
+      throwsA(isA<ApiFailure>().having((f) => f.code, 'code', ApiFailure.semRede)),
+    );
+  });
+
+  test('GET 2xx sem corpo é RESPOSTA_INVALIDA, não erro de null', () async {
+    final api = cliente((_) async => http.Response('', 200));
+
+    expect(
+      () => api.get('/me'),
+      throwsA(isA<ApiFailure>().having((f) => f.code, 'code', ApiFailure.respostaInvalida)),
+    );
+  });
+
+  test('o evento de sessão inválida diz com qual token a chamada foi feita', () async {
+    final api = cliente((_) async => _json(erroNaoAutenticadoJson, 401))..token = 'tok-velho';
+    final eventos = <SessaoInvalida>[];
+    api.sessaoInvalida.listen(eventos.add);
+
+    await api.get('/me').catchError((_) => <String, dynamic>{});
+    await pumpEventQueue();
+
+    expect(eventos.single.token, 'tok-velho');
+    expect(eventos.single.falha.code, 'NAO_AUTENTICADO');
+  });
+
   test('204 sem corpo devolve null', () async {
     final api = cliente((_) async => http.Response('', 204))..token = 't';
 
@@ -133,7 +163,7 @@ void main() {
   group('sessão inválida (D6)', () {
     test('vários 401 simultâneos com o mesmo token emitem um único evento', () async {
       final api = cliente((_) async => _json(erroNaoAutenticadoJson, 401))..token = 'tok';
-      final eventos = <ApiFailure>[];
+      final eventos = <SessaoInvalida>[];
       api.sessaoInvalida.listen(eventos.add);
 
       await Future.wait([
@@ -142,12 +172,12 @@ void main() {
       await pumpEventQueue();
 
       expect(eventos, hasLength(1));
-      expect(eventos.single.code, 'NAO_AUTENTICADO');
+      expect(eventos.single.falha.code, 'NAO_AUTENTICADO');
     });
 
     test('um token novo volta a poder emitir', () async {
       final api = cliente((_) async => _json(erroNaoAutenticadoJson, 401))..token = 'tok-1';
-      final eventos = <ApiFailure>[];
+      final eventos = <SessaoInvalida>[];
       api.sessaoInvalida.listen(eventos.add);
 
       await api.get('/me').catchError((_) => <String, dynamic>{});
@@ -160,20 +190,20 @@ void main() {
 
     test('403 USUARIO_INATIVO em chamada autenticada também encerra', () async {
       final api = cliente((_) async => _json(erroUsuarioInativoJson, 403))..token = 'tok';
-      final eventos = <ApiFailure>[];
+      final eventos = <SessaoInvalida>[];
       api.sessaoInvalida.listen(eventos.add);
 
       await api.get('/avisos').catchError((_) => <String, dynamic>{});
       await pumpEventQueue();
 
-      expect(eventos.single.code, 'USUARIO_INATIVO');
+      expect(eventos.single.falha.code, 'USUARIO_INATIVO');
     });
 
     test('401 e 403 do próprio login não emitem (não há sessão a encerrar)', () async {
       for (final corpo in [erroCredenciaisInvalidasJson, erroUsuarioInativoJson]) {
         final status = corpo == erroCredenciaisInvalidasJson ? 401 : 403;
         final api = cliente((_) async => _json(corpo, status));
-        final eventos = <ApiFailure>[];
+        final eventos = <SessaoInvalida>[];
         api.sessaoInvalida.listen(eventos.add);
 
         await api
@@ -187,7 +217,7 @@ void main() {
 
     test('403 SEM_PERMISSAO não encerra a sessão', () async {
       final api = cliente((_) async => _json(erroSemPermissaoJson, 403))..token = 'tok';
-      final eventos = <ApiFailure>[];
+      final eventos = <SessaoInvalida>[];
       api.sessaoInvalida.listen(eventos.add);
 
       await api.get('/turmas/disponiveis').catchError((_) => <String, dynamic>{});

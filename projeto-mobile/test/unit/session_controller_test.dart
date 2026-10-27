@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:conecta/repositories/auth_repository.dart';
 import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/services/cofre_sessao.dart';
 import 'package:conecta/state/session_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 import '../apoio.dart';
 import '../fixtures/fixtures.dart';
@@ -103,6 +106,92 @@ void main() {
     });
   });
 
+  group('robustez (revisão final)', () {
+    test('cofre ilegível (backup restaurado) abre no login, sem travar', () async {
+      final quebrado = SessionController(
+        api: api.api,
+        auth: AuthRepository(api.api, cache),
+        cofre: _CofreQuebrado(),
+        cache: cache,
+      );
+
+      await quebrado.iniciar();
+
+      expect(quebrado.estado, EstadoSessao.deslogado);
+    });
+
+    test('GET /me fora do formato na abertura não trava na verificação', () async {
+      await guardarSessao();
+      api.responder('GET /me', '{"id": "$_id", "username": "x", "nome": null, "perfil": "aluno"}');
+
+      await sessao.iniciar();
+
+      expect(sessao.estado, isNot(EstadoSessao.verificando));
+    });
+
+    test('perfil em cache com formato antigo é tratado como sem cache', () async {
+      await guardarSessao();
+      await cache.gravar(_id, RecursoCache.perfil, {'formato': 'antigo'});
+      api.falharRede('GET /me');
+
+      await sessao.iniciar();
+
+      expect(sessao.estado, EstadoSessao.semConexao);
+    });
+
+    test('sair com GET /me em andamento: a resposta tardia não volta a gravar nada', () async {
+      await guardarSessao();
+      api.responder('GET /me', meJson);
+      await sessao.iniciar();
+      final resposta = Completer<http.Response>();
+      api.rotasAssincronas['GET /me'] = (_) => resposta.future;
+
+      final recarga = sessao.recarregarPerfil();
+      await sessao.logout();
+      resposta.complete(respostaJson(meJson));
+      await recarga;
+      await pumpEventQueue();
+
+      expect(sessao.usuario, isNull);
+      expect(cache.ler(_id, RecursoCache.perfil), isNull);
+    });
+
+    test('401 de uma chamada feita com o token antigo não derruba a sessão nova', () async {
+      api.responder('POST /auth/login', loginJson);
+      api.responder('GET /me', meJson);
+      await sessao.login('aluno.teste', 'senha-teste');
+      await pumpEventQueue();
+      final resposta = Completer<http.Response>();
+      api.rotasAssincronas['GET /avisos'] = (_) => resposta.future;
+      final antiga = api.api.get('/avisos').catchError((_) => <String, dynamic>{});
+      await sessao.logout();
+      api.rotas['POST /auth/login'] = (_) =>
+          respostaJson(loginJson.replaceFirst('token-de-teste', 'token-novo'));
+      await sessao.login('aluno.teste', 'senha-teste');
+
+      resposta.complete(respostaJson(erroNaoAutenticadoJson, 401));
+      await antiga;
+      await pumpEventQueue();
+
+      expect(sessao.estado, EstadoSessao.logado);
+    });
+
+    test('sessão encerrada sem usuário carregado ainda limpa o cache do dono do token', () async {
+      await guardarSessao();
+      await cache.gravar(_id, RecursoCache.avisosAtivosP1, {'total': 1});
+      api.falharRede('GET /me');
+      await sessao.iniciar(); // sem conexão: token guardado, usuário não carregado
+      api.responder('GET /avisos', erroNaoAutenticadoJson, 401);
+
+      await api.api.get('/avisos').catchError((_) => <String, dynamic>{});
+      await pumpEventQueue();
+
+      expect(sessao.estado, EstadoSessao.deslogado);
+      expect(cache.ler(_id, RecursoCache.avisosAtivosP1), isNull);
+      expect(await cofre.ler(), isNull);
+    });
+  });
+
   group('login e logout', () {
     test('login grava o token no cofre e entra', () async {
       api.responder('POST /auth/login', loginJson);
@@ -167,4 +256,15 @@ void main() {
       expect(await cofre.ler(), isNull);
     });
   });
+}
+
+class _CofreQuebrado implements CofreSessao {
+  @override
+  Future<SessaoGuardada?> ler() async => throw Exception('PlatformException: BAD_DECRYPT');
+
+  @override
+  Future<void> apagar() async {}
+
+  @override
+  Future<void> gravar(SessaoGuardada sessao) async {}
 }

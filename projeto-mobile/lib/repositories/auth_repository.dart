@@ -2,6 +2,7 @@ import '../models/sessao.dart';
 import '../models/usuario.dart';
 import '../services/api_client.dart';
 import '../services/cache_local.dart';
+import 'conversao.dart';
 
 /// `POST /auth/login` e `GET /me` (contrato §1 e §2).
 class AuthRepository {
@@ -15,14 +16,18 @@ class AuthRepository {
       'username': username,
       'password': password,
     }, autenticado: false);
-    return Sessao.fromLogin(json);
+    return converter(() => Sessao.fromLogin(json));
   }
 
   /// Usuário corrente com as turmas; guarda o perfil para abrir sem rede (RM-28).
   Future<Usuario> me() async {
+    final token = _api.token;
     final json = await _api.get('/me');
-    final usuario = Usuario.fromJson(json);
-    await _cache.gravar(usuario.id, RecursoCache.perfil, json);
+    final usuario = converter(() => Usuario.fromJson(json));
+    // Resposta de uma sessão que já terminou não grava nada (RM-30).
+    if (token != null && _api.token == token) {
+      await _cache.gravar(usuario.id, RecursoCache.perfil, json);
+    }
     return usuario;
   }
 
@@ -30,6 +35,10 @@ class AuthRepository {
   (Usuario, DateTime)? perfilEmCache(String usuarioId) {
     final guardado = _cache.ler(usuarioId, RecursoCache.perfil);
     if (guardado == null) return null;
-    return (Usuario.fromJson(guardado.dados), guardado.coletadoEm);
+    try {
+      return (Usuario.fromJson(guardado.dados), guardado.coletadoEm);
+    } on Object {
+      return null; // formato antigo: como se não houvesse cache
+    }
   }
 }

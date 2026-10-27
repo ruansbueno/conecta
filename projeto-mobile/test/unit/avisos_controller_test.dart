@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:conecta/models/aviso.dart';
 import 'package:conecta/repositories/avisos_repository.dart';
 import 'package:conecta/state/avisos_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 import '../apoio.dart';
 import '../fixtures/fabrica.dart';
@@ -135,5 +138,51 @@ void main() {
     await controller.alternar(SituacaoAviso.ativo);
     expect(controller.lista.itens.first.situacao, SituacaoAviso.ativo);
     expect(api.pedidos, hasLength(2)); // voltar para ativos não recarrega
+  });
+
+  test('falha ao carregar mais não repete sozinha a cada rolagem; só pelo botão', () async {
+    paginado(45);
+    await controller.carregar();
+    api.falharRede('GET /avisos');
+    await controller.carregarMais();
+    final pedidos = api.pedidos.length;
+
+    await controller.carregarMais(); // rolagem de novo
+    await controller.carregarMais();
+    expect(api.pedidos.length, pedidos);
+
+    paginado(45);
+    await controller.carregarMais(repetir: true); // botão "Tentar de novo"
+    expect(controller.lista.itens, hasLength(40));
+  });
+
+  test('recarregar durante "carregar mais": a página tardia é descartada', () async {
+    paginado(45);
+    await controller.carregar();
+    await controller.carregarMais(); // 40 itens
+    final pagina3 = Completer<http.Response>();
+    api.rotasAssincronas['GET /avisos'] = (r) => r.url.queryParameters['offset'] == '40'
+        ? pagina3.future
+        : Future.value(respostaJson(paginaAvisosJson(total: 45)));
+
+    final mais = controller.carregarMais();
+    await controller.recarregar(); // volta a 20 itens
+    pagina3.complete(respostaJson(paginaAvisosJson(total: 45, offset: 40)));
+    await mais;
+
+    expect(controller.lista.itens.map((a) => a.titulo).toList(), [
+      for (var i = 1; i <= 20; i++) 'Aviso número $i',
+    ]);
+  });
+
+  test('resposta que chega depois do descarte não quebra', () async {
+    final resposta = Completer<http.Response>();
+    api.rotasAssincronas['GET /avisos'] = (_) => resposta.future;
+    final carga = controller.carregar();
+
+    controller.dispose();
+    resposta.complete(respostaJson(avisosP1Json));
+
+    await expectLater(carga, completes);
   });
 }

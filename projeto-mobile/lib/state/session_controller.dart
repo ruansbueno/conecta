@@ -22,14 +22,17 @@ class SessionController extends ChangeNotifier {
        _auth = auth,
        _cofre = cofre,
        _cache = cache {
-    _assinatura = _api.sessaoInvalida.listen((falha) => _encerrar(falha.mensagem));
+    _assinatura = _api.sessaoInvalida.listen((evento) {
+      // Um 401 de chamada feita com token antigo não encerra a sessão atual.
+      if (evento.token == _api.token) _encerrar(evento.falha.mensagem);
+    });
   }
 
   final ApiClient _api;
   final AuthRepository _auth;
   final CofreSessao _cofre;
   final CacheLocal _cache;
-  late final StreamSubscription<ApiFailure> _assinatura;
+  late final StreamSubscription<SessaoInvalida> _assinatura;
 
   EstadoSessao _estado = EstadoSessao.verificando;
   Usuario? _usuario;
@@ -49,15 +52,25 @@ class SessionController extends ChangeNotifier {
   Future<void> iniciar() async {
     _estado = EstadoSessao.verificando;
     notifyListeners();
-    final guardada = await _cofre.ler();
+    final SessaoGuardada? guardada;
+    try {
+      guardada = await _cofre.ler();
+    } on Object {
+      // Cofre ilegível (ex.: backup restaurado em outro aparelho): começa do login.
+      await _apagarCofre();
+      return _mudar(EstadoSessao.deslogado);
+    }
     if (guardada == null) return _mudar(EstadoSessao.deslogado);
 
     _api.token = guardada.token;
     try {
-      _usuario = await _auth.me();
+      final usuario = await _auth.me();
+      if (_api.token != guardada.token) return; // sessão encerrada enquanto validava
+      _usuario = usuario;
       _perfilDoCache = null;
       _mudar(EstadoSessao.logado);
     } on ApiFailure catch (falha) {
+      if (_api.token != guardada.token) return;
       if (falha.efeito == EfeitoFalha.encerraSessao) {
         return _encerrar(falha.mensagem, idUsuario: guardada.usuarioId);
       }
@@ -91,8 +104,11 @@ class SessionController extends ChangeNotifier {
   /// Reavalia perfil e turmas (RM-09). 401/403 encerram pelo evento central; sem rede, mantém.
   Future<void> recarregarPerfil() async {
     if (_estado != EstadoSessao.logado) return;
+    final token = _api.token;
     try {
-      _usuario = await _auth.me();
+      final usuario = await _auth.me();
+      if (_estado != EstadoSessao.logado || _api.token != token) return; // saiu nesse meio-tempo
+      _usuario = usuario;
       _perfilDoCache = null;
       notifyListeners();
     } on ApiFailure {
@@ -108,9 +124,10 @@ class SessionController extends ChangeNotifier {
 
   /// O login não traz as turmas: completa com `GET /me` e guarda o perfil.
   Future<void> _completarPerfil() async {
+    final token = _api.token;
     try {
       final usuario = await _auth.me();
-      if (_estado == EstadoSessao.logado && usuario.id == _usuario?.id) {
+      if (_estado == EstadoSessao.logado && _api.token == token && usuario.id == _usuario?.id) {
         _usuario = usuario;
         notifyListeners();
       }
@@ -123,8 +140,10 @@ class SessionController extends ChangeNotifier {
   Future<void> _encerrar(String mensagem, {String? idUsuario}) async {
     if (_estado == EstadoSessao.deslogado) return;
     _mensagemEncerramento = mensagem;
-    final id = idUsuario ?? _usuario?.id;
+    final semUsuario = idUsuario ?? _usuario?.id;
     _mudar(EstadoSessao.deslogado);
+    // Sem usuário carregado (abertura sem rede), o dono do cache vem do cofre.
+    final id = semUsuario ?? await _usuarioDoCofre();
     await _limpar(id);
   }
 
@@ -132,8 +151,24 @@ class SessionController extends ChangeNotifier {
     _api.token = null;
     _usuario = null;
     _perfilDoCache = null;
-    await _cofre.apagar();
+    await _apagarCofre();
     if (usuarioId != null) await _cache.apagarUsuario(usuarioId);
+  }
+
+  Future<String?> _usuarioDoCofre() async {
+    try {
+      return (await _cofre.ler())?.usuarioId;
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<void> _apagarCofre() async {
+    try {
+      await _cofre.apagar();
+    } on Object {
+      // Sem como apagar: o próximo login sobrescreve.
+    }
   }
 
   void _mudar(EstadoSessao estado) {

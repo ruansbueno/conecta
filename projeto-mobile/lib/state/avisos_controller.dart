@@ -16,6 +16,9 @@ class ListaAvisos {
   bool carregandoMais = false;
   bool carregada = false;
 
+  /// Muda a cada substituição da lista: respostas de "carregar mais" de antes são descartadas.
+  int geracao = 0;
+
   /// Data dos dados quando a tela mostra o cache por falta de rede; `null` com dados frescos.
   DateTime? dadosDe;
 
@@ -33,6 +36,7 @@ class AvisosController extends ChangeNotifier {
 
   SituacaoAviso _situacao = SituacaoAviso.ativo;
   ApiFailure? _ultimaFalha;
+  bool _descartado = false;
 
   SituacaoAviso get situacao => _situacao;
   ListaAvisos get lista => _listas[_situacao]!;
@@ -86,9 +90,12 @@ class AvisosController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> carregarMais() async {
+  /// [repetir] vem do botão "Tentar de novo": a rolagem não insiste numa página que falhou.
+  Future<void> carregarMais({bool repetir = false}) async {
     final alvo = lista;
     if (!alvo.temMais || alvo.carregandoMais || alvo.estado != EstadoLista.conteudo) return;
+    if (alvo.falhaAoCarregarMais != null && !repetir) return;
+    final geracao = alvo.geracao;
     alvo
       ..carregandoMais = true
       ..falhaAoCarregarMais = null;
@@ -99,11 +106,12 @@ class AvisosController extends ChangeNotifier {
         situacao: _situacao,
         offset: alvo.itens.length,
       );
+      if (alvo.geracao != geracao) return; // a lista foi recarregada nesse meio-tempo
       alvo
         ..itens.addAll(pagina.items)
         ..total = pagina.total;
     } on ApiFailure catch (falha) {
-      alvo.falhaAoCarregarMais = falha;
+      if (alvo.geracao == geracao) alvo.falhaAoCarregarMais = falha;
     } finally {
       alvo.carregandoMais = false;
       notifyListeners();
@@ -118,6 +126,20 @@ class AvisosController extends ChangeNotifier {
       ..falha = null
       ..falhaAoCarregarMais = null
       ..carregada = true
+      ..carregandoMais = false
+      ..geracao = alvo.geracao + 1
       ..estado = itens.isEmpty ? EstadoLista.vazio : EstadoLista.conteudo;
+  }
+
+  @override
+  void notifyListeners() {
+    // Respostas que chegam depois de a tela sair (logout, troca de aba) não notificam ninguém.
+    if (!_descartado) super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _descartado = true;
+    super.dispose();
   }
 }

@@ -47,30 +47,18 @@ class _Lista extends StatelessWidget {
     final controller = context.watch<AvisosController>();
     final lista = controller.lista;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Avisos'),
-        toolbarHeight: 60,
-        titleSpacing: 20,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: _Alternancia(atual: controller.situacao, onMudar: controller.alternar),
-        ),
-      ),
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Cores.linhaSuave)),
-        ),
-        child: Column(
-          children: [
-            if (controller.situacao == SituacaoAviso.arquivado)
-              const FaixaInformativa(
-                'Avisos arquivados saem da lista ativa e ficam guardados aqui.',
-              ),
-            if (lista.dadosDe != null)
-              FaixaCache(coletadoEm: lista.dadosDe!, onRepetir: controller.carregar),
-            Expanded(child: _corpo(context, controller, lista)),
-          ],
-        ),
+      appBar: AppBar(title: const Text('Avisos'), toolbarHeight: 60, titleSpacing: 20),
+      body: Column(
+        children: [
+          // Fora da AppBar: a altura acompanha a escala de fonte do sistema (RM-36).
+          _Alternancia(atual: controller.situacao, onMudar: controller.alternar),
+          const Divider(),
+          if (controller.situacao == SituacaoAviso.arquivado)
+            const FaixaInformativa('Avisos arquivados saem da lista ativa e ficam guardados aqui.'),
+          if (lista.dadosDe != null)
+            FaixaCache(coletadoEm: lista.dadosDe!, onRepetir: controller.carregar),
+          Expanded(child: _corpo(context, controller, lista)),
+        ],
       ),
     );
   }
@@ -96,12 +84,14 @@ class _Lista extends StatelessWidget {
           child: NotificationListener<ScrollNotification>(
             onNotification: (n) {
               // Próxima página ao passar de 80% da rolagem (D7).
-              if (n.metrics.pixels >= n.metrics.maxScrollExtent * 0.8) {
+              if (n.metrics.axis == Axis.vertical &&
+                  n.metrics.pixels >= n.metrics.maxScrollExtent * 0.8) {
                 controller.carregarMais();
               }
               return false;
             },
             child: ListView.builder(
+              key: const Key('lista-avisos'),
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: lista.itens.length + 1,
               itemBuilder: (context, i) => i < lista.itens.length
@@ -147,7 +137,9 @@ class _Alternancia extends StatelessWidget {
   final ValueChanged<SituacaoAviso> onMudar;
 
   @override
-  Widget build(BuildContext context) => Padding(
+  // Rolagem horizontal: com fonte a 200% as pílulas não cabem lado a lado (RM-36).
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
     padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
     child: Row(
       children: [
@@ -181,12 +173,14 @@ class _Pilula extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
-      child: SizedBox(
-        height: 48,
+      // Alturas mínimas, não fixas: a pílula cresce com a fonte do sistema.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
         child: Center(
+          widthFactor: 1,
           child: Container(
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            constraints: const BoxConstraints(minHeight: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: ativa ? Cores.navy : Cores.branco,

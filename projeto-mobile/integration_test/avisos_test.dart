@@ -45,9 +45,17 @@ void main() {
     await app.entrar(tester);
     await esperar(tester, find.text('Aviso número 1'));
 
-    await tester.fling(find.byType(Scrollable).first, const Offset(0, -6000), 3000);
+    await tester.fling(
+      find.descendant(of: find.byKey(const Key('lista-avisos')), matching: find.byType(Scrollable)),
+      const Offset(0, -6000),
+      3000,
+    );
     await esperar(tester, find.text('Aviso número 25'));
-    await tester.fling(find.byType(Scrollable).first, const Offset(0, -6000), 3000);
+    await tester.fling(
+      find.descendant(of: find.byKey(const Key('lista-avisos')), matching: find.byType(Scrollable)),
+      const Offset(0, -6000),
+      3000,
+    );
     await esperar(tester, find.text('Não há mais avisos.'));
 
     expect(app.servidor.pedidos.where((p) => p.query['offset'] == '20'), hasLength(1));

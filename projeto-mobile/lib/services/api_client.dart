@@ -6,6 +6,14 @@ import 'package:http/http.dart' as http;
 
 import 'api_failure.dart';
 
+/// Sessão invalidada pela API, com o token que a chamada usou (para ignorar tokens antigos).
+class SessaoInvalida {
+  const SessaoInvalida(this.falha, this.token);
+
+  final ApiFailure falha;
+  final String token;
+}
+
 /// Cliente HTTP da API (D3): cabeçalhos, token, timeout, JSON e conversão de erro em
 /// [ApiFailure]. Emite [sessaoInvalida] uma única vez por token (D6).
 class ApiClient {
@@ -19,23 +27,26 @@ class ApiClient {
   final http.Client _client;
   final Uri _base;
   final Duration timeout;
-  final _sessaoInvalida = StreamController<ApiFailure>.broadcast();
+  final _sessaoInvalida = StreamController<SessaoInvalida>.broadcast();
 
   /// Token da sessão corrente; `null` fora de sessão.
   String? token;
   String? _tokenJaInvalidado;
 
   /// `NAO_AUTENTICADO` ou `USUARIO_INATIVO` numa chamada autenticada.
-  Stream<ApiFailure> get sessaoInvalida => _sessaoInvalida.stream;
+  Stream<SessaoInvalida> get sessaoInvalida => _sessaoInvalida.stream;
 
   Future<Map<String, dynamic>> get(String caminho, {Map<String, Object?>? query}) async =>
-      (await _enviar('GET', caminho, query: query))!;
+      _exigirCorpo(await _enviar('GET', caminho, query: query));
 
   Future<Map<String, dynamic>> post(
     String caminho,
     Map<String, Object?> corpo, {
     bool autenticado = true,
-  }) async => (await _enviar('POST', caminho, corpo: corpo, autenticado: autenticado))!;
+  }) async => _exigirCorpo(await _enviar('POST', caminho, corpo: corpo, autenticado: autenticado));
+
+  static Map<String, dynamic> _exigirCorpo(Map<String, dynamic>? corpo) =>
+      corpo ?? (throw const ApiFailure(code: ApiFailure.respostaInvalida));
 
   Future<Map<String, dynamic>?> delete(String caminho) => _enviar('DELETE', caminho);
 
@@ -63,7 +74,8 @@ class ApiClient {
       ).timeout(timeout);
     } on TimeoutException {
       throw const ApiFailure(code: ApiFailure.timeout);
-    } on SocketException {
+    } on IOException {
+      // Inclui SocketException e falhas de TLS (HandshakeException) de redes com portal.
       throw const ApiFailure(code: ApiFailure.semRede);
     } on http.ClientException {
       throw const ApiFailure(code: ApiFailure.semRede);
@@ -122,7 +134,7 @@ class ApiClient {
     final encerra = falha.status == 401 || (falha.status == 403 && falha.code == 'USUARIO_INATIVO');
     if (!encerra || _tokenJaInvalidado == tokenUsado) return;
     _tokenJaInvalidado = tokenUsado;
-    _sessaoInvalida.add(falha);
+    _sessaoInvalida.add(SessaoInvalida(falha, tokenUsado));
   }
 
   void fechar() {

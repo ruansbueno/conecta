@@ -113,7 +113,7 @@ void main() {
     await app.abrir(tester);
     await tester.dragUntilVisible(
       find.text('Não há mais avisos.'),
-      find.byType(Scrollable).first,
+      find.descendant(of: find.byKey(const Key('lista-avisos')), matching: find.byType(Scrollable)),
       const Offset(0, -600),
     );
     await tester.pumpAndSettle();

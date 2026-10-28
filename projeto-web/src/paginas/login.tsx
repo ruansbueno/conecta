@@ -73,7 +73,7 @@ export default function Login() {
             turmas específicas — e acompanhe o que foi publicado, editado e arquivado.
           </p>
         </div>
-        <p className="text-[12.5px] text-tenue">IFSul · Tecnologia em Sistemas para Internet</p>
+        <p className="text-[12.5px] text-azul-100">IFSul · Tecnologia em Sistemas para Internet</p>
       </aside>
 
       <main className="flex flex-1 items-center justify-center px-8">

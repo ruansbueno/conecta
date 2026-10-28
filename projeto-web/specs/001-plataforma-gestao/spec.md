@@ -462,10 +462,30 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | `PERFIL_INCOMPATIVEL` | O papel precisa corresponder ao perfil da pessoa. | Explica no formulário |
 | `SOLICITACAO_NAO_PENDENTE` | Esta solicitação já foi decidida. | Recarrega a lista |
 | `AVISO_NAO_EDITAVEL` | Avisos arquivados ou excluídos não podem ser editados. | Oferece desarquivar |
-| `AVISO_SITUACAO_INVALIDA` | Este aviso já está nessa situação. | Recarrega o aviso |
+| `AVISO_SITUACAO_INVALIDA` | A situação deste aviso mudou enquanto você olhava. A lista foi atualizada. | Recarrega o aviso |
 | `AVISO_NAO_ENCONTRADO` | Este aviso não está mais disponível. | Volta à lista |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
+| `CSRF_INVALIDO` | Não foi possível confirmar a sessão. Recarregue a página e tente de novo. | Permanece (tentar de novo não resolve) |
+| `TURMA_NAO_ENCONTRADA` | Esta turma não está mais disponível. | Recarrega; no detalhe, oferece voltar às turmas |
+| `USUARIO_NAO_ENCONTRADO` | Esta pessoa não está mais disponível. | Recarrega |
+| `VINCULO_NAO_ENCONTRADO` | Este vínculo já tinha sido removido. | Recarrega os vínculos |
+| `SOLICITACAO_NAO_ENCONTRADA` | Esta solicitação não está mais disponível. | Recarrega a lista |
+| `SEM_REDE` | Não foi possível conectar. Verifique a rede e tente de novo. | Mantém o formulário; oferece tentar de novo |
+| `TIMEOUT` | Não foi possível conectar. Verifique a rede e tente de novo. | Mantém o formulário; oferece tentar de novo |
+| `SESSAO_NAO_GUARDADA` | O acesso foi aceito, mas o navegador não guardou a sessão. Verifique se os cookies estão permitidos e tente de novo. | Permanece no login (código interno da web: 401 logo depois de um login aceito) |
 | 5xx ou desconhecido | Não foi possível concluir agora. Tente de novo em instantes. | Mantém o formulário |
+
+Algumas telas dão a um mesmo `code` o sentido que ele tem ali (conferido nos testes de componente):
+
+| Tela | Situação | Mensagem |
+|---|---|---|
+| T11 Alterar perfil | 409 `PERFIL_INCOMPATIVEL` | Esta pessoa tem vínculos com turmas que não combinam com o novo perfil. Remova os vínculos na página da turma antes de mudar o perfil. |
+| T11 Alterar perfil | 422 no campo `ativo`, na própria conta | Você não pode desativar a sua própria conta. |
+| T11 Alterar perfil | 422 nos campos `perfil` ou `ativo` | É preciso manter ao menos um administrador ativo. |
+| T09 Solicitações | 403 `SEM_PERMISSAO` ao decidir | Você só pode decidir as solicitações das turmas em que leciona. (recarrega a fila) |
+| T09 Solicitações | 409 `PERFIL_INCOMPATIVEL` ao aprovar | Esta pessoa não tem mais perfil de aluno. Recuse a solicitação. |
+| T04 Editor (edição) | 422 `body` "nenhuma alteração" | Nenhuma alteração para salvar. (informação, não falha) |
+| Casca (Sair) | Falha ao encerrar a sessão, exceto `CSRF_INVALIDO` (que usa a mensagem da tabela acima) | Não foi possível sair. Tente de novo. |
 
 ## 7. Design System
 
@@ -562,12 +582,16 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 
 | Requisito da web | Requisito da API | Tela | Teste |
 |---|---|---|---|
-| RW-01 a RW-09 | RF-01, RF-04, RF-05, RF-07 | T01, T16 | unidade `sessao.test`; e2e `login.spec` |
-| RW-10 a RW-12 | RF-04, RF-09, RF-10 | todas | e2e `permissoes.spec` |
-| RW-13 a RW-22 | RF-20, RF-24 a RF-28 | T03–T06, T15 | componente `editor.test`, `historico.test`; e2e `aviso-ciclo-de-vida.spec` |
-| RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | componente `turma-form.test`; e2e `turmas-vinculos.spec` |
-| RW-28 a RW-30 | RF-17 | T09 | e2e `solicitacoes.spec` |
-| RW-31 a RW-33 | RF-09 | T10, T11 | componente `perfil-modal.test`; e2e `usuarios.spec` |
+| RW-01 a RW-09 | RF-01, RF-04, RF-05, RF-07 | T01, T16 | unidade `sessao.test`, `cliente.test`, `erros.test`; componente `login.test`, `sessao.test`, `sessao-corrida.test`, `sair.test`; e2e `login.spec`, `sem-vazamento.spec` |
+| RW-10 a RW-12 | RF-04, RF-09, RF-10 | todas | componente `layout.test`, `sair.test` (perfil vale na navegação seguinte), `usuarios.test`; e2e `login.spec`, `usuarios.spec`, `solicitacoes.spec` (403 do docente) |
+| RW-13 a RW-22 | RF-20, RF-24 a RF-28 | T03–T06, T15 | unidade `avisos-recurso.test`, `formulario-aviso.test`, `destinos.test`; componente `lista-avisos.test`, `editor.test`, `editar-aviso.test`, `seletor-destinos.test`, `historico.test`; e2e `publicar-aviso.spec`, `aviso-ciclo-de-vida.spec`, `fluxo-completo.spec` |
+| RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | unidade `turmas-recurso.test`, `formulario-turma.test`; componente `lista-turmas.test`, `turma-form.test`, `detalhe-turma.test`, `turma-corridas.test`; e2e `turmas-vinculos.spec` |
+| RW-28 a RW-30 | RF-17 | T09 | unidade `solicitacoes-recurso.test`; componente `solicitacoes.test`; e2e `solicitacoes.spec` |
+| RW-31 a RW-33 | RF-09 | T10, T11 | unidade `usuarios-recurso.test`; componente `usuarios.test`, `perfil-modal.test`; e2e `usuarios.spec` |
+| — painel | RF-30 | T02, T14 | componente `painel.test`; e2e `painel.spec`, `fluxo-completo.spec` |
 | RW-34 a RW-36, RW-46 | RF-35 a RF-47 (E3) | T12, T13 | planejados na F2 |
-| RW-37 a RW-42 | — | todas | componente `estados.test`; auditoria de acessibilidade por tela |
+| RW-37 a RW-42 | — | todas | componente `comum.test` (estados, modal, tabela, abas); e2e `acessibilidade.spec` (axe, WCAG 2.1 AA), `teclado.spec`, `sem-perder-texto.spec`; unidade `mensagens-spec.test` (tabela da seção 6) |
 | RW-43, RW-44 | RF-10, RF-30 | todas | revisão de código; e2e `sem-vazamento.spec` |
+| RW-45 | — | todas | `deploy/verificar.sh` + `deploy/implantacao.spec` (nginx, HTTPS, `/api`, cookie `Secure`) |
+
+Relatório de execução e comparação com o design: [`evidencias/RELATORIO.md`](../../evidencias/RELATORIO.md).

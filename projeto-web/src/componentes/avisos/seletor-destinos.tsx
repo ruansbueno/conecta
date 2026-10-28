@@ -54,7 +54,7 @@ export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }:
     const id = `${idPainel}-${chave}`
     return (
       <li key={chave} className="border-b border-linha-suave last:border-b-0">
-        <label className={`flex items-center gap-3.5 px-6 py-3 ${noAviso ? 'opacity-60' : 'cursor-pointer hover:bg-fundo'}`}>
+        <label className={`flex items-center gap-3.5 px-6 py-3 ${noAviso ? 'bg-fundo' : 'cursor-pointer hover:bg-fundo'}`}>
           <input
             type="checkbox"
             className="size-[18px] accent-azul"

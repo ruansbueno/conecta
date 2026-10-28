@@ -142,11 +142,11 @@ describe('contador de solicitações na barra lateral', () => {
         </SessaoProvider>
       </MemoryRouter>,
     )
-    expect(await screen.findByRole('link', { name: 'Solicitações, 7 pendentes' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações 7 pendentes' })).toBeInTheDocument()
 
     total = 1
     await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
-    expect(await screen.findByRole('link', { name: 'Solicitações, 1 pendente' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações 1 pendente' })).toBeInTheDocument()
   })
 })
 
@@ -184,11 +184,11 @@ describe('contador acompanha as decisões', () => {
         </SessaoProvider>
       </MemoryRouter>,
     )
-    expect(await screen.findByRole('link', { name: 'Solicitações, 3 pendentes' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações 3 pendentes' })).toBeInTheDocument()
 
     await userEvent.click(await screen.findByRole('button', { name: /^Aprovar/ }))
 
-    expect(await screen.findByRole('link', { name: 'Solicitações, 2 pendentes' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações 2 pendentes' })).toBeInTheDocument()
   })
 
 })
@@ -222,7 +222,7 @@ describe('contador resiste a uma falha momentânea', () => {
         </SessaoProvider>
       </MemoryRouter>,
     )
-    expect(await screen.findByRole('link', { name: 'Solicitações, 4 pendentes' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações 4 pendentes' })).toBeInTheDocument()
     falhar = true
     await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
     await screen.findByText('avisos')
@@ -232,6 +232,6 @@ describe('contador resiste a uma falha momentânea', () => {
       ).toBe(2),
     )
     await new Promise((r) => setTimeout(r, 100))
-    expect(screen.getByRole('link', { name: 'Solicitações, 4 pendentes' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Solicitações 4 pendentes' })).toBeInTheDocument()
   })
 })

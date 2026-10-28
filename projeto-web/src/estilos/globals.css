@@ -35,7 +35,9 @@
   --color-tinta: #0f1c33;
   --color-texto-corpo: #263a5b;
   --color-apagado: #5b6b86;
-  --color-tenue: #8a99b0;
+  /* Design: #8a99b0 (2,9:1 sobre branco). Escurecido na mesma matiz para o AA em texto pequeno
+     (4,5:1 também sobre o fundo e a superfície azul) — T072, diferença deliberada do design. */
+  --color-tenue: #646f80;
   --color-linha: #e4e9f2;
   --color-linha-suave: #eff2f7;
   --color-fundo: #f5f8fc;

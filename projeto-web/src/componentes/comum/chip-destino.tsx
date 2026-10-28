@@ -32,9 +32,12 @@ export function ChipDestino({ destino, onRemover }: { destino: Destino; onRemove
     <span
       className={`inline-flex h-7 items-center gap-1.5 rounded-full pl-2.5 ${onRemover ? 'pr-1' : 'pr-2.5'} text-[12.5px] font-medium text-navy ${fundo}`}
     >
-      <span aria-label={`Destino: ${rotulo}`} className="inline-flex items-center gap-1.5">
+      {/* aria-label não vale num span sem papel (axe: aria-prohibited-attr); o prefixo vai como texto
+          só para o leitor de tela, e o rótulo continua legível. */}
+      <span className="inline-flex items-center gap-1.5">
         <span aria-hidden="true" className={`size-1.5 rounded-full ${ponto}`} />
-        <span aria-hidden="true">{rotulo}</span>
+        <span className="sr-only">Destino: </span>
+        <span>{rotulo}</span>
       </span>
       {onRemover && (
         <button

@@ -30,7 +30,7 @@ describe('ChipDestino', () => {
     for (const rotulo of ['Todos os usuários', '6º semestre', 'SI-3A', 'Docentes', 'curso']) {
       expect(screen.getByText(rotulo)).toBeInTheDocument()
     }
-    expect(screen.getByLabelText('Destino: SI-3A')).toBeInTheDocument()
+    expect(screen.getByText('SI-3A').parentElement).toHaveTextContent('Destino: SI-3A')
   })
 
   it('removível por botão com rótulo próprio, operável por teclado', async () => {

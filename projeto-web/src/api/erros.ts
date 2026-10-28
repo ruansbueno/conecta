@@ -52,6 +52,9 @@ const MAPA: Record<string, [string, Efeito]> = {
   [TIMEOUT]: [SEM_CONEXAO, 'repetir'],
 }
 
+/** Todo `code` com mensagem própria na web — conferidos contra a tabela da spec §6 (T071). */
+export const CODES_DA_WEB = Object.keys(MAPA)
+
 export class ApiError extends Error {
   readonly code: string
   readonly status?: number

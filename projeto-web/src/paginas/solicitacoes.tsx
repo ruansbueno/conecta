@@ -37,6 +37,14 @@ const VAZIO: Record<StatusSolicitacao, [string, string]> = {
 const POR_PAGINA = 20
 const ID_ABAS = 'solicitacoes-status'
 const SEM_TURMA = 'Você só pode decidir as solicitações das turmas em que leciona.'
+const NAO_E_ALUNO = 'Esta pessoa não tem mais perfil de aluno. Recuse a solicitação.'
+
+/** Mensagem da decisão recusada pela API, com o sentido que ela tem nesta fila. */
+function mensagemDaDecisao(e: unknown) {
+  if (e instanceof ApiError && e.code === 'SEM_PERMISSAO') return SEM_TURMA
+  if (e instanceof ApiError && e.code === 'PERFIL_INCOMPATIVEL') return NAO_E_ALUNO
+  return mensagemDe(e)
+}
 
 export default function Solicitacoes() {
   const { params, filtrar } = useFiltrosNaUrl()
@@ -50,13 +58,18 @@ export default function Solicitacoes() {
     () => listarSolicitacoes({ status, turma_id: turma || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
-  // Decisões desta visita: a linha continua na fila mostrando quem decidiu e quando (RW-30).
-  const [decididas, setDecididas] = useState(new Map<string, SolicitacaoGestao>())
+  // Decisões feitas nesta página: a linha continua à vista mostrando quem decidiu e quando (RW-30),
+  // enquanto a fila em si vem sempre do servidor (sem deslocar a paginação). Trocar de página,
+  // aba ou turma descarta essas linhas.
+  const chave = JSON.stringify([status, turma, offset])
+  const [decididas, setDecididas] = useState({ chave, mapa: new Map<string, SolicitacaoGestao>() })
+  const decididasAqui = decididas.chave === chave ? decididas.mapa : new Map<string, SolicitacaoGestao>()
   const [pendentes, setPendentes] = useState<number | null>(null)
   const [contagem, setContagem] = useState(0)
   const [turmas, setTurmas] = useState<{ id: string; nome: string }[]>([])
   const [mensagem, setMensagem] = useState<{ texto: string; erro: boolean }>()
   const [recusando, setRecusando] = useState<SolicitacaoGestao | null>(null)
+  const [erroRecusa, setErroRecusa] = useState<string>()
   const emCurso = useRef(false)
   const [ocupado, setOcupado] = useState(false)
   const [agora] = useState(() => new Date())
@@ -79,34 +92,45 @@ export default function Solicitacoes() {
   }, [])
 
   const recarregarTudo = () => {
-    setDecididas(new Map())
     recarregar()
     setContagem((n) => n + 1)
   }
 
+  /**
+   * Uma decisão por vez. Devolve `null` em sucesso ou a mensagem do erro; a fila recarrega depois
+   * de decidir e quando a recusa da API significa que ela mudou (decidida por outra pessoa, aluno já
+   * vinculado, turma que deixou de ser de quem decide).
+   */
   async function decidir(s: SolicitacaoGestao, acao: () => Promise<SolicitacaoGestao>, sucesso: string) {
-    if (emCurso.current) return
+    if (emCurso.current) return 'ocupado'
     emCurso.current = true
     setOcupado(true)
     setMensagem(undefined)
     try {
       const atual = await acao()
-      setDecididas((m) => new Map(m).set(s.id, atual))
-      setPendentes((n) => (n === null ? n : Math.max(0, n - 1)))
+      setDecididas((d) => ({ chave, mapa: new Map(d.chave === chave ? d.mapa : []).set(s.id, atual) }))
       setMensagem({ texto: sucesso, erro: false })
+      recarregarTudo()
+      return null
     } catch (e) {
-      // 403 aqui é turma em que a pessoa deixou de lecionar: a fila dela mudou.
-      const semTurma = e instanceof ApiError && e.code === 'SEM_PERMISSAO'
-      setMensagem({ texto: semTurma ? SEM_TURMA : mensagemDe(e), erro: true })
-      // Decidida por outra pessoa, ou aluno já vinculado (a API marca como recusada): a fila muda.
-      if (semTurma || (e instanceof ApiError && e.efeito === 'recarrega')) recarregarTudo()
+      const texto = mensagemDaDecisao(e)
+      const filaMudou = e instanceof ApiError && (e.code === 'SEM_PERMISSAO' || e.efeito === 'recarrega')
+      if (filaMudou) recarregarTudo()
+      return { texto, filaMudou }
     } finally {
       emCurso.current = false
       setOcupado(false)
     }
   }
 
-  const itens = carga.estado === 'pronto' ? carga.dados.items.map((s) => decididas.get(s.id) ?? s) : []
+  // Fila do servidor + as decididas aqui (que o servidor já não lista como pendentes), na ordem do pedido.
+  const itens =
+    carga.estado === 'pronto'
+      ? [
+          ...carga.dados.items.filter((s) => !decididasAqui.has(s.id)),
+          ...decididasAqui.values(),
+        ].sort((a, b) => a.solicitadaEm.getTime() - b.solicitadaEm.getTime())
+      : []
   const esperando = itens.filter((s) => s.status === 'pendente' && diasEsperando(s, agora) > DIAS_DE_ESPERA).length
   const abas = STATUS.map((s) => (s.id === 'pendente' && pendentes !== null ? { ...s, rotulo: `Pendentes (${pendentes})` } : s))
 
@@ -164,7 +188,17 @@ export default function Solicitacoes() {
         {carga.estado === 'carregando' ? (
           <Esqueleto rotulo="Carregando as solicitações" />
         ) : carga.estado === 'erro' ? (
-          <EstadoErro mensagem={carga.mensagem} onRepetir={recarregarTudo} />
+          <>
+            <EstadoErro mensagem={carga.mensagem} onRepetir={recarregarTudo} />
+            {/* Turma que deixou de existir ou de ser de quem decide não se resolve tentando de novo. */}
+            {turma && (
+              <div className="-mt-10 pb-12 text-center">
+                <button type="button" onClick={() => filtrar({ turma: '' })} className="botao-secundario">
+                  Limpar filtro de turma
+                </button>
+              </div>
+            )}
+          </>
         ) : itens.length === 0 ? (
           <EstadoVazio
             icone="solicitacoes"
@@ -179,8 +213,14 @@ export default function Solicitacoes() {
                 solicitacoes={itens}
                 agora={agora}
                 ocupado={ocupado}
-                onAprovar={(s) => void decidir(s, () => aprovarSolicitacao(s.id), `${s.aluno.nome} agora está em ${s.turma.nome}.`)}
-                onRecusar={setRecusando}
+                onAprovar={async (s) => {
+                  const falha = await decidir(s, () => aprovarSolicitacao(s.id), `${s.aluno.nome} agora está em ${s.turma.nome}.`)
+                  if (falha && falha !== 'ocupado') setMensagem({ texto: falha.texto, erro: true })
+                }}
+                onRecusar={(s) => {
+                  setErroRecusa(undefined)
+                  setRecusando(s)
+                }}
               />
             </div>
             <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
@@ -204,11 +244,21 @@ export default function Solicitacoes() {
         <RecusarModal
           aluno={recusando.aluno.nome}
           turma={recusando.turma.nome}
+          enviando={ocupado}
+          erro={erroRecusa}
           onFechar={() => setRecusando(null)}
-          onRecusar={(motivo) => {
+          onRecusar={async (motivo) => {
             const s = recusando
-            setRecusando(null)
-            void decidir(s, () => recusarSolicitacao(s.id, motivo), `Solicitação de ${s.aluno.nome} recusada.`)
+            setErroRecusa(undefined)
+            const falha = await decidir(s, () => recusarSolicitacao(s.id, motivo), `Solicitação de ${s.aluno.nome} recusada.`)
+            if (falha === 'ocupado') return
+            // Em sucesso, ou quando a fila mudou por fora, o modal fecha; noutros erros, fica com o motivo.
+            if (!falha || falha.filaMudou) {
+              setRecusando(null)
+              if (falha) setMensagem({ texto: falha.texto, erro: true })
+            } else {
+              setErroRecusa(falha.texto)
+            }
           }}
         />
       )}

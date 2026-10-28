@@ -162,7 +162,7 @@ describe('decidir (RW-29, RW-30)', () => {
   it('aprovar cria o vínculo e a linha passa a mostrar quem aprovou e quando', async () => {
     const chamadas = api({ 'POST /gestao/solicitacoes/s1/aprovar': { status: 200, corpo: decidida('aprovada') } })
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('Júlia Santos agora está em Sistemas para Internet 3A.')
     const julia = await linha(/Júlia Santos/)
@@ -170,7 +170,6 @@ describe('decidir (RW-29, RW-30)', () => {
     expect(julia).toHaveTextContent('por Maria Coordenadora · agora')
     expect(within(julia).queryByRole('button', { name: /^Aprovar/ })).not.toBeInTheDocument()
     expect(chamadas.map((c) => c.chave)).toContain('POST /gestao/solicitacoes/s1/aprovar')
-    expect(screen.getByRole('tab', { name: 'Pendentes (6)' })).toBeInTheDocument()
   })
 
   it('recusar pede o motivo (opcional, até 300) e mostra a recusa', async () => {
@@ -178,7 +177,7 @@ describe('decidir (RW-29, RW-30)', () => {
       'POST /gestao/solicitacoes/s1/recusar': { status: 200, corpo: decidida('recusada', { motivo_recusa: 'Turma completa' }) },
     })
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Recusar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Recusar Júlia Santos em Sistemas para Internet 3A' }))
 
     const dialogo = screen.getByRole('dialog', { name: 'Recusar a solicitação de Júlia Santos?' })
     const motivo = within(dialogo).getByLabelText('Motivo (opcional)')
@@ -196,7 +195,7 @@ describe('decidir (RW-29, RW-30)', () => {
   it('já decidida por outra pessoa (409): explica e recarrega a fila', async () => {
     const chamadas = api({ 'POST /gestao/solicitacoes/s1/aprovar': { status: 409, corpo: erro('SOLICITACAO_NAO_PENDENTE') } })
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Esta solicitação já foi decidida.')
     await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
@@ -205,7 +204,7 @@ describe('decidir (RW-29, RW-30)', () => {
   it('aluno já vinculado por outro caminho (409 JA_VINCULADO): explica e recarrega', async () => {
     const chamadas = api({ 'POST /gestao/solicitacoes/s1/aprovar': { status: 409, corpo: erro('JA_VINCULADO') } })
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Esta pessoa já está vinculada à turma.')
     await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
@@ -214,7 +213,7 @@ describe('decidir (RW-29, RW-30)', () => {
   it('turma que não é mais de quem decide (403): explica e recarrega a fila', async () => {
     const chamadas = api({ 'POST /gestao/solicitacoes/s1/aprovar': { status: 403, corpo: erro('SEM_PERMISSAO') } })
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Você só pode decidir as solicitações das turmas em que leciona.')
     await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
@@ -234,10 +233,94 @@ describe('decidir (RW-29, RW-30)', () => {
       ),
     )
     abrir()
-    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos' }))
+    await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
-    expect(within(await linha(/Caio Ribeiro/)).getByRole('button', { name: 'Aprovar Caio Ribeiro' })).toBeDisabled()
+    expect(within(await linha(/Caio Ribeiro/)).getByRole('button', { name: 'Aprovar Caio Ribeiro em Sistemas para Internet 4A' })).toBeDisabled()
     liberar()
-    await waitFor(async () => expect(within(await linha(/Caio Ribeiro/)).getByRole('button', { name: 'Aprovar Caio Ribeiro' })).toBeEnabled())
+    await waitFor(async () => expect(within(await linha(/Caio Ribeiro/)).getByRole('button', { name: 'Aprovar Caio Ribeiro em Sistemas para Internet 4A' })).toBeEnabled())
+  })
+
+  describe('revisão da fase 7', () => {
+    it('depois de decidir, a fila vem do servidor (sem pular pendentes na página seguinte) e a decidida continua à vista', async () => {
+      let aprovou = false
+      const chamadas = api({
+        'POST /gestao/solicitacoes/s1/aprovar': (() => {
+          aprovou = true
+          return { status: 200, corpo: decidida('aprovada') }
+        }) as unknown as R,
+        'GET /gestao/solicitacoes': (q) =>
+          q.get('limit') === '1'
+            ? { status: 200, corpo: { ...pagina([]), total: aprovou ? 6 : 7 } }
+            : { status: 200, corpo: pagina(aprovou ? [PENDENTES[1]] : PENDENTES) },
+      })
+      abrir()
+      await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: /^Aprovar Júlia/ }))
+
+      await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
+      expect(await linha(/Júlia Santos/)).toHaveTextContent('Aprovada')
+      expect(await linha(/Caio Ribeiro/)).toBeInTheDocument()
+      expect(await screen.findByRole('tab', { name: 'Pendentes (6)' })).toBeInTheDocument()
+    })
+
+    it('recarga depois de um 409 não traz de volta os botões de quem já foi decidida', async () => {
+      let liberar: () => void = () => undefined
+      let recargas = 0
+      api({
+        'POST /gestao/solicitacoes/s1/aprovar': { status: 200, corpo: decidida('aprovada') },
+        'POST /gestao/solicitacoes/s2/aprovar': { status: 409, corpo: erro('SOLICITACAO_NAO_PENDENTE') },
+      })
+      const base = globalThis.fetch
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string, init: RequestInit) => {
+          if (url.includes('/gestao/solicitacoes?') && !url.includes('limit=1') && recargas++ >= 2) {
+            return new Promise<Response>((r) => (liberar = () => r(new Response(JSON.stringify(pagina(PENDENTES)), { status: 200 }))))
+          }
+          return base(url, init)
+        }),
+      )
+      abrir()
+      await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: /^Aprovar Júlia/ }))
+      await screen.findByText(/agora está em/)
+      await userEvent.click(within(await linha(/Caio Ribeiro/)).getByRole('button', { name: /^Aprovar Caio/ }))
+      await screen.findByRole('alert')
+
+      expect(await linha(/Júlia Santos/)).toHaveTextContent('Aprovada')
+      expect(within(await linha(/Júlia Santos/)).queryByRole('button', { name: /^Aprovar/ })).not.toBeInTheDocument()
+      liberar()
+    })
+
+    it('recusa que falha mantém o modal aberto com o motivo digitado', async () => {
+      api({ 'POST /gestao/solicitacoes/s1/recusar': { status: 503, corpo: erro('ERRO_INTERNO') } })
+      abrir()
+      await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: /^Recusar Júlia/ }))
+      const dialogo = screen.getByRole('dialog', { name: /Recusar a solicitação/ })
+      await userEvent.type(within(dialogo).getByLabelText('Motivo (opcional)'), 'Sem vagas')
+      await userEvent.click(within(dialogo).getByRole('button', { name: 'Recusar solicitação' }))
+
+      expect(await within(dialogo).findByRole('alert')).toHaveTextContent(/Não foi possível concluir agora/)
+      expect(within(dialogo).getByLabelText('Motivo (opcional)')).toHaveValue('Sem vagas')
+    })
+
+    it('aprovar quem não tem mais perfil de aluno explica o que fazer', async () => {
+      api({ 'POST /gestao/solicitacoes/s1/aprovar': { status: 409, corpo: erro('PERFIL_INCOMPATIVEL') } })
+      abrir()
+      await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: /^Aprovar Júlia/ }))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Esta pessoa não tem mais perfil de aluno. Recuse a solicitação.')
+    })
+
+    it('filtro de turma que a API recusa oferece limpar o filtro', async () => {
+      api({
+        'GET /gestao/solicitacoes': (q) =>
+          q.get('turma_id') ? { status: 403, corpo: erro('SEM_PERMISSAO') } : { status: 200, corpo: pagina(PENDENTES) },
+      })
+      abrir(`/solicitacoes?turma=${T1}`)
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Limpar filtro de turma' }))
+
+      expect(await tabela()).toBeInTheDocument()
+      expect(screen.getByTestId('url')).toBeEmptyDOMElement()
+    })
   })
 })

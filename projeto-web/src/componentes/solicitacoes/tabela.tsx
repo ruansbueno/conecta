@@ -81,10 +81,10 @@ export function TabelaSolicitacoes({ legenda, solicitacoes, agora, ocupado, onAp
       celula: (s) =>
         s.status === 'pendente' ? (
           <div className="flex justify-end gap-2">
-            <button type="button" disabled={ocupado} aria-label={`Aprovar ${s.aluno.nome}`} onClick={() => onAprovar(s)} className="botao-primario">
+            <button type="button" disabled={ocupado} aria-label={`Aprovar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onAprovar(s)} className="botao-primario">
               Aprovar
             </button>
-            <button type="button" disabled={ocupado} aria-label={`Recusar ${s.aluno.nome}`} onClick={() => onRecusar(s)} className="botao-secundario">
+            <button type="button" disabled={ocupado} aria-label={`Recusar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onRecusar(s)} className="botao-secundario">
               Recusar
             </button>
           </div>

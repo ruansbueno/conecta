@@ -8,11 +8,14 @@ export const LIMITE_MOTIVO = 300
 interface Props {
   aluno: string
   turma: string
+  /** O modal fica aberto durante o envio; em falha, mostra o erro e mantém o motivo (RW-42). */
+  enviando: boolean
+  erro?: string
   onRecusar: (motivo: string) => void
   onFechar: () => void
 }
 
-export function RecusarModal({ aluno, turma, onRecusar, onFechar }: Props) {
+export function RecusarModal({ aluno, turma, enviando, erro, onRecusar, onFechar }: Props) {
   const [motivo, setMotivo] = useState('')
   const id = useId()
   return (
@@ -27,13 +30,18 @@ export function RecusarModal({ aluno, turma, onRecusar, onFechar }: Props) {
           <button type="button" onClick={onFechar} className="botao-secundario">
             Cancelar
           </button>
-          <button type="button" onClick={() => onRecusar(motivo)} className="botao-perigo">
+          <button type="button" disabled={enviando} aria-busy={enviando} onClick={() => onRecusar(motivo)} className="botao-perigo">
             Recusar solicitação
           </button>
         </>
       }
     >
       <div className="px-6 py-5">
+        {erro && (
+          <p role="alert" className="mb-4 rounded-xl border border-perigo-borda bg-perigo-fundo px-4 py-3 text-[13.5px] text-perigo">
+            {erro}
+          </p>
+        )}
         <label htmlFor={id} className="rotulo">
           Motivo (opcional)
         </label>

@@ -4,13 +4,16 @@ Plataforma web do CONECTA, em React, para administração, coordenação e docen
 auditar avisos, gerir turmas e vínculos, decidir solicitações de inscrição e administrar perfis
 de acesso. É aqui que a informação entra no sistema; o aplicativo mobile é quem a entrega.
 
-Este diretório contém, por enquanto, **apenas a documentação de planejamento**. Nenhuma linha de
-código da plataforma foi escrita.
+As fases 1 a 5 da F1 estão implementadas (49 de 77 tarefas): entrar na plataforma, publicar avisos
+para o público certo e acompanhar e auditar tudo o que foi publicado. Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
 | Caminho | Conteúdo |
 |---|---|
+| `src/` | Código: `api/` (cliente HTTP, esquemas `zod`, recursos por endpoint), `sessao/`, `componentes/`, `paginas/`, `lib/`, `estilos/` |
+| `tests/` | Testes de unidade e de componente (Vitest + Testing Library) |
+| `e2e/` | Testes de ponta a ponta (Playwright) e o servidor falso que imita o contrato da API |
 | `.specify/memory/constitution.md` | Princípios que governam a plataforma (cliente sem regra de negócio, token fora do navegador, dados no servidor, acessibilidade) |
 | `specs/001-plataforma-gestao/spec.md` | Especificação funcional: escopo em fases, 16 telas, 7 user stories, requisitos RW-01 a RW-44 |
 | `specs/001-plataforma-gestao/plan.md` | Plano técnico: stack, estrutura de pastas, fluxos de sessão, leitura e escrita |
@@ -33,7 +36,7 @@ código da plataforma foi escrita.
 
 | Fase | Conteúdo | Situação |
 |---|---|---|
-| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Planejada, pronta para implementar |
+| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Em andamento: fases 1–5 de 10 prontas |
 | **F2** | Gestão de agenda e de horários das turmas | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
@@ -49,10 +52,53 @@ sessão (`httpOnly`, `Secure`, `SameSite=Strict`) é a própria API; o navegador
 cada chamada feita com `credentials: 'include'`. Disso decorrem duas obrigações: web e API na
 mesma origem, e proteção CSRF em toda escrita.
 
+## Andamento
+
+Atualizado em 28/10/2026.
+
+| Fase da F1 | Conteúdo | Situação |
+|---|---|---|
+| 1. Setup | Projeto Vite, dependências, regras de lint próprias (cores só no tema, armazenamento só no rascunho, componentes sem acesso direto à API) | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
+| 2. Fundação | Tema do design, cliente HTTP com cookie + CSRF, mapa único de erros, sessão, casca com navegação por perfil, componentes acessíveis | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
+| 3. US1 — Entrar | Login (w-01), sem permissão (w-16), aluno orientado ao app, sessão expirada e acesso desativado | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
+| 4. US2 — Publicar aviso | Editor (w-04), seletor de destinos (w-05), restrição do docente (w-15), agendamento, prévia do cartão do app, rascunho local, edição | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
+| 5. US3 — Acompanhar e auditar | Lista por situação com busca e filtros (w-03), histórico e versões (w-06), arquivar, desarquivar e excluir | ✅ [#5](https://github.com/ruansbueno/conecta/pull/5) |
+| 6. US4 — Turmas e vínculos | Telas w-07 e w-08 | A fazer |
+| 7. US5 — Solicitações | Tela w-09 | A fazer |
+| 8. US6 — Usuários e perfis | Telas w-10 e w-11 | A fazer |
+| 9. Painel e integração | Painel real de coordenação e de docente (w-02, w-14) e o teste do fluxo completo web → API → app | A fazer (o painel atual é provisório) |
+| 10. Polimento e evidências | Revisão das mensagens de erro, auditoria de acessibilidade por tela, comparação com o design, implantação estática | A fazer |
+
+**Testes**: 160 de unidade e componente (Vitest) e 16 de ponta a ponta (Playwright), além da
+validação visual das telas prontas contra a API local real.
+
+## Como rodar
+
+Com a API no ar em `http://localhost:8000` (veja [`projeto-api/README.md`](../projeto-api/README.md)):
+
+```bash
+npm install
+npm run dev          # http://localhost:5173 — /api é encaminhado para a API local
+```
+
+Entre com os usuários do seed da API (`coord.teste`, `docente.teste`, `admin.teste`), senha
+`senha-teste`.
+
+```bash
+npm run test         # unidade e componente (Vitest)
+npm run test:e2e     # ponta a ponta (Playwright), com o servidor falso — não precisa da API
+npm run lint
+npm run typecheck
+npm run build        # site estático em dist/
+```
+
+O roteiro completo de verificação está em
+[`quickstart.md`](specs/001-plataforma-gestao/quickstart.md).
+
 ## Próximo passo
 
-Executar as tarefas de `specs/001-plataforma-gestao/tasks.md`, na ordem das fases, começando pelo
-Setup. Nada deve ser implementado sem a tarefa correspondente.
+Fase 6 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md): turmas e vínculos. Nada deve ser
+implementado sem a tarefa correspondente.
 
 A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api` e HTTPS —
 está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

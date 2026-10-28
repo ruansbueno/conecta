@@ -10,17 +10,18 @@ murais, grupos de mensagem e e-mail, e nem sempre chegam a quem precisa. No CONE
 ou evento é publicado com um **público explícito** — todos, um semestre inteiro, os docentes ou
 turmas específicas — e cada pessoa vê exatamente o que a alcança.
 
-> **Estado atual**: o projeto está na fase de especificação e design. A API, a plataforma web e o
-> aplicativo estão **especificados e planejados**, com as telas desenhadas, mas **ainda não
-> implementados**. Veja [O que está faltando](#o-que-está-faltando).
+> **Estado atual (28/10/2026)**: a API das entregas E1 e E2 está implementada; o aplicativo tem o
+> marco de avisos (login, sessão e aba Avisos); a plataforma web tem login, publicação de avisos e
+> a auditoria completa deles (lista, histórico e versões). Faltam turmas, solicitações e usuários
+> na web, o restante do aplicativo e a agenda (E3). Veja [Andamento](#andamento).
 
 ## Estrutura do repositório
 
 | Pasta | Conteúdo | Situação |
 |---|---|---|
-| [`projeto-api/`](projeto-api/) | Especificação da API REST: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, plano técnico e tarefas | Especificado e planejado |
-| [`projeto-mobile/`](projeto-mobile/) | Especificação do aplicativo Flutter: escopo em fases, requisitos, mapa tela → endpoint, plano, decisões técnicas e 66 tarefas | Especificado e planejado |
-| [`projeto-web/`](projeto-web/) | Especificação da plataforma web de gestão (Next.js): escopo em fases, requisitos, mapa tela → endpoint, plano, decisões técnicas e 74 tarefas | Especificado e planejado |
+| [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1 e E2 implementadas |
+| [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, plano, 66 tarefas e o código | Marco de avisos implementado (40 de 66 tarefas) |
+| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas e o código | Fases 1–5 implementadas (49 de 77 tarefas) |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
 
@@ -80,9 +81,9 @@ estão na matriz de permissões da
 | Rede (app) | **http** com cliente próprio | Injeção de token e tratamento central de erro em pouco código |
 | Sessão (app) | **flutter_secure_storage** | Token no Keychain/Keystore, nunca em texto simples |
 | Cache (app) | **shared_preferences** | Abrir o app sem rede com a última resposta recebida |
-| Plataforma web | **Next.js (App Router) + TypeScript** | Servidor próprio, que mantém o token JWT fora do navegador |
+| Plataforma web | **React + TypeScript, construídos com Vite** | Build estático servido no mesmo domínio da API, sem servidor de aplicação próprio |
 | Estilo (web) | **Tailwind CSS** | Interface densa de tabelas e formulários, com os tokens do design |
-| Sessão (web) | **Cookie `httpOnly`** | O navegador nunca vê o token; as chamadas à API saem do servidor |
+| Sessão (web) | **Cookie `httpOnly` emitido pela API** + CSRF | O JavaScript nunca vê o token; toda escrita leva o cabeçalho `X-CSRF-Token` |
 | Testes (web) | Vitest, Testing Library, Playwright | Unidade, componente e ponta a ponta com API falsa |
 | Testes (API) | pytest, httpx | Contrato, integração e ponta a ponta |
 | Testes (app) | flutter_test, integration_test | Unidade, widget e integração com servidor falso |
@@ -105,37 +106,46 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 | Entrega | Conteúdo | Situação |
 |---|---|---|
-| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | Especificada e planejada |
-| **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | Especificada e planejada |
+| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | API pronta; aplicativo com o marco de avisos |
+| **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | API pronta; web com avisos completos (publicar e auditar) |
 | **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | Especificada em `projeto-api/specs/002-agenda-horarios`; plano e tarefas após a validação da E1 |
 
-## O que está faltando
+## Andamento
 
-A API das entregas E1 e E2 está implementada (veja [`projeto-api/README.md`](projeto-api/README.md)); o
-restante, em ordem de dependência:
+Atualizado em 28/10/2026. Cada etapa entrou por pull request, com revisão independente e os
+achados corrigidos com teste antes do merge.
 
-**1. API — entregas E1 e E2** ✅ — as 9 rotas do aplicativo e as rotas de gestão (`/gestao/*`),
-contratadas em
-[`contracts/api.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md), com
-versões e histórico imutáveis dos avisos e o teste de ponta a ponta da spec §9.3. Falta só
-validar a integração real com o Moodle (T072), que depende de acesso à API da instituição.
+### Pronto
 
-**2. Implementar o aplicativo (fase F1)** — login e sessão, avisos, turmas, solicitações, perfil e
-cache local. 66 tarefas em
-[`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md); depende da API no ar.
+| Parte | O que funciona | Testes | PR |
+|---|---|---|---|
+| **API — E1** | Login (Moodle simulado), sessão de 24 h, perfil, turmas, solicitação de inscrição e as 9 rotas do aplicativo | pytest | [#1](https://github.com/ruansbueno/conecta/pull/1) |
+| **API — E2** | Rotas de gestão (`/gestao/*`): usuários e perfis, turmas, vínculos, decisão de solicitações, avisos com destinos, versões e histórico imutáveis; teste de ponta a ponta da spec §9.3 | 583 testes (E1 + E2) | [#3](https://github.com/ruansbueno/conecta/pull/3) |
+| **Aplicativo — marco de avisos** | Login, sessão segura, aba Avisos (ativos e arquivados, detalhe, cache para abrir sem rede) | 151 testes (unidade e widget) + integração com servidor falso | [#2](https://github.com/ruansbueno/conecta/pull/2) |
+| **Web — fases 1 a 4** | Fundação (tema, sessão por cookie + CSRF, casca), login, publicação de avisos com seletor de destinos, restrição do docente, agendamento, prévia do cartão do app e rascunho local | Vitest + Playwright | [#4](https://github.com/ruansbueno/conecta/pull/4) |
+| **Web — fase 5** | Lista de avisos por situação com busca e filtros, histórico com texto antes/depois, versões, arquivar/desarquivar/excluir com confirmação | 160 testes (Vitest) + 16 de ponta a ponta (Playwright) | [#5](https://github.com/ruansbueno/conecta/pull/5) |
 
-**3. Implementar a plataforma web (fase F1)** — login com sessão em cookie, painel, avisos com
-destinos e histórico, turmas, vínculos, solicitações, usuários e perfis. 74 tarefas em
-[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md); depende da API no ar.
+O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
+web aparece no aplicativo para exatamente quem está nos destinos.
 
-**4. Implementar a agenda e os horários (E3)** — a especificação está pronta
+### Falta, em ordem
+
+**1. Plataforma web — fases 6 a 10** — turmas e vínculos, solicitações, usuários e perfis, o
+painel real com números da gestão e o polimento final (28 tarefas em
+[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md)). A API dessas telas já existe.
+
+**2. Aplicativo — fases 5 a 8** — turmas, solicitação de inscrição, perfil e polimento (26 tarefas
+em [`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md)).
+
+**3. Agenda e horários (E3)** — a especificação está pronta
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
 eventos e de horários contratados; faltam o plano, as tarefas e a implementação, além das fases
 F2 do aplicativo e da plataforma web.
 
-**5. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado. A integração
-real só pode ser validada quando houver acesso à API da instituição, e os testes dela são
-identificados à parte, para que aprovação com simulação nunca seja confundida com validação real.
+**4. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado; é a única tarefa
+aberta da API (T072). A integração real só pode ser validada quando houver acesso à API da
+instituição, e os testes dela são identificados à parte, para que aprovação com simulação nunca
+seja confundida com validação real.
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.
@@ -144,10 +154,11 @@ tablet.
 
 Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
 
-1. API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
-2. Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
-3. API — entrega E2 (endpoints de gestão).
-4. Plataforma web — fase F1, fechando o ciclo web → API → app.
+1. ✅ API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
+2. ✅ Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
+3. ✅ API — entrega E2 (endpoints de gestão).
+4. ⏳ Plataforma web — fase F1, fechando o ciclo web → API → app (avisos prontos; faltam turmas,
+   solicitações, usuários e o painel).
 5. Aplicativo — fase F1 completa.
 6. E3 — agenda e horários, na API e nos dois clientes.
 
@@ -164,7 +175,7 @@ implementação:
 - Aplicativo: [`projeto-mobile/.specify/memory/constitution.md`](projeto-mobile/.specify/memory/constitution.md)
 - Plataforma web: [`projeto-web/.specify/memory/constitution.md`](projeto-web/.specify/memory/constitution.md)
 
-Para rodar a API localmente quando ela existir, veja
+Para rodar a API localmente, veja
 [`quickstart.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/quickstart.md); para o
 aplicativo, [`quickstart.md`](projeto-mobile/specs/001-app-conecta/quickstart.md); para a
 plataforma web, [`quickstart.md`](projeto-web/specs/001-plataforma-gestao/quickstart.md).

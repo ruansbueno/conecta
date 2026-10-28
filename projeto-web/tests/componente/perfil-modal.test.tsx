@@ -101,4 +101,30 @@ describe('alterar perfil de acesso (T11, RW-32, RW-33)', () => {
     expect(within(dialogo).queryByRole('button', { name: 'Desativar usuário' })).not.toBeInTheDocument()
     expect(dialogo).toHaveTextContent('Você não pode desativar a sua própria conta.')
   })
+
+  it('a própria conta, saindo da administração: avisa que o acesso a esta área acaba', async () => {
+    const { dialogo } = abrir({ eProprio: true, usuario: { ...ricardo, perfil: 'administrador' } })
+    await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
+    expect(dialogo).toHaveTextContent('Você vai deixar a administração: depois de salvar, perde o acesso a esta tela.')
+  })
+
+  it('durante o envio, não dá para cancelar nem fechar', async () => {
+    const { dialogo, onFechar } = abrir({ onSalvarPerfil: vi.fn(() => new Promise<void>(() => undefined)) })
+    await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
+    await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
+    expect(within(dialogo).getByRole('button', { name: 'Cancelar' })).toBeDisabled()
+    await userEvent.keyboard('{Escape}')
+    expect(onFechar).not.toHaveBeenCalled()
+  })
+
+  it('422 de outro campo cai na mensagem geral, não na do último administrador', async () => {
+    const { dialogo } = abrir({
+      onSalvarPerfil: vi
+        .fn()
+        .mockRejectedValue(new ApiError({ code: 'VALIDATION_ERROR', status: 422, errors: [{ campo: 'outro', mensagem: 'x' }] })),
+    })
+    await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
+    await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
+    expect(await within(dialogo).findByRole('alert')).toHaveTextContent('Confira os campos destacados.')
+  })
 })

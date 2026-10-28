@@ -73,11 +73,18 @@ export default function Usuarios() {
       if (e instanceof ApiError && e.efeito === 'semPermissao') return navegar('/sem-permissao', { replace: true })
       throw e
     }
-    setAlterando(null)
+    // Fecha só o modal desta pessoa (outro pode ter sido aberto enquanto a resposta não vinha).
+    setAlterando((a) => (a?.usuario.id === u.id ? null : a))
+    if (u.id === eu?.id) {
+      // O próprio perfil mudou: a sessão e a navegação acompanham na hora. Quem deixou a
+      // administração vai ao painel com a mensagem, porque esta tela já não é dela.
+      await recarregarSessao()
+      if (mudanca.perfil && mudanca.perfil !== 'administrador') {
+        return navegar('/painel', { replace: true, state: { mensagem: `Seu perfil agora é ${rotuloDoPerfil(mudanca.perfil)}.` } })
+      }
+    }
     setMensagem({ texto: sucesso, erro: false })
     recarregar()
-    // O próprio perfil mudou: a sessão e a navegação acompanham na hora.
-    if (u.id === eu?.id) void recarregarSessao()
   }
 
   return (

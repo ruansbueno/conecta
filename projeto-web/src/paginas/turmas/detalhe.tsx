@@ -19,6 +19,7 @@ import { FormTurma } from '../../componentes/turmas/form-turma'
 import { FormVinculo, type PessoaEncontrada } from '../../componentes/turmas/form-vinculo'
 import { SeloInscricoes, SeloTurma } from '../../componentes/turmas/tabela-turmas'
 import { TabelaVinculos } from '../../componentes/turmas/tabela-vinculos'
+import { diferencasDaTurma } from '../../lib/formulario-turma'
 import { quantidade } from '../../lib/texto'
 import { useSessao } from '../../sessao/contexto'
 import { mensagemDe, type Carga } from '../comum'
@@ -82,6 +83,17 @@ export default function DetalheTurma() {
   const [pedido, setPedido] = useState<Pedido | null>(null)
   const [editando, setEditando] = useState(false)
   const [vinculando, setVinculando] = useState<Papel | null>(null)
+  // Quem já está na turma no papel a vincular, carregado ao abrir o formulário (a tabela pode
+  // estar filtrada por outro papel).
+  const [jaNoPapel, setJaNoPapel] = useState(new Set<string>())
+
+  function abrirVincular(p: Papel) {
+    setJaNoPapel(new Set())
+    setVinculando(p)
+    listarVinculos(id, { papel: p, limit: LIMITE_VINCULOS })
+      .then((v) => setJaNoPapel(new Set(v.items.map((x) => x.usuario.id))))
+      .catch(() => undefined)
+  }
   const emCurso = useRef(false)
   const [ocupado, setOcupado] = useState(false)
 
@@ -134,6 +146,8 @@ export default function DetalheTurma() {
     try {
       setMensagem({ texto: await acao(), erro: false })
     } catch (e) {
+      // Perfil mudou no meio do caminho: a tela sem permissão explica (RW-12).
+      if (e instanceof ApiError && e.efeito === 'semPermissao') return void navegar('/sem-permissao', { replace: true })
       setMensagem({ texto: mensagemDe(e), erro: true })
       if (e instanceof ApiError && e.efeito === 'recarrega') {
         void carregarTurma()
@@ -190,11 +204,15 @@ export default function DetalheTurma() {
       : []
 
   async function salvarTurma(dados: DadosTurma) {
-    const mudou: Partial<DadosTurma> = {}
-    for (const campo of ['codigo', 'nome', 'semestreCurso', 'periodoLetivo', 'inscricoesAbertas'] as const) {
-      if (dados[campo] !== t[campo]) Object.assign(mudou, { [campo]: dados[campo] })
+    const mudou = diferencasDaTurma(t, dados)
+    if (Object.keys(mudou).length > 0) {
+      try {
+        setTurma({ estado: 'pronto', dados: await editarTurma(t.id, mudou) })
+      } catch (e) {
+        if (e instanceof ApiError && e.efeito === 'semPermissao') return void navegar('/sem-permissao', { replace: true })
+        throw e
+      }
     }
-    if (Object.keys(mudou).length > 0) setTurma({ estado: 'pronto', dados: await editarTurma(t.id, mudou) })
     setEditando(false)
     setMensagem({ texto: 'Turma atualizada.', erro: false })
   }
@@ -204,8 +222,12 @@ export default function DetalheTurma() {
     try {
       await vincular(t.id, pessoa.id, vinculando)
     } catch (e) {
-      // Já vinculada por outro caminho (ex.: aprovação): a lista recarrega por trás do formulário.
-      if (e instanceof ApiError && e.efeito === 'recarrega') void carregarVinculos()
+      if (e instanceof ApiError && e.efeito === 'semPermissao') return void navegar('/sem-permissao', { replace: true })
+      // Já vinculada por outro caminho (ex.: aprovação), ou a turma sumiu: recarrega por trás do formulário.
+      if (e instanceof ApiError && e.efeito === 'recarrega') {
+        void carregarVinculos()
+        if (e.code === 'TURMA_NAO_ENCONTRADA') void carregarTurma()
+      }
       throw e
     }
     setVinculando(null)
@@ -309,11 +331,11 @@ export default function DetalheTurma() {
           <span className="grow" />
           {gestao && (
             <>
-              <button type="button" disabled={ocupado} onClick={() => setVinculando('docente')} className="botao-secundario">
+              <button type="button" disabled={ocupado} onClick={() => abrirVincular('docente')} className="botao-secundario">
                 <Icone nome="mais" tamanho={17} />
                 Vincular docente
               </button>
-              <button type="button" disabled={ocupado} onClick={() => setVinculando('aluno')} className="botao-primario">
+              <button type="button" disabled={ocupado} onClick={() => abrirVincular('aluno')} className="botao-primario">
                 <Icone nome="mais" tamanho={17} />
                 Vincular aluno
               </button>
@@ -356,7 +378,9 @@ export default function DetalheTurma() {
       {vinculando && (
         <FormVinculo
           papel={vinculando}
-          jaVinculados={new Set(vinculos.estado === 'pronto' ? vinculos.dados.items.map((v) => v.usuario.id) : [])}
+          jaVinculados={
+            new Set([...jaNoPapel, ...(vinculos.estado === 'pronto' ? vinculos.dados.items.map((v) => v.usuario.id) : [])])
+          }
           buscar={buscarPessoas}
           onVincular={vincularPessoa}
           onFechar={() => setVinculando(null)}

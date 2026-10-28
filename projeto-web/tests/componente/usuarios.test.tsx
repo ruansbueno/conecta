@@ -54,6 +54,11 @@ function Onde() {
   return <p data-testid="url">{search}</p>
 }
 
+function PainelEspia() {
+  const { state } = useLocation()
+  return <p>painel: {state?.mensagem}</p>
+}
+
 function abrir(inicial = '/usuarios') {
   render(
     <MemoryRouter initialEntries={[inicial]}>
@@ -69,6 +74,7 @@ function abrir(inicial = '/usuarios') {
             }
           />
           <Route path="/sem-permissao" element={<p>tela sem permissão</p>} />
+          <Route path="/painel" element={<PainelEspia />} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -151,7 +157,8 @@ describe('usuários (T10, RW-31)', () => {
     await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
     await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
 
-    await screen.findByRole('status')
+    // Deixou a administração: vai ao painel com a mensagem (esta tela já não é dela).
+    expect(await screen.findByText('painel: Seu perfil agora é Coordenação.')).toBeInTheDocument()
     await waitFor(() => expect(chamadas.filter((c) => c.chave === 'GET /me').length).toBeGreaterThanOrEqual(2))
   })
 

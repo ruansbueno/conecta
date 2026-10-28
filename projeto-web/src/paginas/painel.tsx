@@ -16,7 +16,8 @@ import { dataNumerica, dataRelativa } from '../lib/datas'
 import { estaAgendado } from '../lib/formulario-aviso'
 import { quantidade } from '../lib/texto'
 import { useSessao } from '../sessao/contexto'
-import { mensagemDe, type Carga } from './comum'
+import { MensagemDaAcao } from '../componentes/comum/mensagem-da-acao'
+import { mensagemDe, useMensagemTrazida, type Carga } from './comum'
 
 /** Um bloco do painel: carrega sozinho e pode ser repetido sozinho. */
 function useBloco<T>(buscar: () => Promise<T>) {
@@ -366,6 +367,7 @@ function PainelDocente() {
 export default function Painel() {
   const { usuario } = useSessao()
   const [agora] = useState(() => new Date())
+  const trazida = useMensagemTrazida()
   if (!usuario) return null
   const docente = usuario.perfil === 'docente'
   return (
@@ -379,6 +381,7 @@ export default function Painel() {
           Novo aviso
         </Link>
       </header>
+      <MensagemDaAcao mensagem={trazida ? { texto: trazida, erro: false } : undefined} />
       {docente ? <PainelDocente /> : <PainelCoordenacao />}
     </div>
   )

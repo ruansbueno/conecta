@@ -335,4 +335,11 @@ describe('decidir (RW-29, RW-30)', () => {
       expect(screen.getByTestId('url')).toBeEmptyDOMElement()
     })
   })
+
+  it('turma da URL que não está nas opções aparece no seletor (não "Todas")', async () => {
+    api({ 'GET /gestao/turmas': { status: 200, corpo: pagina([]) } })
+    abrir('/solicitacoes?turma=00000000-0000-4000-8000-0000000000ff')
+    const seletor = await screen.findByRole('combobox', { name: 'Turma' })
+    await waitFor(() => expect(seletor).toHaveDisplayValue('Turma do endereço'))
+  })
 })

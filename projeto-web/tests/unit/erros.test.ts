@@ -34,4 +34,10 @@ describe('mapa code → mensagem e efeito (spec §6)', () => {
       'texto cru',
     )
   })
+
+  it('AVISO_SITUACAO_INVALIDA explica que a situação mudou por fora (a lista é recarregada)', () => {
+    expect(new ApiError({ code: 'AVISO_SITUACAO_INVALIDA', status: 409 }).mensagem).toBe(
+      'A situação deste aviso mudou enquanto você olhava. A lista foi atualizada.',
+    )
+  })
 })

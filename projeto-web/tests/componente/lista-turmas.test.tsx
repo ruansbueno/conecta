@@ -175,4 +175,16 @@ describe('lista de turmas (T07, RW-23)', () => {
     abrir()
     expect(await screen.findByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
   })
+
+  it('período incompleto avisa no próprio campo, e "Limpar filtros" também o limpa', async () => {
+    api({ 'GET /gestao/turmas': { status: 503, corpo: erro('ERRO_INTERNO') } })
+    abrir('/turmas?q=x')
+    const periodo = await screen.findByRole('textbox', { name: 'Período letivo' })
+    await userEvent.type(periodo, '2026/3')
+    expect(periodo).toHaveAttribute('aria-invalid', 'true')
+    expect(periodo).toHaveAccessibleDescription('Use AAAA/1 ou AAAA/2.')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Limpar filtros' }))
+    expect(periodo).toHaveValue('')
+  })
 })

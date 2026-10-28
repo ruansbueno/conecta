@@ -102,4 +102,10 @@ describe('formulário de turma (T07, RW-24)', () => {
 
     expect(onSalvar).toHaveBeenCalledWith(expect.objectContaining({ nome: 'Sistemas para Internet 3A' }))
   })
+
+  it('turma inativa: inscrições não podem ser abertas pelo formulário (e o porquê é dito)', () => {
+    abrir(undefined, { codigo: 'SI-3A', nome: 'Sistemas 3A', semestreCurso: 3, periodoLetivo: '2026/2', inscricoesAbertas: false, ativa: false })
+    expect(screen.getByRole('checkbox', { name: /Inscrições abertas/ })).toBeDisabled()
+    expect(screen.getByText('Reative a turma para abrir inscrições.')).toBeInTheDocument()
+  })
 })

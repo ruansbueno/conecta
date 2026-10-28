@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { dadosDaTurma, formularioDaTurma, turmaVazia, validarTurma } from '../../src/lib/formulario-turma'
+import { dadosDaTurma, diferencasDaTurma, formularioDaTurma, turmaVazia, validarTurma } from '../../src/lib/formulario-turma'
 
 const valida = { codigo: 'SI-3A', nome: 'Sistemas para Internet 3A', semestre: '3', periodo: '2026/2', inscricoesAbertas: true }
 
@@ -33,5 +33,11 @@ describe('validação local da turma (RW-24)', () => {
       formularioDaTurma({ codigo: 'SI-3A', nome: 'Sistemas 3A', semestreCurso: 3, periodoLetivo: '2026/2', inscricoesAbertas: false }),
     ).toEqual({ codigo: 'SI-3A', nome: 'Sistemas 3A', semestre: '3', periodo: '2026/2', inscricoesAbertas: false })
     expect(turmaVazia().inscricoesAbertas).toBe(false)
+  })
+
+  it('diferenças: só o que mudou, comparando com o gravado sem espaços nas pontas', () => {
+    const gravada = { codigo: 'SI-3A ', nome: 'Sistemas 3A', semestreCurso: 3, periodoLetivo: '2026/2', inscricoesAbertas: true }
+    expect(diferencasDaTurma(gravada, { ...gravada, codigo: 'SI-3A' })).toEqual({})
+    expect(diferencasDaTurma(gravada, { ...gravada, codigo: 'SI-3A', nome: 'Sistemas 3A noturno' })).toEqual({ nome: 'Sistemas 3A noturno' })
   })
 })

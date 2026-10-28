@@ -38,7 +38,7 @@ const MAPA: Record<string, [string, Efeito]> = {
   SOLICITACAO_NAO_PENDENTE: ['Esta solicitação já foi decidida.', 'recarrega'],
   SOLICITACAO_NAO_ENCONTRADA: ['Esta solicitação não está mais disponível.', 'recarrega'],
   AVISO_NAO_EDITAVEL: ['Avisos arquivados ou excluídos não podem ser editados.', 'ofereceDesarquivar'],
-  AVISO_SITUACAO_INVALIDA: ['Este aviso já está nessa situação.', 'recarrega'],
+  AVISO_SITUACAO_INVALIDA: ['A situação deste aviso mudou enquanto você olhava. A lista foi atualizada.', 'recarrega'],
   AVISO_NAO_ENCONTRADO: ['Este aviso não está mais disponível.', 'voltaLista'],
   TURMA_NAO_ENCONTRADA: ['Esta turma não está mais disponível.', 'recarrega'],
   USUARIO_NAO_ENCONTRADO: ['Esta pessoa não está mais disponível.', 'recarrega'],

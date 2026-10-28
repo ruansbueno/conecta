@@ -166,6 +166,8 @@ export default function Solicitacoes() {
           <span>Turma</span>
           <select aria-label="Turma" className="campo h-11 py-0" value={turma} onChange={(e) => filtrar({ turma: e.target.value })}>
             <option value="">Todas</option>
+            {/* Turma do endereço que não está entre as opções (link antigo): o seletor mostra que há filtro. */}
+            {turma && !turmas.some((t) => t.id === turma) && <option value={turma}>Turma do endereço</option>}
             {turmas.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.nome}

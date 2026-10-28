@@ -80,7 +80,7 @@ void main() {
     expect(find.text('Nenhum aviso por enquanto'), findsOneWidget);
     await tester.tap(find.text('Ver turmas disponíveis'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Turmas'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Turmas disponíveis'), findsOneWidget);
   });
 
   testWidgets('vazio para docente: sem o atalho de solicitar turma', (tester) async {

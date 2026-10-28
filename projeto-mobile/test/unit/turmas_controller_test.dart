@@ -31,13 +31,20 @@ void main() {
     final offset = int.parse(r.url.queryParameters['offset']!);
     final fim = (offset + 20).clamp(0, total);
     return respostaJson(
-      paginaJson([for (var i = offset; i < fim; i++) turmaMapa('T-$i', papel: 'aluno')], total: total, offset: offset),
+      paginaJson(
+        [for (var i = offset; i < fim; i++) turmaMapa('T-$i', papel: 'aluno')],
+        total: total,
+        offset: offset,
+      ),
     );
   };
 
   group('MinhasTurmasController (RM-18)', () {
     test('aluno: carrega as turmas e as três solicitações mais recentes', () async {
-      api.responder('GET /turmas/minhas', paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]));
+      api.responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]),
+      );
       api.responder(
         'GET /solicitacoes/minhas',
         paginaJson([solicitacaoMapa('s1'), solicitacaoMapa('s2', status: 'recusada')], limit: 3),
@@ -48,7 +55,10 @@ void main() {
 
       expect(c.turmas.estado, EstadoLista.conteudo);
       expect(c.turmas.itens.single.codigo, 'TADS-3A-2026-2');
-      expect(c.recentes!.map((s) => s.status), [StatusSolicitacao.pendente, StatusSolicitacao.recusada]);
+      expect(c.recentes!.map((s) => s.status), [
+        StatusSolicitacao.pendente,
+        StatusSolicitacao.recusada,
+      ]);
       final pedido = api.pedidos.firstWhere((p) => p.url.path == '/solicitacoes/minhas');
       expect(pedido.url.queryParameters['limit'], '3');
     });

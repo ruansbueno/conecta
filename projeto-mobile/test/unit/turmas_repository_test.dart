@@ -53,7 +53,10 @@ void main() {
 
     test('a primeira página vai para o cache (turmas_minhas), com a data da coleta', () async {
       expect(repo.minhasEmCache('u1'), isNull);
-      api.responder('GET /turmas/minhas', paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]));
+      api.responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]),
+      );
 
       await repo.minhas(usuarioId: 'u1');
 
@@ -64,7 +67,10 @@ void main() {
     });
 
     test('páginas seguintes e falhas não mexem no cache', () async {
-      api.responder('GET /turmas/minhas', paginaJson([turmaMapa('X', papel: 'aluno')], total: 25, offset: 20));
+      api.responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('X', papel: 'aluno')], total: 25, offset: 20),
+      );
       await repo.minhas(usuarioId: 'u1', offset: 20);
       api.falharRede('GET /turmas/minhas');
       await expectLater(
@@ -88,7 +94,10 @@ void main() {
 
   group('disponíveis (contrato §6)', () {
     test('lista sem papel e não guarda cache', () async {
-      api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('TADS-5A-2026-2', semestre: 5)]));
+      api.responder(
+        'GET /turmas/disponiveis',
+        paginaJson([turmaMapa('TADS-5A-2026-2', semestre: 5)]),
+      );
 
       final pagina = await repo.disponiveis();
 
@@ -105,7 +114,11 @@ void main() {
         throwsA(
           isA<ApiFailure>()
               .having((f) => f.code, 'code', 'SEM_PERMISSAO')
-              .having((f) => f.mensagem, 'mensagem', 'Esta ação não está disponível para o seu perfil.'),
+              .having(
+                (f) => f.mensagem,
+                'mensagem',
+                'Esta ação não está disponível para o seu perfil.',
+              ),
         ),
       );
     });
@@ -139,7 +152,10 @@ void main() {
       final pagina = await solicitacoes.minhas(limit: 3);
 
       expect(api.pedidos.single.url.queryParameters, {'limit': '3', 'offset': '0'});
-      expect(pagina.items.map((s) => s.status), [StatusSolicitacao.pendente, StatusSolicitacao.recusada]);
+      expect(pagina.items.map((s) => s.status), [
+        StatusSolicitacao.pendente,
+        StatusSolicitacao.recusada,
+      ]);
       expect(pagina.items.last.decididaEm, DateTime.utc(2026, 8, 30, 15));
       expect(pagina.items.last.motivoRecusa, 'Turma completa');
     });

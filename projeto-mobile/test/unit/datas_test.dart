@@ -57,4 +57,17 @@ void main() {
 
     expect(dataHoraDetalhe(utc, agora: local.add(const Duration(hours: 1))), 'hoje, $esperado');
   });
+
+  group('dataDiaMes', () {
+    final agora = DateTime(2026, 10, 28, 12);
+
+    test('no ano corrente, só dia e mês', () {
+      expect(dataDiaMes(DateTime(2026, 10, 10, 10).toUtc(), agora: agora), '10 out');
+      expect(dataDiaMes(DateTime(2026, 8, 30, 15).toUtc(), agora: agora), '30 ago');
+    });
+
+    test('em outro ano, com o ano', () {
+      expect(dataDiaMes(DateTime(2025, 12, 3, 9).toUtc(), agora: agora), '3 dez 2025');
+    });
+  });
 }

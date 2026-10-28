@@ -38,8 +38,9 @@ export default function NovoAviso() {
   const { usuario } = useSessao()
   const navegar = useNavigate()
   const { carga, recarregar } = useTurmasDestino()
-  const [{ formulario: comeco, recuperadoEm }] = useState(inicial)
-  const [digitado, setFormulario] = useState(comeco)
+  const [comeco] = useState(inicial)
+  const [digitado, setFormulario] = useState(comeco.formulario)
+  const [recuperadoEm, setRecuperadoEm] = useState(comeco.recuperadoEm)
   const [erros, setErros] = useState<ErrosAviso>({})
   const [alerta, setAlerta] = useState<string>()
   const [enviando, setEnviando] = useState(false)
@@ -61,6 +62,7 @@ export default function NovoAviso() {
           className="botao-primario"
           onClick={() => {
             setFormulario(formularioVazio())
+            setRecuperadoEm(null)
             setErros({})
             setPublicado(null)
           }}

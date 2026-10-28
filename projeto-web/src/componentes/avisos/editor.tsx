@@ -51,8 +51,10 @@ interface Props {
   formulario: FormularioAviso
   onMudar: (f: FormularioAviso) => void
   erros: ErrosAviso
-  /** Mensagem da API ou aviso geral, acima do formulário. */
+  /** Falha da API, acima do formulário. */
   alerta?: ReactNode
+  /** Informação que não é falha (ex.: nada foi alterado). */
+  informacao?: string
   turmas: Turma[]
   docente: boolean
   autor: string
@@ -65,7 +67,7 @@ interface Props {
 }
 
 export function Editor(props: Props) {
-  const { modo, subtitulo, formulario: f, onMudar, erros, alerta, turmas, docente, autor } = props
+  const { modo, subtitulo, formulario: f, onMudar, erros, alerta, informacao, turmas, docente, autor } = props
   const { podeAgendar, enviando, voltarPara, onEnviar, onDescartar } = props
   const [seletorAberto, setSeletorAberto] = useState(false)
   const mudar = (parcial: Partial<FormularioAviso>) => onMudar({ ...f, ...parcial })
@@ -107,6 +109,12 @@ export function Editor(props: Props) {
         <div role="alert" className="mt-5 rounded-xl border border-perigo-borda bg-perigo-fundo px-4 py-3 text-[13.5px] text-perigo">
           {alerta}
         </div>
+      )}
+
+      {informacao && (
+        <p role="status" className="mt-5 rounded-xl border border-linha bg-azul-superficie px-4 py-3 text-[13.5px] text-navy">
+          {informacao}
+        </p>
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -165,9 +173,20 @@ export function Editor(props: Props) {
                   : 'De 1 a 20 destinos. Quem for alcançado por qualquer um deles vê o aviso uma única vez.'}
               </p>
             </div>
-            <div id={idCampo('destinos')} tabIndex={-1} className="px-7 py-5 outline-none">
+            <fieldset
+              id={idCampo('destinos')}
+              tabIndex={-1}
+              aria-describedby={descricaoErro('destinos')}
+              className="min-w-0 px-7 py-5 outline-none"
+            >
+              <legend className="sr-only">Destinos</legend>
               {docente ? (
-                <DestinosDocente turmas={turmas} escolhidos={f.destinos} onMudar={(destinos) => mudar({ destinos })} />
+                <DestinosDocente
+                  turmas={turmas}
+                  escolhidos={f.destinos}
+                  idErro={descricaoErro('destinos')}
+                  onMudar={(destinos) => mudar({ destinos })}
+                />
               ) : (
                 <>
                   {f.destinos.length > 0 && (
@@ -191,7 +210,7 @@ export function Editor(props: Props) {
                 </>
               )}
               {erroDoCampo('destinos')}
-            </div>
+            </fieldset>
           </section>
 
           {podeAgendar && (

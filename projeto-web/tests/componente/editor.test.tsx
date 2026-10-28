@@ -252,6 +252,18 @@ describe('editor de aviso (T04/T05/T15)', () => {
       ])
     })
 
+    it('erro de destino fica ligado ao grupo e às turmas (leitor de tela)', async () => {
+      api({ 'GET /gestao/turmas': { status: 200, corpo: pagina([TURMAS[0]]) } }, 'docente')
+      await abrir()
+      await escrever()
+
+      await publicar()
+
+      expect(screen.getByRole('group', { name: 'Destinos' })).toHaveAccessibleDescription(/pelo menos um destino/)
+      expect(screen.getByRole('checkbox', { name: /SI-3A/ })).toHaveAccessibleDescription(/pelo menos um destino/)
+      expect(screen.getByRole('group', { name: 'Destinos' })).toHaveFocus()
+    })
+
     it('DESTINO_NAO_PERMITIDO explica, recarrega as turmas e mantém o texto', async () => {
       const chamadas = api(
         {
@@ -296,6 +308,23 @@ describe('editor de aviso (T04/T05/T15)', () => {
 
       expect(lerRascunho('rascunho:aviso:novo')).toBeNull()
     })
+  })
+
+  it('"Publicar outro" começa limpo, sem anunciar o rascunho já publicado', async () => {
+    salvarRascunho('rascunho:aviso:novo', {
+      titulo: 'Rascunho de antes',
+      conteudo: 'Texto.',
+      destinos: [{ tipo: 'turma', turmaId: 't1', turmaNome: 'Sistemas para Internet 3A' }],
+    })
+    api({ 'POST /gestao/avisos': { status: 201, corpo: avisoGestao } })
+    await abrir()
+    expect(screen.getByText(/Rascunho recuperado/)).toBeInTheDocument()
+
+    await publicar()
+    await userEvent.click(await screen.findByRole('button', { name: 'Publicar outro' }))
+
+    expect(screen.getByLabelText('Título')).toHaveValue('')
+    expect(screen.queryByText(/Rascunho recuperado/)).not.toBeInTheDocument()
   })
 
   it('prévia mostra o cartão como aparece no aplicativo (RW-22)', async () => {

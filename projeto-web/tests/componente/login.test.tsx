@@ -147,6 +147,20 @@ describe('login (T01)', () => {
     })
   })
 
+  it('login aceito, mas a sessão não ficou no navegador: explica sem falar em expiração', async () => {
+    api({
+      'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') },
+      'POST /auth/login': { status: 200, corpo: respostaLogin },
+    })
+    montar()
+
+    await entrar()
+
+    const alerta = await screen.findByRole('alert')
+    expect(alerta).toHaveTextContent(/cookies/)
+    expect(alerta).not.toHaveTextContent(/expirou/)
+  })
+
   it('volta para a página pretendida depois de entrar (RW-07)', async () => {
     api({
       'GET /me': [{ status: 401, corpo: erro('NAO_AUTENTICADO') }, { status: 200, corpo: meDocente }],

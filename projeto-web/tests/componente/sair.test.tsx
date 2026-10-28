@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import AreaGestao from '../../src/paginas/area-gestao'
 import { SessaoProvider } from '../../src/sessao/contexto'
-import { erro, me } from '../fixtures'
+import { erro, me, meDocente } from '../fixtures'
 
 function montar(respostaSaida: { status: number; corpo?: unknown }) {
   vi.stubGlobal(
@@ -52,5 +52,29 @@ describe('sair (RW-09)', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Sair' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/Recarregue a página/)
+  })
+})
+
+describe('título da seção na barra superior', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('docente vê "Meus avisos", o mesmo nome da navegação', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify(meDocente), { status: 200 })),
+    )
+    render(
+      <MemoryRouter initialEntries={['/avisos/novo']}>
+        <SessaoProvider>
+          <Routes>
+            <Route element={<AreaGestao />}>
+              <Route path="/avisos/novo" element={<p>editor</p>} />
+            </Route>
+          </Routes>
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+
+    expect(within(await screen.findByRole('banner')).getByText('Meus avisos')).toBeInTheDocument()
   })
 })

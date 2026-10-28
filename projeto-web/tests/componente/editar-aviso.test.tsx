@@ -94,8 +94,25 @@ describe('edição de aviso (RW-18)', () => {
 
     await salvar()
 
-    expect(screen.getByText('Nenhuma alteração para salvar.')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Nenhuma alteração para salvar.')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(patch(chamadas)).toHaveLength(0)
+  })
+
+  it('"nenhuma alteração" vindo da API informa, sem tratar como falha', async () => {
+    api({
+      [`PATCH /gestao/avisos/${ID}`]: {
+        status: 422,
+        corpo: erro('VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'body', mensagem: 'nenhuma alteração' }]),
+      },
+    })
+    await abrir()
+    await userEvent.click(screen.getByRole('button', { name: 'Remover destino 3º semestre' }))
+
+    await salvar()
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Nenhuma alteração para salvar.')
+    expect(screen.queryByText('Confira os campos destacados.')).not.toBeInTheDocument()
   })
 
   it('aviso arquivado: oferece desarquivar e mantém o texto', async () => {

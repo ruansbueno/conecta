@@ -9,9 +9,14 @@ const TEMPO_LIMITE_MS = 15_000
 const ESCRITAS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
 type Metodo = 'GET' | 'POST' | 'PATCH' | 'DELETE'
-type Ouvinte = (erro: ApiError) => void
+/** `numero`: ordem em que a requisição saiu, para descartar respostas de antes de um login. */
+type Ouvinte = (erro: ApiError, numero: number) => void
 
 const ouvintes = new Set<Ouvinte>()
+let ultima = 0
+
+/** Número da requisição mais recente já enviada. */
+export const ultimaRequisicao = () => ultima
 
 /** Avisa quem cuida da sessão quando a API diz que ela acabou (401 ou 403 USUARIO_INATIVO). */
 export function aoSessaoInvalida(ouvinte: Ouvinte): () => void {
@@ -49,6 +54,7 @@ export async function requisitar<T extends z.ZodType>(
   caminho: string,
   { esquema, corpo, query, semSessao = false }: Opcoes<T> = {},
 ): Promise<z.infer<T>> {
+  const numero = ++ultima
   const headers = new Headers({ Accept: 'application/json' })
   if (corpo !== undefined) headers.set('Content-Type', 'application/json')
   const csrf = ESCRITAS.has(metodo) ? tokenCsrf() : undefined
@@ -80,7 +86,7 @@ export async function requisitar<T extends z.ZodType>(
         ? new ApiError({ code: json.code, status: resposta.status, detail: json.detail, errors: json.errors })
         : new ApiError({ code: RESPOSTA_INVALIDA, status: resposta.status })
     const encerra = erro.code === 'NAO_AUTENTICADO' || erro.code === 'USUARIO_INATIVO'
-    if (encerra && !semSessao) ouvintes.forEach((o) => o(erro))
+    if (encerra && !semSessao) ouvintes.forEach((o) => o(erro, numero))
     throw erro
   }
 

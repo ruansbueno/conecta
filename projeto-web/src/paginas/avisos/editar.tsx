@@ -24,6 +24,8 @@ import { apagarRascunho, lerRascunho, type ChaveRascunho } from '../../lib/rascu
 import { useSessao } from '../../sessao/contexto'
 import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useTurmasDestino, type Carga } from './comum'
 
+const NADA_ALTERADO = 'Nenhuma alteração para salvar.'
+
 const doisDigitos = (n: number) => String(n).padStart(2, '0')
 
 const escolhidos = (aviso: AvisoGestao): DestinoEscolhido[] =>
@@ -74,6 +76,7 @@ export default function EditarAviso() {
   const [recuperadoEm, setRecuperadoEm] = useState<Date | null>(null)
   const [erros, setErros] = useState<ErrosAviso>({})
   const [alerta, setAlerta] = useState<ReactNode>()
+  const [informacao, setInformacao] = useState<string>()
   const [enviando, setEnviando] = useState(false)
   const [salvo, setSalvo] = useState<AvisoGestao | null>(null)
   const [descartando, setDescartando] = useState(false)
@@ -150,12 +153,13 @@ export default function EditarAviso() {
     const locais = validarAviso(formulario, new Date(), { validarData: 'publicarEm' in edicao })
     setErros(locais)
     setAlerta(undefined)
+    setInformacao(undefined)
     if (Object.keys(locais).length > 0) {
       focarPrimeiroErro(locais)
       return
     }
     if (Object.keys(edicao).length === 0) {
-      setAlerta('Nenhuma alteração para salvar.')
+      setInformacao(NADA_ALTERADO)
       return
     }
     setEnviando(true)
@@ -164,6 +168,11 @@ export default function EditarAviso() {
       apagarRascunho(chave)
       setSalvo(atual)
     } catch (e) {
+      // A API também compara (ex.: espaços que o navegador manteve): "nenhuma alteração" não é falha.
+      if (e instanceof ApiError && e.errors.some((x) => x.campo === 'body' && x.mensagem === 'nenhuma alteração')) {
+        setInformacao(NADA_ALTERADO)
+        return
+      }
       setAlerta(mensagemDe(e))
       if (!(e instanceof ApiError)) return
       if (e.efeito === 'semPermissao') navegar('/sem-permissao', { replace: true })
@@ -201,6 +210,7 @@ export default function EditarAviso() {
         }}
         erros={erros}
         alerta={alerta}
+        informacao={informacao}
         turmas={turmas.carga.dados}
         docente={docente}
         autor={original.autor.nome}

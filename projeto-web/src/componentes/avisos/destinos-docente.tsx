@@ -11,10 +11,12 @@ const INDISPONIVEIS = ['Todos os usuários', 'Semestre inteiro', 'Todos os docen
 interface Props {
   turmas: Turma[]
   escolhidos: DestinoEscolhido[]
+  /** Erro do campo de destinos, anunciado junto de cada turma. */
+  idErro?: string
   onMudar: (destinos: DestinoEscolhido[]) => void
 }
 
-export function DestinosDocente({ turmas, escolhidos, onMudar }: Props) {
+export function DestinosDocente({ turmas, escolhidos, idErro, onMudar }: Props) {
   const id = useId()
   const marcados = new Set(escolhidos.map(chaveDestino))
   const alternar = (d: DestinoEscolhido) =>
@@ -41,7 +43,13 @@ export function DestinosDocente({ turmas, escolhidos, onMudar }: Props) {
               marcado ? 'border-azul-100 bg-azul-superficie' : 'border-linha hover:bg-fundo'
             }`}
           >
-            <input type="checkbox" className="size-[18px] accent-azul" checked={marcado} onChange={() => alternar(d)} />
+            <input
+              type="checkbox"
+              className="size-[18px] accent-azul"
+              aria-describedby={idErro}
+              checked={marcado}
+              onChange={() => alternar(d)}
+            />
             <span>
               <span className="block text-[14px] font-semibold text-navy">
                 {t.codigo} — {t.nome}

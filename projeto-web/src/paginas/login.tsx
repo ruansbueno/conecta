@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
 
-import { ApiError } from '../api/erros'
+import { ApiError, SESSAO_NAO_GUARDADA } from '../api/erros'
 import { login, me } from '../api/recursos/auth'
 import { Icone, Marca } from '../componentes/comum/icone'
 import { useSessao } from '../sessao/contexto'
@@ -35,7 +35,10 @@ export default function Login() {
     setEnviando(true)
     try {
       await login(usuario.trim(), senha)
-      const atual = await me()
+      const atual = await me().catch((e: unknown) => {
+        // 401 logo depois de um login aceito não é expiração: o cookie não ficou (bloqueado ou proxy).
+        throw e instanceof ApiError && e.code === 'NAO_AUTENTICADO' ? new ApiError({ code: SESSAO_NAO_GUARDADA }) : e
+      })
       if (atual.perfil === 'aluno') {
         await encerrar('aluno')
         navegar('/sem-permissao', { replace: true, state: { aluno: true } })

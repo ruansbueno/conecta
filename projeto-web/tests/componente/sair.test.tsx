@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -144,9 +144,9 @@ describe('contador de solicitações na barra lateral', () => {
     )
     expect(await screen.findByRole('link', { name: 'Solicitações, 7 pendentes' })).toBeInTheDocument()
 
-    total = 0
+    total = 1
     await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
-    expect(await screen.findByRole('link', { name: 'Solicitações' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações, 1 pendente' })).toBeInTheDocument()
   })
 })
 
@@ -189,5 +189,49 @@ describe('contador acompanha as decisões', () => {
     await userEvent.click(await screen.findByRole('button', { name: /^Aprovar/ }))
 
     expect(await screen.findByRole('link', { name: 'Solicitações, 2 pendentes' })).toBeInTheDocument()
+  })
+
+})
+
+describe('contador resiste a uma falha momentânea', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('se a contagem falha, o número anterior fica (em vez de sumir)', async () => {
+    let falhar = false
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.endsWith('/me')
+          ? new Response(JSON.stringify(me), { status: 200 })
+          : url.includes('/gestao/solicitacoes')
+            ? falhar
+              ? new Response(JSON.stringify(erro('ERRO_INTERNO')), { status: 503 })
+              : new Response(JSON.stringify({ items: [], total: 4, limit: 1, offset: 0 }), { status: 200 })
+            : new Response(null, { status: 204 }),
+      ),
+    )
+    render(
+      <MemoryRouter initialEntries={['/painel']}>
+        <SessaoProvider>
+          <Routes>
+            <Route element={<AreaGestao />}>
+              <Route path="/painel" element={<p>painel</p>} />
+              <Route path="/avisos" element={<p>avisos</p>} />
+            </Route>
+          </Routes>
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('link', { name: 'Solicitações, 4 pendentes' })).toBeInTheDocument()
+    falhar = true
+    await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
+    await screen.findByText('avisos')
+    await waitFor(() =>
+      expect(
+        (vi.mocked(fetch).mock.calls as unknown as [string][]).filter(([u]) => u.includes('/gestao/solicitacoes')).length,
+      ).toBe(2),
+    )
+    await new Promise((r) => setTimeout(r, 100))
+    expect(screen.getByRole('link', { name: 'Solicitações, 4 pendentes' })).toBeInTheDocument()
   })
 })

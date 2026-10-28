@@ -20,7 +20,9 @@ describe('datas (pt-BR, fuso de quem acessa)', () => {
   it('data e hora completas e data curta', () => {
     expect(dataHora(new Date(2026, 9, 16, 8, 0))).toBe('16/10/2026, 08:00')
     expect(dataCurta(new Date(2026, 9, 16, 8, 0))).toBe('16 out, 08:00')
-    expect(dataNumerica(new Date(2026, 9, 7, 14, 5))).toBe('07/10, 14:05')
+    expect(dataNumerica(new Date(2026, 9, 7, 14, 5), new Date(2026, 9, 28))).toBe('07/10, 14:05')
+    // Outro ano: o ano aparece, para "07/01" de janeiro que vem não ser lido como de janeiro passado.
+    expect(dataNumerica(new Date(2027, 0, 7, 14, 5), new Date(2026, 9, 28))).toBe('07/01/2027, 14:05')
   })
 
   it('converte o UTC da API para o fuso local', () => {

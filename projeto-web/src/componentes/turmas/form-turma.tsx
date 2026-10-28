@@ -20,7 +20,7 @@ const GENERICA = 'Não foi possível concluir agora. Tente de novo em instantes.
 
 interface Props {
   /** Turma a editar; sem ela, o formulário cria uma nova. */
-  inicial?: DadosTurma
+  inicial?: DadosTurma & { ativa?: boolean }
   /** Lança ApiError quando a API recusa. */
   onSalvar: (dados: DadosTurma) => Promise<void>
   onFechar: () => void
@@ -32,6 +32,7 @@ export function FormTurma({ inicial, onSalvar, onFechar }: Props) {
   const [alerta, setAlerta] = useState<string>()
   const [enviando, setEnviando] = useState(false)
   const id = useId()
+  const inativa = inicial?.ativa === false
   const idCampo = (c: CampoTurma) => `${id}-${c}`
 
   const focar = (e: ErrosTurma) => {
@@ -146,11 +147,15 @@ export function FormTurma({ inicial, onSalvar, onFechar }: Props) {
             type="checkbox"
             className="mt-0.5 size-[18px] accent-azul"
             checked={f.inscricoesAbertas}
+            // Turma inativa não recebe inscrições: abri-las só depois de reativar (pelo detalhe).
+            disabled={inativa}
             onChange={(e) => setF({ ...f, inscricoesAbertas: e.target.checked })}
           />
           <span>
             <span className="block text-[14px] font-semibold text-navy">Inscrições abertas</span>
-            <span className="block text-[12.5px] text-apagado">Alunos veem a turma no aplicativo e podem pedir inscrição.</span>
+            <span className="block text-[12.5px] text-apagado">
+              {inativa ? 'Reative a turma para abrir inscrições.' : 'Alunos veem a turma no aplicativo e podem pedir inscrição.'}
+            </span>
           </span>
         </label>
       </form>

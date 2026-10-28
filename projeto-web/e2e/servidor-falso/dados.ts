@@ -91,7 +91,7 @@ export function estadoInicial() {
     atualizado_em: '2026-08-01T12:00:00Z',
   }))
   const dia = 86_400_000
-  const [b] = [turmas[1].id]
+  const b = turmas[1].id
   const alunoTeste = () => usuarios.find((u) => u.username === 'aluno.teste')!
   const alunoDois = () => usuarios.find((u) => u.username === 'aluno2.teste')!
   /** Pedidos de inscrição: um antigo (espera > 3 dias) e dois recentes, em turmas de quem decide. */

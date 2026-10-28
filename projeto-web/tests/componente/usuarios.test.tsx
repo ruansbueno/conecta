@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import Usuarios from '../../src/paginas/usuarios'
+import { ExigirSessao } from '../../src/sessao/exigir-sessao'
 import { SessaoProvider } from '../../src/sessao/contexto'
 import { erro, me, meAdmin, pagina } from '../fixtures'
 
@@ -54,6 +55,11 @@ function Onde() {
   return <p data-testid="url">{search}</p>
 }
 
+function PainelEspia() {
+  const { state } = useLocation()
+  return <p>painel: {state?.mensagem}</p>
+}
+
 function abrir(inicial = '/usuarios') {
   render(
     <MemoryRouter initialEntries={[inicial]}>
@@ -69,6 +75,7 @@ function abrir(inicial = '/usuarios') {
             }
           />
           <Route path="/sem-permissao" element={<p>tela sem permissão</p>} />
+          <Route path="/painel" element={<PainelEspia />} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -151,7 +158,8 @@ describe('usuários (T10, RW-31)', () => {
     await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
     await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
 
-    await screen.findByRole('status')
+    // Coordenação ainda lê esta lista: fica nela, com a mensagem.
+    expect(await screen.findByRole('status')).toHaveTextContent('Seu perfil agora é Coordenação.')
     await waitFor(() => expect(chamadas.filter((c) => c.chave === 'GET /me').length).toBeGreaterThanOrEqual(2))
   })
 
@@ -183,5 +191,63 @@ describe('usuários (T10, RW-31)', () => {
     api({ 'GET /gestao/usuarios': { status: 200, corpo: pagina([]) } })
     abrir('/usuarios?aba=inativos')
     expect(await screen.findByText('Nenhuma pessoa inativa')).toBeInTheDocument()
+  })
+
+  describe('rebaixar o próprio perfil, com a guarda da rota', () => {
+    function comGuarda() {
+      render(
+        <MemoryRouter initialEntries={['/usuarios']}>
+          <SessaoProvider>
+            <Routes>
+              <Route element={<ExigirSessao perfis={['administrador', 'coordenacao']} />}>
+                <Route path="/usuarios" element={<Usuarios />} />
+              </Route>
+              <Route path="/sem-permissao" element={<p>tela sem permissão</p>} />
+              <Route path="/painel" element={<PainelEspia />} />
+            </Routes>
+          </SessaoProvider>
+        </MemoryRouter>,
+      )
+    }
+
+    it('para docente: vai ao painel com a mensagem (a lista já não é dela)', async () => {
+      api({
+        'GET /me': [
+          { status: 200, corpo: meAdmin },
+          { status: 200, corpo: { ...meAdmin, perfil: 'docente' } },
+        ],
+        [`GET /gestao/usuarios/${meAdmin.id}`]: { status: 200, corpo: { ...USUARIOS[0], turmas: [] } },
+        [`PATCH /gestao/usuarios/${meAdmin.id}`]: { status: 200, corpo: { ...USUARIOS[0], perfil: 'docente' } },
+      })
+      comGuarda()
+      await userEvent.click(within(await linha(/Paulo Ferraz/)).getByRole('button', { name: 'Alterar perfil de Paulo Ferraz' }))
+      const dialogo = screen.getByRole('dialog')
+      await userEvent.click(within(dialogo).getByRole('radio', { name: 'Docente' }))
+      expect(dialogo).toHaveTextContent('perde o acesso a esta tela')
+      await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
+
+      expect(await screen.findByText('painel: Seu perfil agora é Docente.')).toBeInTheDocument()
+    })
+
+    it('para coordenação: continua na lista (a coordenação lê usuários), sem o aviso de perder a tela', async () => {
+      api({
+        'GET /me': [
+          { status: 200, corpo: meAdmin },
+          { status: 200, corpo: { ...meAdmin, perfil: 'coordenacao' } },
+        ],
+        [`GET /gestao/usuarios/${meAdmin.id}`]: { status: 200, corpo: { ...USUARIOS[0], turmas: [] } },
+        [`PATCH /gestao/usuarios/${meAdmin.id}`]: { status: 200, corpo: { ...USUARIOS[0], perfil: 'coordenacao' } },
+      })
+      comGuarda()
+      await userEvent.click(within(await linha(/Paulo Ferraz/)).getByRole('button', { name: 'Alterar perfil de Paulo Ferraz' }))
+      const dialogo = screen.getByRole('dialog')
+      await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
+      expect(dialogo).not.toHaveTextContent('perde o acesso a esta tela')
+      expect(dialogo).toHaveTextContent('Você vai deixar a administração: depois de salvar, não poderá mais alterar perfis.')
+      await userEvent.click(within(dialogo).getByRole('button', { name: 'Salvar perfil' }))
+
+      expect(await screen.findByRole('status')).toHaveTextContent('Seu perfil agora é Coordenação.')
+      expect(screen.getByRole('table', { name: /Usuários/ })).toBeInTheDocument()
+    })
   })
 })

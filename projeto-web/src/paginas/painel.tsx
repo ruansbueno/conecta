@@ -16,11 +16,14 @@ import { dataNumerica, dataRelativa } from '../lib/datas'
 import { estaAgendado } from '../lib/formulario-aviso'
 import { quantidade } from '../lib/texto'
 import { useSessao } from '../sessao/contexto'
-import { mensagemDe, type Carga } from './comum'
+import { MensagemDaAcao } from '../componentes/comum/mensagem-da-acao'
+import { mensagemDe, useMensagemTrazida, type Carga } from './comum'
 
 /** Um bloco do painel: carrega sozinho e pode ser repetido sozinho. */
 function useBloco<T>(buscar: () => Promise<T>) {
   const [carga, setCarga] = useState<Carga<T>>({ estado: 'carregando' })
+  // Quando a resposta chegou: a referência de "há 2 h" e de "agendado" neste bloco.
+  const [em, setEm] = useState(() => new Date())
   const [vez, setVez] = useState(0)
   const buscarAtual = useRef(buscar)
   useEffect(() => {
@@ -30,7 +33,11 @@ function useBloco<T>(buscar: () => Promise<T>) {
     let valido = true
     buscarAtual
       .current()
-      .then((dados) => valido && setCarga({ estado: 'pronto', dados }))
+      .then((dados) => {
+        if (!valido) return
+        setEm(new Date())
+        setCarga({ estado: 'pronto', dados })
+      })
       .catch((e: unknown) => valido && setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true }))
     return () => {
       valido = false
@@ -38,6 +45,7 @@ function useBloco<T>(buscar: () => Promise<T>) {
   }, [vez])
   return {
     carga,
+    em,
     // Volta a "carregando": quem tenta de novo vê que algo aconteceu, e uma nova falha é anunciada.
     repetir: () => {
       setCarga({ estado: 'carregando' })
@@ -119,7 +127,9 @@ function Numero({ rotulo, detalhe, carga, repetir, cor = 'text-navy' }: {
           </button>
         </div>
       ) : (
-        <p className={`text-[34px] leading-none font-bold ${cor}`}>{carga.estado === 'pronto' ? carga.dados.total : '…'}</p>
+        <p className={`text-[34px] leading-none font-bold ${cor}`}>
+          {carga.estado === 'pronto' ? carga.dados.total.toLocaleString('pt-BR') : '…'}
+        </p>
       )}
       <p className="mt-3 text-[15px] font-semibold text-navy">{rotulo}</p>
       <p className="mt-1 text-[13px] text-apagado">{detalhe}</p>
@@ -186,11 +196,11 @@ const verAvisos = (
 const contaPendentes = (carga: Carga<Pagina<unknown>>) =>
   carga.estado === 'pronto' && carga.dados.total > 0 ? (
     <span className="ml-auto rounded-full bg-alerta-fundo px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-alerta">
-      {carga.dados.total} {carga.dados.total === 1 ? 'pendente' : 'pendentes'}
+      {carga.dados.total.toLocaleString('pt-BR')} {carga.dados.total === 1 ? 'pendente' : 'pendentes'}
     </span>
   ) : null
 
-function PainelCoordenacao({ agora }: { agora: Date }) {
+function PainelCoordenacao() {
   const ativos = useBloco(() => listarAvisos({ situacao: 'ativo', limit: 1 }))
   const agendados = useBloco(() => listarAvisos({ situacao: 'agendado', limit: 1 }))
   const pendentes = useBloco(() => listarSolicitacoes({ status: 'pendente', limit: 4 }))
@@ -213,14 +223,14 @@ function PainelCoordenacao({ agora }: { agora: Date }) {
         <Numero rotulo="Turmas ativas" detalhe="recebendo avisos e inscrições" {...turmas} />
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Bloco titulo="Publicados recentemente" carga={recentes.carga} repetir={recentes.repetir} acao={verAvisos}>
+        <Bloco titulo="Avisos recentes" carga={recentes.carga} repetir={recentes.repetir} acao={verAvisos}>
           {(p) =>
             p.items.length === 0 ? (
               <p className="px-6 py-6 text-[13px] text-apagado">Nenhum aviso publicado ainda.</p>
             ) : (
               <ul>
                 {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={agora} />
+                  <LinhaAviso key={a.id} a={a} agora={recentes.em} />
                 ))}
               </ul>
             )
@@ -233,7 +243,7 @@ function PainelCoordenacao({ agora }: { agora: Date }) {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items} agora={agora} />}
+          {(p) => <ListaPendentes itens={p.items} agora={pendentes.em} />}
         </Bloco>
       </div>
     </>
@@ -247,7 +257,7 @@ const PERMITE_DOCENTE: { pode: boolean; titulo: string; texto: string }[] = [
   { pode: false, titulo: 'Editar avisos de outras pessoas', texto: 'Você edita, arquiva e exclui somente o que publicou.' },
 ]
 
-function PainelDocente({ agora }: { agora: Date }) {
+function PainelDocente() {
   const turmas = useBloco(() => listarTurmas({ ativa: true, limit: 100 }))
   const pendentes = useBloco(() => listarSolicitacoes({ status: 'pendente', limit: 100 }))
   const avisos = useBloco(() => listarAvisos({ limit: 5 }))
@@ -276,13 +286,13 @@ function PainelDocente({ agora }: { agora: Date }) {
                 {p.items.map((t) => {
                   const n = porTurma.get(t.id) ?? 0
                   return (
-                    <li key={t.id} aria-label={t.nome} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
+                    <li key={t.id} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
                       <span
                         aria-hidden="true"
                         className="flex size-11 shrink-0 flex-col items-center justify-center rounded-lg bg-azul-superficie text-[11px] leading-tight font-bold text-azul"
                       >
-                        {sigla(t.codigo).map((parte) => (
-                          <span key={parte}>{parte}</span>
+                        {sigla(t.codigo).map((parte, i) => (
+                          <span key={i}>{parte}</span>
                         ))}
                       </span>
                       <div className="min-w-0 flex-1">
@@ -313,7 +323,7 @@ function PainelDocente({ agora }: { agora: Date }) {
             ) : (
               <ul>
                 {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={agora} autor={false} />
+                  <LinhaAviso key={a.id} a={a} agora={avisos.em} autor={false} />
                 ))}
               </ul>
             )
@@ -328,7 +338,7 @@ function PainelDocente({ agora }: { agora: Date }) {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} agora={agora} />}
+          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} agora={pendentes.em} />}
         </Bloco>
       </div>
       <section aria-labelledby="perfil-permite" className="mt-6 rounded-xl border border-linha bg-branco">
@@ -357,6 +367,9 @@ function PainelDocente({ agora }: { agora: Date }) {
 export default function Painel() {
   const { usuario } = useSessao()
   const [agora] = useState(() => new Date())
+  const trazida = useMensagemTrazida()
+  // Um objeto só, criado uma vez: a mensagem pega o foco ao aparecer, e não a cada renderização.
+  const [mensagem] = useState(() => (trazida ? { texto: trazida, erro: false } : undefined))
   if (!usuario) return null
   const docente = usuario.perfil === 'docente'
   return (
@@ -370,7 +383,8 @@ export default function Painel() {
           Novo aviso
         </Link>
       </header>
-      {docente ? <PainelDocente agora={agora} /> : <PainelCoordenacao agora={agora} />}
+      <MensagemDaAcao mensagem={mensagem} />
+      {docente ? <PainelDocente /> : <PainelCoordenacao />}
     </div>
   )
 }

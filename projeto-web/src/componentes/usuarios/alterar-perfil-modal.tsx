@@ -31,7 +31,11 @@ interface Props {
 function mensagemDa(e: unknown, desativandoAPropria: boolean) {
   if (!(e instanceof ApiError)) return 'Não foi possível concluir agora. Tente de novo em instantes.'
   if (e.code === 'PERFIL_INCOMPATIVEL') return VINCULOS_INCOMPATIVEIS
-  if (e.code === 'VALIDATION_ERROR') return desativandoAPropria ? PROPRIA_CONTA : ULTIMO_ADMIN
+  if (e.code === 'VALIDATION_ERROR') {
+    // A API diz qual campo recusou: só esses dois casos têm explicação própria.
+    if (desativandoAPropria && e.erroDoCampo('ativo')) return PROPRIA_CONTA
+    if (e.erroDoCampo('perfil') || e.erroDoCampo('ativo')) return ULTIMO_ADMIN
+  }
   return e.mensagem
 }
 
@@ -106,7 +110,7 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
         </button>
       )}
       <span className="grow" />
-      <button type="button" onClick={onFechar} className="botao-secundario">
+      <button type="button" disabled={enviando} onClick={onFechar} className="botao-secundario">
         Cancelar
       </button>
       <button
@@ -122,7 +126,8 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
   )
 
   return (
-    <Modal titulo="Alterar perfil de acesso" onFechar={onFechar} largura="max-w-xl" rodape={rodape}>
+    // Durante o envio não se fecha: a resposta é desta pessoa, e o resultado precisa aparecer aqui.
+    <Modal titulo="Alterar perfil de acesso" onFechar={() => !enviando && onFechar()} largura="max-w-xl" rodape={rodape}>
       <div className="flex items-center gap-3 border-b border-linha-suave px-6 py-4">
         <Avatar nome={usuario.nome} />
         <div>
@@ -185,6 +190,13 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
               <Icone nome="info" tamanho={17} className="mt-0.5 shrink-0" />
               A mudança vale já na próxima ação da pessoa, sem precisar sair e entrar de novo.
             </p>
+            {eProprio && usuario.perfil === 'administrador' && perfil !== 'administrador' && (
+              <p className="rounded-xl border border-perigo-borda bg-perigo-fundo px-4 py-3 text-[13px] text-perigo">
+                {perfil === 'coordenacao'
+                  ? 'Você vai deixar a administração: depois de salvar, não poderá mais alterar perfis.'
+                  : 'Você vai deixar a administração: depois de salvar, perde o acesso a esta tela.'}
+              </p>
+            )}
             {eProprio && <p className="text-[12.5px] text-tenue">{PROPRIA_CONTA}</p>}
           </>
         )}

@@ -31,9 +31,11 @@ const VINCULOS = [
 type R = { status: number; corpo?: unknown }
 type Chamada = { chave: string; query: URLSearchParams; corpo?: unknown }
 
-function api(rotas: Record<string, R | R[]> = {}, perfil: 'coordenacao' | 'docente' = 'coordenacao') {
+type Rota = R | R[] | ((q: URLSearchParams) => R)
+
+function api(rotas: Record<string, Rota> = {}, perfil: 'coordenacao' | 'docente' = 'coordenacao') {
   const chamadas: Chamada[] = []
-  const base: Record<string, R | R[]> = {
+  const base: Record<string, Rota> = {
     'GET /me': { status: 200, corpo: perfil === 'docente' ? meDocente : me },
     [`GET /gestao/turmas/${ID}`]: { status: 200, corpo: turma },
     [`GET /gestao/turmas/${ID}/vinculos`]: { status: 200, corpo: pagina(VINCULOS) },
@@ -50,7 +52,7 @@ function api(rotas: Record<string, R | R[]> = {}, perfil: 'coordenacao' | 'docen
       const chave = `${init.method} ${caminho}`
       chamadas.push({ chave, query: new URLSearchParams(busca), corpo: init.body ? JSON.parse(init.body as string) : undefined })
       const r = base[chave]
-      const atual = Array.isArray(r) ? (r.length > 1 ? r.shift()! : r[0]) : r
+      const atual = typeof r === 'function' ? r(new URLSearchParams(busca)) : Array.isArray(r) ? (r.length > 1 ? r.shift()! : r[0]) : r
       const { status, corpo } = atual ?? { status: 404, corpo: erro('NAO_ENCONTRADO') }
       return new Response(corpo === undefined ? null : JSON.stringify(corpo), { status })
     }),
@@ -178,6 +180,7 @@ describe('vínculos (RW-26, RW-27)', () => {
     await confirmar('Remover vínculo')
 
     expect(await screen.findByRole('status')).toHaveTextContent('Vínculo de Júlia Santos removido.')
+    expect(screen.getByRole('status')).toHaveFocus()
     expect(chamadas.map((c) => c.chave)).toContain(`DELETE /gestao/turmas/${ID}/vinculos/a1`)
     await waitFor(() => expect(chamadas.filter((c) => c.chave === `GET /gestao/turmas/${ID}/vinculos`).length).toBeGreaterThanOrEqual(2))
   })
@@ -192,6 +195,9 @@ describe('vínculos (RW-26, RW-27)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Vincular docente' }))
     const dialogo = screen.getByRole('dialog', { name: 'Vincular docente' })
     await userEvent.type(within(dialogo).getByRole('searchbox', { name: 'Buscar docente pelo nome ou usuário' }), 'pra')
+    // Resultados num grupo nomeado; a região viva anuncia só a contagem.
+    expect(await within(dialogo).findByRole('radiogroup', { name: 'Pessoas encontradas' })).toBeInTheDocument()
+    expect(within(dialogo).getByRole('status')).toHaveTextContent('2 pessoas encontradas')
 
     const helena = await within(dialogo).findByRole('radio', { name: /Helena Prado/ })
     expect(within(dialogo).getByRole('radio', { name: /Ricardo Lemos/ })).toBeDisabled()
@@ -249,6 +255,32 @@ describe('vínculos (RW-26, RW-27)', () => {
   it('turma alheia (403) leva à tela sem permissão', async () => {
     api({ [`GET /gestao/turmas/${ID}`]: { status: 403, corpo: erro('SEM_PERMISSAO') } }, 'docente')
     abrir()
+    expect(await screen.findByText('tela sem permissão')).toBeInTheDocument()
+  })
+
+  it('com o filtro em Alunos, quem já é docente da turma continua indisponível ao vincular docente', async () => {
+    api({
+      // Como a API: com papel, só os desse papel.
+      [`GET /gestao/turmas/${ID}/vinculos`]: (q) => ({
+        status: 200,
+        corpo: pagina(VINCULOS.filter((v) => !q.get('papel') || v.papel === q.get('papel'))),
+      }),
+    })
+    abrir()
+    await tabelaVinculos()
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Papel' }), 'Alunos')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Vincular docente' }))
+    const dialogo = screen.getByRole('dialog', { name: 'Vincular docente' })
+    await userEvent.type(within(dialogo).getByRole('searchbox'), 'ric')
+    expect(await within(dialogo).findByRole('radio', { name: /Ricardo Lemos/ })).toBeDisabled()
+  })
+
+  it('403 numa ação (perfil mudou no meio do caminho) leva à tela sem permissão', async () => {
+    api({ [`PATCH /gestao/turmas/${ID}`]: { status: 403, corpo: erro('SEM_PERMISSAO') } })
+    abrir()
+    await userEvent.click(await screen.findByRole('button', { name: 'Fechar inscrições' }))
+    await confirmar('Fechar inscrições')
     expect(await screen.findByText('tela sem permissão')).toBeInTheDocument()
   })
 })

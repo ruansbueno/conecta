@@ -102,7 +102,19 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
           }}
           maxLength={100}
         />
-        <div aria-live="polite" className="min-h-[180px]">
+        {/* A região viva anuncia só o estado da busca; a lista em si não é reanunciada a cada mudança. */}
+        <p role="status" className="sr-only">
+          {termo.trim().length < MINIMO
+            ? ''
+            : resultado.estado === 'buscando'
+              ? 'Buscando…'
+              : resultado.estado === 'pronto'
+                ? pessoas.length === 0
+                  ? 'Ninguém encontrado'
+                  : `${pessoas.length} ${pessoas.length === 1 ? 'pessoa encontrada' : 'pessoas encontradas'}`
+                : ''}
+        </p>
+        <div className="min-h-[180px]">
           {termo.trim().length < MINIMO ? (
             <p className="py-6 text-center text-[13px] text-apagado">Digite ao menos {MINIMO} letras para buscar.</p>
           ) : resultado.estado === 'buscando' ? (
@@ -112,7 +124,7 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
           ) : resultado.estado === 'pronto' && pessoas.length === 0 ? (
             <p className="py-6 text-center text-[13px] text-apagado">Ninguém encontrado com esse nome.</p>
           ) : (
-            <ul className="divide-y divide-linha-suave rounded-xl border border-linha">
+            <ul role="radiogroup" aria-label="Pessoas encontradas" className="divide-y divide-linha-suave rounded-xl border border-linha">
               {pessoas.map((p) => {
                 const vinculada = jaVinculados.has(p.id)
                 return (

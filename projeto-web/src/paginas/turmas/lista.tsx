@@ -1,11 +1,14 @@
 // T07 (design w-07): turmas por situação, com busca, semestre e período na URL (RW-23). Criar e
 // editar ficam com administração e coordenação; o docente vê as suas, só para leitura.
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
+import { ApiError } from '../../api/erros'
 import { criarTurma, editarTurma, listarTurmas } from '../../api/recursos/turmas'
 import type { DadosTurma, Turma } from '../../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../../componentes/comum/abas'
 import { Busca } from '../../componentes/comum/busca'
+import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EstadoVazio } from '../../componentes/comum/estado-vazio'
@@ -13,9 +16,10 @@ import { Icone } from '../../componentes/comum/icone'
 import { Paginacao } from '../../componentes/comum/paginacao'
 import { FormTurma } from '../../componentes/turmas/form-turma'
 import { TabelaTurmas } from '../../componentes/turmas/tabela-turmas'
+import { diferencasDaTurma } from '../../lib/formulario-turma'
 import { useSessao } from '../../sessao/contexto'
 import { useMensagemTrazida } from '../comum'
-import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from '../lista-na-url'
+import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from '../lista-na-url'
 
 type Situacao = 'ativas' | 'inativas' | 'todas'
 const SITUACOES: { id: Situacao; rotulo: string }[] = [
@@ -31,17 +35,9 @@ const ID_ABAS = 'turmas-situacao'
 const PERIODO = /^\d{4}\/[12]$/
 const periodoCompleto = (v: string) => PERIODO.test(v)
 
-/** O que mudou entre a turma e o formulário: o PATCH leva só isso. */
-function diferencas(t: Turma, d: DadosTurma): Partial<DadosTurma> {
-  const mudou: Partial<DadosTurma> = {}
-  for (const campo of ['codigo', 'nome', 'semestreCurso', 'periodoLetivo', 'inscricoesAbertas'] as const) {
-    if (d[campo] !== t[campo]) Object.assign(mudou, { [campo]: d[campo] })
-  }
-  return mudou
-}
-
 export default function ListaTurmas() {
   const { usuario } = useSessao()
+  const navegar = useNavigate()
   const gestao = usuario?.perfil === 'administrador' || usuario?.perfil === 'coordenacao'
   const { params, filtrar } = useFiltrosNaUrl()
   const trazida = useMensagemTrazida()
@@ -56,6 +52,7 @@ export default function ListaTurmas() {
 
   const [termo, setTermo] = useTextoNaUrl('q', q, filtrar)
   const [periodoDigitado, setPeriodoDigitado] = useTextoNaUrl('periodo', periodo, filtrar, periodoCompleto)
+  const periodoIncompleto = periodoDigitado.trim() !== '' && !periodoCompleto(periodoDigitado.trim())
   const { carga, recarregar } = useCargaPaginada(
     JSON.stringify([situacao, q, semestre, periodo]),
     () =>
@@ -69,18 +66,24 @@ export default function ListaTurmas() {
       }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
-  const [mensagem, setMensagem] = useState(trazida)
+  const [mensagem, setMensagem] = useMensagemDaLista(trazida ? { texto: trazida, erro: false } : undefined)
   // `undefined`: fechado; `null`: nova turma; turma: edição.
   const [formulario, setFormulario] = useState<Turma | null | undefined>(undefined)
 
+  /** 403 (perfil mudou no meio do caminho) leva à tela sem permissão (RW-12); o resto volta ao formulário. */
+  const paraSemPermissao = (e: unknown): never => {
+    if (e instanceof ApiError && e.efeito === 'semPermissao') navegar('/sem-permissao', { replace: true })
+    throw e
+  }
+
   async function salvar(dados: DadosTurma) {
     if (formulario) {
-      const mudou = diferencas(formulario, dados)
-      if (Object.keys(mudou).length > 0) await editarTurma(formulario.id, mudou)
-      setMensagem(`Turma ${dados.codigo} atualizada.`)
+      const mudou = diferencasDaTurma(formulario, dados)
+      if (Object.keys(mudou).length > 0) await editarTurma(formulario.id, mudou).catch(paraSemPermissao)
+      setMensagem({ texto: `Turma ${dados.codigo} atualizada.`, erro: false })
     } else {
-      await criarTurma(dados)
-      setMensagem(`Turma ${dados.codigo} criada.`)
+      await criarTurma(dados).catch(paraSemPermissao)
+      setMensagem({ texto: `Turma ${dados.codigo} criada.`, erro: false })
     }
     setFormulario(undefined)
     recarregar()
@@ -108,11 +111,7 @@ export default function ListaTurmas() {
         )}
       </header>
 
-      {mensagem && (
-        <p role="status" className="mt-5 rounded-xl border border-linha bg-sucesso-fundo px-4 py-3 text-[13.5px] text-sucesso">
-          {mensagem}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <Abas
@@ -150,8 +149,16 @@ export default function ListaTurmas() {
               placeholder="AAAA/N"
               maxLength={6}
               value={periodoDigitado}
+              // Período incompleto ou inválido não filtra: o campo diz por quê, em vez de ficar calado.
+              aria-invalid={periodoIncompleto}
+              aria-describedby={periodoIncompleto ? 'turmas-periodo-dica' : undefined}
               onChange={(e) => setPeriodoDigitado(e.target.value)}
             />
+            {periodoIncompleto && (
+              <span id="turmas-periodo-dica" className="text-[12px] text-perigo">
+                Use AAAA/1 ou AAAA/2.
+              </span>
+            )}
           </label>
         </div>
       </div>
@@ -169,7 +176,14 @@ export default function ListaTurmas() {
             <EstadoErro mensagem={carga.mensagem} onRepetir={recarregar} />
             {comFiltro && (
               <div className="-mt-10 pb-12 text-center">
-                <button type="button" onClick={() => filtrar({ q: '', semestre: '', periodo: '' })} className="botao-secundario">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPeriodoDigitado('')
+                    filtrar({ q: '', semestre: '', periodo: '' })
+                  }}
+                  className="botao-secundario"
+                >
                   Limpar filtros
                 </button>
               </div>

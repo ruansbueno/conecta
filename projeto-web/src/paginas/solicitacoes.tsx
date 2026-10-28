@@ -14,15 +14,16 @@ import {
 import { listarTurmas } from '../api/recursos/turmas'
 import type { SolicitacaoGestao } from '../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../componentes/comum/abas'
+import { MensagemDaAcao } from '../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../componentes/comum/esqueleto'
 import { EstadoErro } from '../componentes/comum/estado-erro'
 import { EstadoVazio } from '../componentes/comum/estado-vazio'
 import { Paginacao } from '../componentes/comum/paginacao'
 import { RecusarModal } from '../componentes/solicitacoes/recusar-modal'
-import { DIAS_DE_ESPERA, diasEsperando, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
+import { DIAS_DE_ESPERA, esperaDemais, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
 import { mensagemDe } from './comum'
 import type { ContextoGestao } from './area-gestao'
-import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl } from './lista-na-url'
+import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista } from './lista-na-url'
 
 const STATUS: { id: StatusSolicitacao; rotulo: string }[] = [
   { id: 'pendente', rotulo: 'Pendentes' },
@@ -55,7 +56,7 @@ export default function Solicitacoes() {
   const turma = idDaUrl(params.get('turma'))
   const offset = (paginaDaUrl(params.get('pagina')) - 1) * POR_PAGINA
 
-  const { carga, recarregar } = useCargaPaginada(
+  const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([status, turma]),
     () => listarSolicitacoes({ status, turma_id: turma || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
@@ -69,12 +70,11 @@ export default function Solicitacoes() {
   const [pendentes, setPendentes] = useState<number | null>(null)
   const [contagem, setContagem] = useState(0)
   const [turmas, setTurmas] = useState<{ id: string; nome: string }[]>([])
-  const [mensagem, setMensagem] = useState<{ texto: string; erro: boolean }>()
+  const [mensagem, setMensagem] = useMensagemDaLista()
   const [recusando, setRecusando] = useState<SolicitacaoGestao | null>(null)
   const [erroRecusa, setErroRecusa] = useState<string>()
   const emCurso = useRef(false)
   const [ocupado, setOcupado] = useState(false)
-  const [agora] = useState(() => new Date())
 
   useEffect(() => {
     let valido = true
@@ -136,7 +136,7 @@ export default function Solicitacoes() {
           ...decididasAqui.values(),
         ].sort((a, b) => a.solicitadaEm.getTime() - b.solicitadaEm.getTime())
       : []
-  const esperando = itens.filter((s) => s.status === 'pendente' && diasEsperando(s, agora) > DIAS_DE_ESPERA).length
+  const esperando = itens.filter((s) => s.status === 'pendente' && esperaDemais(s, agora)).length
   const abas = STATUS.map((s) => (s.id === 'pendente' && pendentes !== null ? { ...s, rotulo: `Pendentes (${pendentes})` } : s))
 
   return (
@@ -149,16 +149,7 @@ export default function Solicitacoes() {
         </p>
       </header>
 
-      {mensagem && (
-        <p
-          role={mensagem.erro ? 'alert' : 'status'}
-          className={`mt-5 rounded-xl border px-4 py-3 text-[13.5px] ${
-            mensagem.erro ? 'border-perigo-borda bg-perigo-fundo text-perigo' : 'border-linha bg-sucesso-fundo text-sucesso'
-          }`}
-        >
-          {mensagem.texto}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <Abas
@@ -175,6 +166,8 @@ export default function Solicitacoes() {
           <span>Turma</span>
           <select aria-label="Turma" className="campo h-11 py-0" value={turma} onChange={(e) => filtrar({ turma: e.target.value })}>
             <option value="">Todas</option>
+            {/* Turma do endereço que não está entre as opções (link antigo): o seletor mostra que há filtro. */}
+            {turma && !turmas.some((t) => t.id === turma) && <option value={turma}>Turma do endereço</option>}
             {turmas.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.nome}

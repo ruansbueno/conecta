@@ -54,3 +54,16 @@ export const formularioDaTurma = (t: DadosTurma): FormularioTurma => ({
   periodo: t.periodoLetivo,
   inscricoesAbertas: t.inscricoesAbertas,
 })
+
+/**
+ * O que mudou entre a turma gravada e o formulário: o PATCH leva só isso. Compara com o gravado sem
+ * espaços nas pontas (o formulário os tira), para não reenviar um código que não mudou.
+ */
+export function diferencasDaTurma(gravada: DadosTurma, dados: DadosTurma): Partial<DadosTurma> {
+  const limpa = (v: unknown) => (typeof v === 'string' ? v.trim() : v)
+  const mudou: Partial<DadosTurma> = {}
+  for (const campo of ['codigo', 'nome', 'semestreCurso', 'periodoLetivo', 'inscricoesAbertas'] as const) {
+    if (limpa(dados[campo]) !== limpa(gravada[campo])) Object.assign(mudou, { [campo]: dados[campo] })
+  }
+  return mudou
+}

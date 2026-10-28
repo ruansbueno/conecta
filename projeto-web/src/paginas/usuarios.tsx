@@ -8,6 +8,7 @@ import { alterarUsuario, listarUsuarios, obterUsuario, type FiltrosUsuarios } fr
 import type { UsuarioGestao } from '../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../componentes/comum/abas'
 import { Busca } from '../componentes/comum/busca'
+import { MensagemDaAcao } from '../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../componentes/comum/esqueleto'
 import { EstadoErro } from '../componentes/comum/estado-erro'
 import { EstadoVazio } from '../componentes/comum/estado-vazio'
@@ -16,7 +17,7 @@ import { AlterarPerfilModal } from '../componentes/usuarios/alterar-perfil-modal
 import { TabelaUsuarios } from '../componentes/usuarios/tabela'
 import { rotuloDoPerfil, type PerfilDeAcesso } from '../lib/perfis'
 import { useSessao } from '../sessao/contexto'
-import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from './lista-na-url'
+import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from './lista-na-url'
 
 type Aba = 'todos' | 'administracao' | 'coordenacao' | 'docentes' | 'alunos' | 'inativos'
 const ABAS: { id: Aba; rotulo: string; filtro: Pick<FiltrosUsuarios, 'perfil' | 'ativo'>; vazio: string }[] = [
@@ -43,13 +44,12 @@ export default function Usuarios() {
   const offset = (paginaDaUrl(params.get('pagina')) - 1) * POR_PAGINA
   const [termo, setTermo] = useTextoNaUrl('q', q, filtrar)
 
-  const { carga, recarregar } = useCargaPaginada(
+  const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([aba.id, q]),
     () => listarUsuarios({ ...aba.filtro, q: q || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
-  const [agora] = useState(() => new Date())
-  const [mensagem, setMensagem] = useState<string>()
+  const [mensagem, setMensagem] = useMensagemDaLista()
   const [alterando, setAlterando] = useState<{ usuario: UsuarioGestao; turmas: number | null } | null>(null)
 
   // A API decide quem lê esta lista: um 403 (perfil mudou) leva à tela sem permissão (RW-12).
@@ -73,11 +73,25 @@ export default function Usuarios() {
       if (e instanceof ApiError && e.efeito === 'semPermissao') return navegar('/sem-permissao', { replace: true })
       throw e
     }
-    setAlterando(null)
-    setMensagem(sucesso)
+    // Fecha só o modal desta pessoa (outro pode ter sido aberto enquanto a resposta não vinha).
+    setAlterando((a) => (a?.usuario.id === u.id ? null : a))
+    if (u.id === eu?.id && mudanca.perfil) {
+      const texto = `Seu perfil agora é ${rotuloDoPerfil(mudanca.perfil)}.`
+      // Perfil que já não lê esta lista (docente, aluno): vai ao painel com a mensagem, sem reler a
+      // sessão aqui — a navegação é uma transição e a releitura chegaria antes, fazendo a guarda da
+      // rota mandar para a tela sem permissão. A área de gestão relê a sessão ao trocar de página.
+      // Coordenação continua lendo usuários: fica aqui.
+      if (mudanca.perfil !== 'administrador' && mudanca.perfil !== 'coordenacao') {
+        navegar('/painel', { replace: true, state: { mensagem: texto } })
+        return
+      }
+      setMensagem({ texto, erro: false })
+      recarregar()
+      void recarregarSessao()
+      return
+    }
+    setMensagem({ texto: sucesso, erro: false })
     recarregar()
-    // O próprio perfil mudou: a sessão e a navegação acompanham na hora.
-    if (u.id === eu?.id) void recarregarSessao()
   }
 
   return (
@@ -89,11 +103,7 @@ export default function Usuarios() {
         </p>
       </header>
 
-      {mensagem && (
-        <p role="status" className="mt-5 rounded-xl border border-linha bg-sucesso-fundo px-4 py-3 text-[13.5px] text-sucesso">
-          {mensagem}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <Abas

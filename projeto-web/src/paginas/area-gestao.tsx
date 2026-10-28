@@ -26,12 +26,12 @@ export default function AreaGestao() {
   const [falhaAoSair, setFalhaAoSair] = useState<string>()
   // Perfil alterado pela administração vale na navegação seguinte (SC-008): cada troca de página
   // relê GET /me, e a barra lateral e as guardas acompanham. A primeira página já veio do login.
-  const primeira = useRef(true)
+  const ultimoCaminho = useRef(pathname)
   useEffect(() => {
-    if (primeira.current) {
-      primeira.current = false
-      return
-    }
+    // Compara com o último caminho (e não "primeira vez"): no modo estrito do React o efeito roda
+    // duas vezes ao montar, e isso não pode virar uma releitura extra.
+    if (ultimoCaminho.current === pathname) return
+    ultimoCaminho.current = pathname
     void recarregar()
   }, [pathname, recarregar])
 
@@ -46,7 +46,8 @@ export default function AreaGestao() {
     let valido = true
     listarSolicitacoes({ status: 'pendente', limit: 1 })
       .then((p) => valido && setPendentes(p.total))
-      .catch(() => valido && setPendentes(0))
+      // Falha momentânea: fica o último número conhecido, em vez de sumir.
+      .catch(() => undefined)
     return () => {
       valido = false
     }
@@ -57,7 +58,7 @@ export default function AreaGestao() {
     <Casca
       usuario={usuario}
       secao={secao}
-      contadores={{ '/solicitacoes': pendentes }}
+      contadores={{ '/solicitacoes': pode ? pendentes : 0 }}
       onSair={async () => {
         setFalhaAoSair(undefined)
         try {

@@ -36,5 +36,6 @@ export const dataCurta = (d: Date) => `${diaMes(d)}, ${hora.format(d)}`
 
 const diaMesNumerico = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' })
 
-/** "07/10, 14:05" — tabelas e linha do tempo da gestão. */
-export const dataNumerica = (d: Date) => `${diaMesNumerico.format(d)}, ${hora.format(d)}`
+/** "07/10, 14:05" — tabelas e linha do tempo da gestão; com o ano quando não é o ano corrente. */
+export const dataNumerica = (d: Date, agora = new Date()) =>
+  `${diaMesNumerico.format(d)}${d.getFullYear() === agora.getFullYear() ? '' : `/${d.getFullYear()}`}, ${hora.format(d)}`

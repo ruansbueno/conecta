@@ -100,6 +100,17 @@ describe('fila de solicitações (T09, RW-28)', () => {
     expect(await screen.findByRole('tab', { name: 'Pendentes (7)' })).toBeInTheDocument()
   })
 
+  it('mais de 3 dias conta em horas: 3 dias e 20 horas já é destaque', async () => {
+    api({
+      'GET /gestao/solicitacoes': (q) =>
+        q.get('limit') === '1'
+          ? { status: 200, corpo: pagina([]) }
+          : { status: 200, corpo: pagina([{ ...PENDENTES[0], solicitada_em: new Date(Date.now() - (3 * 24 + 20) * 3_600_000).toISOString() }]) },
+    })
+    abrir()
+    expect(await linha(/Júlia Santos/)).toHaveTextContent('há 3 dias')
+  })
+
   it('destaca quem espera há mais de 3 dias', async () => {
     api()
     abrir()
@@ -165,6 +176,7 @@ describe('decidir (RW-29, RW-30)', () => {
     await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('Júlia Santos agora está em Sistemas para Internet 3A.')
+    expect(screen.getByRole('status')).toHaveFocus()
     const julia = await linha(/Júlia Santos/)
     expect(julia).toHaveTextContent('Aprovada')
     expect(julia).toHaveTextContent('por Maria Coordenadora · agora')
@@ -322,5 +334,12 @@ describe('decidir (RW-29, RW-30)', () => {
       expect(await tabela()).toBeInTheDocument()
       expect(screen.getByTestId('url')).toBeEmptyDOMElement()
     })
+  })
+
+  it('turma da URL que não está nas opções aparece no seletor (não "Todas")', async () => {
+    api({ 'GET /gestao/turmas': { status: 200, corpo: pagina([]) } })
+    abrir('/solicitacoes?turma=00000000-0000-4000-8000-0000000000ff')
+    const seletor = await screen.findByRole('combobox', { name: 'Turma' })
+    await waitFor(() => expect(seletor).toHaveDisplayValue('Turma do endereço'))
   })
 })

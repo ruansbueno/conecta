@@ -12,6 +12,10 @@ interface Props {
   contadores?: Record<string, number>
 }
 
+/** "Solicitações, 1 pendente" / "Solicitações, 7 pendentes"; sem pendências, só o rótulo visível. */
+const rotuloComContador = (rotulo: string, n: number) =>
+  n > 0 ? `${rotulo}, ${n.toLocaleString('pt-BR')} ${n === 1 ? 'pendente' : 'pendentes'}` : undefined
+
 /** Barra lateral de 252 px (design `.side`), agrupada por assunto e filtrada pelo perfil. */
 export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
   return (
@@ -29,7 +33,7 @@ export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
                 <li key={item.para}>
                   <NavLink
                     to={item.para}
-                    aria-label={(contadores[item.para] ?? 0) > 0 ? `${item.rotulo}, ${contadores[item.para]} pendentes` : undefined}
+                    aria-label={rotuloComContador(item.rotulo, contadores[item.para] ?? 0)}
                     className={({ isActive }) =>
                       `flex h-10 items-center gap-[11px] rounded-[9px] px-3 text-[13.5px] ${
                         isActive
@@ -45,7 +49,7 @@ export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
                         aria-hidden="true"
                         className="flex size-[22px] items-center justify-center rounded-full bg-alerta-fundo text-[11.5px] font-semibold text-alerta"
                       >
-                        {contadores[item.para]}
+                        {contadores[item.para].toLocaleString('pt-BR')}
                       </span>
                     )}
                   </NavLink>

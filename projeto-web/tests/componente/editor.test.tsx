@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
@@ -41,16 +41,25 @@ function api(rotas: Record<string, R | R[]>, perfil: 'coordenacao' | 'docente' =
 /** A lista de avisos, onde se chega depois de publicar: mostra a URL e a mensagem trazida. */
 function ListaEspia() {
   const { search, state } = useLocation()
-  return <p>lista{search}: {state?.mensagem}</p>
+  const navegar = useNavigate()
+  return (
+    <>
+      <p>lista{search}: {state?.mensagem}</p>
+      <button type="button" onClick={() => navegar(-1)}>
+        voltar no navegador
+      </button>
+    </>
+  )
 }
 
 async function abrir() {
   render(
-    <MemoryRouter initialEntries={['/avisos/novo']}>
+    <MemoryRouter initialEntries={['/painel', '/avisos/novo']} initialIndex={1}>
       <SessaoProvider>
         <Routes>
           <Route path="/avisos/novo" element={<NovoAviso />} />
           <Route path="/avisos" element={<ListaEspia />} />
+          <Route path="/painel" element={<p>painel de antes</p>} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -100,6 +109,19 @@ describe('editor de aviso (T04/T05/T15)', () => {
         { tipo: 'turma', turma_id: 't3' },
       ],
     })
+  })
+
+  it('voltar no navegador depois de publicar não reabre o formulário', async () => {
+    api({ 'POST /gestao/avisos': { status: 201, corpo: avisoGestao } })
+    await abrir()
+    await escrever()
+    await escolherTurmas('SI-3A')
+    await publicar()
+    await screen.findByText('lista: Aviso publicado.')
+
+    await userEvent.click(screen.getByRole('button', { name: 'voltar no navegador' }))
+
+    expect(await screen.findByText('painel de antes')).toBeInTheDocument()
   })
 
   it('semestres e grupos viram chips removíveis, sem repetição', async () => {

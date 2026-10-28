@@ -11,6 +11,7 @@ import { LinhaDoTempo } from '../../componentes/avisos/linha-do-tempo'
 import { ListaDeVersoes } from '../../componentes/avisos/versoes'
 import { Abas, idDaAba, idDoPainel } from '../../componentes/comum/abas'
 import { ChipDestino } from '../../componentes/comum/chip-destino'
+import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { Icone } from '../../componentes/comum/icone'
@@ -153,16 +154,7 @@ export default function HistoricoAviso() {
         )}
       </header>
 
-      {mensagem && (
-        <p
-          role={mensagem.erro ? 'alert' : 'status'}
-          className={`mt-5 rounded-xl border px-4 py-3 text-[13.5px] ${
-            mensagem.erro ? 'border-perigo-borda bg-perigo-fundo text-perigo' : 'border-linha bg-sucesso-fundo text-sucesso'
-          }`}
-        >
-          {mensagem.texto}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6">
         <Abas

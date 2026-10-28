@@ -10,6 +10,7 @@ import type { AvisoGestao } from '../../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../../componentes/comum/abas'
 import { Busca } from '../../componentes/comum/busca'
 import { ChipDestino } from '../../componentes/comum/chip-destino'
+import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EstadoVazio } from '../../componentes/comum/estado-vazio'
@@ -21,7 +22,7 @@ import { dataNumerica } from '../../lib/datas'
 import { estaAgendado } from '../../lib/formulario-aviso'
 import { useSessao } from '../../sessao/contexto'
 import { MENSAGEM_FEITA, useAcoesDoAviso } from './acoes'
-import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from '../lista-na-url'
+import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from '../lista-na-url'
 import { useMensagemTrazida } from './comum'
 
 type Situacao = 'ativo' | 'agendado' | 'arquivado' | 'excluido'
@@ -79,7 +80,7 @@ export default function ListaAvisos() {
   )
   const [turmas, setTurmas] = useState<Opcao[]>([])
   const [autores, setAutores] = useState<Opcao[]>([])
-  const [mensagem, setMensagem] = useState(trazida ? { texto: trazida, erro: false } : undefined)
+  const [mensagem, setMensagem] = useMensagemDaLista(trazida ? { texto: trazida, erro: false } : undefined)
 
   useEffect(() => {
     // Opções dos filtros: falhar aqui só deixa o filtro sem opções, a lista segue.
@@ -218,16 +219,7 @@ export default function ListaAvisos() {
         </Link>
       </header>
 
-      {mensagem && (
-        <p
-          role={mensagem.erro ? 'alert' : 'status'}
-          className={`mt-5 rounded-xl border px-4 py-3 text-[13.5px] ${
-            mensagem.erro ? 'border-perigo-borda bg-perigo-fundo text-perigo' : 'border-linha bg-sucesso-fundo text-sucesso'
-          }`}
-        >
-          {mensagem.texto}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <Abas

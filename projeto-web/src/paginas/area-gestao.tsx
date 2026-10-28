@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../api/erros'
@@ -14,10 +14,20 @@ const tituloDaSecao = (perfil: string, caminho: string) =>
 
 /** Rotas autenticadas da gestão dentro da casca (a guarda ExigirSessao fica por fora). */
 export default function AreaGestao() {
-  const { usuario, encerrar } = useSessao()
+  const { usuario, encerrar, recarregar } = useSessao()
   const { pathname } = useLocation()
   const navegar = useNavigate()
   const [falhaAoSair, setFalhaAoSair] = useState<string>()
+  // Perfil alterado pela administração vale na navegação seguinte (SC-008): cada troca de página
+  // relê GET /me, e a barra lateral e as guardas acompanham. A primeira página já veio do login.
+  const primeira = useRef(true)
+  useEffect(() => {
+    if (primeira.current) {
+      primeira.current = false
+      return
+    }
+    void recarregar()
+  }, [pathname, recarregar])
   if (!usuario) return null
   const secao = tituloDaSecao(usuario.perfil, pathname)
   return (

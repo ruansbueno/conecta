@@ -101,6 +101,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     const u = estado.usuarios.find((x) => x.username === username)
     if (!u || password !== 'senha-teste') return erro(res, 401, 'CREDENCIAIS_INVALIDAS')
     if (!u.ativo) return erro(res, 403, 'USUARIO_INATIVO')
+    u.ultimo_login_em = new Date().toISOString()
     const token = `tok-${randomUUID()}`
     estado.sessoes.set(token, u.id)
     const atributos = 'Secure; SameSite=Strict; Path=/; Max-Age=86400'
@@ -349,7 +350,45 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     return json(res, 200, estado.solicitacaoSaida(s))
   }
 
-  // --- usuários (só para o filtro de autor nesta etapa) -----------------------------------
+  // --- usuários e perfis (contrato §10) ---------------------------------------------------
+  const usuarioGestao = (u: (typeof estado.usuarios)[number]) => ({
+    ...estado.publico(u),
+    ativo: u.ativo,
+    ultimo_login_em: u.ultimo_login_em ?? null,
+  })
+  const alvoId = caminho.match(/^\/gestao\/usuarios\/([^/]+)$/)?.[1]
+  if (alvoId) {
+    if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    const alvo = estado.usuarios.find((u) => u.id === alvoId)
+    if (!alvo) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
+    if (metodo === 'GET') return json(res, 200, { ...usuarioGestao(alvo), turmas: estado.me(alvo).turmas })
+    if (metodo === 'PATCH') {
+      if (usuario.perfil !== 'administrador') return erro(res, 403, 'SEM_PERMISSAO')
+      const corpo = ((await corpoJson(req)) ?? {}) as { perfil?: string; ativo?: boolean }
+      const perfis = ['administrador', 'coordenacao', 'docente', 'aluno']
+      if (corpo.perfil !== undefined && !perfis.includes(corpo.perfil)) {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'perfil', mensagem: 'perfil inválido' }])
+      }
+      const novoPerfil = corpo.perfil ?? alvo.perfil
+      const novoAtivo = corpo.ativo ?? alvo.ativo
+      if (alvo.id === usuario.id && !novoAtivo) {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'ativo', mensagem: 'você não pode desativar a sua própria conta' }])
+      }
+      const admins = estado.usuarios.filter((u) => u.perfil === 'administrador' && u.ativo)
+      const deixaDeSerAdmin = alvo.perfil === 'administrador' && alvo.ativo && (novoPerfil !== 'administrador' || !novoAtivo)
+      if (deixaDeSerAdmin && admins.length === 1) {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [
+          { campo: novoPerfil !== 'administrador' ? 'perfil' : 'ativo', mensagem: 'é preciso manter ao menos um administrador ativo' },
+        ])
+      }
+      // Vínculo só existe como docente ou aluno, e o papel é o perfil (contrato §12).
+      if (novoPerfil !== alvo.perfil && alvo.turmas.length > 0) return erro(res, 409, 'PERFIL_INCOMPATIVEL')
+      alvo.perfil = novoPerfil
+      alvo.ativo = novoAtivo
+      return json(res, 200, usuarioGestao(alvo))
+    }
+  }
+
   if (metodo === 'GET' && caminho === '/gestao/usuarios') {
     if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
     const perfil = url.searchParams.get('perfil')
@@ -359,7 +398,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       .filter((u) => !perfil || u.perfil === perfil)
       .filter((u) => !ativo || String(u.ativo) === ativo)
       .filter((u) => !q || `${u.nome} ${u.username}`.toLowerCase().includes(q))
-      .map((u) => ({ ...estado.publico(u), ativo: u.ativo, ultimo_login_em: null }))
+      .map(usuarioGestao)
     return json(res, 200, pagina(itens, url))
   }
 

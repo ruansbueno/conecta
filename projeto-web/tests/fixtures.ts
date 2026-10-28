@@ -79,3 +79,11 @@ export const solicitacao = {
   decidida_por: null,
   motivo_recusa: null,
 }
+
+export const meAdmin = {
+  id: '33cc0000-0000-4000-8000-000000000003',
+  username: 'admin.teste',
+  nome: 'Paulo Ferraz',
+  perfil: 'administrador',
+  turmas: [] as { id: string; codigo: string; nome: string; papel: string }[],
+}

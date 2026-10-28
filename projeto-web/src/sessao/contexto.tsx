@@ -52,10 +52,15 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   )
 
   const recarregar = useCallback(async () => {
+    // Releitura iniciada antes de a sessão mudar (saída, login, outra releitura) não vale: a pessoa
+    // pode ter trocado de página e saído antes da resposta, que não pode trazer a sessão de volta.
+    const inicio = estadoAtual.current
     try {
       const usuario = await me()
+      if (estadoAtual.current !== inicio) return
       setEstado({ tipo: 'autenticado', usuario })
     } catch (e) {
+      if (estadoAtual.current !== inicio) return
       const erro = e instanceof ApiError ? e : new ApiError({ code: 'RESPOSTA_INVALIDA' })
       // Abertura sem sessão é o caso comum, não "sessão expirada". Com sessão ativa, quem
       // encerra (com a mensagem) é o ouvinte central, abaixo.

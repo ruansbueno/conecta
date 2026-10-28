@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../api/erros'
 
-export type Carga<T> = { estado: 'carregando' } | { estado: 'pronto'; dados: T } | { estado: 'erro'; mensagem: string; repetivel?: boolean }
+export type Carga<T> = { estado: 'carregando' } | { estado: 'pronto'; dados: T } | { estado: 'erro'; mensagem: string; repetivel?: boolean; codigo?: string }
 
 export const mensagemDe = (e: unknown) =>
   e instanceof ApiError ? e.mensagem : new ApiError({ code: 'ERRO_DESCONHECIDO' }).mensagem

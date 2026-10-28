@@ -9,7 +9,6 @@ import { ExigirSessao } from './sessao/exigir-sessao'
 const Login = lazy(() => import('./paginas/login'))
 const AreaGestao = lazy(() => import('./paginas/area-gestao'))
 const Painel = lazy(() => import('./paginas/painel'))
-const EmBreve = lazy(() => import('./paginas/em-breve'))
 const NovoAviso = lazy(() => import('./paginas/avisos/novo'))
 const EditarAviso = lazy(() => import('./paginas/avisos/editar'))
 const HistoricoAviso = lazy(() => import('./paginas/avisos/historico'))
@@ -17,6 +16,7 @@ const ListaAvisos = lazy(() => import('./paginas/avisos/lista'))
 const ListaTurmas = lazy(() => import('./paginas/turmas/lista'))
 const DetalheTurma = lazy(() => import('./paginas/turmas/detalhe'))
 const Solicitacoes = lazy(() => import('./paginas/solicitacoes'))
+const Usuarios = lazy(() => import('./paginas/usuarios'))
 
 export function Rotas() {
   return (
@@ -34,7 +34,9 @@ export function Rotas() {
             <Route path="/turmas" element={<ListaTurmas />} />
             <Route path="/turmas/:id" element={<DetalheTurma />} />
             <Route path="/solicitacoes" element={<Solicitacoes />} />
-            <Route path="/usuarios" element={<EmBreve />} />
+            <Route element={<ExigirSessao perfis={['administrador', 'coordenacao']} />}>
+              <Route path="/usuarios" element={<Usuarios />} />
+            </Route>
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/painel" replace />} />

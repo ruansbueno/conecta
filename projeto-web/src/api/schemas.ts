@@ -103,6 +103,12 @@ export const usuarioGestaoSchema = usuarioBase
   .transform(({ ultimo_login_em, ...u }) => ({ ...u, ultimoLoginEm: ultimo_login_em }))
 export type UsuarioGestao = z.infer<typeof usuarioGestaoSchema>
 
+/** Usuário com as turmas a que está vinculado (GET /gestao/usuarios/{id}). */
+export const usuarioDetalheSchema = usuarioBase
+  .extend({ ativo: z.boolean(), ultimo_login_em: dataOuNulo, turmas: z.array(turmaDoUsuarioSchema) })
+  .transform(({ ultimo_login_em, ...u }) => ({ ...u, ultimoLoginEm: ultimo_login_em }))
+export type UsuarioDetalhe = z.infer<typeof usuarioDetalheSchema>
+
 export const vinculoSchema = z
   .object({
     usuario: z.object({ id: z.string(), username: z.string(), nome: z.string() }),

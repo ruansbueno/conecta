@@ -1,5 +1,6 @@
 // Peças compartilhadas pelas páginas de novo aviso e de edição.
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../../api/erros'
 import { listarTurmas } from '../../api/recursos/turmas'
@@ -36,6 +37,20 @@ export function useTurmasDestino() {
   }, [carregar])
 
   return { carga, recarregar: carregar }
+}
+
+/**
+ * Mensagem trazida de outra página no estado da navegação ("Aviso publicado."): lida uma vez e
+ * tirada do histórico, para não voltar ao recarregar ou ao navegar de volta.
+ */
+export function useMensagemTrazida(): string | undefined {
+  const location = useLocation()
+  const navegar = useNavigate()
+  const [mensagem] = useState(() => (location.state as { mensagem?: string } | null)?.mensagem)
+  useEffect(() => {
+    if (location.state) navegar({ search: location.search }, { replace: true, state: null })
+  }, [location.state, location.search, navegar])
+  return mensagem
 }
 
 /** Guarda o formulário a cada mudança (RW-42); sem nada escrito, não deixa rascunho. */

@@ -5,7 +5,6 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../../api/erros'
 import { desarquivarAviso, editarAviso, obterAviso, type EdicaoAviso } from '../../api/recursos/avisos'
 import type { AvisoGestao, DestinoEscolhido } from '../../api/schemas'
-import { AvisoSalvo } from '../../componentes/avisos/aviso-salvo'
 import { Editor, errosDaApi, focarPrimeiroErro } from '../../componentes/avisos/editor'
 import { Confirmacao } from '../../componentes/comum/confirmacao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
@@ -78,7 +77,7 @@ export default function EditarAviso() {
   const [alerta, setAlerta] = useState<ReactNode>()
   const [informacao, setInformacao] = useState<string>()
   const [enviando, setEnviando] = useState(false)
-  const [salvo, setSalvo] = useState<AvisoGestao | null>(null)
+  const [salvo, setSalvo] = useState(false)
   const [descartando, setDescartando] = useState(false)
   useRascunhoAutomatico(chave, digitado, alterado && !salvo)
 
@@ -117,8 +116,8 @@ export default function EditarAviso() {
     return (
       <div role="alert" className="flex flex-col items-center px-12 py-16 text-center">
         <p className="text-[13.5px] text-apagado">{aviso.mensagem}</p>
-        <Link to="/painel" className="botao-secundario mt-5">
-          Voltar ao painel
+        <Link to="/avisos" className="botao-secundario mt-5">
+          Voltar aos avisos
         </Link>
       </div>
     )
@@ -127,16 +126,6 @@ export default function EditarAviso() {
   const original = aviso.dados
   const docente = usuario.perfil === 'docente'
   const formulario = docente ? soTurmasPermitidas(digitado, turmas.carga.dados) : digitado
-
-  if (salvo) {
-    return (
-      <AvisoSalvo titulo="Alterações salvas" aviso={salvo}>
-        <Link to="/painel" className="botao-primario">
-          Voltar ao painel
-        </Link>
-      </AvisoSalvo>
-    )
-  }
 
   async function desarquivar() {
     try {
@@ -166,7 +155,10 @@ export default function EditarAviso() {
     try {
       const atual = await editarAviso(id, edicao)
       apagarRascunho(chave)
-      setSalvo(atual)
+      setSalvo(true)
+      navegar(`/avisos/${id}`, {
+        state: { mensagem: `Alterações salvas. Esta é a versão ${atual.versaoAtual}.` },
+      })
     } catch (e) {
       // A API também compara (ex.: espaços que o navegador manteve): "nenhuma alteração" não é falha.
       if (e instanceof ApiError && e.errors.some((x) => x.campo === 'body' && x.mensagem === 'nenhuma alteração')) {
@@ -216,7 +208,7 @@ export default function EditarAviso() {
         autor={original.autor.nome}
         podeAgendar={estaAgendado(original)}
         enviando={enviando}
-        voltarPara="/painel"
+        voltarPara={`/avisos/${id}`}
         onEnviar={enviar}
         onDescartar={() => setDescartando(true)}
       />
@@ -228,7 +220,7 @@ export default function EditarAviso() {
           destrutiva
           onConfirmar={() => {
             apagarRascunho(chave)
-            navegar('/painel')
+            navegar(`/avisos/${id}`)
           }}
           onCancelar={() => setDescartando(false)}
         />

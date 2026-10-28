@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
@@ -38,12 +38,19 @@ function api(rotas: Record<string, R | R[]>, perfil: 'coordenacao' | 'docente' =
   return chamadas
 }
 
+/** A lista de avisos, onde se chega depois de publicar: mostra a URL e a mensagem trazida. */
+function ListaEspia() {
+  const { search, state } = useLocation()
+  return <p>lista{search}: {state?.mensagem}</p>
+}
+
 async function abrir() {
   render(
     <MemoryRouter initialEntries={['/avisos/novo']}>
       <SessaoProvider>
         <Routes>
           <Route path="/avisos/novo" element={<NovoAviso />} />
+          <Route path="/avisos" element={<ListaEspia />} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -83,7 +90,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
     }
     await publicar()
 
-    expect(await screen.findByRole('heading', { name: 'Aviso publicado' })).toBeInTheDocument()
+    expect(await screen.findByText('lista: Aviso publicado.')).toBeInTheDocument()
     expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo).toEqual({
       titulo: 'Semana Acadêmica 2026/2',
       conteudo: 'Programação completa.',
@@ -178,8 +185,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
     await userEvent.type(screen.getByLabelText('Hora da publicação'), '08:00')
     await publicar()
 
-    expect(await screen.findByRole('heading', { name: 'Aviso agendado' })).toBeInTheDocument()
-    expect(screen.queryByText(/já vê o aviso/)).not.toBeInTheDocument()
+    expect(await screen.findByText(/^lista\?situacao=agendado: Aviso agendado para \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}\.$/)).toBeInTheDocument()
     expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.publicar_em).toBe(
       new Date(`${dia}T08:00`).toISOString(),
     )
@@ -246,7 +252,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
 
       await publicar()
 
-      await screen.findByRole('heading', { name: 'Aviso publicado' })
+      await screen.findByText('lista: Aviso publicado.')
       expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.destinos).toEqual([
         { tipo: 'turma', turma_id: 't1' },
       ])
@@ -304,27 +310,10 @@ describe('editor de aviso (T04/T05/T15)', () => {
       await escolherTurmas('SI-3A')
 
       await publicar()
-      await screen.findByRole('heading', { name: 'Aviso publicado' })
+      await screen.findByText('lista: Aviso publicado.')
 
       expect(lerRascunho('rascunho:aviso:novo')).toBeNull()
     })
-  })
-
-  it('"Publicar outro" começa limpo, sem anunciar o rascunho já publicado', async () => {
-    salvarRascunho('rascunho:aviso:novo', {
-      titulo: 'Rascunho de antes',
-      conteudo: 'Texto.',
-      destinos: [{ tipo: 'turma', turmaId: 't1', turmaNome: 'Sistemas para Internet 3A' }],
-    })
-    api({ 'POST /gestao/avisos': { status: 201, corpo: avisoGestao } })
-    await abrir()
-    expect(screen.getByText(/Rascunho recuperado/)).toBeInTheDocument()
-
-    await publicar()
-    await userEvent.click(await screen.findByRole('button', { name: 'Publicar outro' }))
-
-    expect(screen.getByLabelText('Título')).toHaveValue('')
-    expect(screen.queryByText(/Rascunho recuperado/)).not.toBeInTheDocument()
   })
 
   it('prévia mostra o cartão como aparece no aplicativo (RW-22)', async () => {

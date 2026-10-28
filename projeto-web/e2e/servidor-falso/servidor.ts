@@ -156,18 +156,78 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (!('ok' in resultado)) {
       return erro(res, resultado.status, resultado.erro, resultado.erro, resultado.errors)
     }
-    const aviso = existente ? estado.editarAviso(existente, corpo) : estado.criarAviso(corpo, usuario)
-    return json(res, existente ? 200 : 201, aviso)
+    if (!existente) return json(res, 201, estado.criarAviso(corpo, usuario))
+    const editado = estado.editarAviso(existente, corpo, usuario)
+    if (!editado) return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'body', mensagem: 'nenhuma alteração' }])
+    return json(res, 200, editado)
   }
   if (metodo === 'GET' && avisoId) {
     const aviso = estado.avisos.find((a) => a.id === avisoId)
-    if (!aviso) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
+    if (!aviso || (aviso.situacao === 'excluido' && !gestao)) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
     if (!gestao && aviso.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
     return json(res, 200, aviso)
   }
   if (metodo === 'GET' && caminho === '/gestao/avisos') {
-    const meus = gestao ? estado.avisos : estado.avisos.filter((a) => a.autor.id === usuario.id)
-    return json(res, 200, pagina(meus, url))
+    const situacao = url.searchParams.get('situacao')
+    if (situacao === 'excluido' && !gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    const agora = new Date()
+    const agendado = (a: (typeof estado.avisos)[number]) =>
+      a.situacao === 'ativo' && typeof a.publicar_em === 'string' && new Date(a.publicar_em) > agora
+    const q = url.searchParams.get('q')?.toLowerCase()
+    const autorId = url.searchParams.get('autor_id')
+    const turmaId = url.searchParams.get('turma_id')
+    const itens = estado.avisos.filter(
+      (a) =>
+        (gestao || a.autor.id === usuario.id) &&
+        (situacao === 'agendado'
+          ? agendado(a)
+          : situacao === 'ativo'
+            ? a.situacao === 'ativo' && !agendado(a)
+            : situacao
+              ? a.situacao === situacao
+              : a.situacao !== 'excluido') &&
+        (!q || `${a.titulo} ${a.conteudo}`.toLowerCase().includes(q)) &&
+        (!autorId || a.autor.id === autorId) &&
+        (!turmaId || (a.destinos as { turma: { id: string } | null }[]).some((d) => d.turma?.id === turmaId)),
+    )
+    return json(res, 200, pagina(itens, url))
+  }
+
+  const acao = caminho.match(/^\/gestao\/avisos\/([^/]+)\/(arquivar|desarquivar|versoes|historico)$/)
+  if (acao) {
+    const [, id, nome] = acao
+    const aviso = estado.avisos.find((a) => a.id === id)
+    if (!aviso || (aviso.situacao === 'excluido' && !gestao)) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
+    if (!gestao && aviso.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
+    if (metodo === 'GET' && (nome === 'versoes' || nome === 'historico')) {
+      const a = estado.auditoria.get(id) ?? { versoes: [], eventos: [] }
+      return json(res, 200, pagina(nome === 'versoes' ? a.versoes : a.eventos, url))
+    }
+    if (metodo === 'POST' && nome === 'arquivar') {
+      if (aviso.situacao !== 'ativo') return erro(res, 409, 'AVISO_SITUACAO_INVALIDA')
+      return json(res, 200, estado.mudarSituacao(aviso, usuario, 'arquivado', 'arquivado'))
+    }
+    if (metodo === 'POST' && nome === 'desarquivar') {
+      if (aviso.situacao !== 'arquivado') return erro(res, 409, 'AVISO_SITUACAO_INVALIDA')
+      return json(res, 200, estado.mudarSituacao(aviso, usuario, 'ativo', 'desarquivado'))
+    }
+  }
+  if (metodo === 'DELETE' && avisoId) {
+    const aviso = estado.avisos.find((a) => a.id === avisoId)
+    if (!aviso || aviso.situacao === 'excluido') return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
+    if (!gestao && aviso.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
+    estado.mudarSituacao(aviso, usuario, 'excluido', 'excluido')
+    return json(res, 204)
+  }
+
+  // --- usuários (só para o filtro de autor nesta etapa) -----------------------------------
+  if (metodo === 'GET' && caminho === '/gestao/usuarios') {
+    if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    const perfil = url.searchParams.get('perfil')
+    const itens = estado.usuarios
+      .filter((u) => !perfil || u.perfil === perfil)
+      .map((u) => ({ ...estado.publico(u), ativo: u.ativo, ultimo_login_em: null }))
+    return json(res, 200, pagina(itens, url))
   }
 
   return erro(res, 404, 'NAO_ENCONTRADO')

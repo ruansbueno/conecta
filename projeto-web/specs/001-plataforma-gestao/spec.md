@@ -462,10 +462,29 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | `PERFIL_INCOMPATIVEL` | O papel precisa corresponder ao perfil da pessoa. | Explica no formulário |
 | `SOLICITACAO_NAO_PENDENTE` | Esta solicitação já foi decidida. | Recarrega a lista |
 | `AVISO_NAO_EDITAVEL` | Avisos arquivados ou excluídos não podem ser editados. | Oferece desarquivar |
-| `AVISO_SITUACAO_INVALIDA` | Este aviso já está nessa situação. | Recarrega o aviso |
+| `AVISO_SITUACAO_INVALIDA` | A situação deste aviso mudou enquanto você olhava. A lista foi atualizada. | Recarrega o aviso |
 | `AVISO_NAO_ENCONTRADO` | Este aviso não está mais disponível. | Volta à lista |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
+| `CSRF_INVALIDO` | Não foi possível confirmar a sessão. Recarregue a página e tente de novo. | Permanece (tentar de novo não resolve) |
+| `TURMA_NAO_ENCONTRADA` | Esta turma não está mais disponível. | Recarrega; no detalhe, oferece voltar às turmas |
+| `USUARIO_NAO_ENCONTRADO` | Esta pessoa não está mais disponível. | Recarrega |
+| `VINCULO_NAO_ENCONTRADO` | Este vínculo já tinha sido removido. | Recarrega os vínculos |
+| `SOLICITACAO_NAO_ENCONTRADA` | Esta solicitação não está mais disponível. | Recarrega a lista |
+| `SEM_REDE` | Não foi possível conectar. Verifique a rede e tente de novo. | Mantém o formulário; oferece tentar de novo |
+| `TIMEOUT` | Não foi possível conectar. Verifique a rede e tente de novo. | Mantém o formulário; oferece tentar de novo |
+| `SESSAO_NAO_GUARDADA` | O acesso foi aceito, mas o navegador não guardou a sessão. Verifique se os cookies estão permitidos e tente de novo. | Permanece no login (código interno da web: 401 logo depois de um login aceito) |
 | 5xx ou desconhecido | Não foi possível concluir agora. Tente de novo em instantes. | Mantém o formulário |
+
+Algumas telas dão a um mesmo `code` o sentido que ele tem ali (conferido nos testes de componente):
+
+| Tela | Situação | Mensagem |
+|---|---|---|
+| T11 Alterar perfil | 409 `PERFIL_INCOMPATIVEL` | Esta pessoa tem vínculos com turmas que não combinam com o novo perfil. Remova os vínculos na página da turma antes de mudar o perfil. |
+| T11 Alterar perfil | 422 no campo `ativo`, na própria conta | Você não pode desativar a sua própria conta. |
+| T11 Alterar perfil | 422 nos campos `perfil` ou `ativo` | É preciso manter ao menos um administrador ativo. |
+| T09 Solicitações | 403 `SEM_PERMISSAO` ao decidir | Você só pode decidir as solicitações das turmas em que leciona. (recarrega a fila) |
+| T09 Solicitações | 409 `PERFIL_INCOMPATIVEL` ao aprovar | Esta pessoa não tem mais perfil de aluno. Recuse a solicitação. |
+| T04 Editor (edição) | 422 `body` "nenhuma alteração" | Nenhuma alteração para salvar. (informação, não falha) |
 
 ## 7. Design System
 

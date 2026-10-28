@@ -8,6 +8,7 @@ export interface UsuarioFalso {
   perfil: string
   ativo: boolean
   turmas: string[] // em que leciona ou estuda
+  ultimo_login_em?: string | null
 }
 
 export interface AvisoFalso {

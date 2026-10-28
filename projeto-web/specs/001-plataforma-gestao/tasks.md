@@ -224,18 +224,18 @@ encaminhado para a API local.
 
 ## Phase 8: US6 — Usuários e perfis (P6)
 
-- [ ] T062 [US6] `src/api/recursos/usuarios.ts`: listar, obter, alterar perfil e situação
+- [x] T062 [US6] `src/api/recursos/usuarios.ts`: listar, obter, alterar perfil e situação
       (contrato, Usuários)
-- [ ] T063 [US6] `src/paginas/usuarios.tsx` com `componentes/usuarios/tabela.tsx`:
+- [x] T063 [US6] `src/paginas/usuarios.tsx` com `componentes/usuarios/tabela.tsx`:
       busca, filtros de perfil e situação, selos com texto (T10, RW-31, RW-40)
-- [ ] T064 [US6] `componentes/usuarios/alterar-perfil-modal.tsx`:
+- [x] T064 [US6] `componentes/usuarios/alterar-perfil-modal.tsx`:
       seletor com a descrição do que cada perfil pode fazer, aviso de efeito imediato, e
       tratamento de `PERFIL_INCOMPATIVEL` e dos `422` de autodesativação e último administrador
       (T11, RW-32, RW-33)
-- [ ] T065 [US6] Esconder a ação de alterar perfil para quem não é administração e tratar `403`
+- [x] T065 [US6] Esconder a ação de alterar perfil para quem não é administração e tratar `403`
       com a tela de sem permissão (RW-11, RW-12)
-- [ ] T066 [P] [US6] `tests/componente/perfil-modal.test.tsx`: cada opção, confirmação e cada erro
-- [ ] T067 [P] [US6] `e2e/usuarios.spec.ts`: administração muda o perfil e a mudança vale na
+- [x] T066 [P] [US6] `tests/componente/perfil-modal.test.tsx`: cada opção, confirmação e cada erro
+- [x] T067 [P] [US6] `e2e/usuarios.spec.ts`: administração muda o perfil e a mudança vale na
       navegação seguinte da pessoa afetada (SC-008); coordenação não vê a ação
 
 **Checkpoint**: todas as telas de F1 estão implementadas.

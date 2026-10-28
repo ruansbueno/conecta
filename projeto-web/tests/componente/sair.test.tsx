@@ -78,3 +78,38 @@ describe('título da seção na barra superior', () => {
     expect(within(await screen.findByRole('banner')).getByText('Meus avisos')).toBeInTheDocument()
   })
 })
+
+describe('perfil alterado vale na navegação seguinte (SC-008)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('trocar de página relê a sessão: a navegação mostra o perfil novo', async () => {
+    let perfil = 'coordenacao'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.endsWith('/me')
+          ? new Response(JSON.stringify({ ...me, perfil }), { status: 200 })
+          : new Response(null, { status: 204 }),
+      ),
+    )
+    render(
+      <MemoryRouter initialEntries={['/painel']}>
+        <SessaoProvider>
+          <Routes>
+            <Route element={<AreaGestao />}>
+              <Route path="/painel" element={<p>painel</p>} />
+              <Route path="/avisos" element={<p>avisos</p>} />
+            </Route>
+          </Routes>
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('link', { name: 'Usuários' })).toBeInTheDocument()
+
+    perfil = 'docente' // a administração mudou o perfil enquanto a pessoa usava a plataforma
+    await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
+
+    expect(await screen.findByRole('link', { name: 'Meus avisos' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Usuários' })).not.toBeInTheDocument()
+  })
+})

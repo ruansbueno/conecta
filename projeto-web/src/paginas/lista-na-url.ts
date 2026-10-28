@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
+import { ApiError } from '../api/erros'
 import type { Pagina } from '../api/schemas'
 import { mensagemDe, type Carga } from './comum'
 
@@ -91,7 +92,11 @@ export function useCargaPaginada<T>(
         }
         setCarga({ estado: 'pronto', dados })
       })
-      .catch((e: unknown) => valido && setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true }))
+      .catch(
+        (e: unknown) =>
+          valido &&
+          setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true, codigo: e instanceof ApiError ? e.code : undefined }),
+      )
     return () => {
       valido = false
     }

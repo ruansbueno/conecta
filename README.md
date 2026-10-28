@@ -114,7 +114,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 28/10/2026 (até a fase 9 da web). Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 28/10/2026 (até a fase 9 da web e os pontos menores das revisões). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -129,7 +129,8 @@ achados corrigidos com teste antes do merge.
 | **Web — fase 6** | Turmas por situação com busca e filtros, criar/editar, abrir/fechar inscrições, desativar/reativar, vínculos com origem, vincular buscando a pessoa e desvincular com alerta | Vitest + Playwright | [#7](https://github.com/ruansbueno/conecta/pull/7) |
 | **Web — fase 7** | Fila de solicitações por status e turma, destaque para quem espera há mais de 3 dias, aprovar criando o vínculo, recusar com motivo, decisão com quem decidiu e quando | Vitest + Playwright | [#8](https://github.com/ruansbueno/conecta/pull/8) |
 | **Web — fase 8** | Usuários por perfil e situação, alterar perfil com a descrição de cada um (só administração), ativar e desativar, mudança valendo na navegação seguinte da pessoa | Vitest + Playwright | [#9](https://github.com/ruansbueno/conecta/pull/9) |
-| **Web — fase 9** | Painel da coordenação e do docente (números do `total` das listas, blocos que falham sozinhos), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | 250 testes (Vitest) + 30 de ponta a ponta (Playwright) | [#10](https://github.com/ruansbueno/conecta/pull/10) |
+| **Web — fase 9** | Painel da coordenação e do docente (números do `total` das listas, blocos que falham sozinhos), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | Vitest + Playwright | [#10](https://github.com/ruansbueno/conecta/pull/10) |
+| **Web — pontos menores** | Os achados menores das revisões das fases 5 a 9: textos e datas, carregamento e mensagens das listas, foco e leitores de tela, comportamento das telas e um servidor falso mais fiel à API | 271 testes (Vitest) + 30 de ponta a ponta (Playwright) | [#11](https://github.com/ruansbueno/conecta/pull/11) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.
@@ -138,7 +139,10 @@ web aparece no aplicativo para exatamente quem está nos destinos.
 
 **1. Plataforma web — fase 10** — o polimento final: mensagens de erro, acessibilidade por tela,
 uso só com teclado, comparação com o design e a implantação estática (7 tarefas em
-[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md)). A API dessas telas já existe.
+[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md)). Já decidido: auditoria de
+acessibilidade com o axe nos testes de ponta a ponta; evidências (relatório e capturas ao lado dos
+PNGs do design) em `projeto-web/evidencias/`; configuração do nginx em `projeto-web/deploy/`,
+testada num container do Docker com a API sob `/api`.
 
 **2. Aplicativo — fases 5 a 8** — turmas, solicitação de inscrição, perfil e polimento (26 tarefas
 em [`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md)).

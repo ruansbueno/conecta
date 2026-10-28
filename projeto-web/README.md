@@ -69,9 +69,10 @@ Atualizado em 28/10/2026.
 | 7. US5 — Solicitações | Fila por status e turma (w-09), destaque de espera, aprovar criando vínculo, recusar com motivo | ✅ [#8](https://github.com/ruansbueno/conecta/pull/8) |
 | 8. US6 — Usuários e perfis | Lista por perfil e situação (w-10), alterar perfil e ativar/desativar só pela administração (w-11), mudança valendo na navegação seguinte | ✅ [#9](https://github.com/ruansbueno/conecta/pull/9) |
 | 9. Painel e integração | Painel de coordenação e de docente (w-02, w-14), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | ✅ [#10](https://github.com/ruansbueno/conecta/pull/10) |
+| — Pontos menores | Achados menores das revisões das fases 5 a 9 (textos e datas, listas, foco e leitores de tela, comportamento, servidor falso) | ✅ [#11](https://github.com/ruansbueno/conecta/pull/11) |
 | 10. Polimento e evidências | Revisão das mensagens de erro, auditoria de acessibilidade por tela, comparação com o design, implantação estática | A fazer |
 
-**Testes**: 250 de unidade e componente (Vitest) e 30 de ponta a ponta (Playwright), além da
+**Testes**: 271 de unidade e componente (Vitest) e 30 de ponta a ponta (Playwright), além da
 validação visual das telas prontas contra a API local real.
 
 ## Como rodar
@@ -99,8 +100,16 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-Fase 10 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md): polimento e evidências. Nada deve ser
-implementado sem a tarefa correspondente.
+Fase 10 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md) (T071–T077): polimento e evidências.
+Nada deve ser implementado sem a tarefa correspondente. Já decidido para ela:
+
+- **Acessibilidade (T072)**: `@axe-core/playwright` como dependência de desenvolvimento, rodando o
+  axe em cada tela nos testes de ponta a ponta (WCAG AA), mais a revisão manual de teclado e foco.
+- **Evidências (T075)**: em `evidencias/`, um relatório em texto e capturas de cada tela ao lado do
+  PNG correspondente de `design/web/`.
+- **Implantação estática (T076)**: `deploy/nginx.conf` de referência, testado num container nginx do
+  Docker servindo o build junto da API em `/api` (rotas desconhecidas caem no `index.html`, cookie e
+  CSRF funcionando).
 
 A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api` e HTTPS —
 está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

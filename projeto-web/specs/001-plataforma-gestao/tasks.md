@@ -186,21 +186,21 @@ encaminhado para a API local.
 
 ## Phase 6: US4 — Turmas e vínculos (P4)
 
-- [ ] T050 [US4] `src/api/recursos/turmas.ts` e `vinculos.ts`: listar, obter, criar, editar,
+- [x] T050 [US4] `src/api/recursos/turmas.ts` e `vinculos.ts`: listar, obter, criar, editar,
       desativar; listar, criar e remover vínculos (contrato, Turmas e vínculos)
-- [ ] T051 [P] [US4] `tests/unit/turmas-recurso.test.ts`: filtros e os `code` 409 e 422
-- [ ] T052 [US4] `src/paginas/turmas/lista.tsx` com `componentes/turmas/tabela-turmas.tsx`:
+- [x] T051 [P] [US4] `tests/unit/turmas-recurso.test.ts`: filtros e os `code` 409 e 422
+- [x] T052 [US4] `src/paginas/turmas/lista.tsx` com `componentes/turmas/tabela-turmas.tsx`:
       lista com filtros, selos de situação e de inscrições (T07, RW-23)
-- [ ] T053 [US4] `componentes/turmas/form-turma.tsx`: criar e editar, com
+- [x] T053 [US4] `componentes/turmas/form-turma.tsx`: criar e editar, com
       validação de código, semestre e período, e tratamento de `CODIGO_TURMA_DUPLICADO` (RW-24)
-- [ ] T054 [US4] Abrir/fechar inscrições e desativar turma, com confirmação explicando o efeito
+- [x] T054 [US4] Abrir/fechar inscrições e desativar turma, com confirmação explicando o efeito
       em avisos e vínculos (RW-25, RW-41)
-- [ ] T055 [US4] `src/paginas/turmas/detalhe.tsx` com `tabela-vinculos.tsx` e
+- [x] T055 [US4] `src/paginas/turmas/detalhe.tsx` com `tabela-vinculos.tsx` e
       `form-vinculo.tsx`: dados da turma, vínculos por papel e busca de pessoa ao vincular (T08,
       RW-26)
-- [ ] T056 [US4] Vincular e desvincular, com o alerta de perda imediata
+- [x] T056 [US4] Vincular e desvincular, com o alerta de perda imediata
       de acesso e tratamento de `JA_VINCULADO` e `PERFIL_INCOMPATIVEL` (RW-27)
-- [ ] T057 [P] [US4] `e2e/turmas-vinculos.spec.ts`: criar turma, código duplicado, vincular
+- [x] T057 [P] [US4] `e2e/turmas-vinculos.spec.ts`: criar turma, código duplicado, vincular
       docente, remover vínculo e desativar turma
 
 **Checkpoint**: a estrutura acadêmica pode ser mantida pela coordenação.

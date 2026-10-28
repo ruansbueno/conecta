@@ -1,17 +1,14 @@
 // Peças compartilhadas pelas páginas de novo aviso e de edição.
 import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
 
-import { ApiError } from '../../api/erros'
 import { listarTurmas } from '../../api/recursos/turmas'
 import type { Turma } from '../../api/schemas'
 import type { FormularioAviso } from '../../lib/formulario-aviso'
 import { apagarRascunho, salvarRascunho, type ChaveRascunho } from '../../lib/rascunho'
+import { mensagemDe, type Carga } from '../comum'
 
-export type Carga<T> = { estado: 'carregando' } | { estado: 'pronto'; dados: T } | { estado: 'erro'; mensagem: string; repetivel?: boolean }
+export { mensagemDe, useMensagemTrazida, type Carga } from '../comum'
 
-export const mensagemDe = (e: unknown) =>
-  e instanceof ApiError ? e.mensagem : new ApiError({ code: 'ERRO_DESCONHECIDO' }).mensagem
 
 /**
  * Turmas ativas que podem ser destino. O docente recebe só as suas (quem filtra é a API). A busca
@@ -37,20 +34,6 @@ export function useTurmasDestino() {
   }, [carregar])
 
   return { carga, recarregar: carregar }
-}
-
-/**
- * Mensagem trazida de outra página no estado da navegação ("Aviso publicado."): lida uma vez e
- * tirada do histórico, para não voltar ao recarregar ou ao navegar de volta.
- */
-export function useMensagemTrazida(): string | undefined {
-  const location = useLocation()
-  const navegar = useNavigate()
-  const [mensagem] = useState(() => (location.state as { mensagem?: string } | null)?.mensagem)
-  useEffect(() => {
-    if (location.state) navegar({ search: location.search }, { replace: true, state: null })
-  }, [location.state, location.search, navegar])
-  return mensagem
 }
 
 /** Guarda o formulário a cada mudança (RW-42); sem nada escrito, não deixa rascunho. */

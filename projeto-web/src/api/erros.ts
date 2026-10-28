@@ -40,6 +40,8 @@ const MAPA: Record<string, [string, Efeito]> = {
   AVISO_SITUACAO_INVALIDA: ['Este aviso já está nessa situação.', 'recarrega'],
   AVISO_NAO_ENCONTRADO: ['Este aviso não está mais disponível.', 'voltaLista'],
   TURMA_NAO_ENCONTRADA: ['Esta turma não está mais disponível.', 'recarrega'],
+  USUARIO_NAO_ENCONTRADO: ['Esta pessoa não está mais disponível.', 'recarrega'],
+  VINCULO_NAO_ENCONTRADO: ['Este vínculo já tinha sido removido.', 'recarrega'],
   VALIDATION_ERROR: ['Confira os campos destacados.', 'marcaCampos'],
   [SESSAO_NAO_GUARDADA]: [
     'O acesso foi aceito, mas o navegador não guardou a sessão. Verifique se os cookies estão permitidos e tente de novo.',

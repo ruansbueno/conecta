@@ -25,6 +25,18 @@ export interface AvisoFalso {
   destinos: unknown[]
 }
 
+export interface TurmaFalsa {
+  id: string
+  codigo: string
+  nome: string
+  semestre_curso: number
+  periodo_letivo: string
+  inscricoes_abertas: boolean
+  ativa: boolean
+  criado_em: string
+  atualizado_em: string
+}
+
 interface DestinoGuardado {
   tipo: string
   turma_id: string | null
@@ -55,7 +67,7 @@ const TURMAS = [
 ] as const
 
 export function estadoInicial() {
-  const turmas = TURMAS.map(([codigo, nome, semestre], i) => ({
+  const turmas: TurmaFalsa[] = TURMAS.map(([codigo, nome, semestre], i) => ({
     id: `00000000-0000-4000-8000-00000000000${i + 1}`,
     codigo,
     nome,
@@ -65,9 +77,9 @@ export function estadoInicial() {
     ativa: true,
     criado_em: '2026-08-01T12:00:00Z',
     atualizado_em: '2026-08-01T12:00:00Z',
-    total_alunos: 30 + i,
-    total_docentes: 2,
   }))
+  /** Origem e data de cada vínculo (`turma:usuario`); sem registro, é da carga inicial. */
+  const origens = new Map<string, { origem: string; criado_em: string }>()
   const [a, , , d] = turmas.map((t) => t.id)
   const usuarios: UsuarioFalso[] = [
     { id: randomUUID(), username: 'admin.teste', nome: 'Administrador de Teste', perfil: 'administrador', ativo: true, turmas: [] },
@@ -110,11 +122,33 @@ export function estadoInicial() {
     semestre: d.semestre ?? null,
   })
 
+  /** Turma no formato de gestão: os totais contam os vínculos de verdade. */
+  const turmaSaida = (t: TurmaFalsa) => ({
+    ...t,
+    total_alunos: usuarios.filter((u) => u.perfil === 'aluno' && u.turmas.includes(t.id)).length,
+    total_docentes: usuarios.filter((u) => u.perfil === 'docente' && u.turmas.includes(t.id)).length,
+  })
+
   return {
     turmas,
     usuarios,
     avisos,
     auditoria,
+    turmaSaida,
+    vinculosDa(turmaId: string, papel?: string | null) {
+      return usuarios
+        .filter((u) => u.turmas.includes(turmaId) && (u.perfil === 'docente' || u.perfil === 'aluno'))
+        .filter((u) => !papel || u.perfil === papel)
+        .map((u) => ({
+          usuario: { id: u.id, username: u.username, nome: u.nome },
+          papel: u.perfil,
+          ...(origens.get(`${turmaId}:${u.id}`) ?? { origem: 'seed', criado_em: '2026-08-01T12:00:00Z' }),
+        }))
+    },
+    vincular(turmaId: string, u: UsuarioFalso) {
+      u.turmas.push(turmaId)
+      origens.set(`${turmaId}:${u.id}`, { origem: 'gestao', criado_em: new Date().toISOString() })
+    },
     sessoes: new Map<string, string>(),
     publico: (u: UsuarioFalso) => ({ id: u.id, username: u.username, nome: u.nome, perfil: u.perfil }),
     me: (u: UsuarioFalso) => ({

@@ -12,8 +12,9 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 
 > **Estado atual (28/10/2026)**: a API das entregas E1 e E2 está implementada; o aplicativo tem o
 > marco de avisos (login, sessão e aba Avisos); a plataforma web tem login, publicação de avisos e
-> a auditoria completa deles (lista, histórico e versões). Faltam turmas, solicitações e usuários
-> na web, o restante do aplicativo e a agenda (E3). Veja [Andamento](#andamento).
+> a auditoria completa deles (lista, histórico e versões), além de turmas e vínculos. Faltam
+> solicitações, usuários e o painel na web, o restante do aplicativo e a agenda (E3). Veja
+> [Andamento](#andamento).
 
 ## Estrutura do repositório
 
@@ -21,7 +22,7 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 |---|---|---|
 | [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1 e E2 implementadas |
 | [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, plano, 66 tarefas e o código | Marco de avisos implementado (40 de 66 tarefas) |
-| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas e o código | Fases 1–5 implementadas (49 de 77 tarefas) |
+| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas e o código | Fases 1–6 implementadas (57 de 77 tarefas) |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
 
@@ -112,7 +113,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 28/10/2026. Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 28/10/2026 (fase 6 da web incluída). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -123,15 +124,16 @@ achados corrigidos com teste antes do merge.
 | **API — E2** | Rotas de gestão (`/gestao/*`): usuários e perfis, turmas, vínculos, decisão de solicitações, avisos com destinos, versões e histórico imutáveis; teste de ponta a ponta da spec §9.3 | 583 testes (E1 + E2) | [#3](https://github.com/ruansbueno/conecta/pull/3) |
 | **Aplicativo — marco de avisos** | Login, sessão segura, aba Avisos (ativos e arquivados, detalhe, cache para abrir sem rede) | 151 testes (unidade e widget) + integração com servidor falso | [#2](https://github.com/ruansbueno/conecta/pull/2) |
 | **Web — fases 1 a 4** | Fundação (tema, sessão por cookie + CSRF, casca), login, publicação de avisos com seletor de destinos, restrição do docente, agendamento, prévia do cartão do app e rascunho local | Vitest + Playwright | [#4](https://github.com/ruansbueno/conecta/pull/4) |
-| **Web — fase 5** | Lista de avisos por situação com busca e filtros, histórico com texto antes/depois, versões, arquivar/desarquivar/excluir com confirmação | 160 testes (Vitest) + 16 de ponta a ponta (Playwright) | [#5](https://github.com/ruansbueno/conecta/pull/5) |
+| **Web — fase 5** | Lista de avisos por situação com busca e filtros, histórico com texto antes/depois, versões, arquivar/desarquivar/excluir com confirmação | Vitest + Playwright | [#5](https://github.com/ruansbueno/conecta/pull/5) |
+| **Web — fase 6** | Turmas por situação com busca e filtros, criar/editar, abrir/fechar inscrições, desativar/reativar, vínculos com origem, vincular buscando a pessoa e desvincular com alerta | 200 testes (Vitest) + 19 de ponta a ponta (Playwright) | [#7](https://github.com/ruansbueno/conecta/pull/7) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.
 
 ### Falta, em ordem
 
-**1. Plataforma web — fases 6 a 10** — turmas e vínculos, solicitações, usuários e perfis, o
-painel real com números da gestão e o polimento final (28 tarefas em
+**1. Plataforma web — fases 7 a 10** — solicitações, usuários e perfis, o painel real com números
+da gestão e o polimento final (20 tarefas em
 [`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md)). A API dessas telas já existe.
 
 **2. Aplicativo — fases 5 a 8** — turmas, solicitação de inscrição, perfil e polimento (26 tarefas
@@ -157,8 +159,8 @@ Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
 1. ✅ API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
 2. ✅ Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
 3. ✅ API — entrega E2 (endpoints de gestão).
-4. ⏳ Plataforma web — fase F1, fechando o ciclo web → API → app (avisos prontos; faltam turmas,
-   solicitações, usuários e o painel).
+4. ⏳ Plataforma web — fase F1, fechando o ciclo web → API → app (avisos, turmas e vínculos
+   prontos; faltam solicitações, usuários e o painel).
 5. Aplicativo — fase F1 completa.
 6. E3 — agenda e horários, na API e nos dois clientes.
 

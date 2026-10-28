@@ -144,6 +144,24 @@ void main() {
       expect(find.byType(TurmaCard), findsOneWidget);
     });
 
+    testWidgets('sem rede com mais turmas que as guardadas: diz quantas aparecem', (tester) async {
+      await preparar(perfil: 'docente');
+      app.api.responder(
+        'GET /turmas/minhas',
+        paginaJson([for (var i = 0; i < 20; i++) turmaMapa('T-$i', papel: 'docente')], total: 45),
+      );
+      await abrirTurmas(tester);
+      await tester.pumpWidget(const SizedBox());
+      app.api.falharRede('GET /turmas/minhas');
+
+      await abrirTurmas(tester);
+
+      expect(
+        find.text('Você participa de 45 turmas. Sem conexão, aparecem as 20 guardadas.'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('erro sem cache: mensagem e tentar de novo', (tester) async {
       await preparar(perfil: 'docente');
       app.api.falharRede('GET /turmas/minhas');

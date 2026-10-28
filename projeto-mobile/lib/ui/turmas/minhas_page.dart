@@ -105,7 +105,7 @@ class _Minhas extends StatelessWidget {
               if (turmas.itens.isEmpty)
                 const _SemTurmasAluno()
               else ...[
-                Text(_resumo(turmas.total, turmas.itens), style: Tipografia.apoio),
+                Text(_resumo(turmas), style: Tipografia.apoio),
                 const SizedBox(height: 16),
                 for (final t in turmas.itens) ...[TurmaCard(turma: t), const SizedBox(height: 12)],
                 RodapeLista(lista: turmas, onRepetir: () => controller.carregarMais(repetir: true)),
@@ -143,14 +143,20 @@ class _Minhas extends StatelessWidget {
     if (falha != null) mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
   }
 
-  /// "Você participa de 3 turmas em 2026/2" — o período só quando todas são do mesmo.
-  static String _resumo(int total, List<TurmaVinculada> itens) {
-    final periodos = itens.map((t) => t.periodoLetivo).toSet();
-    final periodo = periodos.length == 1 ? periodos.single : null;
-    final quantas = total == 1 ? '1 turma' : '$total turmas';
-    return periodo == null
+  /// "Você participa de 3 turmas em 2026/2". O período só quando todas estão carregadas e são do
+  /// mesmo; sem rede, diz quantas das guardadas aparecem (o cache tem só a primeira página).
+  static String _resumo(ListaPaginada<TurmaVinculada> turmas) {
+    final todas = turmas.itens.length == turmas.total;
+    final periodos = turmas.itens.map((t) => t.periodoLetivo).toSet();
+    final periodo = todas && periodos.length == 1 ? periodos.single : null;
+    final quantas = turmas.total == 1 ? '1 turma' : '${turmas.total} turmas';
+    final resumo = periodo == null
         ? 'Você participa de $quantas'
         : 'Você participa de $quantas em $periodo';
+    if (turmas.dadosDe != null && !todas) {
+      return '$resumo. Sem conexão, aparecem as ${turmas.itens.length} guardadas.';
+    }
+    return resumo;
   }
 
   Widget _vazioSemVinculo() => EstadoVazio(

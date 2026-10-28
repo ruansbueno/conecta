@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:conecta/models/solicitacao.dart';
 import 'package:conecta/repositories/solicitacoes_repository.dart';
 import 'package:conecta/repositories/turmas_repository.dart';
@@ -5,6 +7,7 @@ import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/state/avisos_controller.dart' show EstadoLista;
 import 'package:conecta/state/turmas_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 import '../apoio.dart';
 import '../fixtures/fabrica.dart';
@@ -120,6 +123,40 @@ void main() {
 
       expect(c.turmas.itens, hasLength(25));
       expect(c.turmas.temMais, isFalse);
+    });
+
+    test('"carregar mais" antigo, depois de uma recarga, não libera o pedido novo', () async {
+      final segundas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /turmas/minhas'] = (r) {
+        final offset = int.parse(r.url.queryParameters['offset']!);
+        final pagina = respostaJson(
+          paginaJson(
+            [for (var i = offset; i < offset + 20; i++) turmaMapa('T-$i', papel: 'aluno')],
+            total: 45,
+            offset: offset,
+          ),
+        );
+        if (offset == 0) return Future.value(pagina);
+        final c = Completer<http.Response>();
+        segundas.add(c);
+        return c.future.then((_) => pagina);
+      };
+      final c = minhas(aluno: false);
+      await c.carregar();
+
+      final antigo = c.carregarMais(); // página 2 pendente
+      await c.recarregar(); // a lista é substituída
+      final novo = c.carregarMais(); // nova página 2 pendente
+      await pumpEventQueue();
+      segundas[0].complete(http.Response('', 200));
+      await antigo;
+
+      expect(c.turmas.carregandoMais, isTrue, reason: 'o pedido novo ainda está em curso');
+      await c.carregarMais(); // a rolagem não pode pedir a página 2 de novo
+      expect(segundas, hasLength(2));
+      segundas[1].complete(http.Response('', 200));
+      await novo;
+      expect(c.turmas.itens.map((t) => t.codigo).toSet(), hasLength(40));
     });
 
     test('recarregar com falha mantém a lista e guarda a falha para um aviso breve', () async {

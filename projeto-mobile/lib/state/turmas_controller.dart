@@ -103,16 +103,20 @@ abstract class _ControllerDeLista<T> extends ChangeNotifier {
     notifyListeners();
     try {
       final pagina = await buscar(lista.itens.length);
-      if (lista.geracao != geracao) return; // a lista foi recarregada nesse meio-tempo
+      // A lista foi recarregada nesse meio-tempo: a página é de antes, e a trava pode ser de um
+      // pedido novo.
+      if (lista.geracao != geracao) return;
       lista
         ..itens.addAll(pagina.items)
-        ..total = pagina.total;
+        ..total = pagina.total
+        ..carregandoMais = false;
     } on ApiFailure catch (falha) {
-      if (lista.geracao == geracao) lista.falhaAoCarregarMais = falha;
-    } finally {
-      lista.carregandoMais = false;
-      notifyListeners();
+      if (lista.geracao != geracao) return;
+      lista
+        ..falhaAoCarregarMais = falha
+        ..carregandoMais = false;
     }
+    notifyListeners();
   }
 
   @override

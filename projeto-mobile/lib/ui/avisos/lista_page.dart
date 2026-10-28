@@ -123,7 +123,7 @@ class _Lista extends StatelessWidget {
     return EstadoVazio(
       icone: Icons.inbox_outlined,
       titulo: 'Nenhum aviso por enquanto',
-      texto: 'Você verá aqui os avisos gerais do curso e os das turmas em que estiver inscrito.',
+      texto: 'Você verá aqui os avisos gerais do curso e os das turmas de que você participa.',
       acao: aluno ? 'Ver turmas disponíveis' : null,
       onAcao: aluno
           ? () {

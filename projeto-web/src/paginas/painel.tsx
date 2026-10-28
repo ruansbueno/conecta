@@ -36,7 +36,14 @@ function useBloco<T>(buscar: () => Promise<T>) {
       valido = false
     }
   }, [vez])
-  return { carga, repetir: () => setVez((n) => n + 1) }
+  return {
+    carga,
+    // Volta a "carregando": quem tenta de novo vê que algo aconteceu, e uma nova falha é anunciada.
+    repetir: () => {
+      setCarga({ estado: 'carregando' })
+      setVez((n) => n + 1)
+    },
+  }
 }
 
 /** "SI-3A" → ["SI", "3A"]; "TADS-3A-2026-2" → ["TADS", "3A"] (o design mostra a sigla em duas linhas). */
@@ -103,9 +110,14 @@ function Numero({ rotulo, detalhe, carga, repetir, cor = 'text-navy' }: {
   return (
     <section aria-label={rotulo} className="rounded-xl border border-linha bg-branco px-6 py-5">
       {carga.estado === 'erro' ? (
-        <button type="button" onClick={repetir} className="text-[13px] font-semibold text-azul hover:underline">
-          Tentar de novo
-        </button>
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <p role="alert" className="text-[13px] text-perigo">
+            Não foi possível carregar.
+          </p>
+          <button type="button" onClick={repetir} className="text-[13px] font-semibold text-azul hover:underline">
+            Tentar de novo
+          </button>
+        </div>
       ) : (
         <p className={`text-[34px] leading-none font-bold ${cor}`}>{carga.estado === 'pronto' ? carga.dados.total : '…'}</p>
       )}

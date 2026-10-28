@@ -4,8 +4,9 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import AreaGestao from '../../src/paginas/area-gestao'
+import Solicitacoes from '../../src/paginas/solicitacoes'
 import { SessaoProvider } from '../../src/sessao/contexto'
-import { erro, me, meDocente } from '../fixtures'
+import { erro, me, meDocente, solicitacao } from '../fixtures'
 
 function montar(respostaSaida: { status: number; corpo?: unknown }) {
   vi.stubGlobal(
@@ -146,5 +147,47 @@ describe('contador de solicitações na barra lateral', () => {
     total = 0
     await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
     expect(await screen.findByRole('link', { name: 'Solicitações' })).toBeInTheDocument()
+  })
+})
+
+describe('contador acompanha as decisões', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('decidir na fila atualiza o contador da barra lateral sem trocar de página', async () => {
+    let pendentes = 3
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init: RequestInit) => {
+        const u = url.replace('/api', '')
+        if (u === '/me') return new Response(JSON.stringify(me), { status: 200 })
+        if (u.includes('/aprovar')) {
+          pendentes = 2
+          return new Response(JSON.stringify({ ...solicitacao, status: 'aprovada', decidida_em: new Date().toISOString(), decidida_por: { id: 'c', nome: 'Maria' } }), { status: 200 })
+        }
+        if (u.startsWith('/gestao/solicitacoes')) {
+          const itens = pendentes === 3 ? [solicitacao] : []
+          return new Response(JSON.stringify({ items: u.includes('limit=1&') || u.endsWith('limit=1') ? [] : itens, total: pendentes, limit: 20, offset: 0 }), { status: 200 })
+        }
+        if (u.startsWith('/gestao/turmas')) return new Response(JSON.stringify({ items: [], total: 0, limit: 100, offset: 0 }), { status: 200 })
+        void init
+        return new Response(null, { status: 204 })
+      }),
+    )
+    render(
+      <MemoryRouter initialEntries={['/solicitacoes']}>
+        <SessaoProvider>
+          <Routes>
+            <Route element={<AreaGestao />}>
+              <Route path="/solicitacoes" element={<Solicitacoes />} />
+            </Route>
+          </Routes>
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('link', { name: 'Solicitações, 3 pendentes' })).toBeInTheDocument()
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Aprovar/ }))
+
+    expect(await screen.findByRole('link', { name: 'Solicitações, 2 pendentes' })).toBeInTheDocument()
   })
 })

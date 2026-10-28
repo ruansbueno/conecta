@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -108,6 +108,46 @@ describe('painel da coordenação (T02)', () => {
     falhar = false
     await userEvent.click(repetir)
     expect(await within(fila).findByText('Júlia Santos')).toBeInTheDocument()
+  })
+})
+
+describe('falhas no painel (D13, RW-37)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('número que não carregou diz por quê, além de oferecer tentar de novo', async () => {
+    api({
+      'GET /gestao/avisos': (q) =>
+        q.get('situacao') === 'agendado' ? { status: 503, corpo: erro('ERRO_INTERNO') } : { status: 200, corpo: { ...pagina(AVISOS), total: 4 } },
+    })
+    abrir()
+    const agendados = await cartao('Avisos agendados')
+    expect(await within(agendados).findByRole('alert')).toHaveTextContent('Não foi possível carregar.')
+    expect(within(agendados).getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()
+  })
+
+  it('tentar de novo mostra que está carregando (e a nova falha é anunciada de novo)', async () => {
+    let liberar: () => void = () => undefined
+    let tentativas = 0
+    api({
+      'GET /gestao/solicitacoes': () => ({ status: 503, corpo: erro('ERRO_INTERNO') }),
+    })
+    const base = globalThis.fetch
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init: RequestInit) => {
+        if (url.includes('/gestao/solicitacoes') && tentativas++ >= 1) {
+          return new Promise<Response>((r) => (liberar = () => r(new Response(JSON.stringify(erro('ERRO_INTERNO')), { status: 503 }))))
+        }
+        return base(url, init)
+      }),
+    )
+    abrir()
+    const fila = await cartao('Solicitações de inscrição')
+    await userEvent.click(await within(fila).findByRole('button', { name: 'Tentar de novo' }))
+
+    expect(within(fila).getByRole('status')).toHaveTextContent('Carregando')
+    await act(async () => liberar())
+    expect(await within(fila).findByRole('alert')).toBeInTheDocument()
   })
 })
 

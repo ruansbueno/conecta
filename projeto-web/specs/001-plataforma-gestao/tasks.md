@@ -33,23 +33,23 @@ Aplicação React única construída com Vite, conforme `plan.md`: `src/`, `test
 
 ## Phase 1: Setup
 
-- [ ] T001 Criar a aplicação com Vite (template `react-ts`) na raiz de `projeto-web/`,
+- [x] T001 Criar a aplicação com Vite (template `react-ts`) na raiz de `projeto-web/`,
       preservando `specs/` e `.specify/`; ativar o modo estrito do TypeScript
-- [ ] T002 Criar a árvore de `src/` conforme `plan.md`: `api/{recursos}`, `sessao/`, `paginas/`,
+- [x] T002 Criar a árvore de `src/` conforme `plan.md`: `api/{recursos}`, `sessao/`, `paginas/`,
       `componentes/{layout,comum,avisos,turmas,solicitacoes,usuarios}`, `estilos/`, `lib/`
-- [ ] T003 Instalar as dependências de produção (`react-router`, `tailwindcss`, `zod`) e de
+- [x] T003 Instalar as dependências de produção (`react-router`, `tailwindcss`, `zod`) e de
       desenvolvimento (`vitest`, `@testing-library/react`, `@testing-library/user-event`,
       `@playwright/test`, `eslint`, `prettier`)
-- [ ] T004 [P] Configurar ESLint com três regras próprias: proibir cor literal fora do tema;
+- [x] T004 [P] Configurar ESLint com três regras próprias: proibir cor literal fora do tema;
       proibir `document.cookie`, `localStorage` e `sessionStorage` fora de `src/lib/rascunho.ts`;
       proibir importar `api/recursos/**` de dentro de `componentes/**` (Princípios I, III e V)
-- [ ] T005 [P] Configurar o proxy de desenvolvimento em `vite.config.ts`: `/api` apontando para a
+- [x] T005 [P] Configurar o proxy de desenvolvimento em `vite.config.ts`: `/api` apontando para a
       API local, reproduzindo a mesma origem que haverá em produção (D3)
-- [ ] T006 [P] Criar `.env.example` com `VITE_API_BASE_URL=/api` e registrar, em comentário, que
+- [x] T006 [P] Criar `.env.example` com `VITE_API_BASE_URL=/api` e registrar, em comentário, que
       todo valor embutido no build é público (D14, RW-44)
-- [ ] T007 [P] Adicionar a fonte Inter (400–800) a partir de `design/_assets/fonts/`, servida
+- [x] T007 [P] Adicionar a fonte Inter (400–800) a partir de `design/_assets/fonts/`, servida
       pelo próprio build
-- [ ] T008 [P] Configurar os scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`,
+- [x] T008 [P] Configurar os scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`,
       `test:e2e`
 
 **Checkpoint**: `npm run dev` abre uma página vazia com o tema carregado e `/api` já

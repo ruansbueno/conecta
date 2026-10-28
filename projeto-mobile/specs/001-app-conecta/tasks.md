@@ -152,19 +152,19 @@ modo offline.
 
 ## Phase 5: US3 — Acompanhar minhas turmas (P3)
 
-- [ ] T041 [US3] `lib/repositories/turmas_repository.dart`: `minhas()` e `disponiveis()`, com
+- [x] T041 [US3] `lib/repositories/turmas_repository.dart`: `minhas()` e `disponiveis()`, com
       cache apenas de `minhas` (contrato §5 e §6)
-- [ ] T042 [P] [US3] `test/unit/turmas_repository_test.dart`: lista vazia, `SEM_PERMISSAO` em
+- [x] T042 [P] [US3] `test/unit/turmas_repository_test.dart`: lista vazia, `SEM_PERMISSAO` em
       disponíveis, cache de minhas
-- [ ] T043 [US3] `lib/state/turmas_controller.dart`: minhas turmas, disponíveis e recarga cruzada
+- [x] T043 [US3] `lib/state/turmas_controller.dart`: minhas turmas, disponíveis e recarga cruzada
       após solicitação ou cancelamento (RM-18, RM-19)
-- [ ] T044 [US3] `lib/ui/turmas/turma_card.dart`: sigla em duas linhas, nome, semestre e selo de
+- [x] T044 [US3] `lib/ui/turmas/turma_card.dart`: sigla em duas linhas, nome, semestre e selo de
       papel (data-model.md)
-- [ ] T045 [US3] `lib/ui/turmas/minhas_page.dart`: lista, estado vazio por perfil, cartão de
+- [x] T045 [US3] `lib/ui/turmas/minhas_page.dart`: lista, estado vazio por perfil, cartão de
       "entrar em outra turma" (só `aluno`) e as três solicitações mais recentes (RM-18, RM-20)
-- [ ] T046 [US3] `lib/ui/turmas/disponiveis_page.dart`: lista, botão Solicitar, marca de
+- [x] T046 [US3] `lib/ui/turmas/disponiveis_page.dart`: lista, botão Solicitar, marca de
       "Solicitada" e tratamento de `403` (RM-19, RM-20)
-- [ ] T047 [P] [US3] `test/widget/turmas_test.dart`: aluno com vínculos, coordenação sem vínculo,
+- [x] T047 [P] [US3] `test/widget/turmas_test.dart`: aluno com vínculos, coordenação sem vínculo,
       estado vazio e ausência do atalho para não-alunos
 
 **Checkpoint**: a aba Turmas reflete corretamente cada perfil.

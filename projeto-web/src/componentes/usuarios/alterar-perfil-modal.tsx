@@ -1,6 +1,6 @@
 // T11 (design w-11): alterar o perfil de acesso e ativar/desativar (só administração, RW-32). Cada
 // opção diz o que o perfil pode fazer (RW-33); a mudança vale na requisição seguinte da pessoa.
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { ApiError } from '../../api/erros'
 import type { UsuarioGestao } from '../../api/schemas'
@@ -41,6 +41,17 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
   const [erro, setErro] = useState<string>()
   const [enviando, setEnviando] = useState(false)
   const id = useId()
+  // Entrar e sair da confirmação troca os botões: o foco acompanha e não escapa do modal (RW-39).
+  const botaoConfirmar = useRef<HTMLButtonElement>(null)
+  const botaoDesativar = useRef<HTMLButtonElement>(null)
+  const montado = useRef(false)
+  useEffect(() => {
+    if (!montado.current) {
+      montado.current = true
+      return
+    }
+    ;(confirmandoDesativar ? botaoConfirmar : botaoDesativar).current?.focus()
+  }, [confirmandoDesativar])
 
   async function executar(acao: () => Promise<void>, desativandoAPropria = false) {
     setErro(undefined)
@@ -61,7 +72,13 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
       <button type="button" onClick={() => setConfirmandoDesativar(false)} className="botao-secundario">
         Voltar
       </button>
-      <button type="button" disabled={enviando} onClick={() => executar(() => onMudarSituacao(false), eProprio)} className="botao-perigo">
+      <button
+        ref={botaoConfirmar}
+        type="button"
+        disabled={enviando}
+        onClick={() => executar(() => onMudarSituacao(false), eProprio)}
+        className="botao-perigo"
+      >
         Confirmar desativação
       </button>
     </>
@@ -69,6 +86,7 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
     <>
       {usuario.ativo && !eProprio && (
         <button
+          ref={botaoDesativar}
           type="button"
           disabled={enviando}
           onClick={() => setConfirmandoDesativar(true)}

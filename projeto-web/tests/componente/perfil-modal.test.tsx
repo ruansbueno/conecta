@@ -33,7 +33,7 @@ describe('alterar perfil de acesso (T11, RW-32, RW-33)', () => {
     expect(within(grupo).getByRole('radio', { name: 'Administrador' })).toHaveAccessibleDescription(/Gerencia usuários, perfis/)
     expect(within(grupo).getByRole('radio', { name: 'Coordenação' })).toHaveAccessibleDescription(/turmas, vínculos, solicitações e avisos/)
     expect(within(grupo).getByRole('radio', { name: 'Docente' })).toHaveAccessibleDescription(/apenas das turmas em que leciona/)
-    expect(within(grupo).getByRole('radio', { name: 'Aluno' })).toHaveAccessibleDescription(/Só consulta/)
+    expect(within(grupo).getByRole('radio', { name: 'Aluno' })).toHaveAccessibleDescription(/pede inscrição em turmas/)
     expect(within(grupo).getByRole('radio', { name: 'Docente' })).toBeChecked()
     expect(dialogo).toHaveTextContent('A mudança vale já na próxima ação da pessoa, sem precisar sair e entrar de novo.')
     expect(dialogo).toHaveTextContent('ricardo.lemos · vínculo em 4 turmas')
@@ -78,6 +78,15 @@ describe('alterar perfil de acesso (T11, RW-32, RW-33)', () => {
     expect(onMudarSituacao).not.toHaveBeenCalled()
     await userEvent.click(within(dialogo).getByRole('button', { name: 'Confirmar desativação' }))
     expect(onMudarSituacao).toHaveBeenCalledWith(false)
+  })
+
+  it('o foco fica dentro do modal ao entrar e sair da confirmação de desativar (RW-39)', async () => {
+    const { dialogo } = abrir()
+    await userEvent.click(within(dialogo).getByRole('button', { name: 'Desativar usuário' }))
+    expect(within(dialogo).getByRole('button', { name: 'Confirmar desativação' })).toHaveFocus()
+
+    await userEvent.click(within(dialogo).getByRole('button', { name: 'Voltar' }))
+    expect(within(dialogo).getByRole('button', { name: 'Desativar usuário' })).toHaveFocus()
   })
 
   it('inativo: reativar vai direto', async () => {

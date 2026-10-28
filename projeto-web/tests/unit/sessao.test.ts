@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { ApiError, SEM_REDE } from '../../src/api/erros'
 import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
 import { criarEncerrador } from '../../src/sessao/encerrar'
 
@@ -57,10 +58,36 @@ describe('encerramento da sessão', () => {
     expect(lerRascunho('rascunho:aviso:abc')).toBeNull()
   })
 
-  it('falha ao avisar a API não impede o encerramento local', async () => {
+  it('expiração: falha ao avisar a API não impede o encerramento local', async () => {
     const aoEncerrar = vi.fn()
     const encerrar = criarEncerrador({
-      encerrarNaApi: vi.fn().mockRejectedValue(new Error('rede')),
+      encerrarNaApi: vi.fn().mockRejectedValue(new ApiError({ code: SEM_REDE })),
+      aoEncerrar,
+    })
+
+    await encerrar('expirada')
+
+    expect(aoEncerrar).toHaveBeenCalledWith({ motivo: 'expirada', mensagem: 'Sua sessão expirou. Entre de novo.' })
+  })
+
+  it('saída que a API não confirmou mantém a sessão e o rascunho (RW-09)', async () => {
+    salvarRascunho('rascunho:aviso:novo', RASCUNHO)
+    const aoEncerrar = vi.fn()
+    const encerrar = criarEncerrador({
+      encerrarNaApi: vi.fn().mockRejectedValue(new ApiError({ code: SEM_REDE })),
+      aoEncerrar,
+    })
+
+    await expect(encerrar('saida')).rejects.toBeInstanceOf(ApiError)
+
+    expect(aoEncerrar).not.toHaveBeenCalled()
+    expect(lerRascunho('rascunho:aviso:novo')).not.toBeNull()
+  })
+
+  it('saída com a sessão já inválida na API encerra normalmente', async () => {
+    const aoEncerrar = vi.fn()
+    const encerrar = criarEncerrador({
+      encerrarNaApi: vi.fn().mockRejectedValue(new ApiError({ code: 'NAO_AUTENTICADO', status: 401 })),
       aoEncerrar,
     })
 

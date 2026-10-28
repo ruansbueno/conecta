@@ -12,6 +12,7 @@ import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { dataRelativa } from '../../lib/datas'
 import {
+  estaAgendado,
   formularioVazio,
   momentoDaPublicacao,
   validarAviso,
@@ -38,21 +39,23 @@ export default function NovoAviso() {
   const navegar = useNavigate()
   const { carga, recarregar } = useTurmasDestino()
   const [{ formulario: comeco, recuperadoEm }] = useState(inicial)
-  const [formulario, setFormulario] = useState(comeco)
+  const [digitado, setFormulario] = useState(comeco)
   const [erros, setErros] = useState<ErrosAviso>({})
   const [alerta, setAlerta] = useState<string>()
   const [enviando, setEnviando] = useState(false)
   const [publicado, setPublicado] = useState<AvisoGestao | null>(null)
   const [descartando, setDescartando] = useState(false)
-  useRascunhoAutomatico(CHAVE, formulario, !publicado)
+  useRascunhoAutomatico(CHAVE, digitado, !publicado)
 
   if (!usuario || carga.estado === 'carregando') return <Esqueleto rotulo="Carregando o editor" />
   if (carga.estado === 'erro') return <EstadoErro mensagem={carga.mensagem} onRepetir={recarregar} />
   const docente = usuario.perfil === 'docente'
+  const turmas = carga.dados
+  const formulario = docente ? soTurmasPermitidas(digitado, turmas) : digitado
 
   if (publicado) {
     return (
-      <AvisoSalvo titulo={publicado.situacao === 'agendado' ? 'Aviso agendado' : 'Aviso publicado'} aviso={publicado}>
+      <AvisoSalvo titulo={estaAgendado(publicado) ? 'Aviso agendado' : 'Aviso publicado'} aviso={publicado}>
         <button
           type="button"
           className="botao-primario"
@@ -94,8 +97,7 @@ export default function NovoAviso() {
       if (!(e instanceof ApiError)) return
       if (e.efeito === 'marcaCampos') setErros(errosDaApi(e, formulario.destinos))
       if (e.efeito === 'recarrega') {
-        const turmas = await recarregar()
-        if (turmas && docente) setFormulario((f) => soTurmasPermitidas(f, turmas))
+        await recarregar()
       }
     } finally {
       setEnviando(false)
@@ -120,7 +122,7 @@ export default function NovoAviso() {
         onMudar={setFormulario}
         erros={erros}
         alerta={alerta}
-        turmas={carga.dados}
+        turmas={turmas}
         docente={docente}
         autor={usuario.nome}
         podeAgendar

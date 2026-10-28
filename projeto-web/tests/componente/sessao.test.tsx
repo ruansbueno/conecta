@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -52,6 +53,18 @@ describe('sessão na interface', () => {
     montar()
 
     expect(await screen.findByText('editor')).toBeInTheDocument()
+  })
+
+  it('depois de um erro de rede, tentar de novo sem sessão leva ao login', async () => {
+    let vezes = 0
+    fetchFalso({
+      'GET /me': () => (vezes++ === 0 ? { status: 503, corpo: erro('ERRO_INTERNO') } : { status: 401, corpo: erro('NAO_AUTENTICADO') }),
+    })
+    montar('/avisos/novo')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }))
+
+    expect(await screen.findByText('login destino=/avisos/novo')).toBeInTheDocument()
   })
 
   it('sem sessão, vai ao login guardando o destino pretendido (RW-07)', async () => {

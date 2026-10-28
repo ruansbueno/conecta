@@ -10,7 +10,9 @@ import { Editor, errosDaApi, focarPrimeiroErro } from '../../componentes/avisos/
 import { Confirmacao } from '../../componentes/comum/confirmacao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
+import { dataRelativa } from '../../lib/datas'
 import {
+  estaAgendado,
   formularioVazio,
   mesmosDestinos,
   momentoDaPublicacao,
@@ -32,7 +34,7 @@ const escolhidos = (aviso: AvisoGestao): DestinoEscolhido[] =>
   }))
 
 function formularioDo(aviso: AvisoGestao): FormularioAviso {
-  const agendado = aviso.situacao === 'agendado' && aviso.publicarEm
+  const agendado = estaAgendado(aviso)
   const p = aviso.publicarEm
   return {
     ...formularioVazio(),
@@ -45,15 +47,17 @@ function formularioDo(aviso: AvisoGestao): FormularioAviso {
   }
 }
 
-/** Só os campos alterados; `publicarEm` só conta em aviso ainda agendado. */
+const aoMinuto = (d: Date | null) => (d ? Math.floor(d.getTime() / 60_000) : null)
+
+/** Só os campos alterados; `publicarEm` só conta em aviso ainda agendado, comparado ao minuto (o formulário não tem segundos). */
 function diferencas(aviso: AvisoGestao, f: FormularioAviso): EdicaoAviso {
   const edicao: EdicaoAviso = {}
   if (f.titulo.trim() !== aviso.titulo) edicao.titulo = f.titulo.trim()
   if (f.conteudo.trim() !== aviso.conteudo) edicao.conteudo = f.conteudo.trim()
   if (!mesmosDestinos(f.destinos, escolhidos(aviso))) edicao.destinos = f.destinos
-  if (aviso.situacao === 'agendado') {
+  if (estaAgendado(aviso)) {
     const quando = momentoDaPublicacao(f)
-    if ((quando?.getTime() ?? null) !== (aviso.publicarEm?.getTime() ?? null)) edicao.publicarEm = quando
+    if (aoMinuto(quando) !== aoMinuto(aviso.publicarEm)) edicao.publicarEm = quando
   }
   return edicao
 }
@@ -65,27 +69,37 @@ export default function EditarAviso() {
   const navegar = useNavigate()
   const turmas = useTurmasDestino()
   const [aviso, setAviso] = useState<Carga<AvisoGestao>>({ estado: 'carregando' })
-  const [formulario, setFormulario] = useState<FormularioAviso>(formularioVazio)
+  const [digitado, setFormulario] = useState<FormularioAviso>(formularioVazio)
   const [alterado, setAlterado] = useState(false)
+  const [recuperadoEm, setRecuperadoEm] = useState<Date | null>(null)
   const [erros, setErros] = useState<ErrosAviso>({})
   const [alerta, setAlerta] = useState<ReactNode>()
   const [enviando, setEnviando] = useState(false)
   const [salvo, setSalvo] = useState<AvisoGestao | null>(null)
   const [descartando, setDescartando] = useState(false)
-  useRascunhoAutomatico(chave, formulario, alterado && !salvo)
+  useRascunhoAutomatico(chave, digitado, alterado && !salvo)
 
   const carregar = useCallback(async () => {
     try {
       const atual = await obterAviso(id)
-      const r = lerRascunho(`rascunho:aviso:${id}`)
+      // Rascunho mais antigo que a última edição no servidor sobrescreveria a versão de outra
+      // pessoa sem ninguém perceber: descarta. O mais novo volta, e a página avisa.
+      let r = lerRascunho(`rascunho:aviso:${id}`)
+      if (r && r.salvoEm <= (atual.editadoEm ?? atual.criadoEm)) {
+        apagarRascunho(`rascunho:aviso:${id}`)
+        r = null
+      }
       setAviso({ estado: 'pronto', dados: atual })
+      setRecuperadoEm(r?.salvoEm ?? null)
       setFormulario(
         r ? { ...formularioDo(atual), titulo: r.titulo, conteudo: r.conteudo, destinos: r.destinos } : formularioDo(atual),
       )
     } catch (e) {
-      setAviso({ estado: 'erro', mensagem: mensagemDe(e) })
+      // Aviso alheio leva à tela sem permissão (RW-12); aviso que sumiu não volta tentando de novo.
+      if (e instanceof ApiError && e.efeito === 'semPermissao') return navegar('/sem-permissao', { replace: true })
+      setAviso({ estado: 'erro', mensagem: mensagemDe(e), repetivel: !(e instanceof ApiError && e.efeito === 'voltaLista') })
     }
-  }, [id])
+  }, [id, navegar])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- o estado muda depois do await
@@ -95,10 +109,21 @@ export default function EditarAviso() {
   if (!usuario || aviso.estado === 'carregando' || turmas.carga.estado === 'carregando') {
     return <Esqueleto rotulo="Carregando o aviso" />
   }
-  if (aviso.estado === 'erro') return <EstadoErro mensagem={aviso.mensagem} onRepetir={carregar} />
+  if (aviso.estado === 'erro') {
+    if (aviso.repetivel) return <EstadoErro mensagem={aviso.mensagem} onRepetir={carregar} />
+    return (
+      <div role="alert" className="flex flex-col items-center px-12 py-16 text-center">
+        <p className="text-[13.5px] text-apagado">{aviso.mensagem}</p>
+        <Link to="/painel" className="botao-secundario mt-5">
+          Voltar ao painel
+        </Link>
+      </div>
+    )
+  }
   if (turmas.carga.estado === 'erro') return <EstadoErro mensagem={turmas.carga.mensagem} onRepetir={turmas.recarregar} />
   const original = aviso.dados
   const docente = usuario.perfil === 'docente'
+  const formulario = docente ? soTurmasPermitidas(digitado, turmas.carga.dados) : digitado
 
   if (salvo) {
     return (
@@ -121,14 +146,14 @@ export default function EditarAviso() {
   }
 
   async function enviar() {
-    const locais = validarAviso(formulario)
+    const edicao = diferencas(original, formulario)
+    const locais = validarAviso(formulario, new Date(), { validarData: 'publicarEm' in edicao })
     setErros(locais)
     setAlerta(undefined)
     if (Object.keys(locais).length > 0) {
       focarPrimeiroErro(locais)
       return
     }
-    const edicao = diferencas(original, formulario)
     if (Object.keys(edicao).length === 0) {
       setAlerta('Nenhuma alteração para salvar.')
       return
@@ -141,6 +166,7 @@ export default function EditarAviso() {
     } catch (e) {
       setAlerta(mensagemDe(e))
       if (!(e instanceof ApiError)) return
+      if (e.efeito === 'semPermissao') navegar('/sem-permissao', { replace: true })
       if (e.efeito === 'marcaCampos') setErros(errosDaApi(e, formulario.destinos))
       if (e.efeito === 'ofereceDesarquivar') {
         setAlerta(
@@ -153,8 +179,7 @@ export default function EditarAviso() {
         )
       }
       if (e.efeito === 'recarrega') {
-        const lista = await turmas.recarregar()
-        if (lista && docente) setFormulario((f) => soTurmasPermitidas(f, lista))
+        await turmas.recarregar()
       }
     } finally {
       setEnviando(false)
@@ -165,7 +190,10 @@ export default function EditarAviso() {
     <>
       <Editor
         modo="editar"
-        subtitulo={`Salvar cria a versão ${original.versaoAtual + 1}; as anteriores ficam no histórico`}
+        subtitulo={
+          (recuperadoEm ? `Rascunho recuperado (salvo ${dataRelativa(recuperadoEm)}) · ` : '') +
+          `Salvar cria a versão ${original.versaoAtual + 1}; as anteriores ficam no histórico`
+        }
         formulario={formulario}
         onMudar={(f) => {
           setFormulario(f)
@@ -176,7 +204,7 @@ export default function EditarAviso() {
         turmas={turmas.carga.dados}
         docente={docente}
         autor={original.autor.nome}
-        podeAgendar={original.situacao === 'agendado'}
+        podeAgendar={estaAgendado(original)}
         enviando={enviando}
         voltarPara="/painel"
         onEnviar={enviar}

@@ -1,0 +1,56 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import AreaGestao from '../../src/paginas/area-gestao'
+import { SessaoProvider } from '../../src/sessao/contexto'
+import { erro, me } from '../fixtures'
+
+function montar(respostaSaida: { status: number; corpo?: unknown }) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url: string, init: RequestInit) => {
+      const chave = `${init.method} ${url.replace('/api', '')}`
+      const { status, corpo } = chave === 'GET /me' ? { status: 200, corpo: me } : respostaSaida
+      return new Response(corpo === undefined ? null : JSON.stringify(corpo), { status })
+    }),
+  )
+  render(
+    <MemoryRouter initialEntries={['/painel']}>
+      <SessaoProvider>
+        <Routes>
+          <Route path="/login" element={<p>tela de login</p>} />
+          <Route element={<AreaGestao />}>
+            <Route path="/painel" element={<p>painel</p>} />
+          </Route>
+        </Routes>
+      </SessaoProvider>
+    </MemoryRouter>,
+  )
+}
+
+describe('sair (RW-09)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('saída confirmada pela API volta ao login', async () => {
+    montar({ status: 204 })
+    await userEvent.click(await screen.findByRole('button', { name: 'Sair' }))
+    expect(await screen.findByText('tela de login')).toBeInTheDocument()
+  })
+
+  it('saída que falhou avisa e mantém a pessoa na gestão', async () => {
+    montar({ status: 503, corpo: erro('ERRO_INTERNO') })
+    await userEvent.click(await screen.findByRole('button', { name: 'Sair' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível sair. Tente de novo.')
+    expect(screen.getByText('painel')).toBeInTheDocument()
+  })
+
+  it('CSRF inválido não pede para "tentar em instantes"', async () => {
+    montar({ status: 403, corpo: erro('CSRF_INVALIDO') })
+    await userEvent.click(await screen.findByRole('button', { name: 'Sair' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Recarregue a página/)
+  })
+})

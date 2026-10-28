@@ -37,6 +37,13 @@ export const destinoParaExibir = (d: DestinoEscolhido): Destino => ({
   semestre: d.semestre ?? null,
 })
 
+/**
+ * A API devolve o aviso agendado como `ativo` com `publicar_em` no futuro (no banco os dois são
+ * `ativo`; `agendado` existe só como filtro da lista, contrato §14).
+ */
+export const estaAgendado = (a: { situacao: string; publicarEm: Date | null }, agora = new Date()) =>
+  a.situacao === 'ativo' && !!a.publicarEm && a.publicarEm > agora
+
 export function momentoDaPublicacao(f: FormularioAviso): Date | null {
   if (!f.agendar || !f.data || !f.hora) return null
   return new Date(`${f.data}T${f.hora}`)
@@ -52,7 +59,8 @@ const esquema = z.object({
 })
 
 /** Validação antes de enviar; a API valida de novo e tem a palavra final. */
-export function validarAviso(f: FormularioAviso, agora = new Date()): ErrosAviso {
+/** `validarData: false` quando a data não mudou numa edição: o horário pode ter passado enquanto se editava. */
+export function validarAviso(f: FormularioAviso, agora = new Date(), { validarData = true } = {}): ErrosAviso {
   const erros: ErrosAviso = {}
   const r = esquema.safeParse(f)
   if (!r.success) {
@@ -61,7 +69,7 @@ export function validarAviso(f: FormularioAviso, agora = new Date()): ErrosAviso
       erros[campo] ??= issue.message
     }
   }
-  if (f.agendar) {
+  if (f.agendar && validarData) {
     const quando = momentoDaPublicacao(f)
     if (!quando) erros.publicar_em = 'Informe a data e a hora da publicação.'
     else if (quando <= agora) erros.publicar_em = 'Escolha uma data e hora no futuro.'

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apagarTodosRascunhos, lerRascunho } from '../../src/lib/rascunho'
+import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
 import NovoAviso from '../../src/paginas/avisos/novo'
 import { SessaoProvider } from '../../src/sessao/contexto'
 import { avisoGestao, erro, me, meDocente, pagina, turma } from '../fixtures'
@@ -162,6 +162,29 @@ describe('editor de aviso (T04/T05/T15)', () => {
     expect(chamadas.map((c) => c.chave)).not.toContain('POST /gestao/avisos')
   })
 
+  it('agendamento futuro: envia publicar_em e confirma como agendado', async () => {
+    const amanha = new Date(Date.now() + 86_400_000)
+    const dia = `${amanha.getFullYear()}-${String(amanha.getMonth() + 1).padStart(2, '0')}-${String(amanha.getDate()).padStart(2, '0')}`
+    const chamadas = api({
+      // A API devolve o agendado como "ativo" com publicar_em no futuro (contrato §14).
+      'POST /gestao/avisos': { status: 201, corpo: { ...avisoGestao, situacao: 'ativo', publicar_em: amanha.toISOString() } },
+    })
+    await abrir()
+    await escrever()
+    await escolherTurmas('SI-3A')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Agendar' }))
+    await userEvent.type(screen.getByLabelText('Data da publicação'), dia)
+    await userEvent.type(screen.getByLabelText('Hora da publicação'), '08:00')
+    await publicar()
+
+    expect(await screen.findByRole('heading', { name: 'Aviso agendado' })).toBeInTheDocument()
+    expect(screen.queryByText(/já vê o aviso/)).not.toBeInTheDocument()
+    expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.publicar_em).toBe(
+      new Date(`${dia}T08:00`).toISOString(),
+    )
+  })
+
   it('erro de validação da API marca o campo e o destino problemático', async () => {
     api({
       'POST /gestao/avisos': {
@@ -204,6 +227,29 @@ describe('editor de aviso (T04/T05/T15)', () => {
       }
       expect(screen.getAllByText('Apenas coordenação e administração')).toHaveLength(3)
       expect(screen.queryByRole('button', { name: 'Adicionar destino' })).not.toBeInTheDocument()
+    })
+
+    it('destino que o docente não pode usar (rascunho de outro perfil) não fica escondido no envio', async () => {
+      salvarRascunho('rascunho:aviso:novo', {
+        titulo: 'Rascunho antigo',
+        conteudo: 'Escrito quando era coordenação.',
+        destinos: [{ tipo: 'todos' }, { tipo: 'turma', turmaId: 't1', turmaNome: 'Sistemas para Internet 3A' }],
+      })
+      const chamadas = api(
+        {
+          'GET /gestao/turmas': { status: 200, corpo: pagina([TURMAS[0]]) },
+          'POST /gestao/avisos': { status: 201, corpo: avisoGestao },
+        },
+        'docente',
+      )
+      await abrir()
+
+      await publicar()
+
+      await screen.findByRole('heading', { name: 'Aviso publicado' })
+      expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.destinos).toEqual([
+        { tipo: 'turma', turma_id: 't1' },
+      ])
     })
 
     it('DESTINO_NAO_PERMITIDO explica, recarrega as turmas e mantém o texto', async () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formularioVazio, mesmosDestinos, validarAviso } from '../../src/lib/formulario-aviso'
+import { estaAgendado, formularioVazio, mesmosDestinos, validarAviso } from '../../src/lib/formulario-aviso'
 
 const valido = { ...formularioVazio(), titulo: 'Título', conteudo: 'Texto', destinos: [{ tipo: 'todos' }] }
 
@@ -35,5 +35,22 @@ describe('validação local do aviso', () => {
   it('compara destinos sem depender da ordem', () => {
     expect(mesmosDestinos([{ tipo: 'todos' }, { tipo: 'docentes' }], [{ tipo: 'docentes' }, { tipo: 'todos' }])).toBe(true)
     expect(mesmosDestinos([{ tipo: 'todos' }], [{ tipo: 'docentes' }])).toBe(false)
+  })
+})
+
+describe('agendamento (a API devolve agendado como "ativo" com publicar_em futuro)', () => {
+  const agora = new Date('2026-10-27T12:00:00Z')
+
+  it('ativo com publicar_em no futuro está agendado; no passado, publicado', () => {
+    expect(estaAgendado({ situacao: 'ativo', publicarEm: new Date('2026-10-28T08:00:00Z') }, agora)).toBe(true)
+    expect(estaAgendado({ situacao: 'ativo', publicarEm: new Date('2026-10-26T08:00:00Z') }, agora)).toBe(false)
+    expect(estaAgendado({ situacao: 'arquivado', publicarEm: new Date('2026-10-28T08:00:00Z') }, agora)).toBe(false)
+    expect(estaAgendado({ situacao: 'ativo', publicarEm: null }, agora)).toBe(false)
+  })
+
+  it('data que não mudou não é validada de novo (o horário pode ter passado durante a edição)', () => {
+    const passado = { ...valido, agendar: true, data: '2026-10-27', hora: '08:00' }
+    expect(validarAviso(passado, agora).publicar_em).toBe('Escolha uma data e hora no futuro.')
+    expect(validarAviso(passado, agora, { validarData: false })).toEqual({})
   })
 })

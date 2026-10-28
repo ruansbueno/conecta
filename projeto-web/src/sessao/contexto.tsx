@@ -58,11 +58,14 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       const erro = e instanceof ApiError ? e : new ApiError({ code: 'RESPOSTA_INVALIDA' })
       // Abertura sem sessão é o caso comum, não "sessão expirada". Com sessão ativa, quem
       // encerra (com a mensagem) é o ouvinte central, abaixo.
+      // Fora de uma sessão autenticada, 401 leva a anônimo (inclusive saindo de um erro de rede),
+      // mantendo a mensagem de encerramento que já houver.
       if (erro.code === 'NAO_AUTENTICADO' || erro.code === 'USUARIO_INATIVO') {
-        if (estadoAtual.current.tipo === 'carregando') setEstado({ tipo: 'anonimo' })
+        setEstado((atual) => (atual.tipo === 'autenticado' || atual.tipo === 'anonimo' ? atual : { tipo: 'anonimo' }))
         return
       }
-      setEstado((atual) => (atual.tipo === 'autenticado' ? atual : { tipo: 'erro', erro }))
+      // Falha de rede não apaga um estado conhecido (autenticado ou anônimo com a mensagem).
+      setEstado((atual) => (atual.tipo === 'autenticado' || atual.tipo === 'anonimo' ? atual : { tipo: 'erro', erro }))
     }
   }, [])
 

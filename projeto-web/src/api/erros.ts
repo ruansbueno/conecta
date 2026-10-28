@@ -27,6 +27,7 @@ const MAPA: Record<string, [string, Efeito]> = {
   CREDENCIAIS_INVALIDAS: ['Usuário ou senha incorretos.', 'permanece'],
   USUARIO_INATIVO: ['Este acesso está desativado. Procure a administração.', 'encerraSessao'],
   NAO_AUTENTICADO: ['Sua sessão expirou. Entre de novo.', 'encerraSessao'],
+  CSRF_INVALIDO: ['Não foi possível confirmar a sessão. Recarregue a página e tente de novo.', 'permanece'],
   SEM_PERMISSAO: ['Esta área não está disponível para o seu perfil.', 'semPermissao'],
   DESTINO_NAO_PERMITIDO: ['Você só pode publicar para as turmas em que leciona.', 'recarrega'],
   CODIGO_TURMA_DUPLICADO: ['Já existe uma turma com este código.', 'marcaCampos'],

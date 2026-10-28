@@ -4,12 +4,13 @@ import type { ReactNode } from 'react'
 
 import type { AvisoGestao } from '../../api/schemas'
 import { dataHora } from '../../lib/datas'
+import { estaAgendado } from '../../lib/formulario-aviso'
 import { ChipDestino } from '../comum/chip-destino'
 import { Icone } from '../comum/icone'
 import { SeloSituacao } from '../comum/selo-situacao'
 
 export function AvisoSalvo({ titulo, aviso, children }: { titulo: string; aviso: AvisoGestao; children: ReactNode }) {
-  const agendado = aviso.situacao === 'agendado' && aviso.publicarEm
+  const agendado = estaAgendado(aviso)
   return (
     <section className="mx-auto max-w-2xl rounded-xl border border-linha bg-branco p-8">
       <div className="flex items-center gap-3">

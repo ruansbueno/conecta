@@ -7,7 +7,7 @@ import type { Turma } from '../../api/schemas'
 import type { FormularioAviso } from '../../lib/formulario-aviso'
 import { apagarRascunho, salvarRascunho, type ChaveRascunho } from '../../lib/rascunho'
 
-export type Carga<T> = { estado: 'carregando' } | { estado: 'pronto'; dados: T } | { estado: 'erro'; mensagem: string }
+export type Carga<T> = { estado: 'carregando' } | { estado: 'pronto'; dados: T } | { estado: 'erro'; mensagem: string; repetivel?: boolean }
 
 export const mensagemDe = (e: unknown) =>
   e instanceof ApiError ? e.mensagem : new ApiError({ code: 'ERRO_DESCONHECIDO' }).mensagem
@@ -47,8 +47,11 @@ export function useRascunhoAutomatico(chave: ChaveRascunho, f: FormularioAviso, 
   }, [chave, f, ativo])
 }
 
-/** Depois de um DESTINO_NAO_PERMITIDO, tira do formulário as turmas que o docente perdeu. */
-export const soTurmasPermitidas = (f: FormularioAviso, turmas: Turma[]): FormularioAviso => ({
-  ...f,
-  destinos: f.destinos.filter((d) => d.tipo !== 'turma' || turmas.some((t) => t.id === d.turmaId)),
-})
+/**
+ * O que o docente vê é o que vai: só as turmas em que leciona. Tira destinos de outro tipo (rascunho
+ * de quando tinha outro perfil) e turmas que perdeu (recarregadas depois de DESTINO_NAO_PERMITIDO).
+ */
+export const soTurmasPermitidas = (f: FormularioAviso, turmas: Turma[]): FormularioAviso => {
+  const destinos = f.destinos.filter((d) => d.tipo === 'turma' && turmas.some((t) => t.id === d.turmaId))
+  return destinos.length === f.destinos.length ? f : { ...f, destinos }
+}

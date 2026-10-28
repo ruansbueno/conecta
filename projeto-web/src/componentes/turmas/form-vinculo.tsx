@@ -124,11 +124,11 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
           ) : resultado.estado === 'pronto' && pessoas.length === 0 ? (
             <p className="py-6 text-center text-[13px] text-apagado">Ninguém encontrado com esse nome.</p>
           ) : (
-            <ul role="radiogroup" aria-label="Pessoas encontradas" className="divide-y divide-linha-suave rounded-xl border border-linha">
+            <div role="radiogroup" aria-label="Pessoas encontradas" className="divide-y divide-linha-suave rounded-xl border border-linha">
               {pessoas.map((p) => {
                 const vinculada = jaVinculados.has(p.id)
                 return (
-                  <li key={p.id}>
+                  <div key={p.id}>
                     <label className={`flex items-center gap-3 px-4 py-3 ${vinculada ? 'opacity-60' : 'cursor-pointer hover:bg-fundo'}`}>
                       <input
                         type="radio"
@@ -144,10 +144,10 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
                       </span>
                       {vinculada && <span className="text-[12.5px] text-tenue">Já está na turma</span>}
                     </label>
-                  </li>
+                  </div>
                 )
               })}
-            </ul>
+            </div>
           )}
         </div>
       </div>

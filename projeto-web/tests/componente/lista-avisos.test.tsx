@@ -105,7 +105,7 @@ describe('lista de avisos (T03, RW-13, RW-14)', () => {
     const linha = within(await tabela()).getByRole('row', { name: /Entrega adiada/ })
     expect(linha).toHaveTextContent('versão 2')
     expect(linha).toHaveTextContent('Maria Coordenadora')
-    expect(within(linha).getByLabelText('Destino: TADS 3º Sem A')).toBeInTheDocument()
+    expect(within(linha).getByText('TADS 3º Sem A').parentElement).toHaveTextContent('Destino: TADS 3º Sem A')
     expect(within(linha).getByText('Ativo')).toBeInTheDocument()
     expect(linha).toHaveTextContent(/\d{2}\/\d{2}, \d{2}:\d{2}/)
   })

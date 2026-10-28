@@ -149,7 +149,7 @@ describe('histórico e versões do aviso (T06, RW-20, RW-21)', () => {
     expect(document.getElementById(botao.getAttribute('aria-controls')!)).toHaveTextContent('Nova data: 23/10.')
 
     expect(within(versoes).getByText('Nova data: 23/10.')).toBeInTheDocument()
-    expect(within(versoes).getByLabelText('Destino: SI-3B')).toBeInTheDocument()
+    expect(within(versoes).getByText('SI-3B').parentElement).toHaveTextContent('Destino: SI-3B')
   })
 
   it('mensagem trazida da edição aparece no detalhe', async () => {

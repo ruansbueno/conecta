@@ -15,7 +15,7 @@ test('painel da coordenação: números de toda a gestão e o contador na barra 
   await expect(page.getByRole('region', { name: 'Turmas ativas' }).getByText('4', { exact: true })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Avisos ativos' }).getByText('0', { exact: true })).toBeVisible()
   await expect(page.getByText('Nenhum aviso publicado ainda.')).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Solicitações, 3 pendentes' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Solicitações 3 pendentes' })).toBeVisible()
 })
 
 test('painel do docente: só as turmas e solicitações dele, como a API restringe', async ({ page }) => {
@@ -27,6 +27,6 @@ test('painel do docente: só as turmas e solicitações dele, como a API restrin
   await expect(turmas.getByRole('listitem').filter({ hasText: 'TADS 3º Sem A' })).toContainText('1 solicitação')
   await expect(turmas.getByRole('listitem').filter({ hasText: 'TADS 5º Sem A' })).toContainText('1 solicitação')
   await expect(turmas.getByRole('listitem').filter({ hasText: 'TADS 3º Sem B' })).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Solicitações, 2 pendentes' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Solicitações 2 pendentes' })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Turmas ativas' })).toHaveCount(0)
 })

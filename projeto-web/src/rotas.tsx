@@ -16,6 +16,7 @@ const HistoricoAviso = lazy(() => import('./paginas/avisos/historico'))
 const ListaAvisos = lazy(() => import('./paginas/avisos/lista'))
 const ListaTurmas = lazy(() => import('./paginas/turmas/lista'))
 const DetalheTurma = lazy(() => import('./paginas/turmas/detalhe'))
+const Solicitacoes = lazy(() => import('./paginas/solicitacoes'))
 
 export function Rotas() {
   return (
@@ -32,7 +33,7 @@ export function Rotas() {
             <Route path="/avisos/:id" element={<HistoricoAviso />} />
             <Route path="/turmas" element={<ListaTurmas />} />
             <Route path="/turmas/:id" element={<DetalheTurma />} />
-            <Route path="/solicitacoes" element={<EmBreve />} />
+            <Route path="/solicitacoes" element={<Solicitacoes />} />
             <Route path="/usuarios" element={<EmBreve />} />
           </Route>
         </Route>

@@ -209,13 +209,13 @@ encaminhado para a API local.
 
 ## Phase 7: US5 — Solicitações (P5)
 
-- [ ] T058 [US5] `src/api/recursos/solicitacoes.ts`: listar, aprovar, recusar (contrato,
+- [x] T058 [US5] `src/api/recursos/solicitacoes.ts`: listar, aprovar, recusar (contrato,
       Solicitações)
-- [ ] T059 [US5] `src/paginas/solicitacoes.tsx` com `componentes/solicitacoes/tabela`:
+- [x] T059 [US5] `src/paginas/solicitacoes.tsx` com `componentes/solicitacoes/tabela`:
       filtros por status e turma, destaque para pendentes há mais de 3 dias (T09, RW-28)
-- [ ] T060 [US5] `componentes/solicitacoes/recusar-modal.tsx`:
+- [x] T060 [US5] `componentes/solicitacoes/recusar-modal.tsx`:
       aprovar e recusar com motivo opcional de até 300 caracteres (RW-29, RW-30)
-- [ ] T061 [P] [US5] `e2e/solicitacoes.spec.ts`: aprovar criando vínculo, recusar com motivo,
+- [x] T061 [P] [US5] `e2e/solicitacoes.spec.ts`: aprovar criando vínculo, recusar com motivo,
       decidir uma já decidida (`409`) e docente tentando decidir turma alheia (`403`)
 
 **Checkpoint**: a fila de inscrições é resolvida pela coordenação e pelos docentes.

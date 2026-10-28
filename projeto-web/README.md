@@ -4,8 +4,9 @@ Plataforma web do CONECTA, em React, para administração, coordenação e docen
 auditar avisos, gerir turmas e vínculos, decidir solicitações de inscrição e administrar perfis
 de acesso. É aqui que a informação entra no sistema; o aplicativo mobile é quem a entrega.
 
-As fases 1 a 6 da F1 estão implementadas (57 de 77 tarefas): entrar na plataforma, publicar avisos
-para o público certo, acompanhar e auditar tudo o que foi publicado, e manter turmas e vínculos. Veja [Andamento](#andamento).
+As fases 1 a 7 da F1 estão implementadas (61 de 77 tarefas): entrar na plataforma, publicar avisos
+para o público certo, acompanhar e auditar tudo o que foi publicado, manter turmas e vínculos e
+decidir as solicitações de inscrição. Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -36,7 +37,7 @@ para o público certo, acompanhar e auditar tudo o que foi publicado, e manter t
 
 | Fase | Conteúdo | Situação |
 |---|---|---|
-| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Em andamento: fases 1–6 de 10 prontas |
+| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Em andamento: fases 1–7 de 10 prontas |
 | **F2** | Gestão de agenda e de horários das turmas | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
@@ -64,12 +65,12 @@ Atualizado em 28/10/2026.
 | 4. US2 — Publicar aviso | Editor (w-04), seletor de destinos (w-05), restrição do docente (w-15), agendamento, prévia do cartão do app, rascunho local, edição | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
 | 5. US3 — Acompanhar e auditar | Lista por situação com busca e filtros (w-03), histórico e versões (w-06), arquivar, desarquivar e excluir | ✅ [#5](https://github.com/ruansbueno/conecta/pull/5) |
 | 6. US4 — Turmas e vínculos | Lista com filtros (w-07), criar e editar, inscrições, desativar e reativar, detalhe com vínculos (w-08), vincular e desvincular | ✅ [#7](https://github.com/ruansbueno/conecta/pull/7) |
-| 7. US5 — Solicitações | Tela w-09 | A fazer |
+| 7. US5 — Solicitações | Fila por status e turma (w-09), destaque de espera, aprovar criando vínculo, recusar com motivo | ✅ [#8](https://github.com/ruansbueno/conecta/pull/8) |
 | 8. US6 — Usuários e perfis | Telas w-10 e w-11 | A fazer |
 | 9. Painel e integração | Painel real de coordenação e de docente (w-02, w-14) e o teste do fluxo completo web → API → app | A fazer (o painel atual é provisório) |
 | 10. Polimento e evidências | Revisão das mensagens de erro, auditoria de acessibilidade por tela, comparação com o design, implantação estática | A fazer |
 
-**Testes**: 200 de unidade e componente (Vitest) e 19 de ponta a ponta (Playwright), além da
+**Testes**: 219 de unidade e componente (Vitest) e 22 de ponta a ponta (Playwright), além da
 validação visual das telas prontas contra a API local real.
 
 ## Como rodar
@@ -97,7 +98,7 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-Fase 7 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md): solicitações de inscrição. Nada deve ser
+Fase 8 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md): usuários e perfis. Nada deve ser
 implementado sem a tarefa correspondente.
 
 A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api` e HTTPS —

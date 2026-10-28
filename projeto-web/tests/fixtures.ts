@@ -68,3 +68,14 @@ export const erro = (code: string, detail = 'texto do servidor', errors?: object
   code,
   ...(errors ? { errors } : {}),
 })
+
+export const solicitacao = {
+  id: 's1',
+  aluno: { id: 'a1', username: 'julia.santos', nome: 'Júlia Santos' },
+  turma: { id: 't1', codigo: 'SI-3A', nome: 'Sistemas para Internet 3A' },
+  status: 'pendente',
+  solicitada_em: '2026-10-12T20:14:00Z',
+  decidida_em: null,
+  decidida_por: null,
+  motivo_recusa: null,
+}

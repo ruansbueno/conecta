@@ -15,7 +15,7 @@ import { FormTurma } from '../../componentes/turmas/form-turma'
 import { TabelaTurmas } from '../../componentes/turmas/tabela-turmas'
 import { useSessao } from '../../sessao/contexto'
 import { useMensagemTrazida } from '../comum'
-import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from '../lista-na-url'
+import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from '../lista-na-url'
 
 type Situacao = 'ativas' | 'inativas' | 'todas'
 const SITUACOES: { id: Situacao; rotulo: string }[] = [
@@ -69,7 +69,7 @@ export default function ListaTurmas() {
       }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
-  const [mensagem, setMensagem] = useState(trazida)
+  const [mensagem, setMensagem] = useMensagemDaLista(trazida ? { texto: trazida, erro: false } : undefined)
   // `undefined`: fechado; `null`: nova turma; turma: edição.
   const [formulario, setFormulario] = useState<Turma | null | undefined>(undefined)
 
@@ -77,10 +77,10 @@ export default function ListaTurmas() {
     if (formulario) {
       const mudou = diferencas(formulario, dados)
       if (Object.keys(mudou).length > 0) await editarTurma(formulario.id, mudou)
-      setMensagem(`Turma ${dados.codigo} atualizada.`)
+      setMensagem({ texto: `Turma ${dados.codigo} atualizada.`, erro: false })
     } else {
       await criarTurma(dados)
-      setMensagem(`Turma ${dados.codigo} criada.`)
+      setMensagem({ texto: `Turma ${dados.codigo} criada.`, erro: false })
     }
     setFormulario(undefined)
     recarregar()
@@ -110,7 +110,7 @@ export default function ListaTurmas() {
 
       {mensagem && (
         <p role="status" className="mt-5 rounded-xl border border-linha bg-sucesso-fundo px-4 py-3 text-[13.5px] text-sucesso">
-          {mensagem}
+          {mensagem.texto}
         </p>
       )}
 

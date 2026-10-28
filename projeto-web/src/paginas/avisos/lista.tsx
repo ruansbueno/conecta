@@ -21,7 +21,7 @@ import { dataNumerica } from '../../lib/datas'
 import { estaAgendado } from '../../lib/formulario-aviso'
 import { useSessao } from '../../sessao/contexto'
 import { MENSAGEM_FEITA, useAcoesDoAviso } from './acoes'
-import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from '../lista-na-url'
+import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from '../lista-na-url'
 import { useMensagemTrazida } from './comum'
 
 type Situacao = 'ativo' | 'agendado' | 'arquivado' | 'excluido'
@@ -79,7 +79,7 @@ export default function ListaAvisos() {
   )
   const [turmas, setTurmas] = useState<Opcao[]>([])
   const [autores, setAutores] = useState<Opcao[]>([])
-  const [mensagem, setMensagem] = useState(trazida ? { texto: trazida, erro: false } : undefined)
+  const [mensagem, setMensagem] = useMensagemDaLista(trazida ? { texto: trazida, erro: false } : undefined)
 
   useEffect(() => {
     // Opções dos filtros: falhar aqui só deixa o filtro sem opções, a lista segue.

@@ -1,7 +1,7 @@
 // Listas cuja fonte da verdade é a URL (abas, busca, filtros e página): o mesmo endereço mostra a
 // mesma lista, e voltar e avançar funcionam. Usado pelas listas de avisos e de turmas.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 
 import { ApiError } from '../api/erros'
 import type { Pagina } from '../api/schemas'
@@ -72,7 +72,15 @@ export function useCargaPaginada<T>(
   buscar: () => Promise<Pagina<T>>,
   { offset, porPagina, filtrar }: { offset: number; porPagina: number; filtrar: Filtrar },
 ) {
-  const [carga, setCarga] = useState<Carga<Pagina<T>>>({ estado: 'carregando' })
+  // A carga lembra de qual combinação de filtros veio: trocar de aba, filtro ou página mostra o
+  // carregando, e não a tabela anterior sob o título novo. Recarregar a mesma mantém a tabela.
+  const alvo = `${chave}|${offset}`
+  const [estado, setEstado] = useState<{ alvo: string; carga: Carga<Pagina<T>>; em: Date }>({
+    alvo,
+    carga: { estado: 'carregando' },
+    em: new Date(0),
+  })
+  const carga: Carga<Pagina<T>> = estado.alvo === alvo ? estado.carga : { estado: 'carregando' }
   const [recarga, setRecarga] = useState(0)
   const buscarAtual = useRef(buscar)
   useEffect(() => {
@@ -90,18 +98,36 @@ export function useCargaPaginada<T>(
           filtrar({ pagina: ultima > 1 ? String(ultima) : '' }, { substituir: true })
           return
         }
-        setCarga({ estado: 'pronto', dados })
+        setEstado({ alvo, carga: { estado: 'pronto', dados }, em: new Date() })
       })
       .catch(
         (e: unknown) =>
           valido &&
-          setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true, codigo: e instanceof ApiError ? e.code : undefined }),
+          setEstado({
+            alvo,
+            carga: { estado: 'erro', mensagem: mensagemDe(e), repetivel: true, codigo: e instanceof ApiError ? e.code : undefined },
+            em: new Date(),
+          }),
       )
     return () => {
       valido = false
     }
-  }, [chave, offset, porPagina, filtrar, recarga])
+  }, [alvo, offset, porPagina, filtrar, recarga])
 
   const recarregar = useCallback(() => setRecarga((n) => n + 1), [])
-  return { carga, recarregar }
+  /** `carregadaEm`: quando a resposta chegou — a referência para "há N dias" e "agendado". */
+  return { carga, recarregar, carregadaEm: estado.em }
+}
+
+export type Mensagem = { texto: string; erro: boolean }
+
+/**
+ * Mensagem de uma ação na lista ("Aviso arquivado."): vale para a lista em que a pessoa estava.
+ * Mudar a busca, a aba, um filtro ou a página a tira de cena.
+ */
+export function useMensagemDaLista(inicial?: Mensagem) {
+  const { search } = useLocation()
+  const [estado, setEstado] = useState(() => ({ mensagem: inicial, search }))
+  const definir = useCallback((mensagem: Mensagem | undefined) => setEstado({ mensagem, search }), [search])
+  return [estado.search === search ? estado.mensagem : undefined, definir] as const
 }

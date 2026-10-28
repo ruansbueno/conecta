@@ -22,7 +22,7 @@ import { RecusarModal } from '../componentes/solicitacoes/recusar-modal'
 import { DIAS_DE_ESPERA, esperaDemais, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
 import { mensagemDe } from './comum'
 import type { ContextoGestao } from './area-gestao'
-import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl } from './lista-na-url'
+import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista } from './lista-na-url'
 
 const STATUS: { id: StatusSolicitacao; rotulo: string }[] = [
   { id: 'pendente', rotulo: 'Pendentes' },
@@ -55,7 +55,7 @@ export default function Solicitacoes() {
   const turma = idDaUrl(params.get('turma'))
   const offset = (paginaDaUrl(params.get('pagina')) - 1) * POR_PAGINA
 
-  const { carga, recarregar } = useCargaPaginada(
+  const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([status, turma]),
     () => listarSolicitacoes({ status, turma_id: turma || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
@@ -69,12 +69,11 @@ export default function Solicitacoes() {
   const [pendentes, setPendentes] = useState<number | null>(null)
   const [contagem, setContagem] = useState(0)
   const [turmas, setTurmas] = useState<{ id: string; nome: string }[]>([])
-  const [mensagem, setMensagem] = useState<{ texto: string; erro: boolean }>()
+  const [mensagem, setMensagem] = useMensagemDaLista()
   const [recusando, setRecusando] = useState<SolicitacaoGestao | null>(null)
   const [erroRecusa, setErroRecusa] = useState<string>()
   const emCurso = useRef(false)
   const [ocupado, setOcupado] = useState(false)
-  const [agora] = useState(() => new Date())
 
   useEffect(() => {
     let valido = true

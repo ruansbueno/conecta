@@ -292,4 +292,45 @@ describe('lista de avisos (T03, RW-13, RW-14)', () => {
     expect(await screen.findByText('Aviso desarquivado.')).toBeInTheDocument()
     expect(chamadas.filter((c) => c.chave === 'POST desarquivar')).toHaveLength(1)
   })
+
+  it('ao trocar de aba, a tabela antiga sai e aparece o carregando (sem linhas de outra aba sob o título novo)', async () => {
+    let liberar: () => void = () => undefined
+    api({
+      'GET /gestao/avisos': (q) =>
+        q.get('situacao') === 'arquivado'
+          ? ({ status: 200, corpo: pagina([]) } as R)
+          : { status: 200, corpo: pagina(AVISOS, 2) },
+    })
+    const base = globalThis.fetch
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init: RequestInit) =>
+        url.includes('situacao=arquivado')
+          ? new Promise<Response>((r) => (liberar = () => r(new Response(JSON.stringify(pagina([])), { status: 200 }))))
+          : base(url, init),
+      ),
+    )
+    abrir()
+    await tabela()
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Arquivados' }))
+
+    expect(screen.queryByRole('row', { name: /Entrega adiada/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('status', { name: 'Carregando os avisos' })).toBeInTheDocument()
+    liberar()
+    expect(await screen.findByText('Nenhum aviso arquivado')).toBeInTheDocument()
+  })
+
+  it('a mensagem de uma ação some quando a pessoa muda a busca, a aba ou a página', async () => {
+    api({ 'POST /gestao/avisos/a2/arquivar': { status: 200, corpo: { ...AVISOS[1], situacao: 'arquivado' } } })
+    abrir()
+    const linhaAviso = within(await tabela()).getByRole('row', { name: /Entrega adiada/ })
+    await userEvent.click(within(linhaAviso).getByRole('button', { name: /^Arquivar/ }))
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Arquivar' }))
+    expect(await screen.findByText('Aviso arquivado.')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Agendados' }))
+
+    await waitFor(() => expect(screen.queryByText('Aviso arquivado.')).not.toBeInTheDocument())
+  })
 })

@@ -21,6 +21,8 @@ import { mensagemDe, type Carga } from './comum'
 /** Um bloco do painel: carrega sozinho e pode ser repetido sozinho. */
 function useBloco<T>(buscar: () => Promise<T>) {
   const [carga, setCarga] = useState<Carga<T>>({ estado: 'carregando' })
+  // Quando a resposta chegou: a referência de "há 2 h" e de "agendado" neste bloco.
+  const [em, setEm] = useState(() => new Date())
   const [vez, setVez] = useState(0)
   const buscarAtual = useRef(buscar)
   useEffect(() => {
@@ -30,7 +32,11 @@ function useBloco<T>(buscar: () => Promise<T>) {
     let valido = true
     buscarAtual
       .current()
-      .then((dados) => valido && setCarga({ estado: 'pronto', dados }))
+      .then((dados) => {
+        if (!valido) return
+        setEm(new Date())
+        setCarga({ estado: 'pronto', dados })
+      })
       .catch((e: unknown) => valido && setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true }))
     return () => {
       valido = false
@@ -38,6 +44,7 @@ function useBloco<T>(buscar: () => Promise<T>) {
   }, [vez])
   return {
     carga,
+    em,
     // Volta a "carregando": quem tenta de novo vê que algo aconteceu, e uma nova falha é anunciada.
     repetir: () => {
       setCarga({ estado: 'carregando' })
@@ -192,7 +199,7 @@ const contaPendentes = (carga: Carga<Pagina<unknown>>) =>
     </span>
   ) : null
 
-function PainelCoordenacao({ agora }: { agora: Date }) {
+function PainelCoordenacao() {
   const ativos = useBloco(() => listarAvisos({ situacao: 'ativo', limit: 1 }))
   const agendados = useBloco(() => listarAvisos({ situacao: 'agendado', limit: 1 }))
   const pendentes = useBloco(() => listarSolicitacoes({ status: 'pendente', limit: 4 }))
@@ -222,7 +229,7 @@ function PainelCoordenacao({ agora }: { agora: Date }) {
             ) : (
               <ul>
                 {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={agora} />
+                  <LinhaAviso key={a.id} a={a} agora={recentes.em} />
                 ))}
               </ul>
             )
@@ -235,7 +242,7 @@ function PainelCoordenacao({ agora }: { agora: Date }) {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items} agora={agora} />}
+          {(p) => <ListaPendentes itens={p.items} agora={pendentes.em} />}
         </Bloco>
       </div>
     </>
@@ -249,7 +256,7 @@ const PERMITE_DOCENTE: { pode: boolean; titulo: string; texto: string }[] = [
   { pode: false, titulo: 'Editar avisos de outras pessoas', texto: 'Você edita, arquiva e exclui somente o que publicou.' },
 ]
 
-function PainelDocente({ agora }: { agora: Date }) {
+function PainelDocente() {
   const turmas = useBloco(() => listarTurmas({ ativa: true, limit: 100 }))
   const pendentes = useBloco(() => listarSolicitacoes({ status: 'pendente', limit: 100 }))
   const avisos = useBloco(() => listarAvisos({ limit: 5 }))
@@ -315,7 +322,7 @@ function PainelDocente({ agora }: { agora: Date }) {
             ) : (
               <ul>
                 {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={agora} autor={false} />
+                  <LinhaAviso key={a.id} a={a} agora={avisos.em} autor={false} />
                 ))}
               </ul>
             )
@@ -330,7 +337,7 @@ function PainelDocente({ agora }: { agora: Date }) {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} agora={agora} />}
+          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} agora={pendentes.em} />}
         </Bloco>
       </div>
       <section aria-labelledby="perfil-permite" className="mt-6 rounded-xl border border-linha bg-branco">
@@ -372,7 +379,7 @@ export default function Painel() {
           Novo aviso
         </Link>
       </header>
-      {docente ? <PainelDocente agora={agora} /> : <PainelCoordenacao agora={agora} />}
+      {docente ? <PainelDocente /> : <PainelCoordenacao />}
     </div>
   )
 }

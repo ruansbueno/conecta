@@ -16,7 +16,7 @@ import { AlterarPerfilModal } from '../componentes/usuarios/alterar-perfil-modal
 import { TabelaUsuarios } from '../componentes/usuarios/tabela'
 import { rotuloDoPerfil, type PerfilDeAcesso } from '../lib/perfis'
 import { useSessao } from '../sessao/contexto'
-import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from './lista-na-url'
+import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from './lista-na-url'
 
 type Aba = 'todos' | 'administracao' | 'coordenacao' | 'docentes' | 'alunos' | 'inativos'
 const ABAS: { id: Aba; rotulo: string; filtro: Pick<FiltrosUsuarios, 'perfil' | 'ativo'>; vazio: string }[] = [
@@ -43,13 +43,12 @@ export default function Usuarios() {
   const offset = (paginaDaUrl(params.get('pagina')) - 1) * POR_PAGINA
   const [termo, setTermo] = useTextoNaUrl('q', q, filtrar)
 
-  const { carga, recarregar } = useCargaPaginada(
+  const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([aba.id, q]),
     () => listarUsuarios({ ...aba.filtro, q: q || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
-  const [agora] = useState(() => new Date())
-  const [mensagem, setMensagem] = useState<string>()
+  const [mensagem, setMensagem] = useMensagemDaLista()
   const [alterando, setAlterando] = useState<{ usuario: UsuarioGestao; turmas: number | null } | null>(null)
 
   // A API decide quem lê esta lista: um 403 (perfil mudou) leva à tela sem permissão (RW-12).
@@ -74,7 +73,7 @@ export default function Usuarios() {
       throw e
     }
     setAlterando(null)
-    setMensagem(sucesso)
+    setMensagem({ texto: sucesso, erro: false })
     recarregar()
     // O próprio perfil mudou: a sessão e a navegação acompanham na hora.
     if (u.id === eu?.id) void recarregarSessao()
@@ -91,7 +90,7 @@ export default function Usuarios() {
 
       {mensagem && (
         <p role="status" className="mt-5 rounded-xl border border-linha bg-sucesso-fundo px-4 py-3 text-[13.5px] text-sucesso">
-          {mensagem}
+          {mensagem.texto}
         </p>
       )}
 

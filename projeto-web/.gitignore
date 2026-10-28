@@ -1,10 +1,7 @@
-# Node / Next.js
+# Node / Vite
 node_modules/
-.next/
-out/
-build/
+dist/
 *.tsbuildinfo
-next-env.d.ts
 
 # Ambiente
 .env

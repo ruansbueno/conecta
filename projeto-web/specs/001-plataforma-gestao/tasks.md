@@ -33,23 +33,23 @@ Aplicação React única construída com Vite, conforme `plan.md`: `src/`, `test
 
 ## Phase 1: Setup
 
-- [ ] T001 Criar a aplicação com Vite (template `react-ts`) na raiz de `projeto-web/`,
+- [x] T001 Criar a aplicação com Vite (template `react-ts`) na raiz de `projeto-web/`,
       preservando `specs/` e `.specify/`; ativar o modo estrito do TypeScript
-- [ ] T002 Criar a árvore de `src/` conforme `plan.md`: `api/{recursos}`, `sessao/`, `paginas/`,
+- [x] T002 Criar a árvore de `src/` conforme `plan.md`: `api/{recursos}`, `sessao/`, `paginas/`,
       `componentes/{layout,comum,avisos,turmas,solicitacoes,usuarios}`, `estilos/`, `lib/`
-- [ ] T003 Instalar as dependências de produção (`react-router`, `tailwindcss`, `zod`) e de
+- [x] T003 Instalar as dependências de produção (`react-router`, `tailwindcss`, `zod`) e de
       desenvolvimento (`vitest`, `@testing-library/react`, `@testing-library/user-event`,
       `@playwright/test`, `eslint`, `prettier`)
-- [ ] T004 [P] Configurar ESLint com três regras próprias: proibir cor literal fora do tema;
+- [x] T004 [P] Configurar ESLint com três regras próprias: proibir cor literal fora do tema;
       proibir `document.cookie`, `localStorage` e `sessionStorage` fora de `src/lib/rascunho.ts`;
       proibir importar `api/recursos/**` de dentro de `componentes/**` (Princípios I, III e V)
-- [ ] T005 [P] Configurar o proxy de desenvolvimento em `vite.config.ts`: `/api` apontando para a
+- [x] T005 [P] Configurar o proxy de desenvolvimento em `vite.config.ts`: `/api` apontando para a
       API local, reproduzindo a mesma origem que haverá em produção (D3)
-- [ ] T006 [P] Criar `.env.example` com `VITE_API_BASE_URL=/api` e registrar, em comentário, que
+- [x] T006 [P] Criar `.env.example` com `VITE_API_BASE_URL=/api` e registrar, em comentário, que
       todo valor embutido no build é público (D14, RW-44)
-- [ ] T007 [P] Adicionar a fonte Inter (400–800) a partir de `design/_assets/fonts/`, servida
+- [x] T007 [P] Adicionar a fonte Inter (400–800) a partir de `design/_assets/fonts/`, servida
       pelo próprio build
-- [ ] T008 [P] Configurar os scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`,
+- [x] T008 [P] Configurar os scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`,
       `test:e2e`
 
 **Checkpoint**: `npm run dev` abre uma página vazia com o tema carregado e `/api` já
@@ -61,50 +61,50 @@ encaminhado para a API local.
 
 **⚠️ CRÍTICO**: nenhuma user story começa antes desta fase.
 
-- [ ] T009 `src/estilos/globals.css` e o tema do Tailwind: transcrever os tokens de
+- [x] T009 `src/estilos/globals.css` e o tema do Tailwind: transcrever os tokens de
       `design/README.md` como variáveis e cores nomeadas (RW-38)
-- [ ] T010 [P] `src/lib/datas.ts` e `src/lib/texto.ts`: formatação em pt-BR, data relativa,
+- [x] T010 [P] `src/lib/datas.ts` e `src/lib/texto.ts`: formatação em pt-BR, data relativa,
       conversão de UTC para o fuso de quem acessa, trechos e iniciais
-- [ ] T011 `src/api/schemas.ts`: esquemas `zod` de usuário, turma, vínculo, solicitação, aviso de
+- [x] T011 `src/api/schemas.ts`: esquemas `zod` de usuário, turma, vínculo, solicitação, aviso de
       gestão, destino, versão, evento de histórico e envelope de página (data-model.md, D9)
-- [ ] T012 [P] `tests/unit/schemas.test.ts`: validação a partir dos exemplos de JSON do contrato,
+- [x] T012 [P] `tests/unit/schemas.test.ts`: validação a partir dos exemplos de JSON do contrato,
       incluindo campo nulo, enum desconhecido e destino de tipo novo
-- [ ] T013 `src/api/erros.ts`: `ApiError` e o mapa único `code → (mensagem, efeito)` da seção 6 da
+- [x] T013 `src/api/erros.ts`: `ApiError` e o mapa único `code → (mensagem, efeito)` da seção 6 da
       spec, com `RESPOSTA_INVALIDA`, `SEM_REDE`, `TIMEOUT` e fallback genérico (RW-08)
-- [ ] T014 `src/api/cliente.ts`: `fetch` com `credentials: 'include'`, base da URL, timeout de
+- [x] T014 `src/api/cliente.ts`: `fetch` com `credentials: 'include'`, base da URL, timeout de
       15 s, cabeçalho CSRF nos métodos de escrita, validação por esquema e conversão de falha em
       `ApiError` (RW-03, D4, D5)
-- [ ] T015 [P] `tests/unit/cliente.test.ts`: sucesso, erro com `code`, resposta fora do esquema,
+- [x] T015 [P] `tests/unit/cliente.test.ts`: sucesso, erro com `code`, resposta fora do esquema,
       timeout, ausência de rede, envio do cabeçalho CSRF só nas escritas e presença de
       `credentials: 'include'` em toda chamada
-- [ ] T016 `src/api/recursos/auth.ts`: `login()`, `me()` e `encerrarSessao()`
+- [x] T016 `src/api/recursos/auth.ts`: `login()`, `me()` e `encerrarSessao()`
       (`DELETE /auth/sessao`)
-- [ ] T017 `src/sessao/contexto.tsx`: carregar `GET /me`, expor o usuário corrente e recarregá-lo
+- [x] T017 `src/sessao/contexto.tsx`: carregar `GET /me`, expor o usuário corrente e recarregá-lo
       ao voltar o foco para a aba (RW-10)
-- [ ] T018 `src/sessao/encerrar.ts`: encerrar sessão na API, descartar o estado local e o rascunho,
+- [x] T018 `src/sessao/encerrar.ts`: encerrar sessão na API, descartar o estado local e o rascunho,
       e levar ao login com o motivo (`401`, `403 USUARIO_INATIVO`, saída do usuário) (RW-04,
       RW-05, RW-09)
-- [ ] T019 [P] `tests/unit/sessao.test.ts`: encerramento único quando duas chamadas falham juntas,
+- [x] T019 [P] `tests/unit/sessao.test.ts`: encerramento único quando duas chamadas falham juntas,
       limpeza do rascunho e preservação do destino pretendido
-- [ ] T020 `src/sessao/exigir-sessao.tsx`: guarda das rotas de gestão, com esqueleto enquanto
+- [x] T020 `src/sessao/exigir-sessao.tsx`: guarda das rotas de gestão, com esqueleto enquanto
       `GET /me` não responde e tratamento de `401`, `403 USUARIO_INATIVO` e `403 SEM_PERMISSAO`
       (RW-07, RW-12)
-- [ ] T021 `src/rotas.tsx` e `src/main.tsx`: tabela de rotas, carregamento sob demanda por rota,
+- [x] T021 `src/rotas.tsx` e `src/main.tsx`: tabela de rotas, carregamento sob demanda por rota,
       contexto de sessão e tema (D6)
-- [ ] T022 [P] `src/componentes/layout/`: casca com barra lateral (grupos e item ativo por perfil)
+- [x] T022 [P] `src/componentes/layout/`: casca com barra lateral (grupos e item ativo por perfil)
       e barra superior com título, período letivo e usuário (T02, T14, RW-11)
-- [ ] T023 [P] `src/componentes/comum/`: `ChipDestino`, `SeloSituacao`, `Tabela`, `Paginacao`,
+- [x] T023 [P] `src/componentes/comum/`: `ChipDestino`, `SeloSituacao`, `Tabela`, `Paginacao`,
       `Busca`, `EstadoVazio`, `EstadoErro`, `Esqueleto` — todos a partir do tema (RW-37, RW-38)
-- [ ] T024 `src/componentes/comum/modal.tsx` e `confirmacao.tsx`: foco preso, fechamento com
+- [x] T024 `src/componentes/comum/modal.tsx` e `confirmacao.tsx`: foco preso, fechamento com
       `Esc`, devolução do foco à origem, rótulos ARIA; a confirmação exige descrever a
       consequência (RW-39, RW-41, D12)
-- [ ] T025 [P] `tests/componente/comum.test.tsx`: cada componente comum renderiza, é operável por
+- [x] T025 [P] `tests/componente/comum.test.tsx`: cada componente comum renderiza, é operável por
       teclado e expõe os papéis e rótulos corretos
-- [ ] T026 [P] `src/paginas/sem-permissao.tsx`: tela T16, com texto que distingue "perfil sem
+- [x] T026 [P] `src/paginas/sem-permissao.tsx`: tela T16, com texto que distingue "perfil sem
       acesso à gestão" de "aluno deve usar o aplicativo" (RW-06, RW-12)
-- [ ] T027 [P] `src/lib/rascunho.ts`: rascunho do editor de aviso, único ponto do código
+- [x] T027 [P] `src/lib/rascunho.ts`: rascunho do editor de aviso, único ponto do código
       autorizado a tocar armazenamento do navegador; sem nada de sessão (RW-42, Princípio III)
-- [ ] T028 [P] `e2e/servidor-falso/`: servidor que implementa o contrato a partir de fixtures
+- [x] T028 [P] `e2e/servidor-falso/`: servidor que implementa o contrato a partir de fixtures
       copiadas de `contracts/api.md`, **inclusive o cookie de sessão e o cookie CSRF**, com
       gatilhos para `401`, `403`, `409`, `422` e lentidão (D13)
 
@@ -118,17 +118,17 @@ encaminhado para a API local.
 
 **Teste independente**: entrar com cada perfil; tentar `/avisos` sem sessão; forçar `401`.
 
-- [ ] T029 [US1] `src/paginas/login.tsx`: formulário com usuário e senha, estado de envio, erro
+- [x] T029 [US1] `src/paginas/login.tsx`: formulário com usuário e senha, estado de envio, erro
       acima do botão e preservação do usuário digitado (T01, RW-42)
-- [ ] T030 [US1] Ligar o formulário a `POST /auth/login` com `credentials: 'include'` e tratar cada
+- [x] T030 [US1] Ligar o formulário a `POST /auth/login` com `credentials: 'include'` e tratar cada
       `code` do login; após o 200, chamar `GET /me` e decidir o destino (RW-01, RW-08)
-- [ ] T031 [US1] Redirecionar após entrar: destino pretendido, `/painel` ou `/sem-permissao`
+- [x] T031 [US1] Redirecionar após entrar: destino pretendido, `/painel` ou `/sem-permissao`
       conforme o perfil (RW-06, RW-07)
-- [ ] T032 [P] [US1] `tests/componente/login.test.tsx`: campo vazio, credencial inválida, usuário
+- [x] T032 [P] [US1] `tests/componente/login.test.tsx`: campo vazio, credencial inválida, usuário
       inativo, falha de rede e sucesso
-- [ ] T033 [P] [US1] `e2e/login.spec.ts`: os quatro perfis, rota protegida sem sessão, `401` no
+- [x] T033 [P] [US1] `e2e/login.spec.ts`: os quatro perfis, rota protegida sem sessão, `401` no
       meio da navegação e encerrar sessão
-- [ ] T034 [P] [US1] `e2e/sem-vazamento.spec.ts`: o token não aparece em `document.cookie`,
+- [x] T034 [P] [US1] `e2e/sem-vazamento.spec.ts`: o token não aparece em `document.cookie`,
       `localStorage` nem `sessionStorage`; o cookie de sessão é `httpOnly`, `Secure` e
       `SameSite=Strict`; nenhum segredo no pacote servido (SC-003, RW-44)
 
@@ -140,24 +140,24 @@ encaminhado para a API local.
 
 **Objetivo**: o valor central da plataforma — criar o que o aplicativo vai entregar.
 
-- [ ] T035 [US2] `src/api/recursos/avisos.ts`: listar, obter, criar, editar, arquivar,
+- [x] T035 [US2] `src/api/recursos/avisos.ts`: listar, obter, criar, editar, arquivar,
       desarquivar, excluir, versões e histórico (contrato, Avisos)
-- [ ] T036 [P] [US2] `tests/unit/avisos-recurso.test.ts`: filtros, paginação e cada `code` de erro
+- [x] T036 [P] [US2] `tests/unit/avisos-recurso.test.ts`: filtros, paginação e cada `code` de erro
       do contrato
-- [ ] T037 [US2] `src/componentes/avisos/seletor-destinos.tsx`: abas de turmas, semestres e
+- [x] T037 [US2] `src/componentes/avisos/seletor-destinos.tsx`: abas de turmas, semestres e
       grupos, busca de turma, seleção múltipla, limite de 20 e chips removíveis (T05, RW-16)
-- [ ] T038 [US2] Restrição do docente no seletor: apenas turmas em que leciona; demais tipos
+- [x] T038 [US2] Restrição do docente no seletor: apenas turmas em que leciona; demais tipos
       visíveis como indisponíveis, com explicação (T15, RW-17)
-- [ ] T039 [US2] `src/componentes/avisos/editor.tsx`: título, conteúdo, contador, destinos,
+- [x] T039 [US2] `src/componentes/avisos/editor.tsx`: título, conteúdo, contador, destinos,
       agendamento e prévia do cartão como aparece no aplicativo (T04, RW-15, RW-22)
-- [ ] T040 [US2] `src/paginas/avisos/editar.tsx` e `novo.tsx`: envio ao criar e editar, com validação
+- [x] T040 [US2] `src/paginas/avisos/editar.tsx` e `novo.tsx`: envio ao criar e editar, com validação
       `zod`, recarga da lista afetada e devolução de `{ code, mensagem, errors }` preservando o digitado
       (RW-18, RW-42)
-- [ ] T041 [US2] Rascunho local do editor (`rascunho:aviso:*`), sem dado de sessão, apagado ao
+- [x] T041 [US2] Rascunho local do editor (`rascunho:aviso:*`), sem dado de sessão, apagado ao
       salvar, ao descartar e ao encerrar a sessão (data-model.md)
-- [ ] T042 [P] [US2] `tests/componente/editor.test.tsx`: sem destino, limite de 20, agendamento no
+- [x] T042 [P] [US2] `tests/componente/editor.test.tsx`: sem destino, limite de 20, agendamento no
       passado, `DESTINO_NAO_PERMITIDO` mantendo o texto e restrição do docente
-- [ ] T043 [P] [US2] `e2e/publicar-aviso.spec.ts`: coordenação publica para três turmas; docente
+- [x] T043 [P] [US2] `e2e/publicar-aviso.spec.ts`: coordenação publica para três turmas; docente
       publica para a sua turma e é recusado em destino alheio
 
 **Checkpoint**: é possível publicar, e o público fica explícito antes de publicar.

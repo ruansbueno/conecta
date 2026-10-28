@@ -22,7 +22,74 @@
     U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+/* Tokens de design/README.md (D11, RW-38): a única origem de cor da plataforma. */
 @theme {
   --font-sans: 'Inter', -apple-system, sans-serif;
+
   --color-navy: #132a4e;
+  --color-navy-suave: #2a4374;
+  --color-azul: #2563eb;
+  --color-azul-escuro: #1d4ed8;
+  --color-azul-superficie: #eff4ff;
+  --color-azul-100: #dbe5fc;
+  --color-tinta: #0f1c33;
+  --color-texto-corpo: #263a5b;
+  --color-apagado: #5b6b86;
+  --color-tenue: #8a99b0;
+  --color-linha: #e4e9f2;
+  --color-linha-suave: #eff2f7;
+  --color-fundo: #f5f8fc;
+  --color-branco: #ffffff;
+
+  --color-alerta: #b45309;
+  --color-alerta-fundo: #fdf4e6;
+  --color-sucesso: #15803d;
+  --color-sucesso-fundo: #e9f6ee;
+  --color-perigo: #b91c1c;
+  --color-perigo-fundo: #fcecec;
+  --color-perigo-borda: #f3d5d5;
+
+  /* Chip de destino: ponto e fundo por tipo. */
+  --color-destino-todos: #2f855a;
+  --color-destino-todos-fundo: #e8f3ec;
+  --color-destino-semestre-fundo: #edeff8;
+  --color-destino-docentes: #c2770b;
+
+  --color-foco: rgb(37 99 235 / 0.12);
+  --color-veu: rgb(15 28 51 / 0.45);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-tinta);
+    background: var(--color-fundo);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-azul);
+    outline-offset: 2px;
+  }
+}
+
+/* Componentes de base do design (.btn, .input). */
+@layer components {
+  .botao-primario {
+    @apply inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] bg-azul px-[18px] text-sm font-semibold tracking-[-0.005em] text-branco hover:bg-azul-escuro disabled:opacity-60;
+  }
+  .botao-secundario {
+    @apply inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-linha bg-branco px-[18px] text-sm font-semibold text-navy hover:bg-fundo disabled:opacity-60;
+  }
+  .botao-perigo {
+    @apply inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-perigo-borda bg-branco px-[18px] text-sm font-semibold text-perigo hover:bg-perigo-fundo;
+  }
+  .botao-icone {
+    @apply inline-flex size-9 items-center justify-center rounded-[9px] text-apagado hover:bg-fundo disabled:opacity-40;
+  }
+  .campo {
+    @apply h-[46px] w-full rounded-[10px] border border-linha bg-branco px-3.5 text-sm text-tinta focus-within:border-azul focus-within:ring-[3px] focus-within:ring-foco;
+  }
+  .rotulo {
+    @apply mb-1.5 block text-[12.5px] font-semibold text-apagado;
+  }
 }

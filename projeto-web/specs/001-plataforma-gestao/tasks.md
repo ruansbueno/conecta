@@ -61,50 +61,50 @@ encaminhado para a API local.
 
 **⚠️ CRÍTICO**: nenhuma user story começa antes desta fase.
 
-- [ ] T009 `src/estilos/globals.css` e o tema do Tailwind: transcrever os tokens de
+- [x] T009 `src/estilos/globals.css` e o tema do Tailwind: transcrever os tokens de
       `design/README.md` como variáveis e cores nomeadas (RW-38)
-- [ ] T010 [P] `src/lib/datas.ts` e `src/lib/texto.ts`: formatação em pt-BR, data relativa,
+- [x] T010 [P] `src/lib/datas.ts` e `src/lib/texto.ts`: formatação em pt-BR, data relativa,
       conversão de UTC para o fuso de quem acessa, trechos e iniciais
-- [ ] T011 `src/api/schemas.ts`: esquemas `zod` de usuário, turma, vínculo, solicitação, aviso de
+- [x] T011 `src/api/schemas.ts`: esquemas `zod` de usuário, turma, vínculo, solicitação, aviso de
       gestão, destino, versão, evento de histórico e envelope de página (data-model.md, D9)
-- [ ] T012 [P] `tests/unit/schemas.test.ts`: validação a partir dos exemplos de JSON do contrato,
+- [x] T012 [P] `tests/unit/schemas.test.ts`: validação a partir dos exemplos de JSON do contrato,
       incluindo campo nulo, enum desconhecido e destino de tipo novo
-- [ ] T013 `src/api/erros.ts`: `ApiError` e o mapa único `code → (mensagem, efeito)` da seção 6 da
+- [x] T013 `src/api/erros.ts`: `ApiError` e o mapa único `code → (mensagem, efeito)` da seção 6 da
       spec, com `RESPOSTA_INVALIDA`, `SEM_REDE`, `TIMEOUT` e fallback genérico (RW-08)
-- [ ] T014 `src/api/cliente.ts`: `fetch` com `credentials: 'include'`, base da URL, timeout de
+- [x] T014 `src/api/cliente.ts`: `fetch` com `credentials: 'include'`, base da URL, timeout de
       15 s, cabeçalho CSRF nos métodos de escrita, validação por esquema e conversão de falha em
       `ApiError` (RW-03, D4, D5)
-- [ ] T015 [P] `tests/unit/cliente.test.ts`: sucesso, erro com `code`, resposta fora do esquema,
+- [x] T015 [P] `tests/unit/cliente.test.ts`: sucesso, erro com `code`, resposta fora do esquema,
       timeout, ausência de rede, envio do cabeçalho CSRF só nas escritas e presença de
       `credentials: 'include'` em toda chamada
-- [ ] T016 `src/api/recursos/auth.ts`: `login()`, `me()` e `encerrarSessao()`
+- [x] T016 `src/api/recursos/auth.ts`: `login()`, `me()` e `encerrarSessao()`
       (`DELETE /auth/sessao`)
-- [ ] T017 `src/sessao/contexto.tsx`: carregar `GET /me`, expor o usuário corrente e recarregá-lo
+- [x] T017 `src/sessao/contexto.tsx`: carregar `GET /me`, expor o usuário corrente e recarregá-lo
       ao voltar o foco para a aba (RW-10)
-- [ ] T018 `src/sessao/encerrar.ts`: encerrar sessão na API, descartar o estado local e o rascunho,
+- [x] T018 `src/sessao/encerrar.ts`: encerrar sessão na API, descartar o estado local e o rascunho,
       e levar ao login com o motivo (`401`, `403 USUARIO_INATIVO`, saída do usuário) (RW-04,
       RW-05, RW-09)
-- [ ] T019 [P] `tests/unit/sessao.test.ts`: encerramento único quando duas chamadas falham juntas,
+- [x] T019 [P] `tests/unit/sessao.test.ts`: encerramento único quando duas chamadas falham juntas,
       limpeza do rascunho e preservação do destino pretendido
-- [ ] T020 `src/sessao/exigir-sessao.tsx`: guarda das rotas de gestão, com esqueleto enquanto
+- [x] T020 `src/sessao/exigir-sessao.tsx`: guarda das rotas de gestão, com esqueleto enquanto
       `GET /me` não responde e tratamento de `401`, `403 USUARIO_INATIVO` e `403 SEM_PERMISSAO`
       (RW-07, RW-12)
-- [ ] T021 `src/rotas.tsx` e `src/main.tsx`: tabela de rotas, carregamento sob demanda por rota,
+- [x] T021 `src/rotas.tsx` e `src/main.tsx`: tabela de rotas, carregamento sob demanda por rota,
       contexto de sessão e tema (D6)
-- [ ] T022 [P] `src/componentes/layout/`: casca com barra lateral (grupos e item ativo por perfil)
+- [x] T022 [P] `src/componentes/layout/`: casca com barra lateral (grupos e item ativo por perfil)
       e barra superior com título, período letivo e usuário (T02, T14, RW-11)
-- [ ] T023 [P] `src/componentes/comum/`: `ChipDestino`, `SeloSituacao`, `Tabela`, `Paginacao`,
+- [x] T023 [P] `src/componentes/comum/`: `ChipDestino`, `SeloSituacao`, `Tabela`, `Paginacao`,
       `Busca`, `EstadoVazio`, `EstadoErro`, `Esqueleto` — todos a partir do tema (RW-37, RW-38)
-- [ ] T024 `src/componentes/comum/modal.tsx` e `confirmacao.tsx`: foco preso, fechamento com
+- [x] T024 `src/componentes/comum/modal.tsx` e `confirmacao.tsx`: foco preso, fechamento com
       `Esc`, devolução do foco à origem, rótulos ARIA; a confirmação exige descrever a
       consequência (RW-39, RW-41, D12)
-- [ ] T025 [P] `tests/componente/comum.test.tsx`: cada componente comum renderiza, é operável por
+- [x] T025 [P] `tests/componente/comum.test.tsx`: cada componente comum renderiza, é operável por
       teclado e expõe os papéis e rótulos corretos
-- [ ] T026 [P] `src/paginas/sem-permissao.tsx`: tela T16, com texto que distingue "perfil sem
+- [x] T026 [P] `src/paginas/sem-permissao.tsx`: tela T16, com texto que distingue "perfil sem
       acesso à gestão" de "aluno deve usar o aplicativo" (RW-06, RW-12)
-- [ ] T027 [P] `src/lib/rascunho.ts`: rascunho do editor de aviso, único ponto do código
+- [x] T027 [P] `src/lib/rascunho.ts`: rascunho do editor de aviso, único ponto do código
       autorizado a tocar armazenamento do navegador; sem nada de sessão (RW-42, Princípio III)
-- [ ] T028 [P] `e2e/servidor-falso/`: servidor que implementa o contrato a partir de fixtures
+- [x] T028 [P] `e2e/servidor-falso/`: servidor que implementa o contrato a partir de fixtures
       copiadas de `contracts/api.md`, **inclusive o cookie de sessão e o cookie CSRF**, com
       gatilhos para `401`, `403`, `409`, `422` e lentidão (D13)
 

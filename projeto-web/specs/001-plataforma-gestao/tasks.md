@@ -255,19 +255,19 @@ encaminhado para a API local.
 
 ## Phase 10: Polimento e evidências
 
-- [ ] T071 [P] Revisar as mensagens de erro de todas as telas contra a tabela da seção 6 da spec
-- [ ] T072 [P] Auditoria de acessibilidade por tela: contraste AA, foco visível, ordem de foco,
+- [x] T071 [P] Revisar as mensagens de erro de todas as telas contra a tabela da seção 6 da spec
+- [x] T072 [P] Auditoria de acessibilidade por tela: contraste AA, foco visível, ordem de foco,
       cabeçalhos de tabela, modais e rótulos (RW-39, RW-40, SC-005)
-- [ ] T073 [P] Percorrer login, lista, editor, modal e confirmação apenas com teclado e corrigir o
+- [x] T073 [P] Percorrer login, lista, editor, modal e confirmação apenas com teclado e corrigir o
       que exigir mouse (SC-004)
-- [ ] T074 [P] Verificar que nenhum formulário perde o digitado em erro da API ou queda de rede
+- [x] T074 [P] Verificar que nenhum formulário perde o digitado em erro da API ou queda de rede
       (SC-006)
-- [ ] T075 [P] Comparar cada tela implementada com o PNG correspondente em `design/web/` e
+- [x] T075 [P] Comparar cada tela implementada com o PNG correspondente em `design/web/` e
       registrar as diferenças deliberadas
-- [ ] T076 [P] Verificar a implantação estática: build servido por nginx com rotas desconhecidas
+- [x] T076 [P] Verificar a implantação estática: build servido por nginx com rotas desconhecidas
       caindo em `index.html`, API no mesmo domínio sob `/api`, HTTPS e cookie `Secure` funcionando
       (RW-45, D3)
-- [ ] T077 Atualizar a matriz de rastreabilidade da spec (seção 11) com os nomes finais dos
+- [x] T077 Atualizar a matriz de rastreabilidade da spec (seção 11) com os nomes finais dos
       arquivos de teste e anexar o relatório de execução (O14)
 
 ---

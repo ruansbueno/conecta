@@ -581,12 +581,16 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 
 | Requisito da web | Requisito da API | Tela | Teste |
 |---|---|---|---|
-| RW-01 a RW-09 | RF-01, RF-04, RF-05, RF-07 | T01, T16 | unidade `sessao.test`; e2e `login.spec` |
-| RW-10 a RW-12 | RF-04, RF-09, RF-10 | todas | e2e `permissoes.spec` |
-| RW-13 a RW-22 | RF-20, RF-24 a RF-28 | T03–T06, T15 | componente `editor.test`, `historico.test`; e2e `aviso-ciclo-de-vida.spec` |
-| RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | componente `turma-form.test`; e2e `turmas-vinculos.spec` |
-| RW-28 a RW-30 | RF-17 | T09 | e2e `solicitacoes.spec` |
-| RW-31 a RW-33 | RF-09 | T10, T11 | componente `perfil-modal.test`; e2e `usuarios.spec` |
+| RW-01 a RW-09 | RF-01, RF-04, RF-05, RF-07 | T01, T16 | unidade `sessao.test`, `cliente.test`, `erros.test`; componente `login.test`, `sessao.test`, `sessao-corrida.test`, `sair.test`; e2e `login.spec`, `sem-vazamento.spec` |
+| RW-10 a RW-12 | RF-04, RF-09, RF-10 | todas | componente `layout.test`, `sair.test` (perfil vale na navegação seguinte), `usuarios.test`; e2e `login.spec`, `usuarios.spec`, `solicitacoes.spec` (403 do docente) |
+| RW-13 a RW-22 | RF-20, RF-24 a RF-28 | T03–T06, T15 | unidade `avisos-recurso.test`, `formulario-aviso.test`, `destinos.test`; componente `lista-avisos.test`, `editor.test`, `editar-aviso.test`, `seletor-destinos.test`, `historico.test`; e2e `publicar-aviso.spec`, `aviso-ciclo-de-vida.spec`, `fluxo-completo.spec` |
+| RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | unidade `turmas-recurso.test`, `formulario-turma.test`; componente `lista-turmas.test`, `turma-form.test`, `detalhe-turma.test`, `turma-corridas.test`; e2e `turmas-vinculos.spec` |
+| RW-28 a RW-30 | RF-17 | T09 | unidade `solicitacoes-recurso.test`; componente `solicitacoes.test`; e2e `solicitacoes.spec` |
+| RW-31 a RW-33 | RF-09 | T10, T11 | unidade `usuarios-recurso.test`; componente `usuarios.test`, `perfil-modal.test`; e2e `usuarios.spec` |
+| — painel | RF-30 | T02, T14 | componente `painel.test`; e2e `painel.spec`, `fluxo-completo.spec` |
 | RW-34 a RW-36, RW-46 | RF-35 a RF-47 (E3) | T12, T13 | planejados na F2 |
-| RW-37 a RW-42 | — | todas | componente `estados.test`; auditoria de acessibilidade por tela |
+| RW-37 a RW-42 | — | todas | componente `comum.test` (estados, modal, tabela, abas); e2e `acessibilidade.spec` (axe, WCAG 2.1 AA), `teclado.spec`, `sem-perder-texto.spec`; unidade `mensagens-spec.test` (tabela da seção 6) |
 | RW-43, RW-44 | RF-10, RF-30 | todas | revisão de código; e2e `sem-vazamento.spec` |
+| RW-45 | — | todas | `deploy/verificar.sh` + `deploy/implantacao.spec` (nginx, HTTPS, `/api`, cookie `Secure`) |
+
+Relatório de execução e comparação com o design: [`evidencias/RELATORIO.md`](../../evidencias/RELATORIO.md).

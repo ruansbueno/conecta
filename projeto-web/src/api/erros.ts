@@ -36,6 +36,7 @@ const MAPA: Record<string, [string, Efeito]> = {
   JA_VINCULADO: ['Esta pessoa já está vinculada à turma.', 'recarrega'],
   PERFIL_INCOMPATIVEL: ['O papel precisa corresponder ao perfil da pessoa.', 'permanece'],
   SOLICITACAO_NAO_PENDENTE: ['Esta solicitação já foi decidida.', 'recarrega'],
+  SOLICITACAO_NAO_ENCONTRADA: ['Esta solicitação não está mais disponível.', 'recarrega'],
   AVISO_NAO_EDITAVEL: ['Avisos arquivados ou excluídos não podem ser editados.', 'ofereceDesarquivar'],
   AVISO_SITUACAO_INVALIDA: ['Este aviso já está nessa situação.', 'recarrega'],
   AVISO_NAO_ENCONTRADO: ['Este aviso não está mais disponível.', 'voltaLista'],

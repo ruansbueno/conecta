@@ -310,6 +310,45 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     return json(res, 204)
   }
 
+  // --- solicitações ----------------------------------------------------------------------
+  if (metodo === 'GET' && caminho === '/gestao/solicitacoes') {
+    const status = url.searchParams.get('status') ?? 'pendente'
+    const turmaId = url.searchParams.get('turma_id')
+    const itens = estado.solicitacoes
+      .filter((s) => s.status === status && (!turmaId || s.turmaId === turmaId))
+      .filter((s) => gestao || usuario.turmas.includes(s.turmaId))
+      .sort((x, y) => x.solicitada_em.localeCompare(y.solicitada_em))
+      .map(estado.solicitacaoSaida)
+    return json(res, 200, pagina(itens, url))
+  }
+  const decisao = caminho.match(/^\/gestao\/solicitacoes\/([^/]+)\/(aprovar|recusar)$/)
+  if (metodo === 'POST' && decisao) {
+    const [, id, acao] = decisao
+    const s = estado.solicitacoes.find((x) => x.id === id)
+    if (!s) return erro(res, 404, 'SOLICITACAO_NAO_ENCONTRADA')
+    if (!gestao && !usuario.turmas.includes(s.turmaId)) return erro(res, 403, 'SEM_PERMISSAO')
+    if (s.status !== 'pendente') return erro(res, 409, 'SOLICITACAO_NAO_PENDENTE')
+    const corpo = ((await corpoJson(req)) ?? {}) as { motivo?: string }
+    if (acao === 'recusar' && corpo.motivo && corpo.motivo.length > 300) {
+      return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'motivo', mensagem: 'até 300 caracteres' }])
+    }
+    const aluno = estado.usuarios.find((u) => u.id === s.alunoId)!
+    Object.assign(s, { decidida_em: new Date().toISOString(), decidida_por: { id: usuario.id, nome: usuario.nome } })
+    if (acao === 'aprovar' && aluno.turmas.includes(s.turmaId)) {
+      // Vínculo criado por outra via entre o pedido e a decisão: a API recusa e marca a solicitação.
+      s.status = 'recusada'
+      return erro(res, 409, 'JA_VINCULADO')
+    }
+    if (acao === 'aprovar') {
+      s.status = 'aprovada'
+      estado.vincular(s.turmaId, aluno, 'solicitacao')
+    } else {
+      s.status = 'recusada'
+      s.motivo_recusa = corpo.motivo?.trim() || null
+    }
+    return json(res, 200, estado.solicitacaoSaida(s))
+  }
+
   // --- usuários (só para o filtro de autor nesta etapa) -----------------------------------
   if (metodo === 'GET' && caminho === '/gestao/usuarios') {
     if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')

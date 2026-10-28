@@ -25,6 +25,17 @@ export interface AvisoFalso {
   destinos: unknown[]
 }
 
+export interface SolicitacaoFalsa {
+  id: string
+  alunoId: string
+  turmaId: string
+  status: string
+  solicitada_em: string
+  decidida_em: string | null
+  decidida_por: { id: string; nome: string } | null
+  motivo_recusa: string | null
+}
+
 export interface TurmaFalsa {
   id: string
   codigo: string
@@ -78,6 +89,13 @@ export function estadoInicial() {
     criado_em: '2026-08-01T12:00:00Z',
     atualizado_em: '2026-08-01T12:00:00Z',
   }))
+  const dia = 86_400_000
+  const [b] = [turmas[1].id]
+  const alunoTeste = () => usuarios.find((u) => u.username === 'aluno.teste')!
+  const alunoDois = () => usuarios.find((u) => u.username === 'aluno2.teste')!
+  /** Pedidos de inscrição: um antigo (espera > 3 dias) e dois recentes, em turmas de quem decide. */
+  const solicitacoes: SolicitacaoFalsa[] = []
+
   /** Origem e data de cada vínculo (`turma:usuario`); sem registro, é da carga inicial. */
   const origens = new Map<string, { origem: string; criado_em: string }>()
   const [a, , , d] = turmas.map((t) => t.id)
@@ -86,6 +104,7 @@ export function estadoInicial() {
     { id: randomUUID(), username: 'coord.teste', nome: 'Marina Duarte', perfil: 'coordenacao', ativo: true, turmas: [] },
     { id: randomUUID(), username: 'docente.teste', nome: 'Ricardo Lemos', perfil: 'docente', ativo: true, turmas: [a, d] },
     { id: randomUUID(), username: 'aluno.teste', nome: 'Aluno de Teste', perfil: 'aluno', ativo: true, turmas: [a] },
+    { id: randomUUID(), username: 'aluno2.teste', nome: 'Aluno Dois de Teste', perfil: 'aluno', ativo: true, turmas: [] },
     { id: randomUUID(), username: 'inativo.teste', nome: 'Inativo de Teste', perfil: 'docente', ativo: false, turmas: [] },
   ]
   const avisos: AvisoFalso[] = []
@@ -122,6 +141,13 @@ export function estadoInicial() {
     semestre: d.semestre ?? null,
   })
 
+  const agoraMs = Date.now()
+  solicitacoes.push(
+    { id: randomUUID(), alunoId: alunoDois().id, turmaId: b, status: 'pendente', solicitada_em: new Date(agoraMs - 5 * dia).toISOString(), decidida_em: null, decidida_por: null, motivo_recusa: null },
+    { id: randomUUID(), alunoId: alunoDois().id, turmaId: turmas[0].id, status: 'pendente', solicitada_em: new Date(agoraMs - dia).toISOString(), decidida_em: null, decidida_por: null, motivo_recusa: null },
+    { id: randomUUID(), alunoId: alunoTeste().id, turmaId: turmas[3].id, status: 'pendente', solicitada_em: new Date(agoraMs - 2 * dia).toISOString(), decidida_em: null, decidida_por: null, motivo_recusa: null },
+  )
+
   /** Turma no formato de gestão: os totais contam os vínculos de verdade. */
   const turmaSaida = (t: TurmaFalsa) => ({
     ...t,
@@ -145,9 +171,24 @@ export function estadoInicial() {
           ...(origens.get(`${turmaId}:${u.id}`) ?? { origem: 'seed', criado_em: '2026-08-01T12:00:00Z' }),
         }))
     },
-    vincular(turmaId: string, u: UsuarioFalso) {
+    vincular(turmaId: string, u: UsuarioFalso, origem = 'gestao') {
       u.turmas.push(turmaId)
-      origens.set(`${turmaId}:${u.id}`, { origem: 'gestao', criado_em: new Date().toISOString() })
+      origens.set(`${turmaId}:${u.id}`, { origem, criado_em: new Date().toISOString() })
+    },
+    solicitacoes,
+    solicitacaoSaida(s: SolicitacaoFalsa) {
+      const aluno = usuarios.find((u) => u.id === s.alunoId)!
+      const turma = turmas.find((t) => t.id === s.turmaId)!
+      return {
+        id: s.id,
+        aluno: { id: aluno.id, username: aluno.username, nome: aluno.nome },
+        turma: { id: turma.id, codigo: turma.codigo, nome: turma.nome },
+        status: s.status,
+        solicitada_em: s.solicitada_em,
+        decidida_em: s.decidida_em,
+        decidida_por: s.decidida_por,
+        motivo_recusa: s.motivo_recusa,
+      }
     },
     sessoes: new Map<string, string>(),
     publico: (u: UsuarioFalso) => ({ id: u.id, username: u.username, nome: u.nome, perfil: u.perfil }),

@@ -13,9 +13,9 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 > **Estado atual (28/10/2026)**: a API das entregas E1 e E2 está implementada; o aplicativo tem o
 > marco de avisos (login, sessão e aba Avisos); a plataforma web tem login, publicação de avisos e
 > a auditoria completa deles (lista, histórico e versões), turmas e vínculos, a fila de
-> solicitações de inscrição, a gestão de usuários e perfis e o painel — todas as telas da F1, com o
-> fluxo web → API → app testado. Faltam o polimento na web, o restante do aplicativo e a agenda
-> (E3). Veja [Andamento](#andamento).
+> solicitações de inscrição, a gestão de usuários e perfis e o painel — a F1 completa, com o fluxo
+> web → API → app testado, acessibilidade AA verificada e a implantação estática de referência.
+> Faltam o restante do aplicativo e a agenda (E3). Veja [Andamento](#andamento).
 
 ## Estrutura do repositório
 
@@ -23,7 +23,7 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 |---|---|---|
 | [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1 e E2 implementadas |
 | [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, plano, 66 tarefas e o código | Marco de avisos implementado (40 de 66 tarefas) |
-| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas e o código | Fases 1–9 implementadas (70 de 77 tarefas) |
+| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas, o código, as evidências e a implantação | F1 completa (77 de 77 tarefas) |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
 
@@ -114,7 +114,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 28/10/2026 (até a fase 9 da web e os pontos menores das revisões). Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 28/10/2026 (F1 da web completa). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -131,28 +131,22 @@ achados corrigidos com teste antes do merge.
 | **Web — fase 8** | Usuários por perfil e situação, alterar perfil com a descrição de cada um (só administração), ativar e desativar, mudança valendo na navegação seguinte da pessoa | Vitest + Playwright | [#9](https://github.com/ruansbueno/conecta/pull/9) |
 | **Web — fase 9** | Painel da coordenação e do docente (números do `total` das listas, blocos que falham sozinhos), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | Vitest + Playwright | [#10](https://github.com/ruansbueno/conecta/pull/10) |
 | **Web — pontos menores** | Os achados menores das revisões das fases 5 a 9: textos e datas, carregamento e mensagens das listas, foco e leitores de tela, comportamento das telas e um servidor falso mais fiel à API | 271 testes (Vitest) + 30 de ponta a ponta (Playwright) | [#11](https://github.com/ruansbueno/conecta/pull/11) |
+| **Web — fase 10** | Mensagens de erro conferidas contra a spec, axe (WCAG 2.1 AA) em todas as telas, uso só com teclado do login à exclusão de um aviso, nada digitado se perde sem rede, [evidências](projeto-web/evidencias/RELATORIO.md) com capturas ao lado do design e implantação estática com nginx verificada em Docker | 275 testes (Vitest) + 47 de ponta a ponta (Playwright) + 6 da implantação | [#13](https://github.com/ruansbueno/conecta/pull/13) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.
 
 ### Falta, em ordem
 
-**1. Plataforma web — fase 10** — o polimento final: mensagens de erro, acessibilidade por tela,
-uso só com teclado, comparação com o design e a implantação estática (7 tarefas em
-[`tasks.md`](projeto-web/specs/001-plataforma-gestao/tasks.md)). Já decidido: auditoria de
-acessibilidade com o axe nos testes de ponta a ponta; evidências (relatório e capturas ao lado dos
-PNGs do design) em `projeto-web/evidencias/`; configuração do nginx em `projeto-web/deploy/`,
-testada num container do Docker com a API sob `/api`.
-
-**2. Aplicativo — fases 5 a 8** — turmas, solicitação de inscrição, perfil e polimento (26 tarefas
+**1. Aplicativo — fases 5 a 8** — turmas, solicitação de inscrição, perfil e polimento (26 tarefas
 em [`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md)).
 
-**3. Agenda e horários (E3)** — a especificação está pronta
+**2. Agenda e horários (E3)** — a especificação está pronta
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
 eventos e de horários contratados; faltam o plano, as tarefas e a implementação, além das fases
 F2 do aplicativo e da plataforma web.
 
-**4. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado; é a única tarefa
+**3. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado; é a única tarefa
 aberta da API (T072). A integração real só pode ser validada quando houver acesso à API da
 instituição, e os testes dela são identificados à parte, para que aprovação com simulação nunca
 seja confundida com validação real.
@@ -167,8 +161,7 @@ Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
 1. ✅ API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
 2. ✅ Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
 3. ✅ API — entrega E2 (endpoints de gestão).
-4. ⏳ Plataforma web — fase F1, fechando o ciclo web → API → app (todas as telas prontas e
-   o fluxo completo testado; falta o polimento).
+4. ✅ Plataforma web — fase F1, fechando o ciclo web → API → app.
 5. Aplicativo — fase F1 completa.
 6. E3 — agenda e horários, na API e nos dois clientes.
 

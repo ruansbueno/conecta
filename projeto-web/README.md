@@ -4,10 +4,11 @@ Plataforma web do CONECTA, em React, para administração, coordenação e docen
 auditar avisos, gerir turmas e vínculos, decidir solicitações de inscrição e administrar perfis
 de acesso. É aqui que a informação entra no sistema; o aplicativo mobile é quem a entrega.
 
-As fases 1 a 9 da F1 estão implementadas (70 de 77 tarefas) — todas as telas: entrar na plataforma,
-publicar avisos para o público certo, acompanhar e auditar tudo o que foi publicado, manter turmas e
-vínculos, decidir as solicitações de inscrição, administrar usuários e perfis e acompanhar tudo pelo
-painel. Veja [Andamento](#andamento).
+A F1 está completa (77 de 77 tarefas): entrar na plataforma, publicar avisos para o público certo,
+acompanhar e auditar tudo o que foi publicado, manter turmas e vínculos, decidir as solicitações de
+inscrição, administrar usuários e perfis e acompanhar tudo pelo painel — com acessibilidade AA
+verificada, uso só com teclado, as evidências em [`evidencias/`](evidencias/RELATORIO.md) e a
+implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -16,6 +17,8 @@ painel. Veja [Andamento](#andamento).
 | `src/` | Código: `api/` (cliente HTTP, esquemas `zod`, recursos por endpoint), `sessao/`, `componentes/`, `paginas/`, `lib/`, `estilos/` |
 | `tests/` | Testes de unidade e de componente (Vitest + Testing Library) |
 | `e2e/` | Testes de ponta a ponta (Playwright) e o servidor falso que imita o contrato da API |
+| `evidencias/` | Relatório da F1: verificações, capturas de cada tela ao lado do design e as diferenças deliberadas |
+| `deploy/` | `nginx.conf` de referência e `verificar.sh` (build → nginx em Docker com HTTPS → API local) |
 | `.specify/memory/constitution.md` | Princípios que governam a plataforma (cliente sem regra de negócio, token fora do navegador, dados no servidor, acessibilidade) |
 | `specs/001-plataforma-gestao/spec.md` | Especificação funcional: escopo em fases, 16 telas, 7 user stories, requisitos RW-01 a RW-44 |
 | `specs/001-plataforma-gestao/plan.md` | Plano técnico: stack, estrutura de pastas, fluxos de sessão, leitura e escrita |
@@ -38,7 +41,7 @@ painel. Veja [Andamento](#andamento).
 
 | Fase | Conteúdo | Situação |
 |---|---|---|
-| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | Em andamento: fases 1–9 de 10 prontas |
+| **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | ✅ Completa (10 de 10 fases) |
 | **F2** | Gestão de agenda e de horários das turmas | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
@@ -70,10 +73,11 @@ Atualizado em 28/10/2026.
 | 8. US6 — Usuários e perfis | Lista por perfil e situação (w-10), alterar perfil e ativar/desativar só pela administração (w-11), mudança valendo na navegação seguinte | ✅ [#9](https://github.com/ruansbueno/conecta/pull/9) |
 | 9. Painel e integração | Painel de coordenação e de docente (w-02, w-14), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | ✅ [#10](https://github.com/ruansbueno/conecta/pull/10) |
 | — Pontos menores | Achados menores das revisões das fases 5 a 9 (textos e datas, listas, foco e leitores de tela, comportamento, servidor falso) | ✅ [#11](https://github.com/ruansbueno/conecta/pull/11) |
-| 10. Polimento e evidências | Revisão das mensagens de erro, auditoria de acessibilidade por tela, comparação com o design, implantação estática | A fazer |
+| 10. Polimento e evidências | Mensagens de erro conferidas contra a spec, axe (WCAG 2.1 AA) em todas as telas, uso só com teclado, nada digitado se perde sem rede, evidências com capturas e implantação estática com nginx | ✅ [#13](https://github.com/ruansbueno/conecta/pull/13) |
 
-**Testes**: 271 de unidade e componente (Vitest) e 30 de ponta a ponta (Playwright), além da
-validação visual das telas prontas contra a API local real.
+**Testes**: 275 de unidade e componente (Vitest), 47 de ponta a ponta (Playwright) e 6 da
+implantação (`deploy/verificar.sh`), além da validação visual de cada tela contra a API local real
+([relatório](evidencias/RELATORIO.md)).
 
 ## Como rodar
 
@@ -93,6 +97,7 @@ npm run test:e2e     # ponta a ponta (Playwright), com o servidor falso — não
 npm run lint
 npm run typecheck
 npm run build        # site estático em dist/
+deploy/verificar.sh  # build servido por nginx (Docker, HTTPS) com a API local em /api
 ```
 
 O roteiro completo de verificação está em
@@ -100,16 +105,10 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-Fase 10 de [`tasks.md`](specs/001-plataforma-gestao/tasks.md) (T071–T077): polimento e evidências.
-Nada deve ser implementado sem a tarefa correspondente. Já decidido para ela:
+A F1 da web está fechada. O projeto segue com as fases 5 a 8 do aplicativo e, depois, a agenda e os
+horários (E3), que trazem as telas w-12 e w-13 da F2 desta plataforma (ordem no
+[README da raiz](../README.md#ordem-de-execução)).
 
-- **Acessibilidade (T072)**: `@axe-core/playwright` como dependência de desenvolvimento, rodando o
-  axe em cada tela nos testes de ponta a ponta (WCAG AA), mais a revisão manual de teclado e foco.
-- **Evidências (T075)**: em `evidencias/`, um relatório em texto e capturas de cada tela ao lado do
-  PNG correspondente de `design/web/`.
-- **Implantação estática (T076)**: `deploy/nginx.conf` de referência, testado num container nginx do
-  Docker servindo o build junto da API em `/api` (rotas desconhecidas caem no `index.html`, cookie e
-  CSRF funcionando).
-
-A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api` e HTTPS —
-está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).
+Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado e
+o endereço da API. A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob
+`/api` e HTTPS — está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

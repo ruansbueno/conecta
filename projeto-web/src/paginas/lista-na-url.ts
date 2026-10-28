@@ -1,7 +1,7 @@
 // Listas cuja fonte da verdade é a URL (abas, busca, filtros e página): o mesmo endereço mostra a
 // mesma lista, e voltar e avançar funcionam. Usado pelas listas de avisos e de turmas.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router'
+import { useLocation, useNavigationType, useSearchParams } from 'react-router'
 
 import { ApiError } from '../api/erros'
 import type { Pagina } from '../api/schemas'
@@ -114,7 +114,12 @@ export function useCargaPaginada<T>(
     }
   }, [alvo, offset, porPagina, filtrar, recarga])
 
-  const recarregar = useCallback(() => setRecarga((n) => n + 1), [])
+  // Recarregar depois de uma ação mantém a tabela (sem piscar); depois de uma falha, volta ao
+  // carregando, para quem tentou de novo ver que algo aconteceu.
+  const recarregar = useCallback(() => {
+    setEstado((e) => (e.carga.estado === 'erro' ? { ...e, carga: { estado: 'carregando' } } : e))
+    setRecarga((n) => n + 1)
+  }, [])
   /** `carregadaEm`: quando a resposta chegou — a referência para "há N dias" e "agendado". */
   return { carga, recarregar, carregadaEm: estado.em }
 }
@@ -127,7 +132,21 @@ export type Mensagem = { texto: string; erro: boolean }
  */
 export function useMensagemDaLista(inicial?: Mensagem) {
   const { search } = useLocation()
+  const tipo = useNavigationType()
   const [estado, setEstado] = useState(() => ({ mensagem: inicial, search }))
+  if (estado.search !== search) {
+    // A URL mudou: a mensagem é limpa (voltar no navegador não a traz de volta). A exceção é a ida
+    // automática para a última página com itens depois de uma ação (substitui o histórico e só muda
+    // a página): a mensagem dessa ação continua.
+    const soAPagina = tipo === 'REPLACE' && semPagina(search) === semPagina(estado.search)
+    setEstado({ mensagem: soAPagina ? estado.mensagem : undefined, search })
+  }
   const definir = useCallback((mensagem: Mensagem | undefined) => setEstado({ mensagem, search }), [search])
   return [estado.search === search ? estado.mensagem : undefined, definir] as const
+}
+
+const semPagina = (search: string) => {
+  const p = new URLSearchParams(search)
+  p.delete('pagina')
+  return p.toString()
 }

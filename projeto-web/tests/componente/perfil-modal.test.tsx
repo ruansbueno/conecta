@@ -102,9 +102,11 @@ describe('alterar perfil de acesso (T11, RW-32, RW-33)', () => {
     expect(dialogo).toHaveTextContent('Você não pode desativar a sua própria conta.')
   })
 
-  it('a própria conta, saindo da administração: avisa que o acesso a esta área acaba', async () => {
+  it('a própria conta, saindo da administração: avisa o que muda, conforme o novo perfil', async () => {
     const { dialogo } = abrir({ eProprio: true, usuario: { ...ricardo, perfil: 'administrador' } })
     await userEvent.click(within(dialogo).getByRole('radio', { name: 'Coordenação' }))
+    expect(dialogo).toHaveTextContent('Você vai deixar a administração: depois de salvar, não poderá mais alterar perfis.')
+    await userEvent.click(within(dialogo).getByRole('radio', { name: 'Docente' }))
     expect(dialogo).toHaveTextContent('Você vai deixar a administração: depois de salvar, perde o acesso a esta tela.')
   })
 

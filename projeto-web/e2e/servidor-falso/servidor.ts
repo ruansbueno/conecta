@@ -378,8 +378,11 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'motivo', mensagem: 'até 300 caracteres' }])
     }
     const aluno = estado.usuarios.find((u) => u.id === s.alunoId)!
+    // Mesma ordem da API: já vinculado (recusa e marca) antes do perfil incompatível (fica pendente).
+    if (acao === 'aprovar' && !aluno.turmas.includes(s.turmaId) && aluno.perfil !== 'aluno') {
+      return erro(res, 409, 'PERFIL_INCOMPATIVEL')
+    }
     Object.assign(s, { decidida_em: new Date().toISOString(), decidida_por: { id: usuario.id, nome: usuario.nome } })
-    if (acao === 'aprovar' && aluno.perfil !== 'aluno') return erro(res, 409, 'PERFIL_INCOMPATIVEL')
     if (acao === 'aprovar' && aluno.turmas.includes(s.turmaId)) {
       // Vínculo criado por outra via entre o pedido e a decisão: a API recusa e marca a solicitação.
       s.status = 'recusada'

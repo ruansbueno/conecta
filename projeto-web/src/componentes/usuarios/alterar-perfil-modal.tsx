@@ -192,7 +192,9 @@ export function AlterarPerfilModal({ usuario, turmas, eProprio, onSalvarPerfil, 
             </p>
             {eProprio && usuario.perfil === 'administrador' && perfil !== 'administrador' && (
               <p className="rounded-xl border border-perigo-borda bg-perigo-fundo px-4 py-3 text-[13px] text-perigo">
-                Você vai deixar a administração: depois de salvar, perde o acesso a esta tela.
+                {perfil === 'coordenacao'
+                  ? 'Você vai deixar a administração: depois de salvar, não poderá mais alterar perfis.'
+                  : 'Você vai deixar a administração: depois de salvar, perde o acesso a esta tela.'}
               </p>
             )}
             {eProprio && <p className="text-[12.5px] text-tenue">{PROPRIA_CONTA}</p>}

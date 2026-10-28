@@ -173,4 +173,24 @@ describe('painel do docente (T14)', () => {
     expect(permite).toHaveTextContent('Publicar para todos ou por semestre')
     expect(screen.queryByRole('region', { name: 'Turmas ativas' })).not.toBeInTheDocument()
   })
+
+  it('a mensagem trazida pega o foco uma vez só (não a cada nova renderização)', async () => {
+    api()
+    render(
+      <MemoryRouter initialEntries={[{ pathname: '/painel', state: { mensagem: 'Seu perfil agora é Docente.' } }]}>
+        <SessaoProvider>
+          <Painel />
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByText('Seu perfil agora é Docente.')).toHaveFocus()
+    const novo = screen.getByRole('link', { name: 'Novo aviso' })
+    novo.focus()
+
+    // A aba volta ao foco: a sessão é relida e o painel renderiza de novo.
+    await act(async () => document.dispatchEvent(new Event('visibilitychange')))
+    await new Promise((r) => setTimeout(r, 50))
+
+    expect(novo).toHaveFocus()
+  })
 })

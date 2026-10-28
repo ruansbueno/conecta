@@ -75,13 +75,20 @@ export default function Usuarios() {
     }
     // Fecha só o modal desta pessoa (outro pode ter sido aberto enquanto a resposta não vinha).
     setAlterando((a) => (a?.usuario.id === u.id ? null : a))
-    if (u.id === eu?.id) {
-      // O próprio perfil mudou: a sessão e a navegação acompanham na hora. Quem deixou a
-      // administração vai ao painel com a mensagem, porque esta tela já não é dela.
-      await recarregarSessao()
-      if (mudanca.perfil && mudanca.perfil !== 'administrador') {
-        return navegar('/painel', { replace: true, state: { mensagem: `Seu perfil agora é ${rotuloDoPerfil(mudanca.perfil)}.` } })
+    if (u.id === eu?.id && mudanca.perfil) {
+      const texto = `Seu perfil agora é ${rotuloDoPerfil(mudanca.perfil)}.`
+      // Perfil que já não lê esta lista (docente, aluno): vai ao painel com a mensagem, sem reler a
+      // sessão aqui — a navegação é uma transição e a releitura chegaria antes, fazendo a guarda da
+      // rota mandar para a tela sem permissão. A área de gestão relê a sessão ao trocar de página.
+      // Coordenação continua lendo usuários: fica aqui.
+      if (mudanca.perfil !== 'administrador' && mudanca.perfil !== 'coordenacao') {
+        navegar('/painel', { replace: true, state: { mensagem: texto } })
+        return
       }
+      setMensagem({ texto, erro: false })
+      recarregar()
+      void recarregarSessao()
+      return
     }
     setMensagem({ texto: sucesso, erro: false })
     recarregar()

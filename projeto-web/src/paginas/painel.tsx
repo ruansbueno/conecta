@@ -368,6 +368,8 @@ export default function Painel() {
   const { usuario } = useSessao()
   const [agora] = useState(() => new Date())
   const trazida = useMensagemTrazida()
+  // Um objeto só, criado uma vez: a mensagem pega o foco ao aparecer, e não a cada renderização.
+  const [mensagem] = useState(() => (trazida ? { texto: trazida, erro: false } : undefined))
   if (!usuario) return null
   const docente = usuario.perfil === 'docente'
   return (
@@ -381,7 +383,7 @@ export default function Painel() {
           Novo aviso
         </Link>
       </header>
-      <MensagemDaAcao mensagem={trazida ? { texto: trazida, erro: false } : undefined} />
+      <MensagemDaAcao mensagem={mensagem} />
       {docente ? <PainelDocente /> : <PainelCoordenacao />}
     </div>
   )

@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Link, MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { Link, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import ListaAvisos from '../../src/paginas/avisos/lista'
@@ -62,10 +62,14 @@ const listagens = (c: Chamada[]) => c.filter((x) => x.chave === 'GET /gestao/avi
 
 function Onde() {
   const { search } = useLocation()
+  const navegar = useNavigate()
   return (
     <>
       <p data-testid="url">{search}</p>
       <Link to="/avisos">ir para avisos sem filtro</Link>
+      <button type="button" onClick={() => navegar(-1)}>
+        voltar no navegador
+      </button>
     </>
   )
 }
@@ -334,5 +338,65 @@ describe('lista de avisos (T03, RW-13, RW-14)', () => {
     await userEvent.click(screen.getByRole('tab', { name: 'Agendados' }))
 
     await waitFor(() => expect(screen.queryByText('Aviso arquivado.')).not.toBeInTheDocument())
+  })
+
+  it('arquivar a última linha da última página: a lista vai para a página anterior e a mensagem fica', async () => {
+    let arquivou = false
+    api({
+      'GET /gestao/avisos': (q) =>
+        !arquivou
+          ? { status: 200, corpo: { ...pagina([AVISOS[1]]), total: 21, offset: 20 } }
+          : q.get('offset') === '20'
+            ? { status: 200, corpo: { ...pagina([]), total: 20 } }
+            : { status: 200, corpo: { ...pagina([AVISOS[0]]), total: 20 } },
+      'POST /gestao/avisos/a2/arquivar': (() => {
+        arquivou = true
+        return { status: 200, corpo: { ...AVISOS[1], situacao: 'arquivado' } }
+      }) as unknown as R,
+    })
+    abrir('/avisos?pagina=2')
+    const linhaAviso = within(await tabela()).getByRole('row', { name: /Entrega adiada/ })
+    await userEvent.click(within(linhaAviso).getByRole('button', { name: /^Arquivar/ }))
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Arquivar' }))
+
+    expect(await screen.findByRole('row', { name: /Matrícula/ })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Aviso arquivado.')
+  })
+
+  it('voltar no navegador não traz de volta a mensagem de uma ação antiga', async () => {
+    api({ 'POST /gestao/avisos/a2/arquivar': { status: 200, corpo: { ...AVISOS[1], situacao: 'arquivado' } } })
+    abrir()
+    const linhaAviso = within(await tabela()).getByRole('row', { name: /Entrega adiada/ })
+    await userEvent.click(within(linhaAviso).getByRole('button', { name: /^Arquivar/ }))
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Arquivar' }))
+    await screen.findByText('Aviso arquivado.')
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Agendados' }))
+    await waitFor(() => expect(screen.queryByText('Aviso arquivado.')).not.toBeInTheDocument())
+    await userEvent.click(screen.getByRole('button', { name: 'voltar no navegador' }))
+
+    await tabela()
+    expect(screen.queryByText('Aviso arquivado.')).not.toBeInTheDocument()
+  })
+
+  it('tentar de novo depois de uma falha mostra o carregando', async () => {
+    let liberar: () => void = () => undefined
+    let vezes = 0
+    api({ 'GET /gestao/avisos': { status: 503, corpo: erro('ERRO_INTERNO') } })
+    const base = globalThis.fetch
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init: RequestInit) =>
+        url.includes('/gestao/avisos?') && vezes++ >= 1
+          ? new Promise<Response>((r) => (liberar = () => r(new Response(JSON.stringify(pagina(AVISOS)), { status: 200 }))))
+          : base(url, init),
+      ),
+    )
+    abrir()
+    await userEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }))
+
+    expect(screen.getByRole('status', { name: 'Carregando os avisos' })).toBeInTheDocument()
+    liberar()
+    expect(await tabela()).toBeInTheDocument()
   })
 })

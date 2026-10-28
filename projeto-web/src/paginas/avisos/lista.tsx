@@ -1,12 +1,12 @@
 // T03 (design w-03): avisos por situação, com busca, filtros por autor e turma e paginação na URL
 // (RW-13, RW-14). O docente recebe só os seus: quem filtra é a API.
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 
 import { listarAvisos } from '../../api/recursos/avisos'
 import { listarTurmas } from '../../api/recursos/turmas'
 import { listarUsuarios } from '../../api/recursos/usuarios'
-import type { AvisoGestao, Pagina } from '../../api/schemas'
+import type { AvisoGestao } from '../../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../../componentes/comum/abas'
 import { Busca } from '../../componentes/comum/busca'
 import { ChipDestino } from '../../componentes/comum/chip-destino'
@@ -21,7 +21,8 @@ import { dataNumerica } from '../../lib/datas'
 import { estaAgendado } from '../../lib/formulario-aviso'
 import { useSessao } from '../../sessao/contexto'
 import { MENSAGEM_FEITA, useAcoesDoAviso } from './acoes'
-import { mensagemDe, useMensagemTrazida, type Carga } from './comum'
+import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useTextoNaUrl } from '../lista-na-url'
+import { useMensagemTrazida } from './comum'
 
 type Situacao = 'ativo' | 'agendado' | 'arquivado' | 'excluido'
 const SITUACOES: { id: Situacao; rotulo: string }[] = [
@@ -37,13 +38,9 @@ const VAZIO: Record<Situacao, [string, string]> = {
   excluido: ['Nenhum aviso excluído', 'Avisos excluídos ficam aqui só para auditoria.'],
 }
 const POR_PAGINA = 20
-const ESPERA_BUSCA_MS = 300
 const DESTINOS_VISIVEIS = 3
 const ID_ABAS = 'avisos-situacao'
 const LIMITE_BUSCA = 100
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-/** Id que a API aceitaria; qualquer outra coisa na URL (link quebrado, digitado) é ignorada. */
-const id = (v: string | null) => (v && UUID.test(v) ? v : '')
 
 interface Opcao {
   id: string
@@ -53,7 +50,7 @@ interface Opcao {
 export default function ListaAvisos() {
   const { usuario } = useSessao()
   const gestao = usuario?.perfil === 'administrador' || usuario?.perfil === 'coordenacao'
-  const [params, setParams] = useSearchParams()
+  const { params, filtrar } = useFiltrosNaUrl()
   const trazida = useMensagemTrazida()
 
   const pedida = params.get('situacao') as Situacao | null
@@ -61,74 +58,28 @@ export default function ListaAvisos() {
   const situacao: Situacao = abas.some((s) => s.id === pedida) ? pedida! : 'ativo'
   const q = (params.get('q') ?? '').slice(0, LIMITE_BUSCA)
   // Só administração e coordenação filtram por autor: para o docente, autor na URL não vale.
-  const autor = gestao ? id(params.get('autor')) : ''
-  const turma = id(params.get('turma'))
-  const pagina = Math.max(1, Math.floor(Number(params.get('pagina'))) || 1)
+  const autor = gestao ? idDaUrl(params.get('autor')) : ''
+  const turma = idDaUrl(params.get('turma'))
+  const pagina = paginaDaUrl(params.get('pagina'))
   const offset = (pagina - 1) * POR_PAGINA
 
-  const [carga, setCarga] = useState<Carga<Pagina<AvisoGestao>>>({ estado: 'carregando' })
-  const [termo, setTermo] = useState(q)
-  // A URL manda: se `q` mudou por fora (link, voltar, avançar), a caixa de busca acompanha.
-  const [qVisto, setQVisto] = useState(q)
-  if (q !== qVisto) {
-    setQVisto(q)
-    setTermo(q)
-  }
+  const [termo, setTermo] = useTextoNaUrl('q', q, filtrar)
+  const { carga, recarregar } = useCargaPaginada(
+    JSON.stringify([situacao, q, autor, turma]),
+    () =>
+      listarAvisos({
+        situacao,
+        q: q || undefined,
+        autor_id: autor || undefined,
+        turma_id: turma || undefined,
+        limit: POR_PAGINA,
+        offset,
+      }),
+    { offset, porPagina: POR_PAGINA, filtrar },
+  )
   const [turmas, setTurmas] = useState<Opcao[]>([])
   const [autores, setAutores] = useState<Opcao[]>([])
-  const [recarga, setRecarga] = useState(0)
   const [mensagem, setMensagem] = useState(trazida ? { texto: trazida, erro: false } : undefined)
-
-  /** Muda filtros na URL; qualquer filtro novo volta à primeira página. */
-  const filtrar = useCallback(
-    (mudancas: Record<string, string>, { substituir = false } = {}) => {
-      setParams(
-        (atual) => {
-          const novo = new URLSearchParams(atual)
-          for (const [k, v] of Object.entries(mudancas)) {
-            if (v) novo.set(k, v)
-            else novo.delete(k)
-          }
-          if (!('pagina' in mudancas)) novo.delete('pagina')
-          return novo
-        },
-        { replace: substituir },
-      )
-    },
-    [setParams],
-  )
-
-  useEffect(() => {
-    if (termo.trim() === q) return
-    const espera = setTimeout(() => filtrar({ q: termo.trim() }, { substituir: true }), ESPERA_BUSCA_MS)
-    return () => clearTimeout(espera)
-  }, [termo, q, filtrar])
-
-  useEffect(() => {
-    let valido = true
-    listarAvisos({
-      situacao,
-      q: q || undefined,
-      autor_id: autor || undefined,
-      turma_id: turma || undefined,
-      limit: POR_PAGINA,
-      offset,
-    })
-      .then((dados) => {
-        if (!valido) return
-        // Página além do fim (ex.: arquivou a última linha da última página): vai para a última.
-        if (dados.items.length === 0 && dados.total > 0 && offset > 0) {
-          const ultima = Math.ceil(dados.total / POR_PAGINA)
-          filtrar({ pagina: ultima > 1 ? String(ultima) : '' }, { substituir: true })
-          return
-        }
-        setCarga({ estado: 'pronto', dados })
-      })
-      .catch((e: unknown) => valido && setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true }))
-    return () => {
-      valido = false
-    }
-  }, [situacao, q, autor, turma, offset, recarga, filtrar])
 
   useEffect(() => {
     // Opções dos filtros: falhar aqui só deixa o filtro sem opções, a lista segue.
@@ -151,11 +102,11 @@ export default function ListaAvisos() {
   const { pedir, dialogo, ocupado } = useAcoesDoAviso({
     aoConcluir: (acao) => {
       setMensagem({ texto: MENSAGEM_FEITA[acao], erro: false })
-      setRecarga((n) => n + 1)
+      recarregar()
     },
-    aoFalhar: (texto, recarregar) => {
+    aoFalhar: (texto, deveRecarregar) => {
       setMensagem({ texto, erro: true })
-      if (recarregar) setRecarga((n) => n + 1)
+      if (deveRecarregar) recarregar()
     },
   })
 
@@ -337,7 +288,7 @@ export default function ListaAvisos() {
           <Esqueleto rotulo="Carregando os avisos" />
         ) : carga.estado === 'erro' ? (
           <>
-            <EstadoErro mensagem={carga.mensagem} onRepetir={() => setRecarga((n) => n + 1)} />
+            <EstadoErro mensagem={carga.mensagem} onRepetir={recarregar} />
             {/* Filtro que a API recusa (turma apagada, link antigo) não se resolve tentando de novo. */}
             {comFiltro && (
               <div className="-mt-10 pb-12 text-center">

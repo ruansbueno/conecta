@@ -182,3 +182,12 @@ export interface DestinoEscolhido {
   turmaNome?: string
   semestre?: number
 }
+
+/** Turma como a interface a cria ou edita (contrato §11, campos de POST). */
+export interface DadosTurma {
+  codigo: string
+  nome: string
+  semestreCurso: number
+  periodoLetivo: string
+  inscricoesAbertas: boolean
+}

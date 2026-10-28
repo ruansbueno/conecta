@@ -138,9 +138,99 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (!gestao) turmas = turmas.filter((t) => usuario.turmas.includes(t.id))
     const ativa = url.searchParams.get('ativa')
     if (ativa) turmas = turmas.filter((t) => String(t.ativa) === ativa)
+    const semestre = url.searchParams.get('semestre_curso')
+    if (semestre) turmas = turmas.filter((t) => String(t.semestre_curso) === semestre)
+    const periodo = url.searchParams.get('periodo_letivo')
+    if (periodo) turmas = turmas.filter((t) => t.periodo_letivo === periodo)
     const q = url.searchParams.get('q')?.toLowerCase()
     if (q) turmas = turmas.filter((t) => `${t.codigo} ${t.nome}`.toLowerCase().includes(q))
-    return json(res, 200, pagina(turmas, url))
+    return json(res, 200, pagina(turmas.map(estado.turmaSaida), url))
+  }
+
+  /** Mesmas regras do contrato §11 (POST inteiro; PATCH só o que veio). */
+  const validarTurma = (corpo: Record<string, unknown>, parcial: boolean) => {
+    const errors: { campo: string; mensagem: string }[] = []
+    const tem = (c: string) => !parcial || c in corpo
+    const codigo = corpo.codigo as string | undefined
+    if (tem('codigo') && (!codigo || codigo.length > 40)) errors.push({ campo: 'codigo', mensagem: 'de 1 a 40 caracteres' })
+    const nome = corpo.nome as string | undefined
+    if (tem('nome') && (!nome || nome.length < 3 || nome.length > 120)) errors.push({ campo: 'nome', mensagem: 'de 3 a 120 caracteres' })
+    const s = corpo.semestre_curso as number | undefined
+    if (tem('semestre_curso') && !(Number.isInteger(s) && s! >= 1 && s! <= 12)) errors.push({ campo: 'semestre_curso', mensagem: 'de 1 a 12' })
+    const p = corpo.periodo_letivo as string | undefined
+    if (tem('periodo_letivo') && !/^\d{4}\/[12]$/.test(p ?? '')) errors.push({ campo: 'periodo_letivo', mensagem: 'formato AAAA/N' })
+    return errors
+  }
+
+  const turmaId = caminho.match(/^\/gestao\/turmas\/([^/]+)/)?.[1]
+  const turmaAlvo = turmaId ? estado.turmas.find((t) => t.id === turmaId) : undefined
+  if (turmaId && !turmaAlvo) return erro(res, 404, 'TURMA_NAO_ENCONTRADA')
+  const escrita = metodo !== 'GET'
+  if ((caminho === '/gestao/turmas' || turmaAlvo) && escrita && !gestao) return erro(res, 403, 'SEM_PERMISSAO')
+
+  if (metodo === 'POST' && caminho === '/gestao/turmas') {
+    const corpo = (await corpoJson(req)) ?? {}
+    const errors = validarTurma(corpo, false)
+    if (errors.length) return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', errors)
+    if (estado.turmas.some((t) => t.codigo === corpo.codigo)) return erro(res, 409, 'CODIGO_TURMA_DUPLICADO')
+    const agora = new Date().toISOString()
+    const nova = {
+      id: randomUUID(),
+      codigo: corpo.codigo as string,
+      nome: corpo.nome as string,
+      semestre_curso: corpo.semestre_curso as number,
+      periodo_letivo: corpo.periodo_letivo as string,
+      inscricoes_abertas: Boolean(corpo.inscricoes_abertas),
+      ativa: true,
+      criado_em: agora,
+      atualizado_em: agora,
+    }
+    estado.turmas.push(nova)
+    return json(res, 201, estado.turmaSaida(nova))
+  }
+
+  if (turmaAlvo && caminho === `/gestao/turmas/${turmaAlvo.id}`) {
+    if (!gestao && !usuario.turmas.includes(turmaAlvo.id)) return erro(res, 403, 'SEM_PERMISSAO')
+    if (metodo === 'GET') return json(res, 200, estado.turmaSaida(turmaAlvo))
+    if (metodo === 'DELETE') {
+      turmaAlvo.ativa = false
+      return json(res, 204)
+    }
+    if (metodo === 'PATCH') {
+      const corpo = (await corpoJson(req)) ?? {}
+      const errors = validarTurma(corpo, true)
+      if (errors.length) return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', errors)
+      if ('codigo' in corpo && estado.turmas.some((t) => t.codigo === corpo.codigo && t.id !== turmaAlvo.id)) {
+        return erro(res, 409, 'CODIGO_TURMA_DUPLICADO')
+      }
+      Object.assign(turmaAlvo, corpo, { atualizado_em: new Date().toISOString() })
+      return json(res, 200, estado.turmaSaida(turmaAlvo))
+    }
+  }
+
+  // --- vínculos ---------------------------------------------------------------------------
+  if (turmaAlvo && caminho.startsWith(`/gestao/turmas/${turmaAlvo.id}/vinculos`)) {
+    if (!gestao && !usuario.turmas.includes(turmaAlvo.id)) return erro(res, 403, 'SEM_PERMISSAO')
+    const alvoId = caminho.split('/vinculos/')[1]
+    if (metodo === 'GET' && !alvoId) return json(res, 200, pagina(estado.vinculosDa(turmaAlvo.id, url.searchParams.get('papel')), url))
+    if (metodo === 'POST' && !alvoId) {
+      const { usuario_id, papel } = ((await corpoJson(req)) ?? {}) as { usuario_id?: string; papel?: string }
+      if (papel !== 'docente' && papel !== 'aluno') {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'papel', mensagem: 'docente ou aluno' }])
+      }
+      const pessoa = estado.usuarios.find((u) => u.id === usuario_id)
+      if (!pessoa) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
+      if (pessoa.perfil !== papel) return erro(res, 409, 'PERFIL_INCOMPATIVEL')
+      if (pessoa.turmas.includes(turmaAlvo.id)) return erro(res, 409, 'JA_VINCULADO')
+      estado.vincular(turmaAlvo.id, pessoa)
+      return json(res, 201, estado.vinculosDa(turmaAlvo.id).find((v) => v.usuario.id === pessoa.id))
+    }
+    if (metodo === 'DELETE' && alvoId) {
+      const pessoa = estado.usuarios.find((u) => u.id === alvoId && u.turmas.includes(turmaAlvo.id))
+      if (!pessoa) return erro(res, 404, 'VINCULO_NAO_ENCONTRADO')
+      pessoa.turmas = pessoa.turmas.filter((t) => t !== turmaAlvo.id)
+      return json(res, 204)
+    }
   }
 
   // --- avisos -----------------------------------------------------------------------------
@@ -224,8 +314,12 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (metodo === 'GET' && caminho === '/gestao/usuarios') {
     if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
     const perfil = url.searchParams.get('perfil')
+    const ativo = url.searchParams.get('ativo')
+    const q = url.searchParams.get('q')?.toLowerCase()
     const itens = estado.usuarios
       .filter((u) => !perfil || u.perfil === perfil)
+      .filter((u) => !ativo || String(u.ativo) === ativo)
+      .filter((u) => !q || `${u.nome} ${u.username}`.toLowerCase().includes(q))
       .map((u) => ({ ...estado.publico(u), ativo: u.ativo, ultimo_login_em: null }))
     return json(res, 200, pagina(itens, url))
   }

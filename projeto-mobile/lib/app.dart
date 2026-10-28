@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'config/rotas.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/avisos_repository.dart';
+import 'repositories/solicitacoes_repository.dart';
+import 'repositories/turmas_repository.dart';
 import 'services/api_client.dart';
 import 'services/api_failure.dart';
 import 'services/cache_local.dart';
@@ -40,6 +42,8 @@ class ConectaApp extends StatelessWidget {
         Provider.value(value: d.cache),
         Provider.value(value: auth),
         Provider(create: (_) => AvisosRepository(d.api, d.cache)),
+        Provider(create: (_) => TurmasRepository(d.api, d.cache)),
+        Provider(create: (_) => SolicitacoesRepository(d.api)),
         ChangeNotifierProvider(
           create: (_) =>
               SessionController(api: d.api, auth: auth, cofre: d.cofre, cache: d.cache)..iniciar(),

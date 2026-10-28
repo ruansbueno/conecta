@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../fixtures/fabrica.dart';
 import '../fixtures/fixtures.dart';
 import 'app_falso.dart';
 
@@ -53,5 +54,52 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('minhas turmas e turmas disponíveis a 200% sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosP1Json);
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([turmaMapa('TADS-3A-2026-2', nome: 'TADS 3º Sem A', papel: 'aluno')]),
+    );
+    app.api.responder(
+      'GET /solicitacoes/minhas',
+      paginaJson([solicitacaoMapa('s1', nome: 'Introdução a Ciência de Dados')]),
+    );
+    app.api.responder(
+      'GET /turmas/disponiveis',
+      paginaJson([turmaMapa('TADS-5A-2026-2', nome: 'TADS 5º Sem A', semestre: 5)]),
+    );
+    await app.abrir(tester);
+
+    await tester.tap(find.text('Turmas').last);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+      find.text('Ver turmas'),
+      200,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-turmas')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.ensureVisible(find.text('Ver turmas'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ver turmas'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+      find.text('Solicitar'),
+      100,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-disponiveis')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    expect(find.text('Solicitar').hitTestable(), findsOneWidget);
   });
 }

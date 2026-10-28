@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 /// Nomes de rota e tabela do Navigator (D2). A casca de abas é a raiz quando há sessão.
 abstract final class Rotas {
   static const avisoDetalhe = '/avisos/detalhe';
+  static const turmasDisponiveis = '/turmas/disponiveis';
 
   /// Permite voltar à raiz quando a sessão é encerrada com telas empilhadas (RM-04).
   static final navigatorKey = GlobalKey<NavigatorState>();

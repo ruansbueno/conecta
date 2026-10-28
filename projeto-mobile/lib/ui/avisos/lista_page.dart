@@ -14,6 +14,7 @@ import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
 import '../comum/faixa_informativa.dart';
+import '../turmas/minhas_page.dart';
 import 'aviso_card.dart';
 
 /// T02/T04/T05 — avisos ativos e arquivados (design m-02, m-04, m-05).
@@ -122,9 +123,15 @@ class _Lista extends StatelessWidget {
     return EstadoVazio(
       icone: Icons.inbox_outlined,
       titulo: 'Nenhum aviso por enquanto',
-      texto: 'Você verá aqui os avisos gerais do curso e os das turmas em que estiver inscrito.',
+      texto: 'Você verá aqui os avisos gerais do curso e os das turmas de que você participa.',
       acao: aluno ? 'Ver turmas disponíveis' : null,
-      onAcao: aluno ? () => CascaAbas.irPara(context, Aba.turmas) : null,
+      onAcao: aluno
+          ? () {
+              // Leva à aba Turmas e já abre as disponíveis: voltar cai em Minhas turmas.
+              CascaAbas.irPara(context, Aba.turmas);
+              abrirDisponiveis(context);
+            }
+          : null,
     );
   }
 }

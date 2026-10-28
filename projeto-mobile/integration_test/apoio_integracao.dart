@@ -2,7 +2,7 @@ import 'package:conecta/app.dart';
 import 'package:conecta/main.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/services/cofre_sessao.dart';
-import 'package:conecta/ui/avisos/detalhe_page.dart';
+import 'package:conecta/ui/rotas_das_telas.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -78,9 +78,13 @@ void main() {
     await app.abrir(tester);
 
     expect(find.text('Nenhum aviso por enquanto'), findsOneWidget);
+    expect(
+      find.text('Você verá aqui os avisos gerais do curso e os das turmas de que você participa.'),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Ver turmas disponíveis'));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Turmas'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Turmas disponíveis'), findsOneWidget);
   });
 
   testWidgets('vazio para docente: sem o atalho de solicitar turma', (tester) async {

@@ -37,3 +37,39 @@ String paginaAvisosJson({
     'offset': offset,
   });
 }
+
+/// Turmas e solicitações no formato do contrato (§5, §6 e §8).
+Map<String, dynamic> turmaMapa(
+  String codigo, {
+  String? nome,
+  String? papel,
+  int? semestre = 3,
+  String? periodo = '2026/2',
+}) => {
+  'id': 'turma-$codigo',
+  'codigo': codigo,
+  'nome': nome ?? 'Turma $codigo',
+  'semestre_curso': semestre,
+  'periodo_letivo': periodo,
+  'papel': ?papel,
+};
+
+String paginaJson(List<Map<String, dynamic>> itens, {int? total, int limit = 20, int offset = 0}) =>
+    jsonEncode({'items': itens, 'total': total ?? itens.length, 'limit': limit, 'offset': offset});
+
+Map<String, dynamic> solicitacaoMapa(
+  String id, {
+  String codigo = 'TADS-5A-2026-2',
+  String nome = 'TADS 5º Sem A',
+  String status = 'pendente',
+  String solicitadaEm = '2026-10-10T13:00:00Z',
+  String? decididaEm,
+  String? motivoRecusa,
+}) => {
+  'id': id,
+  'turma': {'id': 'turma-$codigo', 'codigo': codigo, 'nome': nome},
+  'status': status,
+  'solicitada_em': solicitadaEm,
+  'decidida_em': decididaEm,
+  'motivo_recusa': motivoRecusa,
+};

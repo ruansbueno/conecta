@@ -3,8 +3,8 @@
 Aplicativo Flutter do CONECTA, para todos os usuários autenticados: avisos, turmas, solicitação de
 inscrição, perfil e — na fase seguinte — agenda e horários.
 
-O marco de avisos da F1 está implementado (fases 1 a 4, 40 de 66 tarefas): entrar, manter a
-sessão com segurança e ler os avisos, inclusive sem rede. Veja [Andamento](#andamento).
+As fases 1 a 5 da F1 estão implementadas (47 de 66 tarefas): entrar, manter a sessão com
+segurança, ler os avisos e acompanhar as turmas, inclusive sem rede. Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -35,7 +35,7 @@ sessão com segurança e ler os avisos, inclusive sem rede. Veja [Andamento](#an
 
 | Fase | Conteúdo | Situação |
 |---|---|---|
-| **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | Em andamento: marco de avisos pronto (fases 1–4 de 8) |
+| **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | Em andamento: fases 1–5 de 8 prontas |
 | **F2** | Agenda (lista e mês), evento, horários | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
@@ -53,12 +53,12 @@ Atualizado em 28/10/2026.
 | 2. Fundação | Tema do design, cliente HTTP com tratamento central de erros, sessão no armazenamento seguro, cache local, casca com abas | ✅ [#2](https://github.com/ruansbueno/conecta/pull/2) |
 | 3. US1 — Entrar | Login, sessão de 24 h, sessão expirada e acesso desativado | ✅ [#2](https://github.com/ruansbueno/conecta/pull/2) |
 | 4. US2 — Ler os avisos | Avisos ativos e arquivados, detalhe, paginação, abrir sem rede com a última lista recebida | ✅ [#2](https://github.com/ruansbueno/conecta/pull/2) |
-| 5. US3 — Minhas turmas | Turmas em que a pessoa tem vínculo e turmas disponíveis para solicitar | A fazer |
+| 5. US3 — Minhas turmas | Minhas turmas com o papel (m-06), estado vazio por perfil, turmas disponíveis só para aluno (m-07), solicitações recentes, cache sem rede | ✅ [#14](https://github.com/ruansbueno/conecta/pull/14) |
 | 6. US4 — Solicitar inscrição | Pedir inscrição, acompanhar o status e cancelar | A fazer |
 | 7. US5 — Perfil | Dados da pessoa, atualizados quando o perfil muda no servidor | A fazer |
 | 8. Polimento e evidências | Mensagens de erro, acessibilidade, fonte a 200%, uso sem rede, comparação com o design | A fazer |
 
-**Testes**: 151 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
+**Testes**: 188 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
 em `integration_test/`.
 
 ## Como rodar
@@ -76,5 +76,8 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-Fase 5 de [`tasks.md`](specs/001-app-conecta/tasks.md): turmas. Pela ordem de execução do projeto,
-vem depois da plataforma web F1. Nada deve ser implementado sem a tarefa correspondente.
+Fase 6 de [`tasks.md`](specs/001-app-conecta/tasks.md) (T048–T054): solicitar inscrição. A leitura
+de `GET /solicitacoes/minhas` já existe (fase 5); faltam criar e cancelar, a folha de confirmação,
+a lista de solicitações, o envio a partir do botão Solicitar (hoje só avisa) e a recarga cruzada
+também a partir do atalho do vazio de avisos. Nada deve ser implementado sem a tarefa
+correspondente.

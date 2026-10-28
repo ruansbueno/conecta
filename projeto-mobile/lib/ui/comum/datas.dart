@@ -49,3 +49,11 @@ String dataHoraCurta(DateTime utc) {
   final local = utc.toLocal();
   return '${DateFormat('dd/MM', _locale).format(local)} às ${_hora(local)}';
 }
+
+/// Data sem hora, para solicitações: "10 out" no ano corrente, "3 dez 2025" em outro ano.
+String dataDiaMes(DateTime utc, {DateTime? agora}) {
+  final local = utc.toLocal();
+  return local.year == (agora ?? DateTime.now()).year
+      ? _diaMes(local)
+      : '${_diaMes(local)} ${local.year}';
+}

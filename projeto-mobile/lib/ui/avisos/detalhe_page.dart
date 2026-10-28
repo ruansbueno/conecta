@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../config/rotas.dart';
 import '../../models/aviso.dart';
 import '../../repositories/avisos_repository.dart';
 import '../../services/api_failure.dart';
@@ -13,10 +12,6 @@ import '../comum/datas.dart';
 import '../comum/selo_situacao.dart';
 
 /// Registro das rotas de telas empilhadas.
-void registrarRotas() {
-  Rotas.registrar(Rotas.avisoDetalhe, (argumento) => AvisoDetalhePage(aviso: argumento! as Aviso));
-}
-
 /// T03 — detalhe (design m-03). Abre com o dado da lista e revalida em `GET /avisos/{id}`;
 /// `404` volta à lista, que recarrega (RM-13, RM-17).
 class AvisoDetalhePage extends StatefulWidget {

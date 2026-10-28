@@ -10,7 +10,7 @@ import 'config/ambiente.dart';
 import 'services/api_client.dart';
 import 'services/cache_local.dart';
 import 'services/cofre_sessao.dart';
-import 'ui/avisos/detalhe_page.dart';
+import 'ui/rotas_das_telas.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

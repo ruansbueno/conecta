@@ -100,8 +100,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     }
     const u = estado.usuarios.find((x) => x.username === username)
     if (!u || password !== 'senha-teste') return erro(res, 401, 'CREDENCIAIS_INVALIDAS')
-    if (!u.ativo) return erro(res, 403, 'USUARIO_INATIVO')
     u.ultimo_login_em = new Date().toISOString()
+    if (!u.ativo) return erro(res, 403, 'USUARIO_INATIVO')
     const token = `tok-${randomUUID()}`
     estado.sessoes.set(token, u.id)
     const atributos = 'Secure; SameSite=Strict; Path=/; Max-Age=86400'
@@ -163,6 +163,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (periodo) turmas = turmas.filter((t) => t.periodo_letivo === periodo)
     const q = url.searchParams.get('q')?.toLowerCase()
     if (q) turmas = turmas.filter((t) => `${t.codigo} ${t.nome}`.toLowerCase().includes(q))
+    turmas = [...turmas].sort((x, y) => x.semestre_curso - y.semestre_curso || x.codigo.localeCompare(y.codigo))
     return json(res, 200, pagina(turmas.map(estado.turmaSaida), url))
   }
 
@@ -231,7 +232,12 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (turmaAlvo && caminho.startsWith(`/gestao/turmas/${turmaAlvo.id}/vinculos`)) {
     if (!gestao && !usuario.turmas.includes(turmaAlvo.id)) return erro(res, 403, 'SEM_PERMISSAO')
     const alvoId = caminho.split('/vinculos/')[1]
-    if (metodo === 'GET' && !alvoId) return json(res, 200, pagina(estado.vinculosDa(turmaAlvo.id, url.searchParams.get('papel')), url))
+    if (metodo === 'GET' && !alvoId) {
+      const lista = estado
+        .vinculosDa(turmaAlvo.id, url.searchParams.get('papel'))
+        .sort((x, y) => y.papel.localeCompare(x.papel) || x.usuario.nome.localeCompare(y.usuario.nome))
+      return json(res, 200, pagina(lista, url))
+    }
     if (metodo === 'POST' && !alvoId) {
       const { usuario_id, papel } = ((await corpoJson(req)) ?? {}) as { usuario_id?: string; papel?: string }
       if (papel !== 'docente' && papel !== 'aluno') {
@@ -261,6 +267,13 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (avisoId && !existente) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
     if (existente && !gestao && existente.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
     if (existente && existente.situacao !== 'ativo') return erro(res, 409, 'AVISO_NAO_EDITAVEL')
+    if (existente && 'publicar_em' in corpo && corpo.publicar_em !== existente.publicar_em) {
+      // Agendamento só muda antes da publicação (plan-e2 D-E2-6).
+      if (new Date(existente.publicado_em as string) <= new Date()) {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'publicar_em', mensagem: 'aviso já publicado não pode ser reagendado' }])
+      }
+      if (corpo.publicar_em === null) existente.publicado_em = new Date().toISOString()
+    }
     const resultado = estado.validarAviso(corpo, usuario, gestao, !!existente)
     if (!('ok' in resultado)) {
       return erro(res, resultado.status, resultado.erro, resultado.erro, resultado.errors)
@@ -285,6 +298,12 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     const q = url.searchParams.get('q')?.toLowerCase()
     const autorId = url.searchParams.get('autor_id')
     const turmaId = url.searchParams.get('turma_id')
+    const uuid = /^[0-9a-f-]{36}$/i
+    if ((q?.length ?? 0) > 100 || (autorId && !uuid.test(autorId)) || (turmaId && !uuid.test(turmaId))) {
+      return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'query', mensagem: 'filtro inválido' }])
+    }
+    if (turmaId && !estado.turmas.some((t) => t.id === turmaId)) return erro(res, 404, 'TURMA_NAO_ENCONTRADA')
+    const publicadoEm = (a: (typeof estado.avisos)[number]) => String(a.publicar_em ?? a.criado_em)
     const itens = estado.avisos.filter(
       (a) =>
         (gestao || a.autor.id === usuario.id) &&
@@ -299,6 +318,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
         (!autorId || a.autor.id === autorId) &&
         (!turmaId || (a.destinos as { turma: { id: string } | null }[]).some((d) => d.turma?.id === turmaId)),
     )
+    itens.sort((x, y) => publicadoEm(y).localeCompare(publicadoEm(x)))
     return json(res, 200, pagina(itens, url))
   }
 
@@ -318,6 +338,10 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     }
     if (metodo === 'POST' && nome === 'desarquivar') {
       if (aviso.situacao !== 'arquivado') return erro(res, 409, 'AVISO_SITUACAO_INVALIDA')
+      const destinos = aviso.destinos as { tipo: string; turma: { id: string } | null }[]
+      if (!gestao && destinos.some((d) => d.tipo !== 'turma' || !usuario.turmas.includes(d.turma!.id))) {
+        return erro(res, 403, 'DESTINO_NAO_PERMITIDO')
+      }
       return json(res, 200, estado.mudarSituacao(aviso, usuario, 'ativo', 'desarquivado'))
     }
   }
@@ -333,6 +357,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (metodo === 'GET' && caminho === '/gestao/solicitacoes') {
     const status = url.searchParams.get('status') ?? 'pendente'
     const turmaId = url.searchParams.get('turma_id')
+    if (turmaId && !estado.turmas.some((t) => t.id === turmaId)) return erro(res, 404, 'TURMA_NAO_ENCONTRADA')
+    if (turmaId && !gestao && !usuario.turmas.includes(turmaId)) return erro(res, 403, 'SEM_PERMISSAO')
     const itens = estado.solicitacoes
       .filter((s) => s.status === status && (!turmaId || s.turmaId === turmaId))
       .filter((s) => gestao || usuario.turmas.includes(s.turmaId))
@@ -353,9 +379,11 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     }
     const aluno = estado.usuarios.find((u) => u.id === s.alunoId)!
     Object.assign(s, { decidida_em: new Date().toISOString(), decidida_por: { id: usuario.id, nome: usuario.nome } })
+    if (acao === 'aprovar' && aluno.perfil !== 'aluno') return erro(res, 409, 'PERFIL_INCOMPATIVEL')
     if (acao === 'aprovar' && aluno.turmas.includes(s.turmaId)) {
       // Vínculo criado por outra via entre o pedido e a decisão: a API recusa e marca a solicitação.
       s.status = 'recusada'
+      s.motivo_recusa = 'Aluno já vinculado à turma'
       return erro(res, 409, 'JA_VINCULADO')
     }
     if (acao === 'aprovar') {
@@ -376,13 +404,17 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   })
   const alvoId = caminho.match(/^\/gestao\/usuarios\/([^/]+)$/)?.[1]
   if (alvoId) {
-    if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    if (!gestao || (metodo === 'PATCH' && usuario.perfil !== 'administrador')) return erro(res, 403, 'SEM_PERMISSAO')
     const alvo = estado.usuarios.find((u) => u.id === alvoId)
     if (!alvo) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
     if (metodo === 'GET') return json(res, 200, { ...usuarioGestao(alvo), turmas: estado.me(alvo).turmas })
     if (metodo === 'PATCH') {
       if (usuario.perfil !== 'administrador') return erro(res, 403, 'SEM_PERMISSAO')
       const corpo = ((await corpoJson(req)) ?? {}) as { perfil?: string; ativo?: boolean }
+      const chaves = Object.keys(corpo)
+      if (chaves.length === 0 || chaves.some((c) => c !== 'perfil' && c !== 'ativo')) {
+        return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'body', mensagem: 'informe perfil ou ativo' }])
+      }
       const perfis = ['administrador', 'coordenacao', 'docente', 'aluno']
       if (corpo.perfil !== undefined && !perfis.includes(corpo.perfil)) {
         return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'perfil', mensagem: 'perfil inválido' }])

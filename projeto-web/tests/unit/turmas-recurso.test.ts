@@ -99,8 +99,8 @@ describe('recurso de vínculos (contrato §12)', () => {
     expect(chamada(fn)).toMatchObject({ metodo: 'DELETE', url: '/api/gestao/turmas/t1/vinculos/u1' })
   })
 
-  it('cada code de erro dos vínculos tem mensagem própria (nunca a genérica)', async () => {
-    const genérica = 'Não foi possível concluir agora. Tente de novo em instantes.'
+  it('cada code de erro dos vínculos tem mensagem própria (nunca a generica)', async () => {
+    const generica = 'Não foi possível concluir agora. Tente de novo em instantes.'
     for (const [status, code] of [
       [409, 'JA_VINCULADO'],
       [409, 'PERFIL_INCOMPATIVEL'],
@@ -111,7 +111,7 @@ describe('recurso de vínculos (contrato §12)', () => {
       api(status, erro(code))
       const e = (await vincular('t1', 'u1', 'aluno').catch((x: unknown) => x)) as ApiError
       expect(e.code).toBe(code)
-      expect(e.mensagem).not.toBe(genérica)
+      expect(e.mensagem).not.toBe(generica)
     }
   })
 })

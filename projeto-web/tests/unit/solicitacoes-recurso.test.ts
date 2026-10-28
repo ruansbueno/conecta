@@ -4,7 +4,6 @@ import { ApiError } from '../../src/api/erros'
 import { aprovarSolicitacao, listarSolicitacoes, recusarSolicitacao } from '../../src/api/recursos/solicitacoes'
 import { erro, pagina, solicitacao } from '../fixtures'
 
-
 function api(status: number, corpo?: unknown) {
   const fn = vi.fn(async () => new Response(corpo === undefined ? null : JSON.stringify(corpo), { status }))
   vi.stubGlobal('fetch', fn)
@@ -41,7 +40,7 @@ describe('recurso de solicitações de gestão (contrato §13)', () => {
   })
 
   it('cada code de erro da decisão tem mensagem própria', async () => {
-    const genérica = 'Não foi possível concluir agora. Tente de novo em instantes.'
+    const generica = 'Não foi possível concluir agora. Tente de novo em instantes.'
     for (const [status, code] of [
       [409, 'SOLICITACAO_NAO_PENDENTE'],
       [409, 'JA_VINCULADO'],
@@ -51,7 +50,7 @@ describe('recurso de solicitações de gestão (contrato §13)', () => {
       api(status, erro(code))
       const e = (await aprovarSolicitacao('s1').catch((x: unknown) => x)) as ApiError
       expect(e.code).toBe(code)
-      expect(e.mensagem).not.toBe(genérica)
+      expect(e.mensagem).not.toBe(generica)
     }
   })
 })

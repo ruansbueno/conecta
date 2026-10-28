@@ -78,7 +78,7 @@ export default function HistoricoAviso() {
       .catch(() => undefined)
   }, [carregar, carregarAuditoria])
 
-  const { pedir, dialogo } = useAcoesDoAviso({
+  const { pedir, dialogo, ocupado } = useAcoesDoAviso({
     aoConcluir: (acao, atual) => {
       if (!atual) return navegar('/avisos', { state: { mensagem: MENSAGEM_FEITA[acao] } })
       setAviso({ estado: 'pronto', dados: atual })
@@ -124,7 +124,7 @@ export default function HistoricoAviso() {
         </div>
         {a.situacao === 'ativo' && (
           <>
-            <button type="button" onClick={() => pedir('arquivar', a)} className="botao-secundario">
+            <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', a)} className="botao-secundario">
               <Icone nome="arquivo" tamanho={18} />
               Arquivar
             </button>
@@ -135,12 +135,12 @@ export default function HistoricoAviso() {
           </>
         )}
         {a.situacao === 'arquivado' && (
-          <button type="button" onClick={() => pedir('desarquivar', a)} className="botao-secundario">
+          <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', a)} className="botao-secundario">
             Desarquivar
           </button>
         )}
         {a.situacao !== 'excluido' && (
-          <button type="button" onClick={() => pedir('excluir', a)} className="botao-perigo">
+          <button type="button" disabled={ocupado} onClick={() => pedir('excluir', a)} className="botao-perigo">
             Excluir
           </button>
         )}

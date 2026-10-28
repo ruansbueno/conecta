@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { requisitar } from '../../src/api/cliente'
-import { SessaoProvider } from '../../src/sessao/contexto'
+import { SessaoProvider, useSessao } from '../../src/sessao/contexto'
 import { ExigirSessao } from '../../src/sessao/exigir-sessao'
 import { erro, me } from '../fixtures'
 
@@ -28,6 +28,15 @@ function fetchFalso(rotas: Record<string, Rota | (() => Rota)>) {
   return chamadas
 }
 
+function Sair() {
+  const { encerrar } = useSessao()
+  return (
+    <button type="button" onClick={() => void encerrar('saida')}>
+      sair
+    </button>
+  )
+}
+
 function montar(inicial = '/avisos/novo') {
   render(
     <MemoryRouter initialEntries={[inicial]}>
@@ -37,6 +46,7 @@ function montar(inicial = '/avisos/novo') {
           <Route path="/sem-permissao" element={<p>sem permissão</p>} />
           <Route element={<ExigirSessao />}>
             <Route path="/avisos/novo" element={<p>editor</p>} />
+            <Route path="/avisos" element={<Sair />} />
           </Route>
         </Routes>
       </SessaoProvider>
@@ -65,6 +75,15 @@ describe('sessão na interface', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Tentar de novo' }))
 
     expect(await screen.findByText('login destino=/avisos/novo')).toBeInTheDocument()
+  })
+
+  it('depois de sair, o login não guarda a página de quem saiu (a próxima pessoa vai ao painel)', async () => {
+    fetchFalso({ 'GET /me': { status: 200, corpo: me }, 'DELETE /auth/sessao': { status: 204 } })
+    montar('/avisos')
+
+    await userEvent.click(await screen.findByRole('button', { name: 'sair' }))
+
+    expect(await screen.findByText('login destino=-')).toBeInTheDocument()
   })
 
   it('sem sessão, vai ao login guardando o destino pretendido (RW-07)', async () => {

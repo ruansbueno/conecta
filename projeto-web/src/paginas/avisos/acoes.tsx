@@ -1,6 +1,6 @@
 // Arquivar, desarquivar e excluir (RW-19): arquivar e excluir pedem confirmação explicando o efeito
 // (RW-41); desarquivar desfaz o arquivamento e vai direto.
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { ApiError } from '../../api/erros'
 import { arquivarAviso, desarquivarAviso, excluirAviso } from '../../api/recursos/avisos'
@@ -42,8 +42,14 @@ interface Retorno {
 
 export function useAcoesDoAviso({ aoConcluir, aoFalhar }: Retorno) {
   const [pedido, setPedido] = useState<{ acao: 'arquivar' | 'excluir'; aviso: AvisoGestao } | null>(null)
+  // Uma ação por vez: clique duplo não manda a segunda (que voltaria 409 e mostraria erro falso).
+  const emCurso = useRef(false)
+  const [ocupado, setOcupado] = useState(false)
 
   async function executar(acao: AcaoAviso, aviso: AvisoGestao) {
+    if (emCurso.current) return
+    emCurso.current = true
+    setOcupado(true)
     try {
       if (acao === 'excluir') {
         await excluirAviso(aviso.id)
@@ -53,6 +59,9 @@ export function useAcoesDoAviso({ aoConcluir, aoFalhar }: Retorno) {
       }
     } catch (e) {
       aoFalhar(mensagemDe(e), e instanceof ApiError && (e.efeito === 'recarrega' || e.efeito === 'voltaLista'))
+    } finally {
+      emCurso.current = false
+      setOcupado(false)
     }
   }
 
@@ -70,5 +79,5 @@ export function useAcoesDoAviso({ aoConcluir, aoFalhar }: Retorno) {
     />
   )
 
-  return { pedir, dialogo }
+  return { pedir, dialogo, ocupado }
 }

@@ -40,6 +40,10 @@ const POR_PAGINA = 20
 const ESPERA_BUSCA_MS = 300
 const DESTINOS_VISIVEIS = 3
 const ID_ABAS = 'avisos-situacao'
+const LIMITE_BUSCA = 100
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+/** Id que a API aceitaria; qualquer outra coisa na URL (link quebrado, digitado) é ignorada. */
+const id = (v: string | null) => (v && UUID.test(v) ? v : '')
 
 interface Opcao {
   id: string
@@ -55,14 +59,21 @@ export default function ListaAvisos() {
   const pedida = params.get('situacao') as Situacao | null
   const abas = gestao ? SITUACOES : SITUACOES.filter((s) => s.id !== 'excluido')
   const situacao: Situacao = abas.some((s) => s.id === pedida) ? pedida! : 'ativo'
-  const q = params.get('q') ?? ''
-  const autor = params.get('autor') ?? ''
-  const turma = params.get('turma') ?? ''
-  const pagina = Math.max(1, Number(params.get('pagina')) || 1)
+  const q = (params.get('q') ?? '').slice(0, LIMITE_BUSCA)
+  // Só administração e coordenação filtram por autor: para o docente, autor na URL não vale.
+  const autor = gestao ? id(params.get('autor')) : ''
+  const turma = id(params.get('turma'))
+  const pagina = Math.max(1, Math.floor(Number(params.get('pagina'))) || 1)
   const offset = (pagina - 1) * POR_PAGINA
 
   const [carga, setCarga] = useState<Carga<Pagina<AvisoGestao>>>({ estado: 'carregando' })
   const [termo, setTermo] = useState(q)
+  // A URL manda: se `q` mudou por fora (link, voltar, avançar), a caixa de busca acompanha.
+  const [qVisto, setQVisto] = useState(q)
+  if (q !== qVisto) {
+    setQVisto(q)
+    setTermo(q)
+  }
   const [turmas, setTurmas] = useState<Opcao[]>([])
   const [autores, setAutores] = useState<Opcao[]>([])
   const [recarga, setRecarga] = useState(0)
@@ -103,12 +114,21 @@ export default function ListaAvisos() {
       limit: POR_PAGINA,
       offset,
     })
-      .then((dados) => valido && setCarga({ estado: 'pronto', dados }))
+      .then((dados) => {
+        if (!valido) return
+        // Página além do fim (ex.: arquivou a última linha da última página): vai para a última.
+        if (dados.items.length === 0 && dados.total > 0 && offset > 0) {
+          const ultima = Math.ceil(dados.total / POR_PAGINA)
+          filtrar({ pagina: ultima > 1 ? String(ultima) : '' }, { substituir: true })
+          return
+        }
+        setCarga({ estado: 'pronto', dados })
+      })
       .catch((e: unknown) => valido && setCarga({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true }))
     return () => {
       valido = false
     }
-  }, [situacao, q, autor, turma, offset, recarga])
+  }, [situacao, q, autor, turma, offset, recarga, filtrar])
 
   useEffect(() => {
     // Opções dos filtros: falhar aqui só deixa o filtro sem opções, a lista segue.
@@ -128,7 +148,7 @@ export default function ListaAvisos() {
       .catch(() => undefined)
   }, [gestao])
 
-  const { pedir, dialogo } = useAcoesDoAviso({
+  const { pedir, dialogo, ocupado } = useAcoesDoAviso({
     aoConcluir: (acao) => {
       setMensagem({ texto: MENSAGEM_FEITA[acao], erro: false })
       setRecarga((n) => n + 1)
@@ -192,10 +212,17 @@ export default function ListaAvisos() {
         <div className="flex items-center gap-1">
           {a.situacao === 'ativo' && (
             <>
-              <Link to={`/avisos/${a.id}/editar`} aria-label="Editar" title="Editar" className="botao-icone">
+              <Link to={`/avisos/${a.id}/editar`} aria-label={`Editar “${a.titulo}”`} title="Editar" className="botao-icone">
                 <Icone nome="lapis" tamanho={17} />
               </Link>
-              <button type="button" aria-label="Arquivar" title="Arquivar" onClick={() => pedir('arquivar', a)} className="botao-icone">
+              <button
+                type="button"
+                aria-label={`Arquivar “${a.titulo}”`}
+                title="Arquivar"
+                disabled={ocupado}
+                onClick={() => pedir('arquivar', a)}
+                className="botao-icone"
+              >
                 <Icone nome="arquivo" tamanho={17} />
               </button>
             </>
@@ -203,15 +230,16 @@ export default function ListaAvisos() {
           {a.situacao === 'arquivado' && (
             <button
               type="button"
-              aria-label="Desarquivar"
+              aria-label={`Desarquivar “${a.titulo}”`}
               title="Desarquivar"
+              disabled={ocupado}
               onClick={() => pedir('desarquivar', a)}
               className="botao-icone"
             >
               <Icone nome="seta" tamanho={17} />
             </button>
           )}
-          <Link to={`/avisos/${a.id}?aba=historico`} aria-label="Histórico" title="Histórico e versões" className="botao-icone">
+          <Link to={`/avisos/${a.id}?aba=historico`} aria-label={`Histórico de “${a.titulo}”`} title="Histórico e versões" className="botao-icone">
             <Icone nome="historico" tamanho={17} />
           </Link>
         </div>
@@ -260,7 +288,7 @@ export default function ListaAvisos() {
         />
         <div className="flex flex-wrap items-center gap-3">
           <div className="w-[300px]">
-            <Busca rotulo="Buscar por título ou conteúdo" valor={termo} onMudar={setTermo} />
+            <Busca rotulo="Buscar por título ou conteúdo" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
           {gestao && (
             <label className="flex items-center gap-2 text-[13px] text-apagado">
@@ -308,7 +336,17 @@ export default function ListaAvisos() {
         {carga.estado === 'carregando' ? (
           <Esqueleto rotulo="Carregando os avisos" />
         ) : carga.estado === 'erro' ? (
-          <EstadoErro mensagem={carga.mensagem} onRepetir={() => setRecarga((n) => n + 1)} />
+          <>
+            <EstadoErro mensagem={carga.mensagem} onRepetir={() => setRecarga((n) => n + 1)} />
+            {/* Filtro que a API recusa (turma apagada, link antigo) não se resolve tentando de novo. */}
+            {comFiltro && (
+              <div className="-mt-10 pb-12 text-center">
+                <button type="button" onClick={() => filtrar({ q: '', autor: '', turma: '' })} className="botao-secundario">
+                  Limpar filtros
+                </button>
+              </div>
+            )}
+          </>
         ) : carga.dados.items.length === 0 ? (
           <EstadoVazio
             titulo={comFiltro ? 'Nenhum aviso encontrado' : VAZIO[situacao][0]}

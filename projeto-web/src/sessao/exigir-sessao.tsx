@@ -26,13 +26,22 @@ export function ExigirSessao({ perfis }: { perfis?: readonly Perfil[] }) {
       if (estado.encerramento?.motivo === 'aluno') {
         return <Navigate to="/sem-permissao" replace state={{ aluno: true }} />
       }
-      return (
-        <Navigate
-          to="/login"
-          replace
-          state={{ destino: `${local.pathname}${local.search}`, mensagem: estado.encerramento?.mensagem }}
-        />
-      )
+      {
+        // O destino só volta para quem vai reentrar: quem abriu sem sessão ou teve a sessão expirada.
+        // Depois de sair (ou de um acesso desativado), a próxima pessoa no navegador vai ao painel.
+        const motivo = estado.encerramento?.motivo
+        const guardaDestino = !motivo || motivo === 'expirada'
+        return (
+          <Navigate
+            to="/login"
+            replace
+            state={{
+              ...(guardaDestino ? { destino: `${local.pathname}${local.search}` } : {}),
+              mensagem: estado.encerramento?.mensagem,
+            }}
+          />
+        )
+      }
     case 'autenticado':
       if (aluno) return <Navigate to="/sem-permissao" replace state={{ aluno: true }} />
       if (perfis && !perfis.includes(estado.usuario.perfil as Perfil)) {

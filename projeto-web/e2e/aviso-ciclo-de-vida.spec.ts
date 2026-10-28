@@ -26,7 +26,9 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
 
   // Criar
   await page.getByRole('link', { name: 'Avisos' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Avisos' })).toBeVisible()
   await page.getByRole('link', { name: 'Novo aviso' }).click()
+  await expect(page.getByRole('heading', { name: 'Novo aviso' })).toBeVisible()
   await page.getByLabel('Título').fill(TITULO)
   await page.getByLabel('Conteúdo').fill('Sexta, 19h, no auditório.')
   await page.getByRole('button', { name: 'Adicionar destino' }).click()
@@ -37,11 +39,11 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
   await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
   await expect(linha(page)).toContainText('versão 1')
 
-  await linha(page).getByRole('link', { name: TITULO }).click()
+  await linha(page).getByRole('link', { name: TITULO, exact: true }).click()
   await expect(await eventos(page)).toHaveText(['Aviso criado'])
 
   // Editar
-  await page.getByRole('link', { name: 'Editar' }).click()
+  await page.getByRole('link', { name: 'Editar', exact: true }).click()
   await page.getByLabel('Título').fill(`${TITULO} — nova sala`)
   await page.getByRole('button', { name: 'Salvar alterações' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Alterações salvas. Esta é a versão 2.' })).toBeVisible()
@@ -62,14 +64,14 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
   await expect(linha(page)).toBeVisible()
 
   // Desarquivar (direto, pela linha)
-  await linha(page).getByRole('button', { name: 'Desarquivar' }).click()
+  await linha(page).getByRole('button', { name: /^Desarquivar/ }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Aviso desarquivado.' })).toBeVisible()
   await expect(page.getByText('Nenhum aviso arquivado')).toBeVisible()
   await aba(page, 'Ativos')
   await expect(linha(page)).toBeVisible()
 
   // Excluir (com confirmação, pelo detalhe)
-  await linha(page).getByRole('link', { name: new RegExp(TITULO) }).click()
+  await linha(page).getByRole('link', { name: `${TITULO} — nova sala`, exact: true }).click()
   await page.getByRole('button', { name: 'Excluir' }).click()
   await page.getByRole('alertdialog').getByRole('button', { name: 'Excluir' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Aviso excluído.' })).toBeVisible()
@@ -78,7 +80,7 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
   // Excluído continua auditável pela coordenação
   await aba(page, 'Excluídos')
   await expect(linha(page)).toContainText('mantido para auditoria')
-  await linha(page).getByRole('link', { name: 'Histórico' }).click()
+  await linha(page).getByRole('link', { name: /^Histórico de/ }).click()
   await expect(page.getByRole('list', { name: 'Linha do tempo' }).getByRole('heading', { level: 3 })).toHaveText([
     'Aviso excluído',
     'Aviso desarquivado',
@@ -91,7 +93,9 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
 
 test('docente vê só os seus avisos e não tem a aba Excluídos', async ({ page }) => {
   await entrar(page, 'coord.teste')
+  await page.waitForURL(/\/painel$/)
   await page.goto('/avisos/novo')
+  await expect(page.getByRole('heading', { name: 'Novo aviso' })).toBeVisible()
   await page.getByLabel('Título').fill('Aviso da coordenação')
   await page.getByLabel('Conteúdo').fill('Só para docentes.')
   await page.getByRole('button', { name: 'Adicionar destino' }).click()
@@ -101,8 +105,10 @@ test('docente vê só os seus avisos e não tem a aba Excluídos', async ({ page
   await page.getByRole('button', { name: 'Publicar aviso' }).click()
   await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
   await page.getByRole('button', { name: 'Sair' }).click()
+  await page.waitForURL(/\/login$/)
 
   await entrar(page, 'docente.teste')
+  await page.waitForURL(/\/painel$/)
   await page.getByRole('link', { name: 'Meus avisos' }).click()
   await expect(page.getByText('Nenhum aviso ativo')).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Excluídos' })).toHaveCount(0)

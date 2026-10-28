@@ -140,24 +140,24 @@ encaminhado para a API local.
 
 **Objetivo**: o valor central da plataforma — criar o que o aplicativo vai entregar.
 
-- [ ] T035 [US2] `src/api/recursos/avisos.ts`: listar, obter, criar, editar, arquivar,
+- [x] T035 [US2] `src/api/recursos/avisos.ts`: listar, obter, criar, editar, arquivar,
       desarquivar, excluir, versões e histórico (contrato, Avisos)
-- [ ] T036 [P] [US2] `tests/unit/avisos-recurso.test.ts`: filtros, paginação e cada `code` de erro
+- [x] T036 [P] [US2] `tests/unit/avisos-recurso.test.ts`: filtros, paginação e cada `code` de erro
       do contrato
-- [ ] T037 [US2] `src/componentes/avisos/seletor-destinos.tsx`: abas de turmas, semestres e
+- [x] T037 [US2] `src/componentes/avisos/seletor-destinos.tsx`: abas de turmas, semestres e
       grupos, busca de turma, seleção múltipla, limite de 20 e chips removíveis (T05, RW-16)
-- [ ] T038 [US2] Restrição do docente no seletor: apenas turmas em que leciona; demais tipos
+- [x] T038 [US2] Restrição do docente no seletor: apenas turmas em que leciona; demais tipos
       visíveis como indisponíveis, com explicação (T15, RW-17)
-- [ ] T039 [US2] `src/componentes/avisos/editor.tsx`: título, conteúdo, contador, destinos,
+- [x] T039 [US2] `src/componentes/avisos/editor.tsx`: título, conteúdo, contador, destinos,
       agendamento e prévia do cartão como aparece no aplicativo (T04, RW-15, RW-22)
-- [ ] T040 [US2] `src/paginas/avisos/editar.tsx` e `novo.tsx`: envio ao criar e editar, com validação
+- [x] T040 [US2] `src/paginas/avisos/editar.tsx` e `novo.tsx`: envio ao criar e editar, com validação
       `zod`, recarga da lista afetada e devolução de `{ code, mensagem, errors }` preservando o digitado
       (RW-18, RW-42)
-- [ ] T041 [US2] Rascunho local do editor (`rascunho:aviso:*`), sem dado de sessão, apagado ao
+- [x] T041 [US2] Rascunho local do editor (`rascunho:aviso:*`), sem dado de sessão, apagado ao
       salvar, ao descartar e ao encerrar a sessão (data-model.md)
-- [ ] T042 [P] [US2] `tests/componente/editor.test.tsx`: sem destino, limite de 20, agendamento no
+- [x] T042 [P] [US2] `tests/componente/editor.test.tsx`: sem destino, limite de 20, agendamento no
       passado, `DESTINO_NAO_PERMITIDO` mantendo o texto e restrição do docente
-- [ ] T043 [P] [US2] `e2e/publicar-aviso.spec.ts`: coordenação publica para três turmas; docente
+- [x] T043 [P] [US2] `e2e/publicar-aviso.spec.ts`: coordenação publica para três turmas; docente
       publica para a sua turma e é recusado em destino alheio
 
 **Checkpoint**: é possível publicar, e o público fica explícito antes de publicar.

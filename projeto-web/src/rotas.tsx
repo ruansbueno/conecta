@@ -10,6 +10,8 @@ const Login = lazy(() => import('./paginas/login'))
 const AreaGestao = lazy(() => import('./paginas/area-gestao'))
 const Painel = lazy(() => import('./paginas/painel'))
 const EmBreve = lazy(() => import('./paginas/em-breve'))
+const NovoAviso = lazy(() => import('./paginas/avisos/novo'))
+const EditarAviso = lazy(() => import('./paginas/avisos/editar'))
 
 export function Rotas() {
   return (
@@ -21,6 +23,8 @@ export function Rotas() {
           <Route element={<AreaGestao />}>
             <Route path="/painel" element={<Painel />} />
             <Route path="/avisos" element={<EmBreve />} />
+            <Route path="/avisos/novo" element={<NovoAviso />} />
+            <Route path="/avisos/:id/editar" element={<EditarAviso />} />
             <Route path="/turmas/*" element={<EmBreve />} />
             <Route path="/solicitacoes" element={<EmBreve />} />
             <Route path="/usuarios" element={<EmBreve />} />

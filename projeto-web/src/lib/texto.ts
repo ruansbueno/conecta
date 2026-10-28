@@ -15,3 +15,6 @@ export function trecho(texto: string, tamanho = 160): string {
   const corte = limpo.lastIndexOf(' ', tamanho)
   return `${limpo.slice(0, corte > 0 ? corte : tamanho).trimEnd()}…`
 }
+
+/** "1 aluno", "0 alunos", "1.248 alunos" (plural regular com -s). */
+export const quantidade = (n: number, palavra: string) => `${n.toLocaleString('pt-BR')} ${palavra}${n === 1 ? '' : 's'}`

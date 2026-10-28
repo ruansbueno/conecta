@@ -174,3 +174,11 @@ export type EventoHistorico = z.infer<typeof eventoSchema>
 export const paginaSchema = <T extends z.ZodType>(item: T) =>
   z.object({ items: z.array(item), total: z.number(), limit: z.number(), offset: z.number() })
 export type Pagina<T> = { items: T[]; total: number; limit: number; offset: number }
+
+/** Destino como a interface o guarda ao montar um aviso (o nome da turma serve só para exibir). */
+export interface DestinoEscolhido {
+  tipo: string
+  turmaId?: string
+  turmaNome?: string
+  semestre?: number
+}

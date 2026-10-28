@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { dataCurta, dataHora, dataRelativa } from '../../src/lib/datas'
-import { iniciais, trecho } from '../../src/lib/texto'
+import { iniciais, quantidade, trecho } from '../../src/lib/texto'
 
 describe('datas (pt-BR, fuso de quem acessa)', () => {
   const agora = new Date(2026, 9, 25, 15, 0) // 25/10/2026 15:00 local
@@ -44,5 +44,13 @@ describe('texto', () => {
     expect(t.endsWith('…')).toBe(true)
     expect(t).not.toContain('palavr…')
     expect(trecho('curto', 160)).toBe('curto')
+  })
+})
+
+describe('quantidade', () => {
+  it('concorda o plural e agrupa milhares em pt-BR', () => {
+    expect(quantidade(1, 'aluno')).toBe('1 aluno')
+    expect(quantidade(0, 'docente')).toBe('0 docentes')
+    expect(quantidade(1248, 'aluno')).toBe('1.248 alunos')
   })
 })

@@ -178,6 +178,7 @@ describe('vínculos (RW-26, RW-27)', () => {
     await confirmar('Remover vínculo')
 
     expect(await screen.findByRole('status')).toHaveTextContent('Vínculo de Júlia Santos removido.')
+    expect(screen.getByRole('status')).toHaveFocus()
     expect(chamadas.map((c) => c.chave)).toContain(`DELETE /gestao/turmas/${ID}/vinculos/a1`)
     await waitFor(() => expect(chamadas.filter((c) => c.chave === `GET /gestao/turmas/${ID}/vinculos`).length).toBeGreaterThanOrEqual(2))
   })
@@ -192,6 +193,9 @@ describe('vínculos (RW-26, RW-27)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Vincular docente' }))
     const dialogo = screen.getByRole('dialog', { name: 'Vincular docente' })
     await userEvent.type(within(dialogo).getByRole('searchbox', { name: 'Buscar docente pelo nome ou usuário' }), 'pra')
+    // Resultados num grupo nomeado; a região viva anuncia só a contagem.
+    expect(await within(dialogo).findByRole('radiogroup', { name: 'Pessoas encontradas' })).toBeInTheDocument()
+    expect(within(dialogo).getByRole('status')).toHaveTextContent('2 pessoas encontradas')
 
     const helena = await within(dialogo).findByRole('radio', { name: /Helena Prado/ })
     expect(within(dialogo).getByRole('radio', { name: /Ricardo Lemos/ })).toBeDisabled()

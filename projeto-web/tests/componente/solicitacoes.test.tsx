@@ -176,6 +176,7 @@ describe('decidir (RW-29, RW-30)', () => {
     await userEvent.click(within(await linha(/Júlia Santos/)).getByRole('button', { name: 'Aprovar Júlia Santos em Sistemas para Internet 3A' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('Júlia Santos agora está em Sistemas para Internet 3A.')
+    expect(screen.getByRole('status')).toHaveFocus()
     const julia = await linha(/Júlia Santos/)
     expect(julia).toHaveTextContent('Aprovada')
     expect(julia).toHaveTextContent('por Maria Coordenadora · agora')

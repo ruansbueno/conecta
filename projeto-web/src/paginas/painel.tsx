@@ -285,13 +285,13 @@ function PainelDocente() {
                 {p.items.map((t) => {
                   const n = porTurma.get(t.id) ?? 0
                   return (
-                    <li key={t.id} aria-label={t.nome} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
+                    <li key={t.id} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
                       <span
                         aria-hidden="true"
                         className="flex size-11 shrink-0 flex-col items-center justify-center rounded-lg bg-azul-superficie text-[11px] leading-tight font-bold text-azul"
                       >
-                        {sigla(t.codigo).map((parte) => (
-                          <span key={parte}>{parte}</span>
+                        {sigla(t.codigo).map((parte, i) => (
+                          <span key={i}>{parte}</span>
                         ))}
                       </span>
                       <div className="min-w-0 flex-1">

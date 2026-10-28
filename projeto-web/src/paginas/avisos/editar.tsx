@@ -162,6 +162,7 @@ export default function EditarAviso() {
       apagarRascunho(chave)
       setSalvo(true)
       navegar(`/avisos/${id}`, {
+        replace: true,
         state: { mensagem: `Alterações salvas. Esta é a versão ${atual.versaoAtual}.` },
       })
     } catch (e) {

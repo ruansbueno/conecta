@@ -72,7 +72,9 @@ export default function NovoAviso() {
       apagarRascunho(CHAVE)
       setPublicado(true)
       // Agendado vai para a aba dele; publicado, para os ativos (a lista recarrega ao abrir).
+      // Substitui o editor no histórico: voltar não reabre o formulário de um aviso já publicado.
       navegar(estaAgendado(aviso) ? '/avisos?situacao=agendado' : '/avisos', {
+        replace: true,
         state: {
           mensagem:
             estaAgendado(aviso) && aviso.publicarEm ? `Aviso agendado para ${dataHora(aviso.publicarEm)}.` : 'Aviso publicado.',

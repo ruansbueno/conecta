@@ -172,6 +172,8 @@ describe('lista de avisos (T03, RW-13, RW-14)', () => {
     await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Arquivar' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('Aviso arquivado.')
+    // A linha some ao recarregar: o foco vai para a mensagem, e não cai no corpo da página.
+    expect(screen.getByRole('status')).toHaveFocus()
     expect(chamadas.map((c) => c.chave)).toContain('POST /gestao/avisos/a2/arquivar')
     await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
   })

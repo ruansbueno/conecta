@@ -1,10 +1,11 @@
 // T05 (design w-05): turmas, semestres e grupos em abas, com busca e seleção múltipla; respeita o
 // limite de 20 destinos do aviso (RW-16).
-import { useId, useMemo, useState, type KeyboardEvent } from 'react'
+import { useId, useMemo, useState } from 'react'
 
 import type { DestinoEscolhido, Turma } from '../../api/schemas'
 import { chaveDestino, LIMITE_DESTINOS } from '../../lib/formulario-aviso'
 import { quantidade } from '../../lib/texto'
+import { Abas, idDaAba, idDoPainel } from '../comum/abas'
 import { Busca } from '../comum/busca'
 import { Modal } from '../comum/modal'
 
@@ -29,18 +30,7 @@ export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }:
   const [busca, setBusca] = useState('')
   const [marcados, setMarcados] = useState<DestinoEscolhido[]>([])
   const idPainel = useId()
-  const idAba = (a: Aba) => `${idPainel}-aba-${a}`
 
-  // Padrão ARIA de abas: setas, Home e End trocam de aba e levam o foco junto.
-  const teclarNasAbas = (e: KeyboardEvent<HTMLDivElement>) => {
-    const atual = ABAS.indexOf(aba)
-    const destino = { ArrowRight: atual + 1, ArrowLeft: atual - 1, Home: 0, End: ABAS.length - 1 }[e.key]
-    if (destino === undefined) return
-    e.preventDefault()
-    const proxima = ABAS[(destino + ABAS.length) % ABAS.length]
-    setAba(proxima)
-    document.getElementById(idAba(proxima))?.focus()
-  }
 
   const jaNoAviso = useMemo(() => new Set(jaEscolhidos.map(chaveDestino)), [jaEscolhidos])
   const marcadosChaves = new Set(marcados.map(chaveDestino))
@@ -116,31 +106,16 @@ export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }:
         </>
       }
     >
-      <div
-        role="tablist"
-        aria-label="Tipo de destino"
-        onKeyDown={teclarNasAbas}
-        className="flex gap-[22px] border-b border-linha px-6 pt-1"
-      >
-        {ABAS.map((a) => (
-          <button
-            key={a}
-            id={idAba(a)}
-            type="button"
-            role="tab"
-            aria-selected={aba === a}
-            aria-controls={idPainel}
-            tabIndex={aba === a ? 0 : -1}
-            onClick={() => setAba(a)}
-            className={`pt-3 pb-[11px] text-[13.5px] ${
-              aba === a ? 'font-semibold text-navy shadow-[inset_0_-2px_0_var(--color-azul)]' : 'font-medium text-apagado'
-            }`}
-          >
-            {ROTULO_ABA[a]}
-          </button>
-        ))}
-      </div>
-      <div id={idPainel} role="tabpanel" aria-labelledby={idAba(aba)} className="min-h-[320px]">
+      <Abas
+        rotulo="Tipo de destino"
+        idBase={idPainel}
+        abas={ABAS.map((a) => ({ id: a, rotulo: ROTULO_ABA[a] }))}
+        atual={aba}
+        onMudar={setAba}
+        classe="flex gap-[22px] border-b border-linha px-6 pt-1"
+        classeAba="pt-3 pb-[11px] text-[13.5px]"
+      />
+      <div id={idDoPainel(idPainel)} role="tabpanel" aria-labelledby={idDaAba(idPainel, aba)} className="min-h-[320px]">
         {aba === 'turmas' && (
           <>
             <div className="px-6 pt-4 pb-2">

@@ -161,8 +161,9 @@ describe('painel do docente (T14)', () => {
     expect(await screen.findByText('Você leciona em 2 turmas. Pode publicar avisos e decidir solicitações apenas nelas.')).toBeInTheDocument()
 
     const turmas = await cartao('Minhas turmas')
-    await waitFor(() => expect(within(turmas).getByRole('listitem', { name: /Sistemas para Internet 3A/ })).toHaveTextContent('2 solicitações'))
-    expect(within(turmas).getByRole('listitem', { name: /Sistemas para Internet 4A/ })).toHaveTextContent('sem pendências')
+    const item = (nome: string) => within(turmas).getByRole('link', { name: nome }).closest('li')
+    await waitFor(() => expect(item('Sistemas para Internet 3A')).toHaveTextContent('2 solicitações'))
+    expect(item('Sistemas para Internet 4A')).toHaveTextContent('sem pendências')
 
     expect(await within(await cartao('Meus avisos')).findByText('Matrícula do 2º semestre')).toBeInTheDocument()
     expect(within(await cartao('Solicitações das minhas turmas')).getByText(/7 pendentes/)).toBeInTheDocument()

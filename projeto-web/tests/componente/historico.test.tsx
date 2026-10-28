@@ -144,7 +144,9 @@ describe('histórico e versões do aviso (T06, RW-20, RW-21)', () => {
     const versoes = await screen.findByRole('region', { name: 'Versões' })
     expect(within(versoes).getByRole('button', { name: /Versão 2.*Atual/ })).toBeInTheDocument()
 
-    await userEvent.click(within(versoes).getByRole('button', { name: /Versão 1/ }))
+    const botao = within(versoes).getByRole('button', { name: /Versão 1/ })
+    await userEvent.click(botao)
+    expect(document.getElementById(botao.getAttribute('aria-controls')!)).toHaveTextContent('Nova data: 23/10.')
 
     expect(within(versoes).getByText('Nova data: 23/10.')).toBeInTheDocument()
     expect(within(versoes).getByLabelText('Destino: SI-3B')).toBeInTheDocument()

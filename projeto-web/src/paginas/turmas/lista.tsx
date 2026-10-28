@@ -6,6 +6,7 @@ import { criarTurma, editarTurma, listarTurmas } from '../../api/recursos/turmas
 import type { DadosTurma, Turma } from '../../api/schemas'
 import { Abas, idDaAba, idDoPainel } from '../../componentes/comum/abas'
 import { Busca } from '../../componentes/comum/busca'
+import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EstadoVazio } from '../../componentes/comum/estado-vazio'
@@ -108,11 +109,7 @@ export default function ListaTurmas() {
         )}
       </header>
 
-      {mensagem && (
-        <p role="status" className="mt-5 rounded-xl border border-linha bg-sucesso-fundo px-4 py-3 text-[13.5px] text-sucesso">
-          {mensagem.texto}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <Abas

@@ -10,6 +10,7 @@ import { desvincular, listarVinculos, vincular, type Papel } from '../../api/rec
 import type { DadosTurma, Pagina, Turma, Vinculo } from '../../api/schemas'
 import { Busca } from '../../componentes/comum/busca'
 import { Confirmacao } from '../../componentes/comum/confirmacao'
+import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EstadoVazio } from '../../componentes/comum/estado-vazio'
@@ -261,16 +262,7 @@ export default function DetalheTurma() {
         )}
       </header>
 
-      {mensagem && (
-        <p
-          role={mensagem.erro ? 'alert' : 'status'}
-          className={`mt-5 rounded-xl border px-4 py-3 text-[13.5px] ${
-            mensagem.erro ? 'border-perigo-borda bg-perigo-fundo text-perigo' : 'border-linha bg-sucesso-fundo text-sucesso'
-          }`}
-        >
-          {mensagem.texto}
-        </p>
-      )}
+      <MensagemDaAcao mensagem={mensagem} />
 
       <section aria-label="Dados da turma" className="mt-6 flex flex-wrap gap-x-12 gap-y-4 rounded-xl border border-linha bg-branco px-7 py-5">
         {[

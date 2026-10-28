@@ -13,12 +13,23 @@ interface Props<T extends string> {
   abas: Aba<T>[]
   atual: T
   onMudar: (aba: T) => void
+  /** Classes do contêiner e do texto das abas, para lugares mais compactos (ex.: dentro de um modal). */
+  classe?: string
+  classeAba?: string
 }
 
 export const idDaAba = (idBase: string, aba: string) => `${idBase}-${aba}`
 export const idDoPainel = (idBase: string) => `${idBase}-painel`
 
-export function Abas<T extends string>({ rotulo, idBase, abas, atual, onMudar }: Props<T>) {
+export function Abas<T extends string>({
+  rotulo,
+  idBase,
+  abas,
+  atual,
+  onMudar,
+  classe = 'flex gap-7 border-b border-linha',
+  classeAba = 'pb-3 text-[14.5px]',
+}: Props<T>) {
   const teclar = (e: KeyboardEvent<HTMLDivElement>) => {
     const i = abas.findIndex((a) => a.id === atual)
     const destino = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: abas.length - 1 }[e.key]
@@ -30,7 +41,7 @@ export function Abas<T extends string>({ rotulo, idBase, abas, atual, onMudar }:
   }
 
   return (
-    <div role="tablist" aria-label={rotulo} onKeyDown={teclar} className="flex gap-7 border-b border-linha">
+    <div role="tablist" aria-label={rotulo} onKeyDown={teclar} className={classe}>
       {abas.map((a) => (
         <button
           key={a.id}
@@ -41,7 +52,7 @@ export function Abas<T extends string>({ rotulo, idBase, abas, atual, onMudar }:
           aria-controls={idDoPainel(idBase)}
           tabIndex={a.id === atual ? 0 : -1}
           onClick={() => onMudar(a.id)}
-          className={`pb-3 text-[14.5px] ${
+          className={`${classeAba} ${
             a.id === atual ? 'font-semibold text-navy shadow-[inset_0_-2px_0_var(--color-azul)]' : 'font-medium text-apagado'
           }`}
         >

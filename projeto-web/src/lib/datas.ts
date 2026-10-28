@@ -33,3 +33,8 @@ export const dataHora = (d: Date) => completa.format(d)
 
 /** "16 out, 08:00" — prévia do cartão do aplicativo. */
 export const dataCurta = (d: Date) => `${diaMes(d)}, ${hora.format(d)}`
+
+const diaMesNumerico = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' })
+
+/** "07/10, 14:05" — tabelas e linha do tempo da gestão. */
+export const dataNumerica = (d: Date) => `${diaMesNumerico.format(d)}, ${hora.format(d)}`

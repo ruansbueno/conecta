@@ -2,17 +2,15 @@ import { useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../api/erros'
-
 import { Casca } from '../componentes/layout/casca'
+import { navegacaoDoPerfil } from '../componentes/layout/navegacao'
 import { useSessao } from '../sessao/contexto'
 
-const SECOES: [prefixo: string, titulo: string][] = [
-  ['/avisos', 'Avisos'],
-  ['/turmas', 'Turmas'],
-  ['/solicitacoes', 'Solicitações'],
-  ['/usuarios', 'Usuários'],
-  ['/painel', 'Painel'],
-]
+/** Título da seção: o mesmo rótulo da navegação do perfil ("Meus avisos" para docente). */
+const tituloDaSecao = (perfil: string, caminho: string) =>
+  navegacaoDoPerfil(perfil)
+    .flatMap((g) => g.itens)
+    .find((item) => caminho.startsWith(item.para))?.rotulo ?? 'CONECTA'
 
 /** Rotas autenticadas da gestão dentro da casca (a guarda ExigirSessao fica por fora). */
 export default function AreaGestao() {
@@ -20,8 +18,8 @@ export default function AreaGestao() {
   const { pathname } = useLocation()
   const navegar = useNavigate()
   const [falhaAoSair, setFalhaAoSair] = useState<string>()
-  const secao = SECOES.find(([p]) => pathname.startsWith(p))?.[1] ?? 'CONECTA'
   if (!usuario) return null
+  const secao = tituloDaSecao(usuario.perfil, pathname)
   return (
     <Casca
       usuario={usuario}

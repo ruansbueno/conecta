@@ -166,18 +166,18 @@ encaminhado para a API local.
 
 ## Phase 5: US3 — Acompanhar e auditar (P3)
 
-- [ ] T044 [US3] `src/paginas/avisos/lista.tsx`: tabela com
+- [x] T044 [US3] `src/paginas/avisos/lista.tsx`: tabela com
       abas de situação, busca, filtros por autor e turma, e paginação pela URL (T03, RW-13, RW-14)
-- [ ] T045 [US3] Selo "Agendado" derivado de `ativo` + `publicar_em` futuro (apresentação, não
+- [x] T045 [US3] Selo "Agendado" derivado de `ativo` + `publicar_em` futuro (apresentação, não
       estado da API); a aba "Agendados" usa `situacao=agendado` da API (RF-34) (data-model.md)
-- [ ] T046 [US3] Ações de ciclo de vida na lista e no detalhe, com confirmação que descreve a
+- [x] T046 [US3] Ações de ciclo de vida na lista e no detalhe, com confirmação que descreve a
       consequência (RW-19, RW-41)
-- [ ] T047 [US3] `src/paginas/avisos/historico.tsx` com
+- [x] T047 [US3] `src/paginas/avisos/historico.tsx` com
       `componentes/avisos/{linha-do-tempo,versoes}.tsx`: eventos com autor e data, comparação de
       campos alterados e destinos apresentados como conjunto (T06, RW-20, RW-21)
-- [ ] T048 [P] [US3] `tests/componente/historico.test.tsx`: cada tipo de evento, comparação de
+- [x] T048 [P] [US3] `tests/componente/historico.test.tsx`: cada tipo de evento, comparação de
       texto e de destinos, versão atual destacada
-- [ ] T049 [P] [US3] `e2e/aviso-ciclo-de-vida.spec.ts`: criar, editar, arquivar, desarquivar,
+- [x] T049 [P] [US3] `e2e/aviso-ciclo-de-vida.spec.ts`: criar, editar, arquivar, desarquivar,
       excluir — conferindo um evento por operação e a visibilidade em cada filtro (SC-007)
 
 **Checkpoint**: tudo que foi publicado é auditável pela própria interface.

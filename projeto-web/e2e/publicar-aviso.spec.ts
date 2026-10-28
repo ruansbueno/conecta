@@ -35,7 +35,8 @@ test('coordenação publica para três turmas', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Publicar aviso' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Aviso publicado' })).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
+  await expect(page.getByRole('row', { name: /Semana Acadêmica 2026\/2/ })).toBeVisible()
   const [aviso] = await avisosNaApi()
   expect(aviso.titulo).toBe('Semana Acadêmica 2026/2')
   expect((aviso.destinos as { tipo: string }[]).map((d) => d.tipo)).toEqual(['turma', 'turma', 'turma'])
@@ -50,7 +51,8 @@ test('docente publica para a turma em que leciona', async ({ page }) => {
   await page.getByRole('checkbox', { name: /TADS-3A/ }).check()
   await page.getByRole('button', { name: 'Publicar aviso' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Aviso publicado' })).toBeVisible()
+  await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Meus avisos' })).toBeVisible()
   expect((await avisosNaApi())[0].autor).toMatchObject({ nome: 'Ricardo Lemos' })
 })
 

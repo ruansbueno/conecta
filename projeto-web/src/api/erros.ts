@@ -19,6 +19,8 @@ export interface ErroDeCampo {
 export const SEM_REDE = 'SEM_REDE'
 export const TIMEOUT = 'TIMEOUT'
 export const RESPOSTA_INVALIDA = 'RESPOSTA_INVALIDA'
+/** Interno: o login foi aceito, mas o cookie de sessão não voltou na chamada seguinte. */
+export const SESSAO_NAO_GUARDADA = 'SESSAO_NAO_GUARDADA'
 
 const SEM_CONEXAO = 'Não foi possível conectar. Verifique a rede e tente de novo.'
 const GENERICA = 'Não foi possível concluir agora. Tente de novo em instantes.'
@@ -39,6 +41,10 @@ const MAPA: Record<string, [string, Efeito]> = {
   AVISO_NAO_ENCONTRADO: ['Este aviso não está mais disponível.', 'voltaLista'],
   TURMA_NAO_ENCONTRADA: ['Esta turma não está mais disponível.', 'recarrega'],
   VALIDATION_ERROR: ['Confira os campos destacados.', 'marcaCampos'],
+  [SESSAO_NAO_GUARDADA]: [
+    'O acesso foi aceito, mas o navegador não guardou a sessão. Verifique se os cookies estão permitidos e tente de novo.',
+    'permanece',
+  ],
   [SEM_REDE]: [SEM_CONEXAO, 'repetir'],
   [TIMEOUT]: [SEM_CONEXAO, 'repetir'],
 }

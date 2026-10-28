@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
@@ -38,12 +38,19 @@ function api(rotas: Record<string, R | R[]>, perfil: 'coordenacao' | 'docente' =
   return chamadas
 }
 
+/** A lista de avisos, onde se chega depois de publicar: mostra a URL e a mensagem trazida. */
+function ListaEspia() {
+  const { search, state } = useLocation()
+  return <p>lista{search}: {state?.mensagem}</p>
+}
+
 async function abrir() {
   render(
     <MemoryRouter initialEntries={['/avisos/novo']}>
       <SessaoProvider>
         <Routes>
           <Route path="/avisos/novo" element={<NovoAviso />} />
+          <Route path="/avisos" element={<ListaEspia />} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -83,7 +90,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
     }
     await publicar()
 
-    expect(await screen.findByRole('heading', { name: 'Aviso publicado' })).toBeInTheDocument()
+    expect(await screen.findByText('lista: Aviso publicado.')).toBeInTheDocument()
     expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo).toEqual({
       titulo: 'Semana Acadêmica 2026/2',
       conteudo: 'Programação completa.',
@@ -178,8 +185,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
     await userEvent.type(screen.getByLabelText('Hora da publicação'), '08:00')
     await publicar()
 
-    expect(await screen.findByRole('heading', { name: 'Aviso agendado' })).toBeInTheDocument()
-    expect(screen.queryByText(/já vê o aviso/)).not.toBeInTheDocument()
+    expect(await screen.findByText(/^lista\?situacao=agendado: Aviso agendado para \d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}\.$/)).toBeInTheDocument()
     expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.publicar_em).toBe(
       new Date(`${dia}T08:00`).toISOString(),
     )
@@ -246,10 +252,22 @@ describe('editor de aviso (T04/T05/T15)', () => {
 
       await publicar()
 
-      await screen.findByRole('heading', { name: 'Aviso publicado' })
+      await screen.findByText('lista: Aviso publicado.')
       expect(chamadas.find((c) => c.chave === 'POST /gestao/avisos')?.corpo?.destinos).toEqual([
         { tipo: 'turma', turma_id: 't1' },
       ])
+    })
+
+    it('erro de destino fica ligado ao grupo e às turmas (leitor de tela)', async () => {
+      api({ 'GET /gestao/turmas': { status: 200, corpo: pagina([TURMAS[0]]) } }, 'docente')
+      await abrir()
+      await escrever()
+
+      await publicar()
+
+      expect(screen.getByRole('group', { name: 'Destinos' })).toHaveAccessibleDescription(/pelo menos um destino/)
+      expect(screen.getByRole('checkbox', { name: /SI-3A/ })).toHaveAccessibleDescription(/pelo menos um destino/)
+      expect(screen.getByRole('group', { name: 'Destinos' })).toHaveFocus()
     })
 
     it('DESTINO_NAO_PERMITIDO explica, recarrega as turmas e mantém o texto', async () => {
@@ -292,7 +310,7 @@ describe('editor de aviso (T04/T05/T15)', () => {
       await escolherTurmas('SI-3A')
 
       await publicar()
-      await screen.findByRole('heading', { name: 'Aviso publicado' })
+      await screen.findByText('lista: Aviso publicado.')
 
       expect(lerRascunho('rascunho:aviso:novo')).toBeNull()
     })

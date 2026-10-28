@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from 'react'
 
-import { aoSessaoInvalida } from '../api/cliente'
+import { aoSessaoInvalida, ultimaRequisicao } from '../api/cliente'
 import { ApiError } from '../api/erros'
 import { encerrarSessaoNaApi, me } from '../api/recursos/auth'
 import type { UsuarioSessao } from '../api/schemas'
@@ -37,6 +37,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
   // Lido pelos ouvintes da API sem recriá-los a cada mudança de estado.
   const estadoAtual = useRef(estado)
+  const sessaoDesde = useRef(0)
   useEffect(() => {
     estadoAtual.current = estado
   }, [estado])
@@ -77,8 +78,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
 
   useEffect(
     () =>
-      aoSessaoInvalida((erro) => {
+      aoSessaoInvalida((erro, numero) => {
         if (estadoAtual.current.tipo !== 'autenticado') return
+        // Resposta de uma requisição que saiu antes do login atual: não fala desta sessão.
+        if (numero <= sessaoDesde.current) return
         void encerrar(erro.code === 'USUARIO_INATIVO' ? 'inativo' : 'expirada')
       }),
     [encerrar],
@@ -96,7 +99,10 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     () => ({
       estado,
       usuario: estado.tipo === 'autenticado' ? estado.usuario : null,
-      entrar: (usuario) => setEstado({ tipo: 'autenticado', usuario }),
+      entrar: (usuario) => {
+        sessaoDesde.current = ultimaRequisicao()
+        setEstado({ tipo: 'autenticado', usuario })
+      },
       encerrar,
       recarregar,
     }),

@@ -20,6 +20,12 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
   const caixa = useRef<HTMLDivElement>(null)
   const idTitulo = useId()
   const idDescricao = useId()
+  // Em ref: o pai costuma passar uma função nova a cada renderização, e refazer o efeito
+  // devolveria o foco à origem e o puxaria de novo para o primeiro botão.
+  const fechar = useRef(onFechar)
+  useEffect(() => {
+    fechar.current = onFechar
+  }, [onFechar])
 
   useEffect(() => {
     const origem = document.activeElement as HTMLElement | null
@@ -29,7 +35,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
     const aoTeclar = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
-        onFechar()
+        fechar.current()
         return
       }
       if (e.key !== 'Tab') return
@@ -50,7 +56,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
       document.removeEventListener('keydown', aoTeclar)
       origem?.focus()
     }
-  }, [onFechar])
+  }, [])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-veu p-6">

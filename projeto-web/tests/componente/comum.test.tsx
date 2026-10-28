@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -189,5 +189,33 @@ describe('Modal e Confirmacao (RW-39, RW-41)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Excluir' }))
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect([confirmar.mock.calls.length, cancelar.mock.calls.length]).toEqual([1, 1])
+  })
+})
+
+describe('Modal sob nova renderização da página', () => {
+  it('o foco fica onde a pessoa estava quando o pai renderiza de novo (onFechar novo)', async () => {
+    function Pai() {
+      const [, setN] = useState(0)
+      return (
+        <>
+          <button type="button" onClick={() => setN((n) => n + 1)}>
+            renderizar fora
+          </button>
+          <Modal titulo="Teste" onFechar={() => undefined}>
+            <input aria-label="Campo do modal" />
+            <button type="button" onClick={() => setN((n) => n + 1)}>
+              renderizar dentro
+            </button>
+          </Modal>
+        </>
+      )
+    }
+    render(<Pai />)
+    const campo = screen.getByLabelText('Campo do modal')
+    campo.focus()
+
+    act(() => screen.getByRole('button', { name: 'renderizar dentro' }).click())
+
+    expect(campo).toHaveFocus()
   })
 })

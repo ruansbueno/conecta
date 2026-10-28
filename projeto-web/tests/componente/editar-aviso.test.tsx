@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apagarTodosRascunhos, lerRascunho, salvarRascunho } from '../../src/lib/rascunho'
@@ -31,12 +31,19 @@ function api(rotas: Record<string, R>) {
   return chamadas
 }
 
+/** O detalhe do aviso, onde se chega depois de salvar. */
+function DetalheEspia() {
+  const { state } = useLocation()
+  return <p>detalhe: {state?.mensagem}</p>
+}
+
 async function abrir() {
   render(
     <MemoryRouter initialEntries={[`/avisos/${ID}/editar`]}>
       <SessaoProvider>
         <Routes>
           <Route path="/avisos/:id/editar" element={<EditarAviso />} />
+          <Route path="/avisos/:id" element={<DetalheEspia />} />
         </Routes>
       </SessaoProvider>
     </MemoryRouter>,
@@ -70,7 +77,7 @@ describe('edição de aviso (RW-18)', () => {
 
     await salvar()
 
-    expect(await screen.findByRole('heading', { name: 'Alterações salvas' })).toBeInTheDocument()
+    expect(await screen.findByText('detalhe: Alterações salvas. Esta é a versão 3.')).toBeInTheDocument()
     expect(patch(chamadas)[0].corpo).toEqual({ conteudo: 'Mudou para sábado.' })
     expect(lerRascunho(`rascunho:aviso:${ID}`)).toBeNull()
   })
@@ -82,7 +89,7 @@ describe('edição de aviso (RW-18)', () => {
 
     await salvar()
 
-    await screen.findByRole('heading', { name: 'Alterações salvas' })
+    await screen.findByText(/^detalhe: Alterações salvas/)
     expect(patch(chamadas)[0].corpo).toEqual({
       destinos: [{ tipo: 'turma', turma_id: avisoGestao.destinos[0].turma!.id }],
     })
@@ -94,8 +101,25 @@ describe('edição de aviso (RW-18)', () => {
 
     await salvar()
 
-    expect(screen.getByText('Nenhuma alteração para salvar.')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Nenhuma alteração para salvar.')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     expect(patch(chamadas)).toHaveLength(0)
+  })
+
+  it('"nenhuma alteração" vindo da API informa, sem tratar como falha', async () => {
+    api({
+      [`PATCH /gestao/avisos/${ID}`]: {
+        status: 422,
+        corpo: erro('VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'body', mensagem: 'nenhuma alteração' }]),
+      },
+    })
+    await abrir()
+    await userEvent.click(screen.getByRole('button', { name: 'Remover destino 3º semestre' }))
+
+    await salvar()
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Nenhuma alteração para salvar.')
+    expect(screen.queryByText('Confira os campos destacados.')).not.toBeInTheDocument()
   })
 
   it('aviso arquivado: oferece desarquivar e mantém o texto', async () => {
@@ -155,7 +179,7 @@ describe('edição de aviso (RW-18)', () => {
       await userEvent.type(screen.getByLabelText('Hora da publicação'), '10:30')
       await salvar()
 
-      await screen.findByRole('heading', { name: 'Alterações salvas' })
+      await screen.findByText(/^detalhe: Alterações salvas/)
       const esperado = new Date(quando)
       esperado.setHours(10, 30, 0, 0)
       expect(patch(chamadas)[0].corpo).toEqual({ publicar_em: esperado.toISOString() })
@@ -171,7 +195,7 @@ describe('edição de aviso (RW-18)', () => {
 
       await salvar()
 
-      await screen.findByRole('heading', { name: 'Alterações salvas' })
+      await screen.findByText(/^detalhe: Alterações salvas/)
       expect(patch(chamadas)[0].corpo).toEqual({ titulo: `${avisoGestao.titulo}!` })
     })
   })
@@ -194,7 +218,7 @@ describe('edição de aviso (RW-18)', () => {
     montarSemEsperar()
 
     expect(await screen.findByText('Este aviso não está mais disponível.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Voltar ao painel' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Voltar aos avisos' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Tentar de novo' })).not.toBeInTheDocument()
   })
 

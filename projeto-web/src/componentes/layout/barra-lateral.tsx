@@ -8,10 +8,12 @@ import { navegacaoDoPerfil, ROTULO_PERFIL } from './navegacao'
 interface Props {
   usuario: UsuarioSessao
   onSair: () => void
+  /** Pendências por item (`para` → quantidade), ex.: solicitações esperando decisão. */
+  contadores?: Record<string, number>
 }
 
 /** Barra lateral de 252 px (design `.side`), agrupada por assunto e filtrada pelo perfil. */
-export function BarraLateral({ usuario, onSair }: Props) {
+export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
   return (
     <aside className="flex w-[252px] shrink-0 flex-col border-r border-linha bg-branco px-3.5 pt-[22px] pb-4">
       <div className="flex items-center gap-[9px] px-3 pt-1 pb-0.5 text-navy">
@@ -27,6 +29,7 @@ export function BarraLateral({ usuario, onSair }: Props) {
                 <li key={item.para}>
                   <NavLink
                     to={item.para}
+                    aria-label={(contadores[item.para] ?? 0) > 0 ? `${item.rotulo}, ${contadores[item.para]} pendentes` : undefined}
                     className={({ isActive }) =>
                       `flex h-10 items-center gap-[11px] rounded-[9px] px-3 text-[13.5px] ${
                         isActive
@@ -36,7 +39,15 @@ export function BarraLateral({ usuario, onSair }: Props) {
                     }
                   >
                     <Icone nome={item.icone} tamanho={19} />
-                    <span>{item.rotulo}</span>
+                    <span className="flex-1">{item.rotulo}</span>
+                    {(contadores[item.para] ?? 0) > 0 && (
+                      <span
+                        aria-hidden="true"
+                        className="flex size-[22px] items-center justify-center rounded-full bg-alerta-fundo text-[11.5px] font-semibold text-alerta"
+                      >
+                        {contadores[item.para]}
+                      </span>
+                    )}
                   </NavLink>
                 </li>
               ))}

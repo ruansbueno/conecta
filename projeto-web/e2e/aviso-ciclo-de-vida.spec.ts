@@ -25,7 +25,7 @@ test('criar, editar, arquivar, desarquivar e excluir: um evento por operação e
   await estaNaGestao(page)
 
   // Criar
-  await page.getByRole('link', { name: 'Avisos' }).click()
+  await page.getByRole('link', { name: 'Avisos', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1, name: 'Avisos' })).toBeVisible()
   await page.getByRole('link', { name: 'Novo aviso' }).click()
   await expect(page.getByRole('heading', { name: 'Novo aviso' })).toBeVisible()

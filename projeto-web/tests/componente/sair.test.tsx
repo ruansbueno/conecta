@@ -113,3 +113,38 @@ describe('perfil alterado vale na navegação seguinte (SC-008)', () => {
     expect(screen.queryByRole('link', { name: 'Usuários' })).not.toBeInTheDocument()
   })
 })
+
+describe('contador de solicitações na barra lateral', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('mostra quantas esperam decisão e atualiza ao trocar de página', async () => {
+    let total = 7
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) =>
+        url.endsWith('/me')
+          ? new Response(JSON.stringify(me), { status: 200 })
+          : url.includes('/gestao/solicitacoes')
+            ? new Response(JSON.stringify({ items: [], total, limit: 1, offset: 0 }), { status: 200 })
+            : new Response(null, { status: 204 }),
+      ),
+    )
+    render(
+      <MemoryRouter initialEntries={['/painel']}>
+        <SessaoProvider>
+          <Routes>
+            <Route element={<AreaGestao />}>
+              <Route path="/painel" element={<p>painel</p>} />
+              <Route path="/avisos" element={<p>avisos</p>} />
+            </Route>
+          </Routes>
+        </SessaoProvider>
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('link', { name: 'Solicitações, 7 pendentes' })).toBeInTheDocument()
+
+    total = 0
+    await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
+    expect(await screen.findByRole('link', { name: 'Solicitações' })).toBeInTheDocument()
+  })
+})

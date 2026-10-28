@@ -35,7 +35,7 @@ test('administração muda o perfil e a mudança vale na navegação seguinte da
   await expect(page.getByRole('row', { name: /Marina Duarte/ })).toContainText('Docente')
 
   // Na navegação seguinte, Marina já é docente.
-  await marina.getByRole('link', { name: 'Avisos' }).click()
+  await marina.getByRole('link', { name: 'Avisos', exact: true }).click()
   await expect(marina.getByRole('link', { name: 'Meus avisos' })).toBeVisible()
   await expect(marina.getByRole('link', { name: 'Usuários' })).toHaveCount(0)
 })

@@ -1,15 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/rotas.dart';
 import '../../models/turma.dart';
+import '../../repositories/solicitacoes_repository.dart';
 import '../../repositories/turmas_repository.dart';
+import '../../services/api_failure.dart';
 import '../../state/avisos_controller.dart' show EstadoLista;
+import '../../state/solicitacoes_controller.dart';
 import '../../state/turmas_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
+import '../solicitacoes/folha_confirmacao.dart';
 import 'rodape_lista.dart';
 import 'turma_card.dart';
 
@@ -28,7 +35,11 @@ class _DisponiveisPageState extends State<DisponiveisPage> {
   @override
   void initState() {
     super.initState();
-    _controller = DisponiveisController(context.read<TurmasRepository>())..addListener(_seRecusada);
+    _controller = DisponiveisController(
+      context.read<TurmasRepository>(),
+      context.read<SolicitacoesRepository>(),
+      context.read<MudancasDeSolicitacao>(),
+    )..addListener(_seRecusada);
     _controller.carregar();
   }
 
@@ -162,6 +173,7 @@ class _TurmaDisponivel extends StatelessWidget {
       turma.codigo,
       if (turma.semestreCurso != null) '${turma.semestreCurso}º semestre' else ?turma.periodoLetivo,
     ].join(' · ');
+    final enviando = context.select<DisponiveisController, bool>((c) => c.enviando(turma.id));
     return CaixaCartao(
       child: LinhaComAcao(
         conteudo: MergeSemantics(
@@ -174,16 +186,55 @@ class _TurmaDisponivel extends StatelessWidget {
             ],
           ),
         ),
-        // O envio (folha de confirmação, POST) entra na US4, fase 6.
         acao: FilledButton(
-          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('A solicitação de inscrição chega na próxima versão do app.'),
-            ),
-          ),
-          child: Text('Solicitar', semanticsLabel: 'Solicitar inscrição em ${turma.nome}'),
+          onPressed: enviando ? null : () => solicitar(context, turma),
+          child: enviando
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.2,
+                    color: Cores.branco,
+                    semanticsLabel: 'Enviando',
+                  ),
+                )
+              : Text('Solicitar', semanticsLabel: 'Solicitar inscrição em ${turma.nome}'),
         ),
       ),
     );
+  }
+}
+
+/// Envia o pedido (contrato §7) e segue o efeito da resposta: folha de confirmação; recarga
+/// (feita pelo controller); Minhas solicitações para um pedido duplicado; volta para um `403`;
+/// "Tentar de novo" sem rede.
+Future<void> solicitar(BuildContext context, Turma turma) async {
+  final controller = context.read<DisponiveisController>();
+  if (controller.enviando(turma.id)) return;
+  final navegador = Navigator.of(context);
+  final mensageiro = ScaffoldMessenger.of(context);
+  final falha = await controller.solicitar(turma);
+  if (falha == null) {
+    if (!navegador.mounted) return;
+    final saida = await mostrarFolhaConfirmacao(navegador.context, turma.nome);
+    if (saida == SaidaDaFolha.verSolicitacoes) {
+      unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
+    } else if (saida == SaidaDaFolha.voltarAsTurmas) {
+      navegador.pop();
+    }
+    return;
+  }
+  mensageiro.showSnackBar(
+    SnackBar(
+      content: Text(falha.mensagem),
+      action: falha.efeito == EfeitoFalha.repetir && context.mounted
+          ? SnackBarAction(label: 'Tentar de novo', onPressed: () => solicitar(context, turma))
+          : null,
+    ),
+  );
+  if (!navegador.mounted) return;
+  if (falha.efeito == EfeitoFalha.abreSolicitacoes) {
+    unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
+  } else if (falha.code == 'SEM_PERMISSAO') {
+    navegador.pop();
   }
 }

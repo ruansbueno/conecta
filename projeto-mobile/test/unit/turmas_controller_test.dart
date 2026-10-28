@@ -5,6 +5,7 @@ import 'package:conecta/repositories/solicitacoes_repository.dart';
 import 'package:conecta/repositories/turmas_repository.dart';
 import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/state/avisos_controller.dart' show EstadoLista;
+import 'package:conecta/state/solicitacoes_controller.dart';
 import 'package:conecta/state/turmas_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -27,8 +28,13 @@ void main() {
     solicitacoes = SolicitacoesRepository(api.api);
   });
 
-  MinhasTurmasController minhas({bool aluno = true}) =>
-      MinhasTurmasController(turmas, solicitacoes, usuarioId: 'u1', aluno: aluno);
+  MinhasTurmasController minhas({bool aluno = true}) => MinhasTurmasController(
+    turmas,
+    solicitacoes,
+    usuarioId: 'u1',
+    aluno: aluno,
+    mudancas: MudancasDeSolicitacao(),
+  );
 
   void turmasPaginadas(int total) => api.rotas['GET /turmas/minhas'] = (r) {
     final offset = int.parse(r.url.queryParameters['offset']!);
@@ -188,7 +194,7 @@ void main() {
   group('DisponiveisController (RM-19, RM-20)', () {
     test('carrega as turmas abertas', () async {
       api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('TADS-5A-2026-2')]));
-      final c = DisponiveisController(turmas);
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
 
       await c.carregar();
 
@@ -198,7 +204,7 @@ void main() {
 
     test('403 SEM_PERMISSAO marca semPermissao com a mensagem de perfil', () async {
       api.responder('GET /turmas/disponiveis', _semPermissaoJson, 403);
-      final c = DisponiveisController(turmas);
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
 
       await c.carregar();
 
@@ -208,7 +214,7 @@ void main() {
 
     test('sem rede não há cache: estado de erro', () async {
       api.falharRede('GET /turmas/disponiveis');
-      final c = DisponiveisController(turmas);
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
 
       await c.carregar();
 

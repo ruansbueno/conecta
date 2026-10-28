@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../state/turmas_controller.dart';
+import '../../state/lista_paginada.dart';
 
 /// Carregando a próxima página, ou falha ao carregá-la. Listas de turmas são curtas: sem o
 /// "não há mais" da lista de avisos.

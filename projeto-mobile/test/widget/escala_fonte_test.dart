@@ -102,4 +102,64 @@ void main() {
     );
     expect(find.text('Solicitar').hitTestable(), findsOneWidget);
   });
+
+  testWidgets('minhas solicitações e a folha de confirmação a 200% sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api
+      ..responder('GET /avisos', avisosVazioJson)
+      ..responder('GET /turmas/minhas', paginaJson([]))
+      ..responder(
+        'GET /solicitacoes/minhas',
+        paginaJson([
+          solicitacaoMapa('s1', nome: 'Introdução a Ciência de Dados'),
+          solicitacaoMapa(
+            's2',
+            nome: 'Desenvolvimento de Jogos',
+            status: 'recusada',
+            decididaEm: '2026-08-30T12:00:00Z',
+            motivoRecusa: 'turma sem vagas para alunos de outro semestre.',
+          ),
+        ]),
+      )
+      ..responder(
+        'GET /turmas/disponiveis',
+        paginaJson([turmaMapa('DADOS-1', nome: 'Introdução a Ciência de Dados')]),
+      )
+      ..responder('POST /turmas/turma-DADOS-1/solicitacoes', '{"id": "s9"}', 201);
+    await app.abrir(tester);
+    await tester.ensureVisible(find.text('Ver turmas disponíveis'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ver turmas disponíveis'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Solicitar'),
+      100,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-disponiveis')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.text('Solicitar'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Solicitação enviada'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Ver minhas solicitações'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ver minhas solicitações'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(
+      find.text('Cancelar solicitação'),
+      100,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-solicitacoes')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    expect(find.text('Cancelar solicitação').hitTestable(), findsOneWidget);
+  });
 }

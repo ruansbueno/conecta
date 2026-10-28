@@ -8,7 +8,9 @@ import '../../models/usuario.dart';
 import '../../repositories/solicitacoes_repository.dart';
 import '../../repositories/turmas_repository.dart';
 import '../../state/avisos_controller.dart' show EstadoLista;
+import '../../state/lista_paginada.dart';
 import '../../state/session_controller.dart';
+import '../../state/solicitacoes_controller.dart';
 import '../../state/turmas_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
@@ -17,7 +19,7 @@ import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
-import '../comum/selo_situacao.dart';
+import '../solicitacoes/selo_solicitacao.dart';
 import 'rodape_lista.dart';
 import 'turma_card.dart';
 
@@ -34,18 +36,17 @@ class MinhasTurmasPage extends StatelessWidget {
         context.read<SolicitacoesRepository>(),
         usuarioId: usuario.id,
         aluno: usuario.podeSolicitarInscricao,
+        mudancas: context.read<MudancasDeSolicitacao>(),
       )..carregar(),
       child: _Minhas(perfil: usuario.perfil),
     );
   }
 }
 
-/// Abre as turmas disponíveis e, se algo mudou lá (fase 6: solicitação enviada), recarrega
-/// turmas e solicitações (recarga cruzada, RM-19).
-Future<void> abrirDisponiveis(BuildContext context, {MinhasTurmasController? controller}) async {
-  final mudou = await Navigator.of(context).pushNamed(Rotas.turmasDisponiveis);
-  if (mudou == true) await controller?.recarregar();
-}
+/// Abre as turmas disponíveis. Uma solicitação enviada lá chega a Minhas turmas pelo aviso de
+/// [MudancasDeSolicitacao], venha a tela de onde vier (aba Turmas ou vazio de avisos).
+Future<void> abrirDisponiveis(BuildContext context) =>
+    Navigator.of(context).pushNamed(Rotas.turmasDisponiveis);
 
 class _Minhas extends StatelessWidget {
   const _Minhas({required this.perfil});
@@ -112,17 +113,31 @@ class _Minhas extends StatelessWidget {
               ],
               if (controller.aluno) ...[
                 const SizedBox(height: 8),
-                _EntrarEmOutraTurma(
-                  onAbrir: () => abrirDisponiveis(context, controller: controller),
-                ),
+                _EntrarEmOutraTurma(onAbrir: () => abrirDisponiveis(context)),
               ],
               if (controller.recentes case final recentes? when recentes.isNotEmpty) ...[
                 const SizedBox(height: 28),
-                Text(
-                  'Minhas solicitações',
-                  style: Tipografia.subtitulo.copyWith(color: Cores.apagado),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          'Minhas solicitações',
+                          style: Tipografia.subtitulo.copyWith(color: Cores.apagado),
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pushNamed(Rotas.solicitacoes),
+                      child: const Text(
+                        'Ver todas',
+                        semanticsLabel: 'Ver todas as minhas solicitações',
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
                 for (final s in recentes) ...[
                   _SolicitacaoRecente(solicitacao: s),
                   const SizedBox(height: 12),
@@ -222,26 +237,14 @@ class _SolicitacaoRecente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = solicitacao;
-    final decidida = s.decididaEm ?? s.solicitadaEm;
-    final (linha, selo) = switch (s.status) {
-      StatusSolicitacao.pendente => (
-        'Enviada em ${dataDiaMes(s.solicitadaEm)}',
-        const SeloSituacao('Pendente', tom: TomSelo.alerta),
-      ),
-      StatusSolicitacao.aprovada => (
-        'Aprovada em ${dataDiaMes(decidida)}',
-        const SeloSituacao('Aprovada', tom: TomSelo.sucesso),
-      ),
-      StatusSolicitacao.recusada => (
-        'Recusada em ${dataDiaMes(decidida)}',
-        const SeloSituacao('Recusada', tom: TomSelo.perigo),
-      ),
-      StatusSolicitacao.cancelada => (
-        'Cancelada em ${dataDiaMes(decidida)}',
-        const SeloSituacao('Cancelada', tom: TomSelo.neutro),
-      ),
-      StatusSolicitacao.desconhecido => ('Enviada em ${dataDiaMes(s.solicitadaEm)}', null),
+    final decidida = dataDiaMes(s.decididaEm ?? s.solicitadaEm);
+    final linha = switch (s.status) {
+      StatusSolicitacao.aprovada => 'Aprovada em $decidida',
+      StatusSolicitacao.recusada => 'Recusada em $decidida',
+      StatusSolicitacao.cancelada => 'Cancelada em $decidida',
+      _ => 'Enviada em ${dataDiaMes(s.solicitadaEm)}',
     };
+    final selo = seloDaSolicitacao(s.status);
     return MergeSemantics(
       child: CaixaCartao(
         child: LinhaComAcao(

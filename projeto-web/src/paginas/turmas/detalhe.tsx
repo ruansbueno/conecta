@@ -21,6 +21,7 @@ import { TabelaVinculos } from '../../componentes/turmas/tabela-vinculos'
 import { quantidade } from '../../lib/texto'
 import { useSessao } from '../../sessao/contexto'
 import { mensagemDe, type Carga } from '../comum'
+import { idDaUrl } from '../lista-na-url'
 
 /** Uma página só: turma com mais de 100 vínculos mostra os 100 primeiros e avisa. */
 const LIMITE_VINCULOS = 100
@@ -84,6 +85,11 @@ export default function DetalheTurma() {
   const [ocupado, setOcupado] = useState(false)
 
   const carregarTurma = useCallback(async () => {
+    // Id que não é UUID nunca existiu: a API real responderia 422, e "tentar de novo" não resolveria.
+    if (!idDaUrl(id)) {
+      setTurma({ estado: 'erro', mensagem: new ApiError({ code: 'TURMA_NAO_ENCONTRADA' }).mensagem, repetivel: false })
+      return
+    }
     try {
       setTurma({ estado: 'pronto', dados: await obterTurma(id) })
     } catch (e) {
@@ -93,14 +99,20 @@ export default function DetalheTurma() {
     }
   }, [id, navegar])
 
+  // Só a resposta do pedido mais recente vale, sempre com o papel escolhido agora (a remoção, por
+  // exemplo, recarrega depois que a pessoa já pode ter trocado o filtro).
+  const papelAtual = useRef(papel)
+  const ultimoPedido = useRef(0)
   const carregarVinculos = useCallback(async () => {
+    if (!idDaUrl(id)) return
+    const pedido = ++ultimoPedido.current
     try {
-      const dados = await listarVinculos(id, { papel: papel || undefined, limit: LIMITE_VINCULOS })
-      setVinculos({ estado: 'pronto', dados })
+      const dados = await listarVinculos(id, { papel: papelAtual.current || undefined, limit: LIMITE_VINCULOS })
+      if (pedido === ultimoPedido.current) setVinculos({ estado: 'pronto', dados })
     } catch (e) {
-      setVinculos({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true })
+      if (pedido === ultimoPedido.current) setVinculos({ estado: 'erro', mensagem: mensagemDe(e), repetivel: true })
     }
-  }, [id, papel])
+  }, [id])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- o estado muda depois do await
@@ -108,9 +120,9 @@ export default function DetalheTurma() {
   }, [carregarTurma])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- o estado muda depois do await
+    papelAtual.current = papel
     void carregarVinculos()
-  }, [carregarVinculos])
+  }, [papel, carregarVinculos])
 
   /** Uma ação por vez; em falha, mostra a mensagem e recarrega o que pode ter mudado por fora. */
   async function executar(acao: () => Promise<string>) {
@@ -305,11 +317,11 @@ export default function DetalheTurma() {
           <span className="grow" />
           {gestao && (
             <>
-              <button type="button" onClick={() => setVinculando('docente')} className="botao-secundario">
+              <button type="button" disabled={ocupado} onClick={() => setVinculando('docente')} className="botao-secundario">
                 <Icone nome="mais" tamanho={17} />
                 Vincular docente
               </button>
-              <button type="button" onClick={() => setVinculando('aluno')} className="botao-primario">
+              <button type="button" disabled={ocupado} onClick={() => setVinculando('aluno')} className="botao-primario">
                 <Icone nome="mais" tamanho={17} />
                 Vincular aluno
               </button>
@@ -330,7 +342,11 @@ export default function DetalheTurma() {
           ) : (
             <>
               <div className="overflow-x-auto px-3 pt-4">
-                <TabelaVinculos vinculos={visiveis} onRemover={gestao ? (v) => setPedido({ tipo: 'remover', vinculo: v }) : undefined} />
+                <TabelaVinculos
+                  vinculos={visiveis}
+                  desabilitado={ocupado}
+                  onRemover={gestao ? (v) => setPedido({ tipo: 'remover', vinculo: v }) : undefined}
+                />
               </div>
               <p className="border-t border-linha-suave px-6 py-4 text-[13px] text-apagado">
                 Mostrando {visiveis.length} de {vinculos.dados.total} vínculos

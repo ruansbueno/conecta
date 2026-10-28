@@ -26,11 +26,13 @@ export function SeloPapel({ papel }: { papel: string }) {
 
 interface Props {
   vinculos: Vinculo[]
+  /** Enquanto outra ação está em curso, remover fica indisponível. */
+  desabilitado?: boolean
   /** Sem esta função (docente), a tabela é só de leitura. */
   onRemover?: (vinculo: Vinculo) => void
 }
 
-export function TabelaVinculos({ vinculos, onRemover }: Props) {
+export function TabelaVinculos({ vinculos, desabilitado, onRemover }: Props) {
   const colunas: Coluna<Vinculo>[] = [
     {
       chave: 'pessoa',
@@ -57,8 +59,9 @@ export function TabelaVinculos({ vinculos, onRemover }: Props) {
               <button
                 type="button"
                 aria-label={`Remover vínculo de ${v.usuario.nome}`}
+                disabled={desabilitado}
                 onClick={() => onRemover(v)}
-                className="text-[13.5px] font-semibold whitespace-nowrap text-perigo hover:underline"
+                className="text-[13.5px] font-semibold whitespace-nowrap text-perigo hover:underline disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Remover vínculo
               </button>

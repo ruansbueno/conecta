@@ -18,6 +18,7 @@ import { SeloSituacao } from '../../componentes/comum/selo-situacao'
 import { dataNumerica, dataHora } from '../../lib/datas'
 import { estaAgendado } from '../../lib/formulario-aviso'
 import { MENSAGEM_FEITA, useAcoesDoAviso } from './acoes'
+import { idDaUrl } from '../lista-na-url'
 import { mensagemDe, useMensagemTrazida, type Carga } from './comum'
 
 type AbaDetalhe = 'conteudo' | 'historico'
@@ -47,6 +48,11 @@ export default function HistoricoAviso() {
   const [mensagem, setMensagem] = useState(trazida ? { texto: trazida, erro: false } : undefined)
 
   const carregar = useCallback(async () => {
+    // Id que não é UUID nunca existiu: a API real responderia 422, e "tentar de novo" não resolveria.
+    if (!idDaUrl(id)) {
+      setAviso({ estado: 'erro', mensagem: new ApiError({ code: 'AVISO_NAO_ENCONTRADO' }).mensagem, repetivel: false })
+      return
+    }
     try {
       setAviso({ estado: 'pronto', dados: await obterAviso(id) })
     } catch (e) {
@@ -56,6 +62,7 @@ export default function HistoricoAviso() {
   }, [id, navegar])
 
   const carregarAuditoria = useCallback(async () => {
+    if (!idDaUrl(id)) return
     try {
       const [h, v] = await Promise.all([
         historicoDoAviso(id, { limit: LIMITE }),

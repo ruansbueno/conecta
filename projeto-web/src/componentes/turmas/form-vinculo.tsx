@@ -97,6 +97,8 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
           onMudar={(v) => {
             setTermo(v)
             setEscolhida(null)
+            // Resultado de outra busca some na hora: nada fica escolhível até a nova resposta.
+            setResultado({ estado: v.trim().length >= MINIMO ? 'buscando' : 'parado' })
           }}
           maxLength={100}
         />

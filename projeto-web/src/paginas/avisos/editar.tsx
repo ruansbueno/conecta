@@ -21,6 +21,7 @@ import {
 } from '../../lib/formulario-aviso'
 import { apagarRascunho, lerRascunho, type ChaveRascunho } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
+import { idDaUrl } from '../lista-na-url'
 import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useTurmasDestino, type Carga } from './comum'
 
 const NADA_ALTERADO = 'Nenhuma alteração para salvar.'
@@ -82,6 +83,10 @@ export default function EditarAviso() {
   useRascunhoAutomatico(chave, digitado, alterado && !salvo)
 
   const carregar = useCallback(async () => {
+    if (!idDaUrl(id)) {
+      setAviso({ estado: 'erro', mensagem: new ApiError({ code: 'AVISO_NAO_ENCONTRADO' }).mensagem, repetivel: false })
+      return
+    }
     try {
       const atual = await obterAviso(id)
       // Rascunho mais antigo que a última edição no servidor sobrescreveria a versão de outra

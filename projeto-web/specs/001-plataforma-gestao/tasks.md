@@ -118,17 +118,17 @@ encaminhado para a API local.
 
 **Teste independente**: entrar com cada perfil; tentar `/avisos` sem sessão; forçar `401`.
 
-- [ ] T029 [US1] `src/paginas/login.tsx`: formulário com usuário e senha, estado de envio, erro
+- [x] T029 [US1] `src/paginas/login.tsx`: formulário com usuário e senha, estado de envio, erro
       acima do botão e preservação do usuário digitado (T01, RW-42)
-- [ ] T030 [US1] Ligar o formulário a `POST /auth/login` com `credentials: 'include'` e tratar cada
+- [x] T030 [US1] Ligar o formulário a `POST /auth/login` com `credentials: 'include'` e tratar cada
       `code` do login; após o 200, chamar `GET /me` e decidir o destino (RW-01, RW-08)
-- [ ] T031 [US1] Redirecionar após entrar: destino pretendido, `/painel` ou `/sem-permissao`
+- [x] T031 [US1] Redirecionar após entrar: destino pretendido, `/painel` ou `/sem-permissao`
       conforme o perfil (RW-06, RW-07)
-- [ ] T032 [P] [US1] `tests/componente/login.test.tsx`: campo vazio, credencial inválida, usuário
+- [x] T032 [P] [US1] `tests/componente/login.test.tsx`: campo vazio, credencial inválida, usuário
       inativo, falha de rede e sucesso
-- [ ] T033 [P] [US1] `e2e/login.spec.ts`: os quatro perfis, rota protegida sem sessão, `401` no
+- [x] T033 [P] [US1] `e2e/login.spec.ts`: os quatro perfis, rota protegida sem sessão, `401` no
       meio da navegação e encerrar sessão
-- [ ] T034 [P] [US1] `e2e/sem-vazamento.spec.ts`: o token não aparece em `document.cookie`,
+- [x] T034 [P] [US1] `e2e/sem-vazamento.spec.ts`: o token não aparece em `document.cookie`,
       `localStorage` nem `sessionStorage`; o cookie de sessão é `httpOnly`, `Secure` e
       `SameSite=Strict`; nenhum segredo no pacote servido (SC-003, RW-44)
 

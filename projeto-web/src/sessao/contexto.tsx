@@ -1,6 +1,15 @@
 // Usuário corrente, carregado por GET /me (D7) e recarregado ao voltar o foco para a aba, para que
 // mudança de perfil valha sem novo login (RW-10).
-import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { aoSessaoInvalida } from '../api/cliente'
 import { ApiError } from '../api/erros'
@@ -26,6 +35,11 @@ const ContextoSessao = createContext<Sessao | null>(null)
 
 export function SessaoProvider({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
+  // Lido pelos ouvintes da API sem recriá-los a cada mudança de estado.
+  const estadoAtual = useRef(estado)
+  useEffect(() => {
+    estadoAtual.current = estado
+  }, [estado])
 
   const encerrar = useMemo(
     () =>
@@ -42,8 +56,12 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
       setEstado({ tipo: 'autenticado', usuario })
     } catch (e) {
       const erro = e instanceof ApiError ? e : new ApiError({ code: 'RESPOSTA_INVALIDA' })
-      if (erro.code === 'NAO_AUTENTICADO') return setEstado({ tipo: 'anonimo' })
-      if (erro.code === 'USUARIO_INATIVO') return // o evento central já encerra
+      // Abertura sem sessão é o caso comum, não "sessão expirada". Com sessão ativa, quem
+      // encerra (com a mensagem) é o ouvinte central, abaixo.
+      if (erro.code === 'NAO_AUTENTICADO' || erro.code === 'USUARIO_INATIVO') {
+        if (estadoAtual.current.tipo === 'carregando') setEstado({ tipo: 'anonimo' })
+        return
+      }
       setEstado((atual) => (atual.tipo === 'autenticado' ? atual : { tipo: 'erro', erro }))
     }
   }, [])
@@ -57,6 +75,7 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
   useEffect(
     () =>
       aoSessaoInvalida((erro) => {
+        if (estadoAtual.current.tipo !== 'autenticado') return
         void encerrar(erro.code === 'USUARIO_INATIVO' ? 'inativo' : 'expirada')
       }),
     [encerrar],

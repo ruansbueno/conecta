@@ -129,6 +129,24 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   }
   if (metodo === 'GET' && caminho === '/me') return json(res, 200, estado.me(usuario))
 
+  // --- aplicativo: GET /avisos (só o que alcança a pessoa; usado pelo e2e do fluxo completo) ---
+  if (metodo === 'GET' && caminho === '/avisos') {
+    const agora = new Date()
+    const semestres = new Set(
+      estado.turmas.filter((t) => t.ativa && usuario.turmas.includes(t.id)).map((t) => t.semestre_curso),
+    )
+    const alcanca = (d: { tipo: string; turma: { id: string } | null; semestre: number | null }) =>
+      d.tipo === 'todos' ||
+      (d.tipo === 'docentes' && usuario.perfil === 'docente') ||
+      (d.tipo === 'turma' && !!d.turma && usuario.turmas.includes(d.turma.id) && estado.turmas.some((t) => t.id === d.turma!.id && t.ativa)) ||
+      (d.tipo === 'semestre' && d.semestre !== null && semestres.has(d.semestre))
+    const itens = estado.avisos
+      .filter((a) => a.situacao === 'ativo' && (typeof a.publicar_em !== 'string' || new Date(a.publicar_em) <= agora))
+      .filter((a) => (a.destinos as Parameters<typeof alcanca>[0][]).some(alcanca))
+      .map((a) => ({ id: a.id, titulo: a.titulo, conteudo: a.conteudo, autor: a.autor, publicado_em: a.publicado_em }))
+    return json(res, 200, pagina(itens, url))
+  }
+
   if (!caminho.startsWith('/gestao/')) return erro(res, 404, 'NAO_ENCONTRADO')
   if (usuario.perfil === 'aluno') return erro(res, 403, 'SEM_PERMISSAO')
   const gestao = usuario.perfil === 'administrador' || usuario.perfil === 'coordenacao'

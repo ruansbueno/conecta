@@ -34,3 +34,15 @@ export async function entrar(page: Page, usuario: string, destino = '/login') {
 export async function estaNaGestao(page: Page) {
   await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible()
 }
+
+/** O que o aplicativo mostra a uma pessoa: entra pela API (Bearer, como o app) e lê GET /avisos. */
+export async function avisosNoAplicativo(username: string): Promise<string[]> {
+  const login = await fetch(`${API}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password: 'senha-teste' }),
+  })
+  const { access_token } = (await login.json()) as { access_token: string }
+  const r = await fetch(`${API}/avisos`, { headers: { Authorization: `Bearer ${access_token}` } })
+  return ((await r.json()) as { items: { titulo: string }[] }).items.map((a) => a.titulo)
+}

@@ -2,6 +2,7 @@
 // vínculo; recusar aceita motivo (RW-29); a linha decidida mostra quem decidiu e quando (RW-30).
 // O docente vê e decide só as das turmas em que leciona: quem filtra é a API.
 import { useEffect, useRef, useState } from 'react'
+import { useOutletContext } from 'react-router'
 
 import { ApiError } from '../api/erros'
 import {
@@ -20,6 +21,7 @@ import { Paginacao } from '../componentes/comum/paginacao'
 import { RecusarModal } from '../componentes/solicitacoes/recusar-modal'
 import { DIAS_DE_ESPERA, diasEsperando, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
 import { mensagemDe } from './comum'
+import type { ContextoGestao } from './area-gestao'
 import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl } from './lista-na-url'
 
 const STATUS: { id: StatusSolicitacao; rotulo: string }[] = [
@@ -91,9 +93,12 @@ export default function Solicitacoes() {
       .catch(() => undefined)
   }, [])
 
+  // Fora da área de gestão (testes isolados) não há contexto: o contador simplesmente não existe.
+  const gestao = useOutletContext<ContextoGestao | undefined>()
   const recarregarTudo = () => {
     recarregar()
     setContagem((n) => n + 1)
+    gestao?.atualizarPendentes()
   }
 
   /**

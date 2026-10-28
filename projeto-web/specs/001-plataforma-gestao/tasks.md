@@ -244,11 +244,11 @@ encaminhado para a API local.
 
 ## Phase 9: Painel e integração
 
-- [ ] T068 `src/paginas/painel.tsx`: três chamadas em paralelo, cartões de número a
+- [x] T068 `src/paginas/painel.tsx`: três chamadas em paralelo, cartões de número a
       partir dos `total`, listas recentes e falha isolada por cartão (T02, T14, D13)
-- [ ] T069 [P] `e2e/painel.spec.ts`: painel de coordenação e de docente, com o conteúdo que a API
+- [x] T069 [P] `e2e/painel.spec.ts`: painel de coordenação e de docente, com o conteúdo que a API
       restringe para cada um
-- [ ] T070 `e2e/fluxo-completo.spec.ts`: coordenação publica pela web → a API registra → o
+- [x] T070 `e2e/fluxo-completo.spec.ts`: coordenação publica pela web → a API registra → o
       conteúdo chega a quem é alcançado e não chega aos demais (SC-001, RF-30 da API)
 
 ---

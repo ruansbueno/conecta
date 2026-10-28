@@ -2,9 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../api/erros'
+import { listarSolicitacoes } from '../api/recursos/solicitacoes'
 import { Casca } from '../componentes/layout/casca'
 import { navegacaoDoPerfil } from '../componentes/layout/navegacao'
 import { useSessao } from '../sessao/contexto'
+
+/** O que a área de gestão oferece às páginas dentro dela (via `useOutletContext`). */
+export interface ContextoGestao {
+  atualizarPendentes: () => void
+}
 
 /** Título da seção: o mesmo rótulo da navegação do perfil ("Meus avisos" para docente). */
 const tituloDaSecao = (perfil: string, caminho: string) =>
@@ -28,12 +34,30 @@ export default function AreaGestao() {
     }
     void recarregar()
   }, [pathname, recarregar])
+
+  // Solicitações esperando decisão, ao lado do item na barra lateral (a API conta só as que a
+  // pessoa pode decidir). Atualiza a cada página; se falhar, o contador apenas não aparece.
+  const [pendentes, setPendentes] = useState(0)
+  // Páginas que mudam a fila (decidir uma solicitação) pedem nova contagem sem trocar de página.
+  const [versaoPendentes, setVersaoPendentes] = useState(0)
+  const pode = Boolean(usuario) && usuario?.perfil !== 'aluno'
+  useEffect(() => {
+    if (!pode) return
+    let valido = true
+    listarSolicitacoes({ status: 'pendente', limit: 1 })
+      .then((p) => valido && setPendentes(p.total))
+      .catch(() => valido && setPendentes(0))
+    return () => {
+      valido = false
+    }
+  }, [pathname, pode, versaoPendentes])
   if (!usuario) return null
   const secao = tituloDaSecao(usuario.perfil, pathname)
   return (
     <Casca
       usuario={usuario}
       secao={secao}
+      contadores={{ '/solicitacoes': pendentes }}
       onSair={async () => {
         setFalhaAoSair(undefined)
         try {
@@ -52,7 +76,7 @@ export default function AreaGestao() {
           {falhaAoSair}
         </p>
       )}
-      <Outlet />
+      <Outlet context={{ atualizarPendentes: () => setVersaoPendentes((n) => n + 1) } satisfies ContextoGestao} />
     </Casca>
   )
 }

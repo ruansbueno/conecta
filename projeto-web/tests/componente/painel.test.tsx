@@ -28,7 +28,7 @@ function api(rotas: Record<string, Responder> = {}, sessao: object = me) {
   const base: Record<string, Responder> = {
     'GET /me': () => ({ status: 200, corpo: sessao }),
     'GET /gestao/avisos': (q) => {
-      if (q.get('limit') === '1') return { status: 200, corpo: { ...pagina([]), total: q.get('situacao') === 'agendado' ? 1 : 4 } }
+      if (q.get('limit') === '1') return { status: 200, corpo: { ...pagina([]), total: q.get('situacao') === 'agendado' ? 1 : 1248 } }
       return { status: 200, corpo: pagina(AVISOS) }
     },
     'GET /gestao/solicitacoes': () => ({ status: 200, corpo: { ...pagina(PENDENTES), total: 7 } }),
@@ -69,7 +69,7 @@ describe('painel da coordenação (T02)', () => {
     const chamadas = api()
     abrir()
     expect(await screen.findByRole('heading', { level: 1, name: /Maria/ })).toBeInTheDocument()
-    expect(await cartao('Avisos ativos')).toHaveTextContent('4')
+    expect(await cartao('Avisos ativos')).toHaveTextContent('1.248')
     expect(await cartao('Avisos agendados')).toHaveTextContent('1')
     expect(await cartao('Solicitações pendentes')).toHaveTextContent('7')
     expect(await cartao('Turmas ativas')).toHaveTextContent('12')
@@ -77,13 +77,14 @@ describe('painel da coordenação (T02)', () => {
     expect(q((x) => x.get('situacao') === 'ativo' && x.get('limit') === '1', 'GET /gestao/avisos')).toBe(true)
     expect(q((x) => x.get('situacao') === 'agendado' && x.get('limit') === '1', 'GET /gestao/avisos')).toBe(true)
     expect(q((x) => x.get('ativa') === 'true' && x.get('limit') === '1', 'GET /gestao/turmas')).toBe(true)
-    expect(screen.getByText('4 avisos ativos e 7 solicitações esperando decisão.')).toBeInTheDocument()
+    expect(screen.getByText('1.248 avisos ativos e 7 solicitações esperando decisão.')).toBeInTheDocument()
   })
 
   it('publicados recentemente e solicitações pendentes, com atalho para cada lista', async () => {
     api()
     abrir()
-    const recentes = await cartao('Publicados recentemente')
+    // Inclui agendados e arquivados: o título não promete só publicados.
+    const recentes = await cartao('Avisos recentes')
     expect(await within(recentes).findByText('Matrícula do 2º semestre')).toBeInTheDocument()
     expect(within(recentes).getByText('Agendado')).toBeInTheDocument()
     expect(within(recentes).getByText('Semana Acadêmica').closest('li')).toHaveTextContent(/vai ao ar em \d{2}\/\d{2}, \d{2}:\d{2}/)
@@ -102,7 +103,7 @@ describe('painel da coordenação (T02)', () => {
     abrir()
     const fila = await cartao('Solicitações de inscrição')
     const repetir = await within(fila).findByRole('button', { name: 'Tentar de novo' })
-    expect(await cartao('Avisos ativos')).toHaveTextContent('4')
+    expect(await cartao('Avisos ativos')).toHaveTextContent('1.248')
     expect(await cartao('Turmas ativas')).toHaveTextContent('12')
 
     falhar = false

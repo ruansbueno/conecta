@@ -100,6 +100,17 @@ describe('fila de solicitações (T09, RW-28)', () => {
     expect(await screen.findByRole('tab', { name: 'Pendentes (7)' })).toBeInTheDocument()
   })
 
+  it('mais de 3 dias conta em horas: 3 dias e 20 horas já é destaque', async () => {
+    api({
+      'GET /gestao/solicitacoes': (q) =>
+        q.get('limit') === '1'
+          ? { status: 200, corpo: pagina([]) }
+          : { status: 200, corpo: pagina([{ ...PENDENTES[0], solicitada_em: new Date(Date.now() - (3 * 24 + 20) * 3_600_000).toISOString() }]) },
+    })
+    abrir()
+    expect(await linha(/Júlia Santos/)).toHaveTextContent('há 3 dias')
+  })
+
   it('destaca quem espera há mais de 3 dias', async () => {
     api()
     abrir()

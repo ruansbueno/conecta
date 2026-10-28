@@ -144,9 +144,9 @@ describe('contador de solicitações na barra lateral', () => {
     )
     expect(await screen.findByRole('link', { name: 'Solicitações, 7 pendentes' })).toBeInTheDocument()
 
-    total = 0
+    total = 1
     await userEvent.click(screen.getByRole('link', { name: 'Avisos' }))
-    expect(await screen.findByRole('link', { name: 'Solicitações' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Solicitações, 1 pendente' })).toBeInTheDocument()
   })
 })
 

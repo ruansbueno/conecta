@@ -119,7 +119,9 @@ function Numero({ rotulo, detalhe, carga, repetir, cor = 'text-navy' }: {
           </button>
         </div>
       ) : (
-        <p className={`text-[34px] leading-none font-bold ${cor}`}>{carga.estado === 'pronto' ? carga.dados.total : '…'}</p>
+        <p className={`text-[34px] leading-none font-bold ${cor}`}>
+          {carga.estado === 'pronto' ? carga.dados.total.toLocaleString('pt-BR') : '…'}
+        </p>
       )}
       <p className="mt-3 text-[15px] font-semibold text-navy">{rotulo}</p>
       <p className="mt-1 text-[13px] text-apagado">{detalhe}</p>
@@ -186,7 +188,7 @@ const verAvisos = (
 const contaPendentes = (carga: Carga<Pagina<unknown>>) =>
   carga.estado === 'pronto' && carga.dados.total > 0 ? (
     <span className="ml-auto rounded-full bg-alerta-fundo px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-alerta">
-      {carga.dados.total} {carga.dados.total === 1 ? 'pendente' : 'pendentes'}
+      {carga.dados.total.toLocaleString('pt-BR')} {carga.dados.total === 1 ? 'pendente' : 'pendentes'}
     </span>
   ) : null
 
@@ -213,7 +215,7 @@ function PainelCoordenacao({ agora }: { agora: Date }) {
         <Numero rotulo="Turmas ativas" detalhe="recebendo avisos e inscrições" {...turmas} />
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Bloco titulo="Publicados recentemente" carga={recentes.carga} repetir={recentes.repetir} acao={verAvisos}>
+        <Bloco titulo="Avisos recentes" carga={recentes.carga} repetir={recentes.repetir} acao={verAvisos}>
           {(p) =>
             p.items.length === 0 ? (
               <p className="px-6 py-6 text-[13px] text-apagado">Nenhum aviso publicado ainda.</p>

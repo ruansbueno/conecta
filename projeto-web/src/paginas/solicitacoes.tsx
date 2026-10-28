@@ -19,7 +19,7 @@ import { EstadoErro } from '../componentes/comum/estado-erro'
 import { EstadoVazio } from '../componentes/comum/estado-vazio'
 import { Paginacao } from '../componentes/comum/paginacao'
 import { RecusarModal } from '../componentes/solicitacoes/recusar-modal'
-import { DIAS_DE_ESPERA, diasEsperando, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
+import { DIAS_DE_ESPERA, esperaDemais, TabelaSolicitacoes } from '../componentes/solicitacoes/tabela'
 import { mensagemDe } from './comum'
 import type { ContextoGestao } from './area-gestao'
 import { idDaUrl, paginaDaUrl, useCargaPaginada, useFiltrosNaUrl } from './lista-na-url'
@@ -136,7 +136,7 @@ export default function Solicitacoes() {
           ...decididasAqui.values(),
         ].sort((a, b) => a.solicitadaEm.getTime() - b.solicitadaEm.getTime())
       : []
-  const esperando = itens.filter((s) => s.status === 'pendente' && diasEsperando(s, agora) > DIAS_DE_ESPERA).length
+  const esperando = itens.filter((s) => s.status === 'pendente' && esperaDemais(s, agora)).length
   const abas = STATUS.map((s) => (s.id === 'pendente' && pendentes !== null ? { ...s, rotulo: `Pendentes (${pendentes})` } : s))
 
   return (

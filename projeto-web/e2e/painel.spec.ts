@@ -11,9 +11,9 @@ test('painel da coordenação: números de toda a gestão e o contador na barra 
   await estaNaGestao(page)
 
   await expect(page.getByRole('heading', { level: 1, name: /Marina/ })).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Solicitações pendentes' })).toContainText('3')
-  await expect(page.getByRole('region', { name: 'Turmas ativas' })).toContainText('4')
-  await expect(page.getByRole('region', { name: 'Avisos ativos' })).toContainText('0')
+  await expect(page.getByRole('region', { name: 'Solicitações pendentes' }).getByText('3', { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Turmas ativas' }).getByText('4', { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Avisos ativos' }).getByText('0', { exact: true })).toBeVisible()
   await expect(page.getByText('Nenhum aviso publicado ainda.')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Solicitações, 3 pendentes' })).toBeVisible()
 })

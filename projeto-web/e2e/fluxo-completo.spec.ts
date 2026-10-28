@@ -40,6 +40,6 @@ test('coordenação publica pela web → a API registra o destino → só quem e
 
   // E o painel da coordenação já conta o aviso.
   await page.getByRole('link', { name: 'Painel' }).click()
-  await expect(page.getByRole('region', { name: 'Avisos ativos' })).toContainText('1')
-  await expect(page.getByRole('region', { name: 'Publicados recentemente' })).toContainText(TITULO)
+  await expect(page.getByRole('region', { name: 'Avisos ativos' }).getByText('1', { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Avisos recentes' })).toContainText(TITULO)
 })

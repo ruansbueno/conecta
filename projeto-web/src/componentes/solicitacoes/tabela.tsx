@@ -8,6 +8,9 @@ import { Tabela, type Coluna } from '../comum/tabela'
 export const DIAS_DE_ESPERA = 3
 const DIA_MS = 86_400_000
 
+/** Mais de 3 dias contados em tempo (3 dias e 20 horas já conta), não em dias inteiros. */
+export const esperaDemais = (s: SolicitacaoGestao, agora: Date) => agora.getTime() - s.solicitadaEm.getTime() > DIAS_DE_ESPERA * DIA_MS
+
 /** Dias inteiros desde o pedido. */
 export const diasEsperando = (s: SolicitacaoGestao, agora: Date) => Math.floor((agora.getTime() - s.solicitadaEm.getTime()) / DIA_MS)
 
@@ -66,7 +69,7 @@ export function TabelaSolicitacoes({ legenda, solicitacoes, agora, ocupado, onAp
         return (
           <>
             <span className="whitespace-nowrap">{dataNumerica(s.solicitadaEm)}</span>
-            {s.status === 'pendente' && dias > DIAS_DE_ESPERA && (
+            {s.status === 'pendente' && esperaDemais(s, agora) && (
               <span className="mt-1 block w-fit rounded-full bg-alerta-fundo px-2 py-0.5 text-xs font-semibold text-alerta">
                 há {dias} dias
               </span>

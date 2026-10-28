@@ -63,7 +63,7 @@ export function DestinosDocente({ turmas, escolhidos, idErro, onMudar }: Props) 
       })}
       <div className="mt-3 border-t border-linha-suave pt-3" />
       {INDISPONIVEIS.map((rotulo, i) => (
-        <label key={rotulo} className="flex items-center gap-3.5 rounded-xl border border-dashed border-linha px-4 py-3 opacity-70">
+        <label key={rotulo} className="flex items-center gap-3.5 rounded-xl border border-dashed border-linha bg-fundo px-4 py-3">
           <input type="checkbox" disabled className="size-[18px]" aria-describedby={`${id}-indisp-${i}`} />
           <span className="flex-1">
             <span className="block text-[14px] font-semibold text-tenue">{rotulo}</span>

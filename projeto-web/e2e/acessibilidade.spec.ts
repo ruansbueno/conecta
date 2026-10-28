@@ -4,7 +4,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 
-import { entrar, estaNaGestao, reiniciarApi } from './apoio'
+import { entrar, estaNaGestao, falharProxima, reiniciarApi } from './apoio'
 
 test.beforeEach(async () => {
   await reiniciarApi()
@@ -67,6 +67,29 @@ test('coordenação: painel, avisos, editor, seletor, histórico', async ({ page
   await page.getByRole('button', { name: 'Arquivar' }).click()
   await expect(page.getByRole('alertdialog')).toBeVisible()
   await auditar(page, 'confirmação de arquivar')
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Excluir' }).click()
+  await expect(page.getByRole('alertdialog')).toBeVisible()
+  await auditar(page, 'confirmação de excluir')
+  await page.keyboard.press('Escape')
+
+  await page.getByRole('link', { name: 'Editar', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Salvar alterações' })).toBeVisible()
+  await auditar(page, 'editar aviso')
+})
+
+test('estados vazio e de erro', async ({ page }) => {
+  await entrar(page, 'coord.teste')
+  await estaNaGestao(page)
+  await page.goto('/avisos?situacao=agendado')
+  await expect(page.getByText('Nenhum aviso agendado')).toBeVisible()
+  await auditar(page, 'lista vazia')
+
+  // Duas falhas: em desenvolvimento o StrictMode faz a primeira busca duas vezes.
+  await falharProxima('GET', '/gestao/turmas', 500, 'ERRO_INTERNO', 2)
+  await page.goto('/turmas')
+  await expect(page.getByRole('button', { name: 'Tentar de novo' })).toBeVisible()
+  await auditar(page, 'erro ao carregar')
 })
 
 test('coordenação: turmas, vínculos, solicitações', async ({ page }) => {
@@ -76,6 +99,7 @@ test('coordenação: turmas, vínculos, solicitações', async ({ page }) => {
   await expect(page.getByRole('table', { name: /Turmas/ })).toBeVisible()
   await auditar(page, 'turmas')
   await page.getByRole('button', { name: 'Nova turma' }).click()
+  await expect(page.getByRole('dialog', { name: 'Nova turma' })).toBeVisible()
   await auditar(page, 'formulário de turma')
   await page.keyboard.press('Escape')
 
@@ -87,11 +111,20 @@ test('coordenação: turmas, vínculos, solicitações', async ({ page }) => {
   await expect(page.getByRole('dialog').getByRole('radiogroup')).toBeVisible()
   await auditar(page, 'vincular')
   await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Editar turma' }).click()
+  await expect(page.getByRole('dialog', { name: 'Editar turma' })).toBeVisible()
+  await auditar(page, 'editar turma')
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Desativar turma' }).click()
+  await expect(page.getByRole('alertdialog')).toBeVisible()
+  await auditar(page, 'confirmação de desativar')
+  await page.keyboard.press('Escape')
 
   await page.goto('/solicitacoes')
   await expect(page.getByRole('table', { name: /Solicitações/ })).toBeVisible()
   await auditar(page, 'solicitações')
   await page.getByRole('button', { name: /^Recusar/ }).first().click()
+  await expect(page.getByRole('dialog', { name: /^Recusar a solicitação/ })).toBeVisible()
   await auditar(page, 'recusar solicitação')
 })
 
@@ -106,7 +139,7 @@ test('administração: usuários e alterar perfil', async ({ page }) => {
   await auditar(page, 'alterar perfil')
 })
 
-test('docente: painel e editor restrito', async ({ page }) => {
+test('docente: painel, listas, editor restrito e sem permissão', async ({ page }) => {
   await entrar(page, 'docente.teste')
   await estaNaGestao(page)
   await expect(page.getByText(/Você leciona em 2 turmas/)).toBeVisible()
@@ -114,4 +147,19 @@ test('docente: painel e editor restrito', async ({ page }) => {
   await page.goto('/avisos/novo')
   await expect(page.getByRole('heading', { name: 'Novo aviso' })).toBeVisible()
   await auditar(page, 'editor do docente')
+
+  await page.goto('/avisos')
+  await expect(page.getByRole('heading', { level: 1, name: 'Avisos' })).toBeVisible()
+  await expect(page.getByText(/Nenhum aviso|Carregando/).or(page.getByRole('table', { name: /Avisos/ }))).toBeVisible()
+  await auditar(page, 'avisos do docente')
+  await page.goto('/turmas')
+  await expect(page.getByRole('table', { name: /Turmas/ })).toBeVisible()
+  await auditar(page, 'turmas do docente')
+  await page.goto('/solicitacoes')
+  await expect(page.getByRole('heading', { level: 1, name: /Solicitações/ })).toBeVisible()
+  await expect(page.getByText('Carregando')).toHaveCount(0)
+  await auditar(page, 'solicitações do docente')
+  await page.goto('/usuarios')
+  await expect(page.getByText('Esta área não está disponível para o seu perfil')).toBeVisible()
+  await auditar(page, 'sem permissão do docente')
 })

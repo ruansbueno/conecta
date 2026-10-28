@@ -44,3 +44,28 @@ test('arquivos com hash têm cache longo; a página tem os cabeçalhos de segura
   expect(asset.status()).toBe(200)
   expect(asset.headers()['cache-control']).toContain('immutable')
 })
+
+test('nenhuma violação da CSP ao entrar e navegar', async ({ page }) => {
+  await page.addInitScript(() => {
+    ;(window as unknown as { violacoes: string[] }).violacoes = []
+    document.addEventListener('securitypolicyviolation', (e) =>
+      (window as unknown as { violacoes: string[] }).violacoes.push(`${e.violatedDirective} ${e.blockedURI}`),
+    )
+  })
+  await page.goto('/login')
+  await page.getByLabel('Usuário').fill('coord.teste')
+  await page.getByLabel('Senha').fill('senha-teste')
+  await page.getByRole('button', { name: 'Entrar' }).click()
+  await expect(page).toHaveURL(/\/painel$/)
+  await page.goto('/avisos/novo')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  expect(await page.evaluate(() => (window as unknown as { violacoes: string[] }).violacoes)).toEqual([])
+})
+
+test('fontes têm os cabeçalhos de segurança e o nginx não informa a versão', async ({ request }) => {
+  const r = await request.get('/fonts/inter-400-latin.woff2')
+  expect(r.status()).toBe(200)
+  expect(r.headers()['x-content-type-options']).toBe('nosniff')
+  expect(r.headers()['strict-transport-security']).toContain('max-age=')
+  expect(r.headers()['server']).toBe('nginx')
+})

@@ -1,5 +1,5 @@
-// T073 (SC-004): login, lista, editor, seletor e confirmação percorridos só com o teclado — nenhum
-// clique depois de abrir a página. Também confere que o foco é visível (contorno) e que, ao fechar
+// T073 (SC-004): do login à exclusão de um aviso, e os demais diálogos (confirmação, vincular,
+// recusar, alterar perfil), só com o teclado — nenhum clique depois de abrir a página. Também confere que o foco é visível (contorno) e que, ao fechar
 // um diálogo, ele volta ao botão que o abriu.
 import { expect, test, type Page } from '@playwright/test'
 
@@ -27,16 +27,18 @@ async function focoVisivel(page: Page) {
   expect(contorno, 'o elemento com foco precisa de contorno visível').toBe(true)
 }
 
-test('do login à publicação de um aviso, só com o teclado', async ({ page }) => {
+async function entrarComTeclado(page: Page, usuario: string) {
   await page.goto('/login')
-
-  // Login
   await tabAte(page, page.getByLabel('Usuário'))
-  await page.keyboard.type('coord.teste')
+  await page.keyboard.type(usuario)
   await page.keyboard.press('Tab')
   await page.keyboard.type('senha-teste')
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/painel$/)
+}
+
+test('do login à exclusão de um aviso, só com o teclado', async ({ page }) => {
+  await entrarComTeclado(page, 'coord.teste')
 
   // Navegação: barra lateral até Avisos
   await tabAte(page, page.getByRole('link', { name: 'Avisos', exact: true }))
@@ -82,16 +84,25 @@ test('do login à publicação de um aviso, só com o teclado', async ({ page })
   await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
   expect((await avisosNaApi())[0].titulo).toBe('Aviso feito só com o teclado')
+
+  // Abrir o aviso e excluí-lo, com a confirmação
+  await tabAte(page, page.getByRole('link', { name: 'Aviso feito só com o teclado', exact: true }))
+  await focoVisivel(page)
+  await page.keyboard.press('Enter')
+  const excluir = page.getByRole('button', { name: 'Excluir' })
+  await tabAte(page, excluir)
+  await page.keyboard.press('Enter')
+  const confirmacao = page.getByRole('alertdialog')
+  await expect(confirmacao).toBeVisible()
+  await tabAte(page, confirmacao.getByRole('button', { name: 'Excluir' }))
+  await focoVisivel(page)
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('status').filter({ hasText: 'Aviso excluído.' })).toBeFocused()
+  expect((await avisosNaApi())[0].situacao).toBe('excluido')
 })
 
 test('confirmação: Esc cancela e devolve o foco; Enter confirma', async ({ page }) => {
-  await page.goto('/login')
-  await tabAte(page, page.getByLabel('Usuário'))
-  await page.keyboard.type('coord.teste')
-  await page.keyboard.press('Tab')
-  await page.keyboard.type('senha-teste')
-  await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(/\/painel$/)
+  await entrarComTeclado(page, 'coord.teste')
 
   // Uma turma qualquer: desativar pede confirmação.
   await tabAte(page, page.getByRole('link', { name: 'Turmas', exact: true }))
@@ -113,4 +124,60 @@ test('confirmação: Esc cancela e devolve o foco; Enter confirma', async ({ pag
   await page.keyboard.press('Enter')
   await expect(page.getByRole('status').filter({ hasText: 'Turma desativada.' })).toBeVisible()
   await expect(page.getByRole('status')).toBeFocused() // a mensagem recebe o foco
+})
+
+test('vincular: busca, escolha no grupo de rádios e confirmação, só com o teclado', async ({ page }) => {
+  await entrarComTeclado(page, 'coord.teste')
+  await tabAte(page, page.getByRole('link', { name: 'Turmas', exact: true }))
+  await page.keyboard.press('Enter')
+  await tabAte(page, page.getByRole('link', { name: /^Vínculos de TADS-3B/ }))
+  await page.keyboard.press('Enter')
+  const abrir = page.getByRole('button', { name: 'Vincular docente' })
+  await tabAte(page, abrir)
+  await page.keyboard.press('Enter')
+  const dialogo = page.getByRole('dialog', { name: 'Vincular docente' })
+  await tabAte(page, dialogo.getByRole('searchbox'))
+  await page.keyboard.type('ricardo')
+  const ricardo = dialogo.getByRole('radio', { name: /Ricardo Lemos/ })
+  await tabAte(page, ricardo)
+  await focoVisivel(page)
+  await page.keyboard.press('Space')
+  await expect(ricardo).toBeChecked()
+  await tabAte(page, dialogo.getByRole('button', { name: 'Vincular' }))
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('status').filter({ hasText: 'Ricardo Lemos agora está na turma como docente.' })).toBeFocused()
+})
+
+test('recusar com motivo, só com o teclado', async ({ page }) => {
+  await entrarComTeclado(page, 'coord.teste')
+  await tabAte(page, page.getByRole('link', { name: /^Solicitações/ }))
+  await page.keyboard.press('Enter')
+  const recusar = page.getByRole('button', { name: 'Recusar Aluno Dois de Teste em TADS 3º Sem A' })
+  await tabAte(page, recusar)
+  await page.keyboard.press('Enter')
+  const dialogo = page.getByRole('dialog', { name: 'Recusar a solicitação de Aluno Dois de Teste?' })
+  await tabAte(page, dialogo.getByLabel('Motivo (opcional)'))
+  await page.keyboard.type('Turma completa')
+  await tabAte(page, dialogo.getByRole('button', { name: 'Recusar solicitação' }))
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('status').filter({ hasText: 'Solicitação de Aluno Dois de Teste recusada.' })).toBeFocused()
+})
+
+test('alterar perfil: setas no grupo de rádios e salvar, só com o teclado', async ({ page }) => {
+  await entrarComTeclado(page, 'admin.teste')
+  await tabAte(page, page.getByRole('link', { name: 'Usuários', exact: true }))
+  await page.keyboard.press('Enter')
+  await tabAte(page, page.getByRole('button', { name: 'Alterar perfil de Marina Duarte' }), 80)
+  await page.keyboard.press('Enter')
+  const dialogo = page.getByRole('dialog', { name: 'Alterar perfil de acesso' })
+  const grupo = dialogo.getByRole('radiogroup', { name: 'Perfil de acesso' })
+  await tabAte(page, grupo.getByRole('radio', { checked: true }))
+  await focoVisivel(page)
+  const docente = grupo.getByRole('radio', { name: 'Docente' })
+  for (let i = 0; i < 4 && !(await docente.isChecked()); i++) await page.keyboard.press('ArrowDown')
+  await expect(docente).toBeChecked()
+  await expect(docente).toBeFocused()
+  await tabAte(page, dialogo.getByRole('button', { name: 'Salvar perfil' }))
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('status').filter({ hasText: 'Marina Duarte agora tem o perfil Docente.' })).toBeFocused()
 })

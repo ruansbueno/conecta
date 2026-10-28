@@ -129,7 +129,7 @@ export function FormVinculo({ papel, jaVinculados, buscar, onVincular, onFechar 
                 const vinculada = jaVinculados.has(p.id)
                 return (
                   <div key={p.id}>
-                    <label className={`flex items-center gap-3 px-4 py-3 ${vinculada ? 'opacity-60' : 'cursor-pointer hover:bg-fundo'}`}>
+                    <label className={`flex items-center gap-3 px-4 py-3 ${vinculada ? 'bg-fundo' : 'cursor-pointer hover:bg-fundo'}`}>
                       <input
                         type="radio"
                         name={nomeGrupo}

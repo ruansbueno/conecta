@@ -485,6 +485,7 @@ Algumas telas dão a um mesmo `code` o sentido que ele tem ali (conferido nos te
 | T09 Solicitações | 403 `SEM_PERMISSAO` ao decidir | Você só pode decidir as solicitações das turmas em que leciona. (recarrega a fila) |
 | T09 Solicitações | 409 `PERFIL_INCOMPATIVEL` ao aprovar | Esta pessoa não tem mais perfil de aluno. Recuse a solicitação. |
 | T04 Editor (edição) | 422 `body` "nenhuma alteração" | Nenhuma alteração para salvar. (informação, não falha) |
+| Casca (Sair) | Falha ao encerrar a sessão, exceto `CSRF_INVALIDO` (que usa a mensagem da tabela acima) | Não foi possível sair. Tente de novo. |
 
 ## 7. Design System
 

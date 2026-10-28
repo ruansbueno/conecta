@@ -8,13 +8,13 @@ A saída completa de cada verificação está em [`testes-web-2026-10-28.txt`](t
 | Verificação | Como | Resultado |
 |---|---|---|
 | Tipos e estilo | `npm run typecheck`, `npx eslint .` (inclui as regras próprias: sem cor fora do tema, armazenamento só no rascunho, componentes sem acesso direto à API) | sem erros |
-| Unidade e componente | `npx vitest run` | 274 testes em 32 arquivos, todos passam |
-| Ponta a ponta | `npx playwright test`, contra o servidor falso que segue o contrato da API | 40 testes, todos passam (rodados duas vezes seguidas a cada etapa) |
+| Unidade e componente | `npx vitest run` | 275 testes em 33 arquivos, todos passam |
+| Ponta a ponta | `npx playwright test`, contra o servidor falso que segue o contrato da API | 47 testes, todos passam (rodados duas vezes seguidas a cada etapa) |
 | Mensagens de erro (T071) | `tests/unit/mensagens-spec.test.ts` lê a tabela da seção 6 da spec e compara com o mapa da web, nos dois sentidos | spec e web iguais |
-| Acessibilidade (T072) | `e2e/acessibilidade.spec.ts`: axe com as regras WCAG 2.1 A e AA em cada tela e modal | nenhuma violação |
-| Só teclado (T073) | `e2e/teclado.spec.ts`: do login à publicação, e uma confirmação, sem mouse | passa; foco visível e devolvido ao fechar diálogos |
-| Sem perder o digitado (T074) | `e2e/sem-perder-texto.spec.ts`: rede do navegador derrubada no envio | login, editor, nova turma e recusa mantêm o texto |
-| Implantação (T076) | `deploy/verificar.sh`: build → nginx em Docker com HTTPS → API local real | 4 testes passam: rotas, HTTP→HTTPS, cookie `Secure`/`HttpOnly`, cache |
+| Acessibilidade (T072) | `e2e/acessibilidade.spec.ts`: axe com as regras WCAG 2.1 A e AA em cada tela e modal (abertos), nos três perfis, e nos estados vazio e de erro | nenhuma violação |
+| Só teclado (T073) | `e2e/teclado.spec.ts`: do login à exclusão de um aviso (lista, abas, editor, seletor, publicar, detalhe, confirmar); desativar turma; vincular; recusar com motivo; alterar perfil — sem mouse | passa; foco visível e devolvido ao fechar diálogos; a mensagem final recebe o foco |
+| Sem perder o digitado (T074) | `e2e/sem-perder-texto.spec.ts`: rede do navegador derrubada no envio e devolvida em seguida | login, novo e editar aviso, nova e editar turma, vincular, recusa e alterar perfil mantêm o que foi digitado ou escolhido, e o mesmo envio funciona com a rede de volta |
+| Implantação (T076) | `deploy/verificar.sh`: build → nginx em Docker com HTTPS → API local real | 6 testes passam: rotas, HTTP→HTTPS, cookie `Secure`/`HttpOnly`, cache, nenhuma violação da CSP, cabeçalhos também nas fontes |
 
 ### Correções feitas nesta fase
 
@@ -27,6 +27,10 @@ A saída completa de cada verificação está em [`testes-web-2026-10-28.txt`](t
   `span` sem papel não é anunciado).
 - **Vincular:** os resultados viraram um grupo de rádios sem itens de lista soltos.
 - **Login:** o rodapé sobre o fundo navy ganhou contraste.
+- **Opções indisponíveis** ("Já está na turma", "Já está no aviso", "Indisponível"): deixaram de ser
+  esmaecidas com opacidade, que levava o texto abaixo do AA; agora têm fundo neutro.
+- **CSP:** o zod roda sem o teste de `new Function` (`src/lib/zod-sem-eval.ts`), que gerava uma
+  violação de `script-src` a cada carregamento.
 - **Mensagens:** a tabela da seção 6 da spec passou a listar os `code` que a web já tratava e as
   mensagens próprias de cada tela.
 
@@ -47,7 +51,7 @@ são da fase F2 e não foram implementados.
 | Design | Implementado | Diferenças deliberadas |
 |---|---|---|
 | ![w-01](../../design/web/w-01-login.png) | ![w-01](telas/w-01-login.png) | Nenhuma de estrutura. O rodapé "IFSul · …" usa um azul claro, por contraste. |
-| ![w-02](../../design/web/w-02-painel-coordenacao.png) | ![w-02](telas/w-02-painel-coordenacao.png) | Números vêm do `total` das listas: o subtítulo traz o total de ativos, não "nesta semana" (a API não filtra por data). "Avisos recentes" inclui agendados e arquivados. As solicitações levam à fila em vez de ter Aprovar/Recusar no painel. Sem "Próximos na agenda" (F2) e sem "Turmas com inscrições abertas" (a API não tem esse filtro). |
+| ![w-02](../../design/web/w-02-painel-coordenacao.png) | ![w-02](telas/w-02-painel-coordenacao.png) | Números vêm do `total` das listas: o subtítulo traz o total de ativos, não "nesta semana" (a API não filtra por data). O bloco se chama "Avisos recentes" (no design, "Publicados recentemente") porque inclui agendados e arquivados; o horário vai na própria linha, sem coluna à parte. As solicitações levam à fila em vez de ter Aprovar/Recusar no painel. Sem "Próximos na agenda" (F2) e sem "Turmas com inscrições abertas" (a API não tem esse filtro). |
 | ![w-03](../../design/web/w-03-avisos-lista.png) | ![w-03](telas/w-03-avisos-lista.png) | Filtros de autor e de turma em campos de seleção (o design tem um botão "Destino"). A busca cobre título e conteúdo. Excluir fica no detalhe do aviso. |
 | ![w-04](../../design/web/w-04-aviso-editor.png) | ![w-04](telas/w-04-aviso-editor.png) | Sem "Alcance estimado" (a API não calcula). Chips mostram o nome da turma (a API devolve o nome, não o código, no destino). |
 | ![w-05](../../design/web/w-05-aviso-destinos.png) | ![w-05](telas/w-05-aviso-destinos.png) | A busca filtra as turmas ativas carregadas (até 100). |

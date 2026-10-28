@@ -3,8 +3,8 @@ import '../models/solicitacao.dart';
 import '../services/api_client.dart';
 import 'conversao.dart';
 
-/// `GET /solicitacoes/minhas` (contrato §8), sem cache pelo mesmo motivo das turmas disponíveis.
-/// Criar e cancelar (§7 e §9) entram na US4.
+/// Solicitações de inscrição do aluno (contrato §7, §8 e §9). A lista não vai para o cache, pelo
+/// mesmo motivo das turmas disponíveis; nada muda no app antes da resposta da API (RM-23).
 class SolicitacoesRepository {
   SolicitacoesRepository(this._api);
 
@@ -14,4 +14,14 @@ class SolicitacoesRepository {
     final json = await _api.get('/solicitacoes/minhas', query: {'limit': limit, 'offset': offset});
     return converter(() => Pagina.fromJson(json, Solicitacao.fromJson));
   }
+
+  /// `POST /turmas/{id}/solicitacoes`, sem corpo. Devolve o id da solicitação pendente criada.
+  Future<String> criar(String turmaId) async {
+    final json = await _api.post('/turmas/${Uri.encodeComponent(turmaId)}/solicitacoes', const {});
+    return converter(() => json['id'] as String);
+  }
+
+  /// `DELETE /solicitacoes/{id}`: só pendentes; a API responde 409 se já foi decidida.
+  Future<void> cancelar(String solicitacaoId) =>
+      _api.delete('/solicitacoes/${Uri.encodeComponent(solicitacaoId)}');
 }

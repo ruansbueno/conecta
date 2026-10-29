@@ -407,6 +407,7 @@ Estados: **C** carregando · **V** vazio · **E** erro de rede/servidor · **401
 | `JA_VINCULADO` | Você já faz parte desta turma. | Recarrega disponíveis |
 | `SOLICITACAO_DUPLICADA` | Você já tem uma solicitação pendente para esta turma. | Abre Minhas solicitações |
 | `SOLICITACAO_NAO_PENDENTE` | Esta solicitação já foi decidida. | Recarrega a lista |
+| `SOLICITACAO_NAO_ENCONTRADA` | Esta solicitação não existe mais. | Recarrega a lista |
 | `AVISO_NAO_ENCONTRADO` | Este aviso não está mais disponível. | Volta à lista |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
 | sem rede | Sem conexão. Verifique a rede e tente de novo. | Oferece repetir |

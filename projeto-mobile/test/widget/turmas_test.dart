@@ -72,6 +72,10 @@ void main() {
       expect(find.text('2026/2'), findsOneWidget); // optativa: só o período
       expect(find.text('Aluno'), findsNWidgets(2));
       expect(find.text('Entrar em outra turma'), findsOneWidget);
+      expect(
+        find.text('A inscrição passa pela aprovação da coordenação ou de quem leciona na turma.'),
+        findsOneWidget,
+      );
 
       await tester.scrollUntilVisible(find.text('Desenvolvimento de Jogos'), 200);
       expect(find.text('Minhas solicitações'), findsOneWidget);
@@ -209,18 +213,6 @@ void main() {
       expect(find.text('OPT-3 · 2026/2'), findsOneWidget);
       expect(find.widgetWithText(FilledButton, 'Solicitar'), findsNWidgets(2));
       expect(find.textContaining('já pediu inscrição não aparecem'), findsOneWidget);
-    });
-
-    testWidgets('Solicitar ainda não envia: avisa que chega na próxima versão', (tester) async {
-      await preparar();
-      app.api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('TADS-5A-2026-2')]));
-      await abrirDisponiveis(tester);
-
-      await tester.tap(find.widgetWithText(FilledButton, 'Solicitar'));
-      await tester.pump();
-
-      expect(find.textContaining('próxima versão'), findsOneWidget);
-      expect(app.api.pedidos.where((p) => p.method == 'POST'), isEmpty);
     });
 
     testWidgets('nenhuma turma aberta: estado vazio', (tester) async {

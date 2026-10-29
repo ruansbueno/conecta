@@ -21,6 +21,8 @@ void main() {
       falha('SEM_PERMISSAO', 403).mensagem,
       'Esta ação não está disponível para o seu perfil.',
     );
+    expect(falha('SOLICITACAO_NAO_ENCONTRADA', 404).mensagem, 'Esta solicitação não existe mais.');
+    expect(falha('SOLICITACAO_NAO_ENCONTRADA', 404).efeito, EfeitoFalha.recarrega);
   });
 
   test('sem rede e timeout oferecem repetir', () {

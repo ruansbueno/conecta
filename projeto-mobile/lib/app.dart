@@ -12,6 +12,7 @@ import 'services/api_failure.dart';
 import 'services/cache_local.dart';
 import 'services/cofre_sessao.dart';
 import 'state/session_controller.dart';
+import 'state/solicitacoes_controller.dart';
 import 'theme/tema.dart';
 import 'ui/casca/casca_abas.dart';
 import 'ui/comum/estado_erro.dart';
@@ -44,6 +45,7 @@ class ConectaApp extends StatelessWidget {
         Provider(create: (_) => AvisosRepository(d.api, d.cache)),
         Provider(create: (_) => TurmasRepository(d.api, d.cache)),
         Provider(create: (_) => SolicitacoesRepository(d.api)),
+        ChangeNotifierProvider(create: (_) => MudancasDeSolicitacao()),
         ChangeNotifierProvider(
           create: (_) =>
               SessionController(api: d.api, auth: auth, cofre: d.cofre, cache: d.cache)..iniciar(),

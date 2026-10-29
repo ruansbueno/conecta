@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 abstract final class Rotas {
   static const avisoDetalhe = '/avisos/detalhe';
   static const turmasDisponiveis = '/turmas/disponiveis';
+  static const solicitacoes = '/solicitacoes';
 
   /// Permite voltar à raiz quando a sessão é encerrada com telas empilhadas (RM-04).
   static final navigatorKey = GlobalKey<NavigatorState>();

@@ -173,19 +173,19 @@ modo offline.
 
 ## Phase 6: US4 — Solicitar inscrição (P4)
 
-- [ ] T048 [US4] `lib/repositories/solicitacoes_repository.dart`: `criar(turmaId)`, `minhas()` e
+- [x] T048 [US4] `lib/repositories/solicitacoes_repository.dart`: `criar(turmaId)`, `minhas()` e
       `cancelar(id)` (contrato §7, §8 e §9)
-- [ ] T049 [P] [US4] `test/unit/solicitacoes_repository_test.dart`: 201, `JA_VINCULADO`,
+- [x] T049 [P] [US4] `test/unit/solicitacoes_repository_test.dart`: 201, `JA_VINCULADO`,
       `SOLICITACAO_DUPLICADA`, `TURMA_INDISPONIVEL`, `SOLICITACAO_NAO_PENDENTE`, 204
-- [ ] T050 [US4] `lib/state/solicitacoes_controller.dart`: criar, listar, cancelar e disparar
+- [x] T050 [US4] `lib/state/solicitacoes_controller.dart`: criar, listar, cancelar e disparar
       recarga das turmas afetadas (RM-21, RM-22, RM-23)
-- [ ] T051 [US4] `lib/ui/solicitacoes/folha_confirmacao.dart`: folha inferior com confirmação,
+- [x] T051 [US4] `lib/ui/solicitacoes/folha_confirmacao.dart`: folha inferior com confirmação,
       explicação da aprovação e dois caminhos de saída (T08)
-- [ ] T052 [US4] `lib/ui/solicitacoes/lista_page.dart`: itens com status, datas, motivo de recusa
+- [x] T052 [US4] `lib/ui/solicitacoes/lista_page.dart`: itens com status, datas, motivo de recusa
       e cancelamento com diálogo de confirmação (RM-21, RM-22)
-- [ ] T053 [P] [US4] `test/widget/solicitacoes_test.dart`: os quatro status, cancelamento
+- [x] T053 [P] [US4] `test/widget/solicitacoes_test.dart`: os quatro status, cancelamento
       confirmado e recusado pelo usuário, e cada mensagem de `409`/`404`
-- [ ] T054 [P] [US4] `integration_test/solicitacao_fluxo_test.dart`: solicitar → ver pendente →
+- [x] T054 [P] [US4] `integration_test/solicitacao_fluxo_test.dart`: solicitar → ver pendente →
       cancelar → turma volta a disponíveis; e solicitar duas vezes a mesma turma
 
 **Checkpoint**: o ciclo de solicitação funciona de ponta a ponta.

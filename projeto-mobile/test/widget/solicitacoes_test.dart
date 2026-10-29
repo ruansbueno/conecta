@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -136,6 +138,51 @@ void main() {
       });
     }
 
+    testWidgets('cancelando: botão desativado e nenhuma mensagem antes da resposta (RM-23)', (
+      tester,
+    ) async {
+      quatroStatus();
+      await abrirLista(tester);
+      final resposta = Completer<http.Response>();
+      app.api.rotasAssincronas['DELETE /solicitacoes/s1'] = (_) => resposta.future;
+
+      await tester.tap(find.text('Cancelar solicitação'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Cancelar solicitação'));
+      await tester.pumpAndSettle();
+
+      final botao = tester.widget<OutlinedButton>(
+        find.widgetWithText(OutlinedButton, 'Cancelar solicitação'),
+      );
+      expect(botao.onPressed, isNull);
+      expect(find.text('Solicitação cancelada.'), findsNothing);
+      resposta.complete(respostaJson('', 204));
+      await tester.pumpAndSettle();
+      expect(find.text('Solicitação cancelada.'), findsOneWidget);
+    });
+
+    testWidgets('cancelar sem rede: "Tentar de novo" reenvia e mostra o resultado', (tester) async {
+      quatroStatus();
+      await abrirLista(tester);
+      var tentativas = 0;
+      app.api.rotas['DELETE /solicitacoes/s1'] = (_) {
+        if (tentativas++ == 0) throw http.ClientException('Connection refused');
+        return respostaJson('', 204);
+      };
+
+      await tester.tap(find.text('Cancelar solicitação'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Cancelar solicitação'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sem conexão. Verifique a rede e tente de novo.'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(SnackBarAction, 'Tentar de novo'));
+      await tester.pumpAndSettle();
+
+      expect(tentativas, 2);
+      expect(find.text('Solicitação cancelada.'), findsOneWidget);
+    });
+
     testWidgets('vazia: explica onde pedir inscrição', (tester) async {
       app.api.responder('GET /solicitacoes/minhas', paginaJson([solicitacaoMapa('s1')]));
       await abrirTurmas(tester);
@@ -183,6 +230,10 @@ void main() {
       expect(
         find.textContaining('Introdução a Ciência de Dados', findRichText: true),
         findsWidgets,
+      );
+      expect(
+        find.textContaining('A coordenação ou quem leciona na turma decide', findRichText: true),
+        findsOneWidget,
       );
       expect(find.text('TADS 5º Sem A'), findsOneWidget); // a outra continua
 
@@ -246,6 +297,60 @@ void main() {
 
       expect(find.text('Você já tem uma solicitação pendente para esta turma.'), findsOneWidget);
       expect(find.widgetWithText(AppBar, 'Minhas solicitações'), findsOneWidget);
+    });
+
+    testWidgets('resposta que chega depois de sair da tela não abre a folha nem navega', (
+      tester,
+    ) async {
+      await abrirDisponiveis(tester);
+      final resposta = Completer<http.Response>();
+      app.api.rotasAssincronas['POST /turmas/turma-DADOS-1/solicitacoes'] = (_) => resposta.future;
+      app.api.responder('GET /solicitacoes/minhas', paginaJson([solicitacaoMapa('s9')]));
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Solicitar').first);
+      await tester.pump();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      resposta.complete(respostaJson('{"id": "s9"}', 201));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Solicitação enviada'), findsNothing);
+      expect(find.widgetWithText(AppBar, 'Minhas turmas'), findsOneWidget);
+      expect(find.byKey(const Key('barra-abas')), findsOneWidget);
+      expect(find.text('Pendente'), findsOneWidget); // a recarga cruzada aconteceu
+    });
+
+    testWidgets('pedido duplicado respondido depois de sair da tela não troca de tela', (
+      tester,
+    ) async {
+      await abrirDisponiveis(tester);
+      final resposta = Completer<http.Response>();
+      app.api.rotasAssincronas['POST /turmas/turma-DADOS-1/solicitacoes'] = (_) => resposta.future;
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Solicitar').first);
+      await tester.pump();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      resposta.complete(respostaJson(_erro('SOLICITACAO_DUPLICADA'), 409));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, 'Minhas turmas'), findsOneWidget);
+      expect(find.byKey(const Key('barra-abas')), findsOneWidget);
+    });
+
+    testWidgets('"Tentar de novo" depois de sair da tela não quebra', (tester) async {
+      await abrirDisponiveis(tester);
+      app.api.falharRede('POST /turmas/turma-DADOS-1/solicitacoes');
+      await tester.tap(find.widgetWithText(FilledButton, 'Solicitar').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(SnackBarAction, 'Tentar de novo'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.widgetWithText(AppBar, 'Minhas turmas'), findsOneWidget);
     });
 
     testWidgets('sem rede: nada muda e "Tentar de novo" reenvia', (tester) async {

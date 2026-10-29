@@ -166,7 +166,19 @@ void main() {
 
         expect(falha!.code, 'TURMA_INDISPONIVEL');
         expect(c.lista.itens.map((t) => t.codigo), ['B']);
-        expect(avisos, 0);
+        expect(avisos, 1, reason: 'a turma mudou na API: Minhas turmas também recarrega');
+      },
+    );
+
+    test(
+      'SOLICITACAO_DUPLICADA também avisa (há uma pendente que Minhas turmas não mostra)',
+      () async {
+        final c = await carregada();
+        api.responder('POST /turmas/turma-A/solicitacoes', _erro('SOLICITACAO_DUPLICADA'), 409);
+
+        await c.solicitar(c.lista.itens.first);
+
+        expect(avisos, 1);
       },
     );
 

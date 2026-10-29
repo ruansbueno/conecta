@@ -60,7 +60,7 @@ class _Corpo extends StatelessWidget {
                 titulo: 'Nenhuma solicitação',
                 texto:
                     'Os pedidos de inscrição em turmas aparecem aqui, com a resposta da '
-                    'coordenação ou do docente.',
+                    'coordenação ou de quem leciona na turma.',
               ),
             ),
           ),
@@ -193,14 +193,29 @@ class _SolicitacaoCard extends StatelessWidget {
       ),
     );
     if (confirmou != true) return;
-    final falha = await controller.cancelar(s);
-    mensageiro.showSnackBar(
-      SnackBar(
-        content: Text(falha?.mensagem ?? 'Solicitação cancelada.'),
-        action: falha?.efeito == EfeitoFalha.repetir
-            ? SnackBarAction(label: 'Tentar de novo', onPressed: () => controller.cancelar(s))
-            : null,
-      ),
-    );
+    await _cancelarEMostrar(controller, mensageiro, s);
   }
+}
+
+/// Cancela e mostra o resultado; o "Tentar de novo" volta aqui, sem pedir confirmação outra vez.
+/// Um cancelamento já em curso (dois diálogos confirmados) não mostra nada: o resultado vem do
+/// primeiro.
+Future<void> _cancelarEMostrar(
+  SolicitacoesController controller,
+  ScaffoldMessengerState mensageiro,
+  Solicitacao s,
+) async {
+  if (controller.cancelando(s.id)) return;
+  final falha = await controller.cancelar(s);
+  mensageiro.showSnackBar(
+    SnackBar(
+      content: Text(falha?.mensagem ?? 'Solicitação cancelada.'),
+      action: falha?.efeito == EfeitoFalha.repetir
+          ? SnackBarAction(
+              label: 'Tentar de novo',
+              onPressed: () => _cancelarEMostrar(controller, mensageiro, s),
+            )
+          : null,
+    ),
+  );
 }

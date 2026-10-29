@@ -94,6 +94,10 @@ class DisponiveisController extends ControllerDeLista<Turma> {
       await _solicitacoes.criar(turma.id);
     } on ApiFailure catch (falha) {
       _enviando.remove(turma.id);
+      // A turma ou o pedido mudou na API: Minhas turmas também fica desatualizada.
+      if (falha.efeito == EfeitoFalha.recarrega || falha.efeito == EfeitoFalha.abreSolicitacoes) {
+        _mudancas.avisar();
+      }
       if (falha.efeito == EfeitoFalha.recarrega) {
         await recarregar();
       } else {

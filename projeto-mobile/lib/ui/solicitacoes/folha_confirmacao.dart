@@ -42,7 +42,7 @@ Future<SaidaDaFolha?> mostrarFolhaConfirmacao(BuildContext context, String turma
                     ),
                     const TextSpan(
                       text:
-                          ' ficou pendente. A coordenação ou o docente da turma decide, e a '
+                          ' ficou pendente. A coordenação ou quem leciona na turma decide, e a '
                           'resposta aparece em Minhas solicitações.',
                     ),
                   ],

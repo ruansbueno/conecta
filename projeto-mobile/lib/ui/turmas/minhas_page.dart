@@ -219,7 +219,7 @@ class _EntrarEmOutraTurma extends StatelessWidget {
           Text('Entrar em outra turma', style: Tipografia.tituloCartao),
           const SizedBox(height: 4),
           const Text(
-            'A inscrição passa pela aprovação da coordenação ou do docente.',
+            'A inscrição passa pela aprovação da coordenação ou de quem leciona na turma.',
             style: Tipografia.apoio,
           ),
         ],

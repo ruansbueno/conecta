@@ -72,6 +72,10 @@ void main() {
       expect(find.text('2026/2'), findsOneWidget); // optativa: só o período
       expect(find.text('Aluno'), findsNWidgets(2));
       expect(find.text('Entrar em outra turma'), findsOneWidget);
+      expect(
+        find.text('A inscrição passa pela aprovação da coordenação ou de quem leciona na turma.'),
+        findsOneWidget,
+      );
 
       await tester.scrollUntilVisible(find.text('Desenvolvimento de Jogos'), 200);
       expect(find.text('Minhas solicitações'), findsOneWidget);

@@ -126,7 +126,7 @@ class _Corpo extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: [
               for (final t in lista.itens) ...[
-                _TurmaDisponivel(turma: t),
+                _TurmaDisponivel(key: ValueKey(t.id), turma: t),
                 const SizedBox(height: 12),
               ],
               RodapeLista(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
@@ -163,7 +163,7 @@ class _Corpo extends StatelessWidget {
 }
 
 class _TurmaDisponivel extends StatelessWidget {
-  const _TurmaDisponivel({required this.turma});
+  const _TurmaDisponivel({required this.turma, super.key});
 
   final Turma turma;
 
@@ -187,7 +187,15 @@ class _TurmaDisponivel extends StatelessWidget {
           ),
         ),
         acao: FilledButton(
-          onPressed: enviando ? null : () => solicitar(context, turma),
+          // O contexto é o da tela, não o do cartão: depois do 201 o cartão sai da lista, mas a
+          // folha de confirmação ainda precisa abrir.
+          onPressed: enviando
+              ? null
+              : () => solicitar(
+                  context.findAncestorStateOfType<_DisponiveisPageState>()!.context,
+                  context.read<DisponiveisController>(),
+                  turma,
+                ),
           child: enviando
               ? const SizedBox.square(
                   dimension: 18,
@@ -206,16 +214,23 @@ class _TurmaDisponivel extends StatelessWidget {
 
 /// Envia o pedido (contrato §7) e segue o efeito da resposta: folha de confirmação; recarga
 /// (feita pelo controller); Minhas solicitações para um pedido duplicado; volta para um `403`;
-/// "Tentar de novo" sem rede.
-Future<void> solicitar(BuildContext context, Turma turma) async {
-  final controller = context.read<DisponiveisController>();
+/// "Tentar de novo" sem rede. Se a pessoa saiu da tela durante o envio, a mudança já foi avisada
+/// (Minhas turmas recarrega) e só resta uma mensagem curta: nada de folha ou navegação.
+/// [context] é o da tela de disponíveis ([_DisponiveisPageState]).
+Future<void> solicitar(BuildContext context, DisponiveisController controller, Turma turma) async {
   if (controller.enviando(turma.id)) return;
-  final navegador = Navigator.of(context);
   final mensageiro = ScaffoldMessenger.of(context);
   final falha = await controller.solicitar(turma);
   if (falha == null) {
-    if (!navegador.mounted) return;
-    final saida = await mostrarFolhaConfirmacao(navegador.context, turma.nome);
+    if (!context.mounted) {
+      mensageiro.showSnackBar(
+        SnackBar(content: Text('Solicitação de inscrição em ${turma.nome} enviada.')),
+      );
+      return;
+    }
+    final navegador = Navigator.of(context);
+    final saida = await mostrarFolhaConfirmacao(context, turma.nome);
+    if (!context.mounted) return;
     if (saida == SaidaDaFolha.verSolicitacoes) {
       unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
     } else if (saida == SaidaDaFolha.voltarAsTurmas) {
@@ -227,14 +242,20 @@ Future<void> solicitar(BuildContext context, Turma turma) async {
     SnackBar(
       content: Text(falha.mensagem),
       action: falha.efeito == EfeitoFalha.repetir && context.mounted
-          ? SnackBarAction(label: 'Tentar de novo', onPressed: () => solicitar(context, turma))
+          ? SnackBarAction(
+              label: 'Tentar de novo',
+              // A mensagem sobrevive à tela: o toque só vale se ela ainda estiver aberta.
+              onPressed: () {
+                if (context.mounted) solicitar(context, controller, turma);
+              },
+            )
           : null,
     ),
   );
-  if (!navegador.mounted) return;
+  if (!context.mounted) return;
   if (falha.efeito == EfeitoFalha.abreSolicitacoes) {
-    unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
+    unawaited(Navigator.of(context).pushReplacementNamed(Rotas.solicitacoes));
   } else if (falha.code == 'SEM_PERMISSAO') {
-    navegador.pop();
+    Navigator.of(context).pop();
   }
 }

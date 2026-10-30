@@ -1,6 +1,6 @@
 // T060 (RM-34, RM-35, SC-007): cada tela e diálogo da F1 passa nas regras de acessibilidade do
 // Flutter — contraste de texto (AA), alvo de toque de 48 dp e alvos de toque com rótulo. A ordem
-// de foco do leitor de tela é conferida à parte, com o TalkBack (evidencias/RELATORIO.md).
+// de foco é conferida pela ordem de leitura da árvore de acessibilidade (último teste).
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -178,6 +178,32 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await app.abrir(tester);
     expect(find.text('Tentar de novo'), findsOneWidget);
+    await auditar(tester);
+  });
+
+  testWidgets('sem rede com dados guardados (faixa) e listas vazias de turmas e solicitações', (
+    tester,
+  ) async {
+    await preparar();
+    await app.abrir(tester);
+    await aba(tester, 'Perfil');
+    app.api
+      ..falharRede('GET /avisos')
+      ..falharRede('GET /me')
+      ..responder('GET /turmas/disponiveis', paginaJson([]))
+      ..responder('GET /solicitacoes/minhas', paginaJson([]));
+    await tester.pumpWidget(const SizedBox());
+    await app.abrir(tester);
+    expect(find.textContaining('Mostrando dados de'), findsOneWidget);
+    await auditar(tester);
+    await aba(tester, 'Perfil');
+    expect(find.textContaining('Mostrando dados de'), findsOneWidget);
+    await auditar(tester);
+
+    await aba(tester, 'Turmas');
+    await tester.tap(find.text('Ver turmas'));
+    await tester.pumpAndSettle();
+    expect(find.text('Nenhuma turma aberta agora'), findsOneWidget);
     await auditar(tester);
   });
 

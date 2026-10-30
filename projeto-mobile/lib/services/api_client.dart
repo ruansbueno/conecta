@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 
 import 'api_failure.dart';
@@ -40,9 +41,13 @@ class ApiClient {
   /// RM-38: toda falha de API vai para o log local com método, endpoint (sem query), status e
   /// `code` — nunca token, corpo ou o `detail` do servidor, que podem ter dados pessoais.
   /// Substituível nos testes.
+  @visibleForTesting
   static void Function(String linha) registrar = _registrarLocalmente;
 
   static void _registrarLocalmente(String linha) => developer.log(linha, name: 'conecta.api');
+
+  /// Registra uma falha percebida fora do cliente (conversão do JSON nos repositórios).
+  static void registrarFalha(String linha) => registrar(linha);
 
   Future<Map<String, dynamic>> get(String caminho, {Map<String, Object?>? query}) => _registrando(
     'GET',
@@ -143,10 +148,19 @@ class ApiClient {
   ApiFailure _falha(Map<String, dynamic>? json, int status) {
     final code = json?['code'];
     if (code is! String) return ApiFailure(code: ApiFailure.respostaInvalida, status: status);
+    try {
+      return _falhaDoCorpo(json!, code, status);
+    } on Object {
+      // `detail` ou `errors` fora do formato do contrato.
+      return ApiFailure(code: ApiFailure.respostaInvalida, status: status);
+    }
+  }
+
+  ApiFailure _falhaDoCorpo(Map<String, dynamic> json, String code, int status) {
     return ApiFailure(
       code: code,
       status: status,
-      detail: json!['detail'] as String?,
+      detail: json['detail'] as String?,
       errors: [
         for (final e in (json['errors'] as List?) ?? const [])
           ErroDeCampo(

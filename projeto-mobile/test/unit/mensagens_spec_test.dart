@@ -19,6 +19,11 @@ void main() {
       if (RegExp(r'^`([A-Z_]+)`$').firstMatch(chave) case final m?) m.group(1)!: mensagem,
   };
 
+  test('nenhuma linha da tabela fica de fora da leitura (formato inesperado)', () {
+    final corpo = tabela.split('\n').where((l) => l.startsWith('|')).skip(2); // cabeçalho e ---
+    expect(linhas, hasLength(corpo.length));
+  });
+
   test('a tabela foi encontrada e tem os codes do contrato', () {
     expect(porCode.keys, containsAll(['NAO_AUTENTICADO', 'SOLICITACAO_DUPLICADA']));
   });

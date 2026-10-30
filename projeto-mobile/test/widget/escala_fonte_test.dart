@@ -251,12 +251,16 @@ void main() {
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
 
-    // Sem rede, com a lista guardada: a faixa de dados guardados com "Tentar de novo".
+    // Sem rede, com avisos guardados: a faixa com "Tentar de novo" não empurra a lista para fora.
+    app.api.responder('GET /avisos', avisosP1Json);
+    await tester.pumpWidget(const SizedBox());
+    await app.abrir(tester);
     app.api.falharRede('GET /avisos');
     await tester.pumpWidget(const SizedBox());
     await app.abrir(tester);
     expect(find.textContaining('Mostrando dados de'), findsOneWidget);
     expect(tester.takeException(), isNull);
     expect(find.text('Tentar de novo').hitTestable(), findsOneWidget);
+    expect(find.text('Reunião de pais e alunos'), findsOneWidget);
   });
 }

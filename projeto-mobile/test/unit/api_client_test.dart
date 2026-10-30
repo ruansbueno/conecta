@@ -294,6 +294,23 @@ void main() {
       },
     );
 
+    test(
+      'corpo de erro malformado vira RESPOSTA_INVALIDA registrada, não uma exceção crua',
+      () async {
+        final api = cliente(
+          (_) async =>
+              _json('{"detail": 42, "code": "VALIDATION_ERROR", "errors": [{"campo": 1}]}', 422),
+        );
+
+        await expectLater(
+          api.post('/x', const {}),
+          throwsA(isA<ApiFailure>().having((f) => f.code, 'code', ApiFailure.respostaInvalida)),
+        );
+
+        expect(registro, ['POST /x → 422 RESPOSTA_INVALIDA']);
+      },
+    );
+
     test('sucesso não registra nada', () async {
       final api = cliente((_) async => _json(meJson, 200));
 

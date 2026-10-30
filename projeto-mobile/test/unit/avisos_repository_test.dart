@@ -1,5 +1,6 @@
 import 'package:conecta/models/aviso.dart';
 import 'package:conecta/repositories/avisos_repository.dart';
+import 'package:conecta/services/api_client.dart';
 import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,5 +86,20 @@ void main() {
       repo.obter('sumiu'),
       throwsA(isA<ApiFailure>().having((f) => f.code, 'code', 'AVISO_NAO_ENCONTRADO')),
     );
+  });
+
+  test('200 com formato inesperado: RESPOSTA_INVALIDA registrada no log uma vez (RM-38)', () async {
+    final registro = <String>[];
+    final original = ApiClient.registrar;
+    ApiClient.registrar = registro.add;
+    addTearDown(() => ApiClient.registrar = original);
+    api.responder('GET /avisos', '{"itens": [], "total": "muitos"}');
+
+    await expectLater(
+      repo.listar(usuarioId: 'u1'),
+      throwsA(isA<ApiFailure>().having((f) => f.code, 'code', ApiFailure.respostaInvalida)),
+    );
+
+    expect(registro, ['GET /avisos → RESPOSTA_INVALIDA']);
   });
 }

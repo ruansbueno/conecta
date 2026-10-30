@@ -194,13 +194,13 @@ modo offline.
 
 ## Phase 7: US5 — Perfil (P5)
 
-- [ ] T055 [US5] `lib/ui/perfil/perfil_page.dart`: avatar, nome, usuário, selo de perfil, curso,
+- [x] T055 [US5] `lib/ui/perfil/perfil_page.dart`: avatar, nome, usuário, selo de perfil, curso,
       período, vínculos, nota sobre quem define o perfil e sair (RM-08, RM-10)
-- [ ] T056 [US5] Recarregar `GET /me` ao abrir a aba e ao voltar do segundo plano, ajustando os
+- [x] T056 [US5] Recarregar `GET /me` ao abrir a aba e ao voltar do segundo plano, ajustando os
       controles dependentes de perfil (RM-09)
-- [ ] T057 [P] [US5] `test/widget/perfil_test.dart`: aluno com vínculos, coordenação sem vínculo,
+- [x] T057 [P] [US5] `test/widget/perfil_test.dart`: aluno com vínculos, coordenação sem vínculo,
       mudança de perfil entre duas cargas e confirmação de saída
-- [ ] T058 [P] [US5] `integration_test/perfil_atualizado_test.dart`: perfil alterado no servidor
+- [x] T058 [P] [US5] `integration_test/perfil_atualizado_test.dart`: perfil alterado no servidor
       falso passa a valer na mesma sessão (RM-09)
 
 **Checkpoint**: todas as telas de F1 estão implementadas.

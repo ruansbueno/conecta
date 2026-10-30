@@ -57,9 +57,10 @@ Atualizado em 28/10/2026.
 | 5. US3 — Minhas turmas | Minhas turmas com o papel (m-06), estado vazio por perfil, turmas disponíveis só para aluno (m-07), solicitações recentes, cache sem rede | ✅ [#14](https://github.com/ruansbueno/conecta/pull/14) |
 | 6. US4 — Solicitar inscrição | Solicitar e folha de confirmação (m-08), Minhas solicitações com os quatro status (m-09), cancelar a pendente, recarga de Minhas turmas | ✅ [#15](https://github.com/ruansbueno/conecta/pull/15) |
 | 7. US5 — Perfil | Perfil (m-13) com curso, período e vínculos; saída com confirmação; perfil reavaliado ao abrir a aba e ao voltar do segundo plano | ✅ [#16](https://github.com/ruansbueno/conecta/pull/16) |
+| — Pontos menores | Achados menores das revisões das fases 4 a 7 (respostas fora de ordem, recargas repetidas, faixa de dados guardados, telas empilhadas quando o perfil muda) | ✅ [#17](https://github.com/ruansbueno/conecta/pull/17) |
 | 8. Polimento e evidências | Mensagens de erro, acessibilidade, fonte a 200%, uso sem rede, comparação com o design | A fazer |
 
-**Testes**: 236 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
+**Testes**: 252 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
 em `integration_test/`.
 
 ## Como rodar

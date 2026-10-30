@@ -495,11 +495,13 @@ Origem única: `design/README.md` e as telas em `design/mobile/`.
 
 | Requisito do app | Requisito da API | Tela | Teste |
 |---|---|---|---|
-| RM-01 a RM-07 | RF-01, RF-04, RF-05, RF-07 | T01 | unidade `sessao_test`; widget `login_test`; integração `sessao_expirada_test` |
-| RM-08 a RM-10 | RF-11 | T14 | widget `perfil_test`; integração `perfil_atualizado_test` |
-| RM-11 a RM-17 | RF-20 a RF-23, RF-25 | T02–T05 | widget `avisos_lista_test`, `aviso_detalhe_test`; integração `avisos_paginacao_test` |
-| RM-18 a RM-23 | RF-12 a RF-16 | T06–T09 | widget `turmas_test`, `solicitacoes_test`; integração `solicitacao_fluxo_test` |
+| RM-01 a RM-07 | RF-01, RF-04, RF-05, RF-07 | T01 | unidade `session_controller_test`, `auth_repository_test`, `cofre_sessao_test`, `api_client_test`; widget `login_test`, `app_test`; integração `sessao_test` |
+| RM-08 a RM-10 | RF-11 | T14 | unidade `session_controller_test`; widget `perfil_test`; integração `perfil_atualizado_test`, `sessao_test` |
+| RM-11 a RM-17 | RF-20 a RF-23, RF-25 | T02–T05 | unidade `avisos_repository_test`, `avisos_controller_test`; widget `avisos_lista_test`, `aviso_detalhe_test`; integração `avisos_test` |
+| RM-18 a RM-23 | RF-12 a RF-16 | T06–T09 | unidade `turmas_repository_test`, `turmas_controller_test`, `solicitacoes_repository_test`, `solicitacoes_controller_test`; widget `turmas_test`, `solicitacoes_test`; integração `solicitacao_fluxo_test` |
 | RM-24 a RM-27 | RF-31 (E3) | T10–T13 | planejados na F2 |
-| RM-28 a RM-31 | — | T02, T06, T14 | unidade `cache_test`; integração `offline_test` |
-| RM-32 a RM-37 | — | todas | widget `estados_test`; checagem de acessibilidade por tela |
-| RM-38 a RM-40 | SC-005 da API | todas | revisão de código e integração `erro_desconhecido_test` |
+| RM-28 a RM-31 | — | T02, T06, T14 | unidade `cache_local_test`; widget `avisos_lista_test`, `turmas_test`, `perfil_test`; integração `offline_test` (SC-005), `token_seguro_test` (SC-006) |
+| RM-32 a RM-37 | — | todas | widget `comum_test` (estados), `acessibilidade_test` (contraste, 48 dp, rótulos e ordem de leitura; SC-007), `escala_fonte_test` (200%) |
+| RM-38 a RM-40 | SC-005 da API | todas | unidade `api_client_test` (registro de falhas), `api_failure_test`, `mensagens_spec_test` (tabela da seção 6); integração `erro_desconhecido_test` |
+
+Relatório de execução e comparação com o design: [`evidencias/RELATORIO.md`](../../evidencias/RELATORIO.md).

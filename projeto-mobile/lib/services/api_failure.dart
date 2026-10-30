@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 /// O que a interface faz diante de uma falha (spec.md §6, "Mensagens por código").
 enum EfeitoFalha {
   permanece,
@@ -52,6 +50,9 @@ class ApiFailure implements Exception {
   static const timeout = 'TIMEOUT';
   static const respostaInvalida = 'RESPOSTA_INVALIDA';
 
+  /// Os codes com mensagem própria (para conferir contra a spec §6).
+  static Iterable<String> get codesConhecidos => _mapa.keys;
+
   final String code;
   final int? status;
 
@@ -61,12 +62,8 @@ class ApiFailure implements Exception {
 
   (String, EfeitoFalha) get _resolvido {
     if ((status ?? 0) >= 500) return (_generica, EfeitoFalha.repetir);
-    final conhecido = _mapa[code];
-    if (conhecido != null) return conhecido;
-    if (code != respostaInvalida) {
-      developer.log('code desconhecido: $code (status $status)', name: 'conecta.api');
-    }
-    return (_generica, EfeitoFalha.repetir);
+    // Code fora do catálogo: mensagem genérica; o registro em log é do ApiClient (RM-38).
+    return _mapa[code] ?? (_generica, EfeitoFalha.repetir);
   }
 
   String get mensagem => _resolvido.$1;

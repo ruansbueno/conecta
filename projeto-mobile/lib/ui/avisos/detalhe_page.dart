@@ -79,7 +79,8 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
-          SelectableText(aviso.conteudo, style: Tipografia.corpo),
+          // Selecionável por toque longo, sem virar um alvo de toque de uma linha (SC-007).
+          SelectionArea(child: Text(aviso.conteudo, style: Tipografia.corpo)),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),

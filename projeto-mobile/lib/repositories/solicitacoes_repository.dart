@@ -12,13 +12,17 @@ class SolicitacoesRepository {
 
   Future<Pagina<Solicitacao>> minhas({int limit = 20, int offset = 0}) async {
     final json = await _api.get('/solicitacoes/minhas', query: {'limit': limit, 'offset': offset});
-    return converter(() => Pagina.fromJson(json, Solicitacao.fromJson));
+    return converter(
+      () => Pagina.fromJson(json, Solicitacao.fromJson),
+      origem: 'GET /solicitacoes/minhas',
+    );
   }
 
   /// `POST /turmas/{id}/solicitacoes`, sem corpo. Devolve o id da solicitação pendente criada.
   Future<String> criar(String turmaId) async {
-    final json = await _api.post('/turmas/${Uri.encodeComponent(turmaId)}/solicitacoes', const {});
-    return converter(() => json['id'] as String);
+    final caminho = '/turmas/${Uri.encodeComponent(turmaId)}/solicitacoes';
+    final json = await _api.post(caminho, const {});
+    return converter(() => json['id'] as String, origem: 'POST $caminho');
   }
 
   /// `DELETE /solicitacoes/{id}`: só pendentes; a API responde 409 se já foi decidida.

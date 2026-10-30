@@ -24,7 +24,7 @@ class AvisosRepository {
       '/avisos',
       query: {'situacao': situacao.name, 'limit': tamanhoPagina, 'offset': offset},
     );
-    final pagina = converter(() => Pagina.fromJson(json, Aviso.fromJson));
+    final pagina = converter(() => Pagina.fromJson(json, Aviso.fromJson), origem: 'GET /avisos');
     if (situacao == SituacaoAviso.ativo && offset == 0 && token != null && _api.token == token) {
       await _cache.gravar(usuarioId, RecursoCache.avisosAtivosP1, json);
     }
@@ -43,7 +43,8 @@ class AvisosRepository {
   }
 
   Future<Aviso> obter(String id) async {
-    final json = await _api.get('/avisos/${Uri.encodeComponent(id)}');
-    return converter(() => Aviso.fromJson(json));
+    final caminho = '/avisos/${Uri.encodeComponent(id)}';
+    final json = await _api.get(caminho);
+    return converter(() => Aviso.fromJson(json), origem: 'GET $caminho');
   }
 }

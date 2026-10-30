@@ -16,14 +16,14 @@ class AuthRepository {
       'username': username,
       'password': password,
     }, autenticado: false);
-    return converter(() => Sessao.fromLogin(json));
+    return converter(() => Sessao.fromLogin(json), origem: 'POST /auth/login');
   }
 
   /// Usuário corrente com as turmas; guarda o perfil para abrir sem rede (RM-28).
   Future<Usuario> me() async {
     final token = _api.token;
     final json = await _api.get('/me');
-    final usuario = converter(() => Usuario.fromJson(json));
+    final usuario = converter(() => Usuario.fromJson(json), origem: 'GET /me');
     // Resposta de uma sessão que já terminou não grava nada (RM-30).
     if (token != null && _api.token == token) {
       await _cache.gravar(usuario.id, RecursoCache.perfil, json);

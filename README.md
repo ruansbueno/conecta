@@ -10,19 +10,19 @@ murais, grupos de mensagem e e-mail, e nem sempre chegam a quem precisa. No CONE
 ou evento é publicado com um **público explícito** — todos, um semestre inteiro, os docentes ou
 turmas específicas — e cada pessoa vê exatamente o que a alcança.
 
-> **Estado atual (28/10/2026)**: a API das entregas E1 e E2 está implementada; o aplicativo tem o
-> marco de avisos (login, sessão e aba Avisos), a aba Turmas, a solicitação de inscrição e o perfil — todas as telas da F1; a plataforma web tem login, publicação de avisos e
-> a auditoria completa deles (lista, histórico e versões), turmas e vínculos, a fila de
-> solicitações de inscrição, a gestão de usuários e perfis e o painel — a F1 completa, com o fluxo
-> web → API → app testado, acessibilidade AA verificada e a implantação estática de referência.
-> Faltam o restante do aplicativo e a agenda (E3). Veja [Andamento](#andamento).
+> **Estado atual (29/10/2026)**: a fase F1 está completa nos três projetos — a API das entregas
+> E1 e E2, a plataforma web (avisos com auditoria, turmas e vínculos, solicitações, usuários e
+> perfis, painel) e o aplicativo (avisos, turmas, solicitação de inscrição e perfil, inclusive sem
+> rede), com o fluxo web → API → app testado, acessibilidade AA verificada e evidências com
+> capturas. Falta a integração real com o Moodle, que depende de acesso à API do IFSul; depois vem
+> a agenda (E3). Veja [Andamento](#andamento).
 
 ## Estrutura do repositório
 
 | Pasta | Conteúdo | Situação |
 |---|---|---|
 | [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1 e E2 implementadas |
-| [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, plano, 66 tarefas e o código | Todas as telas da F1 implementadas (58 de 66 tarefas) |
+| [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, plano, 66 tarefas e o código | F1 completa (66 de 66 tarefas) |
 | [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, plano, 77 tarefas, o código, as evidências e a implantação | F1 completa (77 de 77 tarefas) |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
@@ -108,7 +108,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 | Entrega | Conteúdo | Situação |
 |---|---|---|
-| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | API pronta; aplicativo com todas as telas da F1 |
+| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | API pronta (falta só o Moodle real); aplicativo completo |
 | **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | API pronta; web com avisos completos (publicar e auditar) |
 | **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | Especificada em `projeto-api/specs/002-agenda-horarios`; plano e tarefas após a validação da E1 |
 
@@ -128,6 +128,7 @@ achados corrigidos com teste antes do merge.
 | **Aplicativo — fase 6** | Solicitar inscrição numa turma disponível, folha de confirmação, Minhas solicitações com os quatro status e o motivo da recusa, cancelar a pendente; Minhas turmas sempre atualizada | 226 testes (unidade e widget) + integração no emulador | [#15](https://github.com/ruansbueno/conecta/pull/15) |
 | **Aplicativo — fase 7** | Perfil com curso, período, vínculos e saída com confirmação; perfil reavaliado ao abrir a aba e ao voltar do segundo plano, ajustando as abas sem novo login | 236 testes (unidade e widget) + integração no emulador | [#16](https://github.com/ruansbueno/conecta/pull/16) |
 | **Aplicativo — pontos menores** | Os achados menores das revisões das fases 4 a 7: respostas fora de ordem, recargas repetidas, faixa de dados guardados, telas empilhadas quando o perfil muda | 252 testes (unidade e widget) + 13 de integração | [#17](https://github.com/ruansbueno/conecta/pull/17) |
+| **Aplicativo — fase 8** | Mensagens conferidas contra a spec, acessibilidade (regras do Flutter) e fonte a 200% em todas as telas, uso sem rede nas três abas, log local de toda falha de API, token só no armazenamento seguro, [evidências](projeto-mobile/evidencias/RELATORIO.md) com capturas ao lado do design | 273 testes (unidade e widget) + 16 de integração no emulador | [#18](https://github.com/ruansbueno/conecta/pull/18) |
 | **Web — fases 1 a 4** | Fundação (tema, sessão por cookie + CSRF, casca), login, publicação de avisos com seletor de destinos, restrição do docente, agendamento, prévia do cartão do app e rascunho local | Vitest + Playwright | [#4](https://github.com/ruansbueno/conecta/pull/4) |
 | **Web — fase 5** | Lista de avisos por situação com busca e filtros, histórico com texto antes/depois, versões, arquivar/desarquivar/excluir com confirmação | Vitest + Playwright | [#5](https://github.com/ruansbueno/conecta/pull/5) |
 | **Web — fase 6** | Turmas por situação com busca e filtros, criar/editar, abrir/fechar inscrições, desativar/reativar, vínculos com origem, vincular buscando a pessoa e desvincular com alerta | Vitest + Playwright | [#7](https://github.com/ruansbueno/conecta/pull/7) |
@@ -142,19 +143,15 @@ web aparece no aplicativo para exatamente quem está nos destinos.
 
 ### Falta, em ordem
 
-**1. Aplicativo — fase 8** — polimento e evidências: mensagens de erro, acessibilidade, uso sem
-rede, comparação com o design (8 tarefas em
-[`tasks.md`](projeto-mobile/specs/001-app-conecta/tasks.md)).
+**1. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado; é a única tarefa
+aberta da API (T072). A integração real só pode ser validada quando houver acesso à API da
+instituição, e os testes dela são identificados à parte, para que aprovação com simulação nunca
+seja confundida com validação real.
 
 **2. Agenda e horários (E3)** — a especificação está pronta
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
 eventos e de horários contratados; faltam o plano, as tarefas e a implementação, além das fases
 F2 do aplicativo e da plataforma web.
-
-**3. Integração real com o Moodle** — hoje tudo funciona com o provedor simulado; é a única tarefa
-aberta da API (T072). A integração real só pode ser validada quando houver acesso à API da
-instituição, e os testes dela são identificados à parte, para que aprovação com simulação nunca
-seja confundida com validação real.
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.
@@ -167,7 +164,7 @@ Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
 2. ✅ Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
 3. ✅ API — entrega E2 (endpoints de gestão).
 4. ✅ Plataforma web — fase F1, fechando o ciclo web → API → app.
-5. ⏳ Aplicativo — fase F1 completa (todas as telas prontas; falta o polimento).
+5. ✅ Aplicativo — fase F1 completa.
 6. E3 — agenda e horários, na API e nos dois clientes.
 
 A integração real com o Moodle tem data-limite de **13/11/2026**; depois dela, o trabalho é

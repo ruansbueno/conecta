@@ -21,7 +21,10 @@ class TurmasRepository {
       '/turmas/minhas',
       query: {'limit': tamanhoPagina, 'offset': offset},
     );
-    final pagina = converter(() => Pagina.fromJson(json, TurmaVinculada.fromJson));
+    final pagina = converter(
+      () => Pagina.fromJson(json, TurmaVinculada.fromJson),
+      origem: 'GET /turmas/minhas',
+    );
     if (offset == 0 && token != null && _api.token == token) {
       await _cache.gravar(usuarioId, RecursoCache.turmasMinhas, json);
     }
@@ -44,6 +47,9 @@ class TurmasRepository {
       '/turmas/disponiveis',
       query: {'limit': tamanhoPagina, 'offset': offset},
     );
-    return converter(() => Pagina.fromJson(json, Turma.fromJson));
+    return converter(
+      () => Pagina.fromJson(json, Turma.fromJson),
+      origem: 'GET /turmas/disponiveis',
+    );
   }
 }

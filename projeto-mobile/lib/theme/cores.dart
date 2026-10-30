@@ -10,7 +10,10 @@ abstract final class Cores {
   static const tinta = Color(0xFF0F1C33);
   static const textoCorpo = Color(0xFF263A5B);
   static const apagado = Color(0xFF5B6B86);
-  static const tenue = Color(0xFF8A99B0);
+
+  /// O design usa #8A99B0 (2,9:1 sobre branco), abaixo do AA para texto pequeno (SC-007): escurecida
+  /// na mesma matiz para 5,1:1 sobre branco, como na plataforma web.
+  static const tenue = Color(0xFF646F80);
   static const linha = Color(0xFFE4E9F2);
   static const linhaSuave = Color(0xFFEFF2F7);
   static const fundoPagina = Color(0xFFF5F8FC);

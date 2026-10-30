@@ -183,4 +183,80 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Período letivo'), findsOneWidget);
   });
+
+  testWidgets('estados vazios, faixa sem rede e os diálogos de confirmação a 200% sem estouro', (
+    tester,
+  ) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api
+      ..responder('GET /avisos', avisosVazioJson)
+      ..responder('GET /turmas/minhas', paginaJson([]))
+      ..responder('GET /solicitacoes/minhas', paginaJson([solicitacaoMapa('s1')]));
+    await app.abrir(tester);
+    expect(find.text('Nenhum aviso por enquanto'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    Future<void> aba(String nome) async {
+      await tester.tap(
+        find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text(nome)),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await aba('Turmas');
+    expect(find.text('Você ainda não participa de nenhuma turma'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.scrollUntilVisible(
+      find.text('Ver todas'),
+      100,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-turmas')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.ensureVisible(find.text('Ver todas'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ver todas'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Cancelar solicitação'),
+      100,
+      scrollable: find.descendant(
+        of: find.byKey(const Key('lista-solicitacoes')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.ensureVisible(find.text('Cancelar solicitação'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancelar solicitação'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cancelar a solicitação?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Manter'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await aba('Perfil');
+    await tester.scrollUntilVisible(find.text('Sair da conta'), 100);
+    await tester.ensureVisible(find.text('Sair da conta'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sair da conta'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sair da conta?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+
+    // Sem rede, com a lista guardada: a faixa de dados guardados com "Tentar de novo".
+    app.api.falharRede('GET /avisos');
+    await tester.pumpWidget(const SizedBox());
+    await app.abrir(tester);
+    expect(find.textContaining('Mostrando dados de'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(find.text('Tentar de novo').hitTestable(), findsOneWidget);
+  });
 }

@@ -185,4 +185,52 @@ void main() {
 
     await expectLater(carga, completes);
   });
+
+  group('robustez (pontos menores)', () {
+    test('cargas sobrepostas: vale a resposta do pedido mais recente', () async {
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /avisos'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+
+      final antiga = controller.carregar();
+      final nova = controller.carregar();
+      await pumpEventQueue();
+      respostas[1].complete(respostaJson(paginaAvisosJson(total: 1)));
+      await nova;
+      respostas[0].complete(respostaJson(paginaAvisosJson(total: 3)));
+      await antiga;
+
+      expect(controller.lista.itens, hasLength(1));
+    });
+
+    test('"carregar mais" antigo, depois de uma recarga, não libera o pedido novo', () async {
+      final segundas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /avisos'] = (r) {
+        final offset = int.parse(r.url.queryParameters['offset']!);
+        final pagina = respostaJson(paginaAvisosJson(total: 45, offset: offset));
+        if (offset == 0) return Future.value(pagina);
+        final c = Completer<http.Response>();
+        segundas.add(c);
+        return c.future.then((_) => pagina);
+      };
+      await controller.carregar();
+
+      final antigo = controller.carregarMais();
+      await controller.recarregar();
+      final novo = controller.carregarMais();
+      await pumpEventQueue();
+      segundas[0].complete(http.Response('', 200));
+      await antigo;
+
+      expect(controller.lista.carregandoMais, isTrue, reason: 'o pedido novo ainda está em curso');
+      await controller.carregarMais();
+      expect(segundas, hasLength(2));
+      segundas[1].complete(http.Response('', 200));
+      await novo;
+      expect(controller.lista.itens.map((a) => a.id).toSet(), hasLength(40));
+    });
+  });
 }

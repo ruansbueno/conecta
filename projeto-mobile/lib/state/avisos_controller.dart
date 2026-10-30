@@ -19,6 +19,9 @@ class ListaAvisos {
   /// Muda a cada substituição da lista: respostas de "carregar mais" de antes são descartadas.
   int geracao = 0;
 
+  /// Número da carga ou recarga mais recente: só a resposta dela é aplicada.
+  int pedido = 0;
+
   /// Data dos dados quando a tela mostra o cache por falta de rede; `null` com dados frescos.
   DateTime? dadosDe;
 
@@ -54,14 +57,17 @@ class AvisosController extends ChangeNotifier {
   Future<void> carregar() async {
     final alvo = lista;
     final situacao = _situacao;
+    final pedido = ++alvo.pedido;
     alvo
       ..estado = EstadoLista.carregando
       ..falha = null;
     notifyListeners();
     try {
       final pagina = await _repo.listar(usuarioId: usuarioId, situacao: situacao);
+      if (pedido != alvo.pedido) return;
       _substituir(alvo, pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
+      if (pedido != alvo.pedido) return;
       final emCache = situacao == SituacaoAviso.ativo ? _repo.avisosEmCache(usuarioId) : null;
       if (emCache != null && falha.efeito == EfeitoFalha.repetir) {
         final (pagina, coletadoEm) = emCache;
@@ -80,11 +86,14 @@ class AvisosController extends ChangeNotifier {
   Future<void> recarregar() async {
     final alvo = lista;
     if (!alvo.carregada || alvo.estado == EstadoLista.erro) return carregar();
+    final pedido = ++alvo.pedido;
     _ultimaFalha = null;
     try {
       final pagina = await _repo.listar(usuarioId: usuarioId, situacao: _situacao);
+      if (pedido != alvo.pedido) return;
       _substituir(alvo, pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
+      if (pedido != alvo.pedido) return;
       _ultimaFalha = falha;
     }
     notifyListeners();
@@ -106,16 +115,20 @@ class AvisosController extends ChangeNotifier {
         situacao: _situacao,
         offset: alvo.itens.length,
       );
-      if (alvo.geracao != geracao) return; // a lista foi recarregada nesse meio-tempo
+      // A lista foi recarregada nesse meio-tempo: a página é de antes, e a trava pode ser de um
+      // pedido novo.
+      if (alvo.geracao != geracao) return;
       alvo
         ..itens.addAll(pagina.items)
-        ..total = pagina.total;
+        ..total = pagina.total
+        ..carregandoMais = false;
     } on ApiFailure catch (falha) {
-      if (alvo.geracao == geracao) alvo.falhaAoCarregarMais = falha;
-    } finally {
-      alvo.carregandoMais = false;
-      notifyListeners();
+      if (alvo.geracao != geracao) return;
+      alvo
+        ..falhaAoCarregarMais = falha
+        ..carregandoMais = false;
     }
+    notifyListeners();
   }
 
   void _substituir(ListaAvisos alvo, List<Aviso> itens, int total, {DateTime? dadosDe}) {

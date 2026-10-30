@@ -1,0 +1,297 @@
+# Evidência de testes — aplicativo CONECTA, fase F1 (fases 1 a 8)
+# Data: 2026-10-29 23:42 -0300 | branch: 017-app-fase8 | base: 3d360bb
+# Flutter 3.41.4 • channel stable • https://github.com/flutter/flutter.git | integração no emulador Android 16 (emulator-5554)
+
+## flutter analyze
+No issues found! (ran in 2.4s)
+
+## flutter test -r expanded (unidade e widget)
+00:00 +0: test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +1: test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +2: test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +3: test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +4: test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +5: test/unit/cofre_sessao_test.dart: sem sessão guardada devolve null
+00:00 +6: test/unit/cofre_sessao_test.dart: nada além de token, id e expiração é guardado (a senha nunca, RM-02)
+00:00 +7: test/unit/cache_local_test.dart: grava e lê o JSON com a data de coleta
+00:00 +8: test/unit/cache_local_test.dart: idade do dado a partir da coleta
+00:00 +9: test/unit/cache_local_test.dart: nada guardado devolve null
+00:00 +10: test/unit/cache_local_test.dart: conteúdo de um usuário nunca aparece para outro (RM-31)
+00:00 +11: test/unit/cache_local_test.dart: apagar o usuário remove só as chaves dele (RM-30)
+00:00 +12: test/unit/cache_local_test.dart: entrada corrompida é tratada como ausente
+00:00 +13: test/unit/turmas_repository_test.dart: minhas (contrato §5) pede limit 20 e offset e traz o papel de cada turma
+00:00 +14: test/unit/turmas_repository_test.dart: minhas (contrato §5) lista vazia é um resultado normal (coordenação e administração)
+00:00 +15: test/unit/turmas_repository_test.dart: minhas (contrato §5) a primeira página vai para o cache (turmas_minhas), com a data da coleta
+00:00 +16: test/unit/turmas_repository_test.dart: minhas (contrato §5) páginas seguintes e falhas não mexem no cache
+00:00 +17: test/unit/turmas_repository_test.dart: minhas (contrato §5) resposta que chega depois de sair da conta não é guardada
+00:00 +18: test/unit/turmas_repository_test.dart: disponíveis (contrato §6) lista sem papel e não guarda cache
+00:00 +19: test/unit/turmas_repository_test.dart: disponíveis (contrato §6) 403 SEM_PERMISSAO para quem não é aluno chega com a mensagem de perfil
+00:00 +20: test/unit/turmas_repository_test.dart: disponíveis (contrato §6) formato inesperado vira RESPOSTA_INVALIDA
+00:00 +21: test/unit/turmas_repository_test.dart: solicitações recentes (contrato §8, rodapé de T06) pede as três mais recentes e converte status e datas
+00:00 +22: test/unit/turmas_repository_test.dart: solicitações recentes (contrato §8, rodapé de T06) 403 SEM_PERMISSAO é repassado (a tela esconde a seção)
+00:00 +23: test/unit/tema_test.dart: Inter em todo o texto
+00:00 +24: test/unit/tema_test.dart: cores do design (design/README.md)
+00:00 +25: test/unit/tema_test.dart: alvo de toque mínimo de 48 dp (RM-34)
+00:00 +26: test/unit/tema_test.dart: títulos com entreletra negativa de -0,02 em
+00:00 +27: test/unit/design_system_test.dart: nenhum literal de cor fora de lib/theme/
+00:00 +28: test/unit/models_test.dart: Sessao vem da resposta de login, sem senha
+00:00 +29: test/unit/models_test.dart: Usuario de GET /me, com turmas vinculadas e papel
+00:00 +30: test/unit/models_test.dart: Usuario perfil fora do conjunto conhecido vira desconhecido e guarda o valor cru
+00:00 +31: test/unit/models_test.dart: Usuario igualdade por valor
+00:00 +32: test/unit/models_test.dart: Usuario podeSolicitarInscricao só para aluno
+00:00 +33: test/unit/models_test.dart: Usuario iniciais: primeira letra do primeiro e do último nome, sem partículas
+00:00 +34: test/unit/models_test.dart: Aviso campos do contrato, com autor e datas em UTC
+00:00 +35: test/unit/models_test.dart: Aviso data com microssegundos e aviso editado
+00:00 +36: test/unit/models_test.dart: Aviso todos os destinos, na ordem recebida
+00:00 +37: test/unit/models_test.dart: Aviso trecho corta em limite de palavra, com reticências
+00:00 +38: test/unit/models_test.dart: Destino rótulos por tipo
+00:00 +39: test/unit/models_test.dart: Destino turma sem nome usa o id curto
+00:00 +40: test/unit/models_test.dart: Destino tipo novo da API vira desconhecido com o rótulo cru, sem quebrar
+00:00 +41: test/unit/models_test.dart: Pagina temMais segue offset + itens < total
+00:00 +42: test/unit/models_test.dart: Turma e Solicitacao turma de /turmas/disponiveis, sem papel
+00:00 +43: test/unit/models_test.dart: Turma e Solicitacao solicitação recusada com motivo; status desconhecido não quebra
+00:01 +44: test/unit/auth_repository_test.dart: login 200 devolve a sessão, sem enviar token
+00:01 +45: test/unit/auth_repository_test.dart: login com credencial inválida, inativo, validação e sem rede
+00:01 +46: test/unit/auth_repository_test.dart: me() devolve o usuário com turmas e guarda o perfil em cache
+00:01 +47: test/unit/auth_repository_test.dart: me() com falha não grava cache
+00:01 +48: test/unit/solicitacoes_repository_test.dart: criar (contrato §7) 201: devolve a solicitação pendente criada
+00:01 +49: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +50: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +51: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +52: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +53: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +54: test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:01 +55: test/unit/solicitacoes_repository_test.dart: cancelar (contrato §9) 204: sem corpo, sem erro
+00:01 +56: test/unit/avisos_repository_test.dart: só a primeira página de ativos vai para o cache
+00:01 +57: test/unit/avisos_repository_test.dart: só a primeira página de ativos vai para o cache
+00:01 +58: test/unit/avisos_repository_test.dart: só a primeira página de ativos vai para o cache
+00:01 +59: test/unit/avisos_repository_test.dart: arquivados pedem situacao=arquivado
+00:01 +60: test/unit/avisos_repository_test.dart: falha de rede não grava cache e repassa SEM_REDE
+00:01 +61: test/unit/avisos_repository_test.dart: obter o detalhe; 404 vira AVISO_NAO_ENCONTRADO
+00:01 +62: test/unit/session_controller_test.dart: abertura (RM-07) sem token guardado vai para o login
+00:01 +63: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) lista as solicitações com limit 20, todos os status
+00:01 +64: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) lista as solicitações com limit 20, todos os status
+00:01 +65: test/unit/session_controller_test.dart: abertura (RM-07) com token inválido apaga a sessão e mostra que expirou
+00:01 +66: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar: DELETE, recarrega a lista e avisa a mudança
+00:01 +67: test/unit/session_controller_test.dart: abertura (RM-07) usuário desativado: encerra com a mensagem própria
+00:01 +68: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar já decidida (409): devolve a falha, recarrega e avisa
+00:01 +69: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar já decidida (409): devolve a falha, recarrega e avisa
+00:01 +70: test/unit/session_controller_test.dart: abertura (RM-07) sem rede e sem cache: tela de sem conexão, sessão preservada
+00:01 +71: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar sem rede: nada muda, sem aviso
+00:01 +72: test/unit/session_controller_test.dart: robustez (revisão final) cofre ilegível (backup restaurado) abre no login, sem travar
+00:01 +73: test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) marca a solicitação em cancelamento enquanto a API responde
+00:01 +74: test/unit/session_controller_test.dart: robustez (revisão final) GET /me fora do formato na abertura não trava na verificação
+00:01 +75: test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) 201: a turma sai da lista e a mudança é avisada
+00:01 +76: test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) 201: a turma sai da lista e a mudança é avisada
+00:01 +77: test/unit/session_controller_test.dart: robustez (revisão final) recargas sobrepostas: a resposta mais antiga não desfaz o perfil novo
+00:01 +78: test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) a última turma solicitada deixa a lista vazia
+00:01 +79: test/unit/session_controller_test.dart: robustez (revisão final) sair com GET /me em andamento: a resposta tardia não volta a gravar nada
+00:01 +80: test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) JA_VINCULADO ou TURMA_INDISPONIVEL: devolve a falha e recarrega as disponíveis
+00:01 +81: test/unit/session_controller_test.dart: robustez (revisão final) 401 de uma chamada feita com o token antigo não derruba a sessão nova
+00:01 +82: test/unit/session_controller_test.dart: robustez (revisão final) 401 de uma chamada feita com o token antigo não derruba a sessão nova
+00:01 +83: test/unit/session_controller_test.dart: robustez (revisão final) 401 de uma chamada feita com o token antigo não derruba a sessão nova
+00:02 +84: test/unit/session_controller_test.dart: robustez (revisão final) 401 de uma chamada feita com o token antigo não derruba a sessão nova
+00:02 +85: test/unit/solicitacoes_controller_test.dart: Minhas turmas recarrega turmas e solicitações quando uma mudança é avisada
+00:02 +86: test/unit/solicitacoes_controller_test.dart: Minhas turmas recarrega turmas e solicitações quando uma mudança é avisada
+00:02 +87: test/unit/session_controller_test.dart: login e logout login grava o token no cofre e entra
+00:02 +88: test/unit/session_controller_test.dart: login e logout login com falha não grava nada e repassa a falha
+00:02 +89: test/unit/session_controller_test.dart: login e logout logout apaga token e cache (RM-10, RM-30)
+00:02 +90: test/unit/session_controller_test.dart: sessão invalidada no meio do uso (RM-04, RM-05) 401 em qualquer chamada encerra uma única vez
+00:02 +91: test/unit/api_client_test.dart: GET com sucesso: decodifica JSON e envia cabeçalhos e token
+00:02 +92: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +93: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +94: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +95: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +96: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +97: test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:02 +98: test/unit/api_client_test.dart: timeout vira TIMEOUT
+00:02 +99: test/unit/api_client_test.dart: timeout vira TIMEOUT
+00:02 +100: test/unit/avisos_controller_test.dart: carregar mais concatena até esgotar o total
+00:02 +101: test/unit/avisos_controller_test.dart: carregar mais concatena até esgotar o total
+00:02 +102: test/unit/api_client_test.dart: falha de TLS (portal cativo) também é SEM_REDE, nunca exceção crua
+00:02 +103: test/unit/avisos_controller_test.dart: chamadas simultâneas de carregar mais pedem a página uma vez só
+00:02 +104: test/unit/avisos_controller_test.dart: chamadas simultâneas de carregar mais pedem a página uma vez só
+00:02 +105: test/unit/api_client_test.dart: o evento de sessão inválida diz com qual token a chamada foi feita
+00:02 +106: test/unit/avisos_controller_test.dart: falha ao carregar mais mantém os itens e marca o erro do rodapé
+00:02 +107: test/unit/avisos_controller_test.dart: falha ao carregar mais mantém os itens e marca o erro do rodapé
+00:02 +108: test/unit/avisos_controller_test.dart: falha ao carregar mais mantém os itens e marca o erro do rodapé
+00:02 +109: test/unit/api_client_test.dart: sessão inválida (D6) um token novo volta a poder emitir
+00:02 +110: test/unit/avisos_controller_test.dart: sem rede e sem cache: estado de erro com a falha
+00:02 +111: test/unit/api_client_test.dart: sessão inválida (D6) 403 USUARIO_INATIVO em chamada autenticada também encerra
+00:02 +112: test/unit/avisos_controller_test.dart: sem rede com cache: conteúdo guardado e a data dos dados (RM-29)
+00:02 +113: test/unit/api_client_test.dart: sessão inválida (D6) 401 e 403 do próprio login não emitem (não há sessão a encerrar)
+00:02 +114: test/unit/avisos_controller_test.dart: recarregar substitui a lista e limpa a faixa de cache
+00:02 +115: test/unit/api_client_test.dart: sessão inválida (D6) 403 SEM_PERMISSAO não encerra a sessão
+00:02 +116: test/unit/avisos_controller_test.dart: recarregar sem rede mantém o que já estava na tela
+00:02 +117: test/unit/api_client_test.dart: registro de falhas em log local (RM-38) toda falha registra método, endpoint e code, uma vez
+00:02 +118: test/unit/avisos_controller_test.dart: ativos e arquivados são listas independentes
+00:02 +119: test/unit/api_client_test.dart: registro de falhas em log local (RM-38) code fora do catálogo e 5xx também ficam registrados
+00:02 +120: test/unit/avisos_controller_test.dart: falha ao carregar mais não repete sozinha a cada rolagem; só pelo botão
+00:02 +121: test/unit/avisos_controller_test.dart: falha ao carregar mais não repete sozinha a cada rolagem; só pelo botão
+00:02 +122: test/unit/avisos_controller_test.dart: falha ao carregar mais não repete sozinha a cada rolagem; só pelo botão
+00:02 +123: test/unit/api_client_test.dart: registro de falhas em log local (RM-38) sucesso não registra nada
+00:02 +124: test/unit/avisos_controller_test.dart: recarregar durante "carregar mais": a página tardia é descartada
+00:02 +125: test/unit/avisos_controller_test.dart: resposta que chega depois do descarte não quebra
+00:02 +126: test/unit/avisos_controller_test.dart: robustez (pontos menores) cargas sobrepostas: vale a resposta do pedido mais recente
+00:02 +127: test/unit/avisos_controller_test.dart: robustez (pontos menores) "carregar mais" antigo, depois de uma recarga, não libera o pedido novo
+00:02 +128: test/unit/avisos_controller_test.dart: robustez (pontos menores) "Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando
+00:02 +129: test/unit/servidor_falso_test.dart: responde pela rota com o JSON configurado e registra o pedido
+00:02 +130: test/unit/servidor_falso_test.dart: rota sem resposta configurada devolve 404 no formato da API
+00:02 +131: test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) aluno: carrega as turmas e as três solicitações mais recentes
+00:02 +132: test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) aluno: carrega as turmas e as três solicitações mais recentes
+00:02 +133: test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) aluno: carrega as turmas e as três solicitações mais recentes
+00:02 +134: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +135: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +136: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +137: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +138: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +139: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +140: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +141: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +142: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +143: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +144: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +145: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +146: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +147: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +148: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +149: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +150: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +151: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +152: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +153: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +154: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +155: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:02 +156: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +157: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +158: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +159: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +160: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +161: test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:03 +162: test/unit/servidor_falso_test.dart: queda recusa conexões; religar volta a responder na mesma URL
+00:03 +163: test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:03 +164: test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:03 +165: test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:03 +166: test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:03 +167: test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:03 +168: test/widget/login_test.dart: campo vazio é indicado sem chamar a API
+00:04 +169: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +170: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +171: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +172: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +173: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +174: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +175: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +176: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +177: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +178: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +179: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +180: test/widget/acessibilidade_test.dart: login e erro de credenciais
+00:04 +181: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:04 +182: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +183: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +184: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +185: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +186: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +187: test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:05 +188: test/widget/avisos_lista_test.dart: rolagem até o fim carrega a segunda página e mostra o fim da lista
+00:05 +189: test/widget/acessibilidade_test.dart: turmas: minhas, disponíveis e folha de confirmação
+00:05 +190: test/widget/acessibilidade_test.dart: turmas: minhas, disponíveis e folha de confirmação
+00:05 +191: test/widget/acessibilidade_test.dart: turmas: minhas, disponíveis e folha de confirmação
+00:05 +192: test/widget/acessibilidade_test.dart: turmas: minhas, disponíveis e folha de confirmação
+00:05 +193: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:05 +194: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +195: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +196: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +197: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +198: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +199: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +200: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +201: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +202: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +203: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +204: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +205: test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:06 +206: test/widget/turmas_test.dart: Minhas turmas (T06) erro sem cache: mensagem e tentar de novo
+00:06 +207: test/widget/app_test.dart: sem token abre no login
+00:06 +208: test/widget/app_test.dart: sem token abre no login
+00:07 +209: test/widget/app_test.dart: sem token abre no login
+00:07 +210: test/widget/app_test.dart: sem token abre no login
+00:07 +211: test/widget/app_test.dart: sem token abre no login
+00:07 +212: test/widget/app_test.dart: sem token abre no login
+00:07 +213: test/widget/app_test.dart: sem token abre no login
+00:07 +214: test/widget/app_test.dart: sem token abre no login
+00:07 +215: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +216: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +217: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +218: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +219: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +220: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:07 +221: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:08 +222: test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:08 +223: test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:08 +224: test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:08 +225: test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:08 +226: test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:08 +227: test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:08 +228: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +229: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +230: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +231: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +232: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +233: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:08 +234: test/widget/perfil_test.dart: aberto sem rede, com o perfil guardado: faixa de dados desatualizados
+00:08 +235: test/widget/comum_test.dart: EstadoVazio título, explicação e ação com alvo de 48 dp
+00:08 +236: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 JA_VINCULADO: mensagem e disponíveis recarregadas
+00:08 +237: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 JA_VINCULADO: mensagem e disponíveis recarregadas
+00:08 +238: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 JA_VINCULADO: mensagem e disponíveis recarregadas
+00:08 +239: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 JA_VINCULADO: mensagem e disponíveis recarregadas
+00:08 +240: test/widget/perfil_test.dart: coordenação sem vínculo: sem período nem lista de turmas
+00:08 +241: test/widget/comum_test.dart: EsqueletoLista é anunciado como carregando
+00:08 +242: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 404 TURMA_INDISPONIVEL: mensagem e disponíveis recarregadas
+00:08 +243: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 404 TURMA_INDISPONIVEL: mensagem e disponíveis recarregadas
+00:08 +244: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 404 TURMA_INDISPONIVEL: mensagem e disponíveis recarregadas
+00:08 +245: test/widget/perfil_test.dart: mudança de perfil entre duas cargas vale na mesma sessão (RM-09)
+00:08 +246: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 SOLICITACAO_DUPLICADA: mensagem e abre Minhas solicitações
+00:08 +247: test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 SOLICITACAO_DUPLICADA: mensagem e abre Minhas solicitações
+00:08 +248: test/widget/perfil_test.dart: sair pede confirmação: cancelar fica, confirmar volta ao login (RM-10)
+00:09 +249: test/widget/perfil_test.dart: sair pede confirmação: cancelar fica, confirmar volta ao login (RM-10)
+00:09 +250: test/widget/perfil_test.dart: sair pede confirmação: cancelar fica, confirmar volta ao login (RM-10)
+00:09 +251: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +252: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +253: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +254: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +255: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +256: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +257: test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:09 +258: test/widget/escala_fonte_test.dart: lista de avisos a 200%: alternância e cartões sem estouro
+00:10 +259: test/widget/escala_fonte_test.dart: lista de avisos a 200%: alternância e cartões sem estouro
+00:10 +260: test/widget/escala_fonte_test.dart: lista de avisos a 200%: alternância e cartões sem estouro
+00:10 +261: test/widget/aviso_detalhe_test.dart: 404: avisa que não está mais disponível, volta e recarrega a lista
+00:10 +262: test/widget/escala_fonte_test.dart: login a 200% sem estouro
+00:10 +263: test/widget/escala_fonte_test.dart: login a 200% sem estouro
+00:10 +264: test/widget/escala_fonte_test.dart: detalhe do aviso a 200% sem estouro
+00:10 +265: test/widget/escala_fonte_test.dart: minhas turmas e turmas disponíveis a 200% sem estouro
+00:10 +266: test/widget/escala_fonte_test.dart: minhas solicitações e a folha de confirmação a 200% sem estouro
+00:10 +267: test/widget/escala_fonte_test.dart: perfil a 200% sem estouro
+00:10 +268: test/widget/escala_fonte_test.dart: estados vazios, faixa sem rede e os diálogos de confirmação a 200% sem estouro
+00:10 +269: All tests passed!
+
+## flutter test integration_test -d emulator-5554 -r expanded (integração no aparelho)
+00:00 +0: integration_test/offline_test.dart: sem rede, as três abas abrem com o conteúdo guardado e a data
+00:27 +1: integration_test/token_seguro_test.dart: o token fica só no armazenamento seguro
+00:51 +2: integration_test/avisos_test.dart: primeira carga mostra os avisos com o token do usuário
+00:54 +3: integration_test/avisos_test.dart: rolar até o fim carrega a segunda página
+01:01 +4: integration_test/avisos_test.dart: puxar para baixo recarrega do servidor
+01:04 +5: integration_test/avisos_test.dart: sem rede, reabre com o conteúdo guardado e a faixa com a data
+01:25 +6: integration_test/erro_desconhecido_test.dart: code desconhecido: mensagem genérica na tela e registro no log
+01:46 +7: integration_test/sessao_test.dart: abertura com token válido vai direto para a casca
+01:47 +8: integration_test/sessao_test.dart: abertura com token inválido volta ao login e apaga a sessão
+01:48 +9: integration_test/sessao_test.dart: login de verdade grava o token no cofre do aparelho
+01:49 +10: integration_test/sessao_test.dart: 401 no meio da navegação encerra a sessão e volta ao login
+01:50 +11: integration_test/sessao_test.dart: sair limpa token e cache; reabrir leva ao login
+02:13 +12: integration_test/solicitacao_fluxo_test.dart: solicitar → ver pendente → cancelar → a turma volta a disponíveis
+02:20 +13: integration_test/solicitacao_fluxo_test.dart: solicitar duas vezes a mesma turma: o segundo pedido abre Minhas solicitações
+02:45 +14: integration_test/perfil_atualizado_test.dart: abrir a aba Perfil traz o perfil novo e ajusta as outras abas
+02:50 +15: integration_test/perfil_atualizado_test.dart: voltar do segundo plano também reavalia o perfil
+02:53 +16: All tests passed!

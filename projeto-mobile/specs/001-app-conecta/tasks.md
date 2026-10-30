@@ -209,18 +209,18 @@ modo offline.
 
 ## Phase 8: Polimento e evidências
 
-- [ ] T059 [P] Revisar as mensagens de erro de todas as telas contra a tabela da seção 6 da spec
-- [ ] T060 [P] Verificação de acessibilidade por tela: contraste AA, alvo de 48 dp, rótulos
+- [x] T059 [P] Revisar as mensagens de erro de todas as telas contra a tabela da seção 6 da spec
+- [x] T060 [P] Verificação de acessibilidade por tela: contraste AA, alvo de 48 dp, rótulos
       semânticos e ordem de foco (RM-34, RM-35)
-- [ ] T061 [P] Verificar as telas com a fonte do sistema em 200% e corrigir cortes (RM-36)
-- [ ] T062 [P] `integration_test/offline_test.dart`: cada aba com cache e sem rede, com a faixa de
+- [x] T061 [P] Verificar as telas com a fonte do sistema em 200% e corrigir cortes (RM-36)
+- [x] T062 [P] `integration_test/offline_test.dart`: cada aba com cache e sem rede, com a faixa de
       data (SC-005)
-- [ ] T063 [P] `integration_test/erro_desconhecido_test.dart`: `code` fora do catálogo cai na
+- [x] T063 [P] `integration_test/erro_desconhecido_test.dart`: `code` fora do catálogo cai na
       mensagem genérica e é registrado em log (RM-38)
-- [ ] T064 Conferir que o token não aparece em preferências, log ou cache após o login (SC-006)
-- [ ] T065 [P] Comparar cada tela implementada com o PNG correspondente em `design/mobile/` e
+- [x] T064 Conferir que o token não aparece em preferências, log ou cache após o login (SC-006)
+- [x] T065 [P] Comparar cada tela implementada com o PNG correspondente em `design/mobile/` e
       registrar as diferenças deliberadas
-- [ ] T066 Atualizar a matriz de rastreabilidade da spec (seção 11) com os nomes finais dos
+- [x] T066 Atualizar a matriz de rastreabilidade da spec (seção 11) com os nomes finais dos
       arquivos de teste e anexar o relatório de execução (O14)
 
 ---

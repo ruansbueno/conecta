@@ -84,7 +84,10 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
 
   /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela.
   Future<void> recarregar() async {
-    if (!lista.carregada || lista.estado == EstadoLista.erro) return carregar();
+    // Só há o que manter na tela com conteúdo ou vazio; carregando ou com erro, recarregar é uma
+    // carga completa (senão uma recarga que falha deixaria a lista presa no esqueleto).
+    final naTela = lista.estado == EstadoLista.conteudo || lista.estado == EstadoLista.vazio;
+    if (!naTela) return carregar();
     final pedido = ++_pedido;
     _ultimaFalha = null;
     try {

@@ -319,5 +319,23 @@ void main() {
         c.dispose();
       },
     );
+    test(
+      '"Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando',
+      () async {
+        api.falharRede('GET /turmas/disponiveis');
+        final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+        await c.carregar(); // erro
+        final resposta = Completer<http.Response>();
+        api.rotasAssincronas['GET /turmas/disponiveis'] = (_) => resposta.future;
+        final tentativa = c.carregar(); // "Tentar de novo", em curso
+        api.rotasAssincronas.remove('GET /turmas/disponiveis');
+
+        await c.recarregar(); // uma recarga chega no meio e falha
+        resposta.complete(respostaJson(paginaJson([turmaMapa('VELHA')])));
+        await tentativa;
+
+        expect(c.lista.estado, isNot(EstadoLista.carregando));
+      },
+    );
   });
 }

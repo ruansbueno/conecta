@@ -85,7 +85,9 @@ class AvisosController extends ChangeNotifier {
   /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela.
   Future<void> recarregar() async {
     final alvo = lista;
-    if (!alvo.carregada || alvo.estado == EstadoLista.erro) return carregar();
+    // Só há o que manter na tela com conteúdo ou vazio; carregando ou com erro, recarregar é uma
+    // carga completa (senão uma recarga que falha deixaria a lista presa no esqueleto).
+    if (alvo.estado != EstadoLista.conteudo && alvo.estado != EstadoLista.vazio) return carregar();
     final pedido = ++alvo.pedido;
     _ultimaFalha = null;
     try {

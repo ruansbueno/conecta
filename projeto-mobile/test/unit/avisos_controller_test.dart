@@ -232,5 +232,22 @@ void main() {
       await novo;
       expect(controller.lista.itens.map((a) => a.id).toSet(), hasLength(40));
     });
+    test(
+      '"Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando',
+      () async {
+        api.falharRede('GET /avisos');
+        await controller.carregar(); // erro
+        final resposta = Completer<http.Response>();
+        api.rotasAssincronas['GET /avisos'] = (_) => resposta.future;
+        final tentativa = controller.carregar();
+        api.rotasAssincronas.remove('GET /avisos');
+
+        await controller.recarregar();
+        resposta.complete(respostaJson(paginaAvisosJson(total: 2)));
+        await tentativa;
+
+        expect(controller.lista.estado, isNot(EstadoLista.carregando));
+      },
+    );
   });
 }

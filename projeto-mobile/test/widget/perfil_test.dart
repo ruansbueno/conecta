@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:conecta/services/cache_local.dart';
+import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -84,6 +86,44 @@ void main() {
     expect(vinculos.right, moreOrLessEquals(curso.right, epsilon: 1));
     expect(curso.right, greaterThan(tester.getSize(find.byType(MaterialApp)).width - 60));
     expect(curso.height, lessThan(30), reason: 'o nome do curso cabe numa linha');
+  });
+
+  testWidgets('aberto sem rede, com o perfil guardado: faixa de dados desatualizados', (
+    tester,
+  ) async {
+    await preparar(_me());
+    app.api
+      ..responder('GET /turmas/minhas', paginaJson([]))
+      ..falharRede('GET /me');
+    await app.cache.gravar(
+      '7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11',
+      RecursoCache.perfil,
+      jsonDecode(_me()) as Map<String, dynamic>,
+    );
+    await app.abrir(tester);
+
+    await abrirAba(tester, 'Perfil');
+
+    expect(find.text('Aluno de Teste'), findsOneWidget);
+    expect(find.byType(FaixaCache), findsOneWidget);
+    app.api.responder('GET /me', _me());
+    await tester.tap(
+      find.descendant(of: find.byType(FaixaCache), matching: find.text('Tentar de novo')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(FaixaCache), findsNothing);
+  });
+
+  testWidgets('o leitor de tela lê o nome uma vez só', (tester) async {
+    final semantica = tester.ensureSemantics();
+    await preparar(_me());
+    app.api.responder('GET /turmas/minhas', paginaJson([]));
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+
+    final rotulo = tester.getSemantics(find.text('Aluno de Teste')).label;
+    expect('Aluno de Teste'.allMatches(rotulo), hasLength(1), reason: rotulo);
+    semantica.dispose();
   });
 
   testWidgets('coordenação sem vínculo: sem período nem lista de turmas', (tester) async {

@@ -37,6 +37,7 @@ class SessionController extends ChangeNotifier {
   EstadoSessao _estado = EstadoSessao.verificando;
   Usuario? _usuario;
   DateTime? _perfilDoCache;
+  int _recargas = 0;
   String? _mensagemEncerramento;
 
   EstadoSessao get estado => _estado;
@@ -105,9 +106,13 @@ class SessionController extends ChangeNotifier {
   Future<void> recarregarPerfil() async {
     if (_estado != EstadoSessao.logado) return;
     final token = _api.token;
+    final recarga = ++_recargas;
     try {
       final usuario = await _auth.me();
       if (_estado != EstadoSessao.logado || _api.token != token) return; // saiu nesse meio-tempo
+      // Abrir a aba e voltar do segundo plano podem pedir juntos: só a recarga mais recente vale,
+      // para uma resposta antiga não desfazer um perfil já atualizado.
+      if (recarga != _recargas) return;
       _usuario = usuario;
       _perfilDoCache = null;
       notifyListeners();

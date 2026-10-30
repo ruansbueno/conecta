@@ -10,6 +10,7 @@ import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/faixa_cache.dart';
 import '../comum/faixa_informativa.dart';
 import '../turmas/turma_card.dart';
 
@@ -99,7 +100,9 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final usuario = context.watch<SessionController>().usuario;
+    final sessao = context.watch<SessionController>();
+    final usuario = sessao.usuario;
+    final dadosDe = sessao.perfilDoCache;
     return Scaffold(
       appBar: AppBar(title: const Text('Perfil'), toolbarHeight: 60, titleSpacing: 20),
       body: usuario == null
@@ -107,6 +110,11 @@ class _PerfilPageState extends State<PerfilPage> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               children: [
+                // Aberto sem rede, o perfil é o guardado: diz de quando são os dados (RM-29).
+                if (dadosDe != null) ...[
+                  FaixaCache(coletadoEm: dadosDe, onRepetir: sessao.recarregarPerfil),
+                  const SizedBox(height: 16),
+                ],
                 _Identificacao(usuario: usuario, perfil: _rotuloPerfil(usuario)),
                 const SizedBox(height: 24),
                 _Dados(usuario: usuario, periodo: _periodo),
@@ -160,7 +168,10 @@ class _Identificacao extends StatelessWidget {
   Widget build(BuildContext context) => MergeSemantics(
     child: Row(
       children: [
-        Avatar(nome: usuario.nome, tamanho: TamanhoAvatar.grande),
+        // O nome já está ao lado: o leitor de tela não o repete.
+        ExcludeSemantics(
+          child: Avatar(nome: usuario.nome, tamanho: TamanhoAvatar.grande),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(

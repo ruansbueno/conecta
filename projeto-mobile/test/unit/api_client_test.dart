@@ -226,4 +226,80 @@ void main() {
       expect(eventos, isEmpty);
     });
   });
+
+  group('registro de falhas em log local (RM-38)', () {
+    late List<String> registro;
+    late void Function(String) original;
+
+    setUp(() {
+      registro = [];
+      original = ApiClient.registrar;
+      ApiClient.registrar = registro.add;
+    });
+    tearDown(() => ApiClient.registrar = original);
+
+    test('toda falha registra método, endpoint e code, uma vez', () async {
+      final api = cliente(
+        (_) async =>
+            _json('{"detail": "Turma da Júlia lotada", "code": "TURMA_INDISPONIVEL"}', 404),
+      )..token = 'segredo-do-token';
+
+      final falha = await api
+          .post('/turmas/t-1/solicitacoes', const {})
+          .then<ApiFailure?>((_) => null, onError: (Object e) => e as ApiFailure);
+      falha!.mensagem; // ler a mensagem não registra de novo
+      falha.efeito;
+
+      expect(registro, ['POST /turmas/t-1/solicitacoes → 404 TURMA_INDISPONIVEL']);
+    });
+
+    test('code fora do catálogo e 5xx também ficam registrados', () async {
+      final api = cliente((_) async => _json('{"detail": "x", "code": "ALGO_NOVO"}', 418));
+      await expectLater(
+        api.get('/avisos', query: {'situacao': 'ativo'}),
+        throwsA(isA<ApiFailure>()),
+      );
+      final api500 = cliente((_) async => _json('{"detail": "x", "code": "ERRO_INTERNO"}', 500));
+      await expectLater(api500.get('/me'), throwsA(isA<ApiFailure>()));
+
+      expect(registro, ['GET /avisos → 418 ALGO_NOVO', 'GET /me → 500 ERRO_INTERNO']);
+    });
+
+    test('sem rede e resposta inválida também são registradas', () async {
+      final semRede = cliente((_) async => throw const SocketException('sem rede'));
+      await expectLater(semRede.get('/avisos'), throwsA(isA<ApiFailure>()));
+      final invalida = cliente((_) async => _json('[1, 2]', 200));
+      await expectLater(invalida.get('/me'), throwsA(isA<ApiFailure>()));
+
+      expect(registro, ['GET /avisos → SEM_REDE', 'GET /me → 200 RESPOSTA_INVALIDA']);
+    });
+
+    test(
+      'o log não leva token, query, corpo nem o texto do servidor (sem dados pessoais)',
+      () async {
+        final api = cliente(
+          (_) async =>
+              _json('{"detail": "Usuário julia.santos inativo", "code": "USUARIO_INATIVO"}', 403),
+        )..token = 'segredo-do-token';
+
+        await expectLater(
+          api.post('/auth/login', {'username': 'julia.santos', 'password': 'senha'}),
+          throwsA(isA<ApiFailure>()),
+        );
+
+        final linha = registro.single;
+        expect(linha, isNot(contains('segredo-do-token')));
+        expect(linha, isNot(contains('julia')));
+        expect(linha, isNot(contains('senha')));
+      },
+    );
+
+    test('sucesso não registra nada', () async {
+      final api = cliente((_) async => _json(meJson, 200));
+
+      await api.get('/me');
+
+      expect(registro, isEmpty);
+    });
+  });
 }

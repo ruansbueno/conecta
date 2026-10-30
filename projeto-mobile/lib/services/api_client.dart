@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -36,19 +37,45 @@ class ApiClient {
   /// `NAO_AUTENTICADO` ou `USUARIO_INATIVO` numa chamada autenticada.
   Stream<SessaoInvalida> get sessaoInvalida => _sessaoInvalida.stream;
 
-  Future<Map<String, dynamic>> get(String caminho, {Map<String, Object?>? query}) async =>
-      _exigirCorpo(await _enviar('GET', caminho, query: query));
+  /// RM-38: toda falha de API vai para o log local com método, endpoint (sem query), status e
+  /// `code` — nunca token, corpo ou o `detail` do servidor, que podem ter dados pessoais.
+  /// Substituível nos testes.
+  static void Function(String linha) registrar = _registrarLocalmente;
+
+  static void _registrarLocalmente(String linha) => developer.log(linha, name: 'conecta.api');
+
+  Future<Map<String, dynamic>> get(String caminho, {Map<String, Object?>? query}) => _registrando(
+    'GET',
+    caminho,
+    () async => _exigirCorpo(await _enviar('GET', caminho, query: query)),
+  );
 
   Future<Map<String, dynamic>> post(
     String caminho,
     Map<String, Object?> corpo, {
     bool autenticado = true,
-  }) async => _exigirCorpo(await _enviar('POST', caminho, corpo: corpo, autenticado: autenticado));
+  }) => _registrando(
+    'POST',
+    caminho,
+    () async =>
+        _exigirCorpo(await _enviar('POST', caminho, corpo: corpo, autenticado: autenticado)),
+  );
 
   static Map<String, dynamic> _exigirCorpo(Map<String, dynamic>? corpo) =>
       corpo ?? (throw const ApiFailure(code: ApiFailure.respostaInvalida));
 
-  Future<Map<String, dynamic>?> delete(String caminho) => _enviar('DELETE', caminho);
+  Future<Map<String, dynamic>?> delete(String caminho) =>
+      _registrando('DELETE', caminho, () => _enviar('DELETE', caminho));
+
+  Future<T> _registrando<T>(String metodo, String caminho, Future<T> Function() chamada) async {
+    try {
+      return await chamada();
+    } on ApiFailure catch (falha) {
+      final status = falha.status == null ? '' : '${falha.status} ';
+      registrar('$metodo $caminho → $status${falha.code}');
+      rethrow;
+    }
+  }
 
   Future<Map<String, dynamic>?> _enviar(
     String metodo,

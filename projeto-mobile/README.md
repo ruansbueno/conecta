@@ -3,8 +3,9 @@
 Aplicativo Flutter do CONECTA, para todos os usuários autenticados: avisos, turmas, solicitação de
 inscrição, perfil e — na fase seguinte — agenda e horários.
 
-As fases 1 a 6 da F1 estão implementadas (54 de 66 tarefas): entrar, manter a sessão com
-segurança, ler os avisos, acompanhar as turmas, inclusive sem rede, e pedir inscrição numa turma. Veja [Andamento](#andamento).
+As fases 1 a 7 da F1 estão implementadas (58 de 66 tarefas) — todas as telas: entrar, manter a
+sessão com segurança, ler os avisos, acompanhar as turmas, inclusive sem rede, pedir inscrição numa
+turma e ver o perfil. Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -35,7 +36,7 @@ segurança, ler os avisos, acompanhar as turmas, inclusive sem rede, e pedir ins
 
 | Fase | Conteúdo | Situação |
 |---|---|---|
-| **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | Em andamento: fases 1–6 de 8 prontas |
+| **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | Em andamento: fases 1–7 de 8 prontas |
 | **F2** | Agenda (lista e mês), evento, horários | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
 
 ## Stack
@@ -55,10 +56,10 @@ Atualizado em 28/10/2026.
 | 4. US2 — Ler os avisos | Avisos ativos e arquivados, detalhe, paginação, abrir sem rede com a última lista recebida | ✅ [#2](https://github.com/ruansbueno/conecta/pull/2) |
 | 5. US3 — Minhas turmas | Minhas turmas com o papel (m-06), estado vazio por perfil, turmas disponíveis só para aluno (m-07), solicitações recentes, cache sem rede | ✅ [#14](https://github.com/ruansbueno/conecta/pull/14) |
 | 6. US4 — Solicitar inscrição | Solicitar e folha de confirmação (m-08), Minhas solicitações com os quatro status (m-09), cancelar a pendente, recarga de Minhas turmas | ✅ [#15](https://github.com/ruansbueno/conecta/pull/15) |
-| 7. US5 — Perfil | Dados da pessoa, atualizados quando o perfil muda no servidor | A fazer |
+| 7. US5 — Perfil | Perfil (m-13) com curso, período e vínculos; saída com confirmação; perfil reavaliado ao abrir a aba e ao voltar do segundo plano | ✅ [#16](https://github.com/ruansbueno/conecta/pull/16) |
 | 8. Polimento e evidências | Mensagens de erro, acessibilidade, fonte a 200%, uso sem rede, comparação com o design | A fazer |
 
-**Testes**: 226 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
+**Testes**: 236 de unidade e de widget (`flutter test`), mais os de integração com servidor falso
 em `integration_test/`.
 
 ## Como rodar
@@ -76,5 +77,5 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-Fase 7 de [`tasks.md`](specs/001-app-conecta/tasks.md) (T055–T058): perfil (m-13). Depois, a fase 8
-(polimento e evidências). Nada deve ser implementado sem a tarefa correspondente.
+Fase 8 de [`tasks.md`](specs/001-app-conecta/tasks.md) (T059–T066): polimento e evidências.
+Nada deve ser implementado sem a tarefa correspondente.

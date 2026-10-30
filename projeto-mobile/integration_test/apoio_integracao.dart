@@ -58,11 +58,12 @@ class AppSobTeste {
 }
 
 /// No aparelho a rede é real: `pumpAndSettle` não espera a resposta HTTP. Bombeia quadros até
-/// o [alvo] aparecer ou o tempo acabar.
+/// o [alvo] aparecer ou o tempo acabar. O limite é folgado porque a primeira tela depois da
+/// instalação do app no emulador às vezes passou dos 10 s.
 Future<void> esperar(
   WidgetTester tester,
   Finder alvo, {
-  Duration limite = const Duration(seconds: 10),
+  Duration limite = const Duration(seconds: 20),
 }) async {
   final fim = DateTime.now().add(limite);
   while (DateTime.now().isBefore(fim)) {

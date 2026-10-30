@@ -5,7 +5,6 @@ import '../../config/curso.dart';
 import '../../models/turma.dart';
 import '../../models/usuario.dart';
 import '../../repositories/turmas_repository.dart';
-import '../../services/api_failure.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
@@ -42,18 +41,22 @@ class _PerfilPageState extends State<PerfilPage> {
   static bool _mesmas(Set<String> a, Set<String>? b) =>
       b != null && a.length == b.length && a.containsAll(b);
 
+  /// Muda a cada carga: a resposta de uma carga antiga (turmas que já mudaram) é descartada.
+  int _cargaDoPeriodo = 0;
+
   Future<void> _carregarPeriodo(Usuario usuario) async {
+    final carga = ++_cargaDoPeriodo;
     if (usuario.turmas?.isEmpty ?? true) {
-      setState(() => _periodo = null);
+      _periodo = null;
       return;
     }
     final repo = context.read<TurmasRepository>();
     final guardado = repo.minhasEmCache(usuario.id);
-    if (guardado != null) setState(() => _periodo = _periodos(guardado.$1.items));
+    if (guardado != null) _periodo = _periodos(guardado.$1.items);
     try {
       final pagina = await repo.minhas(usuarioId: usuario.id);
-      if (mounted) setState(() => _periodo = _periodos(pagina.items));
-    } on ApiFailure {
+      if (mounted && carga == _cargaDoPeriodo) setState(() => _periodo = _periodos(pagina.items));
+    } on Object {
       // Sem rede e sem cache, a linha some; o resto do perfil vem do `/me`.
     }
   }

@@ -57,7 +57,8 @@ class _Lista extends StatelessWidget {
           if (controller.situacao == SituacaoAviso.arquivado)
             const FaixaInformativa('Avisos arquivados saem da lista ativa e ficam guardados aqui.'),
           if (lista.dadosDe != null)
-            FaixaCache(coletadoEm: lista.dadosDe!, onRepetir: controller.carregar),
+            // Tenta sem tirar os dados guardados da tela; falhando, só um aviso breve.
+            FaixaCache(coletadoEm: lista.dadosDe!, onRepetir: () => _recarregar(context)),
           Expanded(child: _corpo(context, controller, lista)),
         ],
       ),

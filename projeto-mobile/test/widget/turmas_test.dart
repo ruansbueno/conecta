@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:conecta/ui/comum/esqueleto_lista.dart';
 import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:conecta/ui/turmas/turma_card.dart';
 import 'package:flutter/material.dart';
@@ -164,6 +165,57 @@ void main() {
         find.text('Você participa de 45 turmas. Sem conexão, aparecem as 20 guardadas.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('"Tentar de novo" da faixa mantém as turmas na tela enquanto tenta', (
+      tester,
+    ) async {
+      await preparar(perfil: 'docente');
+      app.api.responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('TADS-5A-2026-2', papel: 'docente')]),
+      );
+      await abrirTurmas(tester);
+      await tester.pumpWidget(const SizedBox());
+      app.api.falharRede('GET /turmas/minhas');
+      await abrirTurmas(tester);
+
+      await tester.tap(
+        find.descendant(of: find.byType(FaixaCache), matching: find.text('Tentar de novo')),
+      );
+      await tester.pump();
+
+      expect(find.byType(EsqueletoLista), findsNothing);
+      expect(find.byType(TurmaCard), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('Sem conexão. Verifique a rede e tente de novo.'), findsOneWidget);
+    });
+
+    testWidgets('perfil mudou com Turmas disponíveis aberta: a tela empilhada fecha', (
+      tester,
+    ) async {
+      await preparar();
+      app.api
+        ..responder('GET /turmas/minhas', paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]))
+        ..responder('GET /solicitacoes/minhas', paginaJson([]))
+        ..responder('GET /turmas/disponiveis', paginaJson([turmaMapa('TADS-5A-2026-2')]));
+      await abrirTurmas(tester);
+      await tester.tap(find.text('Ver turmas'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(AppBar, 'Turmas disponíveis'), findsOneWidget);
+
+      final docente = (jsonDecode(meJson) as Map<String, dynamic>)
+        ..['perfil'] = 'docente'
+        ..['turmas'] = <Object>[];
+      app.api
+        ..responder('GET /me', jsonEncode(docente))
+        ..responder('GET /turmas/minhas', paginaJson([]));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, 'Turmas disponíveis'), findsNothing);
+      expect(find.text('Nenhuma turma vinculada'), findsOneWidget);
     });
 
     testWidgets('erro sem cache: mensagem e tentar de novo', (tester) async {

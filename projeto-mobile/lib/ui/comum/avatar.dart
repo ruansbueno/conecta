@@ -19,7 +19,7 @@ class Avatar extends StatelessWidget {
     final (lado, raio, fonte) = switch (tamanho) {
       TamanhoAvatar.pequeno => (30.0, Raios.avatar, 11.5),
       TamanhoAvatar.medio => (34.0, Raios.avatarMedio, 12.5),
-      TamanhoAvatar.grande => (64.0, 18.0, 22.0),
+      TamanhoAvatar.grande => (64.0, Raios.avatarGrande, 22.0),
     };
     return Semantics(
       label: nome,

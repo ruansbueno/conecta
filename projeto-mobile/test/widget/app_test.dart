@@ -90,6 +90,8 @@ void main() {
     expect(find.text('Aluno de Teste'), findsOneWidget);
     await tester.tap(find.text('Sair da conta'));
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Sair'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Entrar'), findsOneWidget);
     expect(await cofre.ler(), isNull);

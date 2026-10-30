@@ -10,6 +10,12 @@ String siglaCurta(String codigo) {
   return partes.length < 2 ? codigo : '${partes[0]}\n${partes[1]}';
 }
 
+/// Código sem o período, para chips: `TADS-3A-2026-2` → `TADS-3A`.
+String codigoCurto(String codigo) {
+  final partes = codigo.split('-').where((p) => p.isNotEmpty).toList();
+  return partes.length < 2 ? codigo : '${partes[0]}-${partes[1]}';
+}
+
 /// "3º semestre · 2026/2"; sem semestre (optativa), só o período (data-model.md).
 String descricaoTurma({int? semestre, String? periodo}) =>
     [if (semestre != null) '$semestreº semestre', ?periodo].join(' · ');

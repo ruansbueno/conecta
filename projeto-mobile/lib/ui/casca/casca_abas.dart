@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../models/usuario.dart';
+import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../avisos/lista_page.dart';
@@ -30,16 +33,37 @@ class CascaAbas extends StatefulWidget {
   State<CascaAbas> createState() => _CascaAbasState();
 }
 
-class _CascaAbasState extends State<CascaAbas> {
+class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
   Aba _atual = Aba.avisos;
 
   /// Abas já visitadas: as outras só são construídas (e só chamam a API) quando abertas.
   final _visitadas = <Aba>{Aba.avisos};
 
-  void _selecionar(Aba aba) => setState(() {
-    _atual = aba;
-    _visitadas.add(aba);
-  });
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// RM-09: o perfil é reavaliado ao voltar do segundo plano e a cada abertura da aba Perfil.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState estado) {
+    if (estado == AppLifecycleState.resumed) context.read<SessionController>().recarregarPerfil();
+  }
+
+  void _selecionar(Aba aba) {
+    setState(() {
+      _atual = aba;
+      _visitadas.add(aba);
+    });
+    if (aba == Aba.perfil) context.read<SessionController>().recarregarPerfil();
+  }
 
   Widget _tela(Aba aba) => switch (aba) {
     Aba.avisos => const AvisosListaPage(),
@@ -48,16 +72,23 @@ class _CascaAbasState extends State<CascaAbas> {
   };
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: IndexedStack(
-      index: _atual.index,
-      children: [
-        for (final aba in Aba.values)
-          _visitadas.contains(aba) ? _tela(aba) : const SizedBox.shrink(),
-      ],
-    ),
-    bottomNavigationBar: _BarraAbas(atual: _atual, onSelecionar: _selecionar),
-  );
+  Widget build(BuildContext context) {
+    // Um perfil novo muda o que cada aba mostra e oferece (atalhos de aluno, avisos visíveis):
+    // as abas são recriadas e carregam de novo.
+    final perfil = context.select<SessionController, Perfil?>((s) => s.usuario?.perfil);
+    return Scaffold(
+      body: IndexedStack(
+        index: _atual.index,
+        children: [
+          for (final aba in Aba.values)
+            _visitadas.contains(aba)
+                ? KeyedSubtree(key: ValueKey((aba, perfil)), child: _tela(aba))
+                : const SizedBox.shrink(),
+        ],
+      ),
+      bottomNavigationBar: _BarraAbas(atual: _atual, onSelecionar: _selecionar),
+    );
+  }
 }
 
 class _BarraAbas extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:conecta/models/usuario.dart';
 import 'package:conecta/repositories/auth_repository.dart';
 import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/services/cache_local.dart';
@@ -137,6 +138,31 @@ void main() {
       await sessao.iniciar();
 
       expect(sessao.estado, EstadoSessao.semConexao);
+    });
+
+    test('recargas sobrepostas: a resposta mais antiga não desfaz o perfil novo', () async {
+      await guardarSessao();
+      api.responder('GET /me', meJson);
+      await sessao.iniciar();
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /me'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+
+      final antiga = sessao.recarregarPerfil(); // pedida antes da mudança no servidor
+      final nova = sessao.recarregarPerfil();
+      await pumpEventQueue();
+      expect(respostas, hasLength(2));
+      respostas[1].complete(
+        respostaJson(meJson.replaceFirst('"perfil": "aluno"', '"perfil": "docente"')),
+      );
+      await nova;
+      respostas[0].complete(respostaJson(meJson));
+      await antiga;
+
+      expect(sessao.usuario!.perfil, Perfil.docente);
     });
 
     test('sair com GET /me em andamento: a resposta tardia não volta a gravar nada', () async {

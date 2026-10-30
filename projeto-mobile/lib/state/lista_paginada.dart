@@ -47,6 +47,10 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
   ApiFailure? _ultimaFalha;
   bool _descartado = false;
 
+  /// Cada carga ou recarga ganha um número; só a resposta do pedido mais recente é aplicada (um
+  /// "Tentar de novo" com a carga anterior ainda em curso, uma recarga cruzada).
+  int _pedido = 0;
+
   /// Falha de uma recarga que manteve a lista na tela (para um aviso breve).
   ApiFailure? get ultimaFalha => _ultimaFalha;
 
@@ -56,14 +60,17 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
   (Pagina<T>, DateTime)? emCache() => null;
 
   Future<void> carregar() async {
+    final pedido = ++_pedido;
     lista
       ..estado = EstadoLista.carregando
       ..falha = null;
     notifyListeners();
     try {
       final pagina = await buscar(0);
+      if (pedido != _pedido) return;
       lista.substituir(pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
+      if (pedido != _pedido) return;
       final guardado = falha.efeito == EfeitoFalha.repetir ? emCache() : null;
       if (guardado != null) {
         final (pagina, coletadoEm) = guardado;
@@ -77,12 +84,18 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
 
   /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela.
   Future<void> recarregar() async {
-    if (!lista.carregada || lista.estado == EstadoLista.erro) return carregar();
+    // Só há o que manter na tela com conteúdo ou vazio; carregando ou com erro, recarregar é uma
+    // carga completa (senão uma recarga que falha deixaria a lista presa no esqueleto).
+    final naTela = lista.estado == EstadoLista.conteudo || lista.estado == EstadoLista.vazio;
+    if (!naTela) return carregar();
+    final pedido = ++_pedido;
     _ultimaFalha = null;
     try {
       final pagina = await buscar(0);
+      if (pedido != _pedido) return;
       lista.substituir(pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
+      if (pedido != _pedido) return;
       _ultimaFalha = falha;
     }
     notifyListeners();

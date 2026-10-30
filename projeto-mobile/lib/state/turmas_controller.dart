@@ -28,6 +28,8 @@ class MinhasTurmasController extends ControllerDeLista<TurmaVinculada> {
   final MudancasDeSolicitacao _mudancas;
 
   List<Solicitacao>? _recentes;
+  int _pedidoRecentes = 0;
+  bool _descartado = false;
 
   /// `null` esconde o rodapé: perfil não-aluno, `SEM_PERMISSAO` ou falha (é informação de apoio).
   List<Solicitacao>? get recentes => _recentes;
@@ -48,19 +50,42 @@ class MinhasTurmasController extends ControllerDeLista<TurmaVinculada> {
   @override
   Future<void> recarregar() => Future.wait([super.recarregar(), _carregarRecentes()]);
 
-  void _aoMudar() => recarregar();
+  bool _recarregandoPorMudanca = false;
+  bool _outraMudanca = false;
+
+  /// Avisos seguidos viram no máximo uma recarga em curso e uma depois dela.
+  Future<void> _aoMudar() async {
+    if (_recarregandoPorMudanca) {
+      _outraMudanca = true;
+      return;
+    }
+    _recarregandoPorMudanca = true;
+    try {
+      do {
+        _outraMudanca = false;
+        await recarregar();
+      } while (_outraMudanca && !_descartado);
+    } finally {
+      _recarregandoPorMudanca = false;
+    }
+  }
 
   @override
   void dispose() {
+    _descartado = true;
     _mudancas.removeListener(_aoMudar);
     super.dispose();
   }
 
   Future<void> _carregarRecentes() async {
     if (!aluno) return;
+    final pedido = ++_pedidoRecentes;
     try {
-      _recentes = (await _solicitacoes.minhas(limit: quantasRecentes)).items;
+      final recentes = (await _solicitacoes.minhas(limit: quantasRecentes)).items;
+      if (pedido != _pedidoRecentes) return;
+      _recentes = recentes;
     } on ApiFailure {
+      if (pedido != _pedidoRecentes) return;
       _recentes = null;
     }
     notifyListeners();
@@ -76,8 +101,15 @@ class DisponiveisController extends ControllerDeLista<Turma> {
   final MudancasDeSolicitacao _mudancas;
   final _enviando = <String>{};
 
-  /// A API recusou por perfil: a tela explica e volta a Minhas turmas (contrato §6).
-  bool get semPermissao => lista.falha?.code == 'SEM_PERMISSAO';
+  /// A API recusou por perfil — na primeira carga, numa recarga ou ao carregar mais: a tela
+  /// explica e volta a Minhas turmas (contrato §6).
+  ApiFailure? get falhaDePermissao => [
+    lista.falha,
+    ultimaFalha,
+    lista.falhaAoCarregarMais,
+  ].firstWhere((f) => f?.code == 'SEM_PERMISSAO', orElse: () => null);
+
+  bool get semPermissao => falhaDePermissao != null;
 
   bool enviando(String turmaId) => _enviando.contains(turmaId);
 

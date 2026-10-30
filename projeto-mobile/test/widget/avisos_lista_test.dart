@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:conecta/ui/comum/chip_destino.dart';
 import 'package:conecta/ui/comum/esqueleto_lista.dart';
+import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -165,5 +166,28 @@ void main() {
 
     expect(find.text('Reunião de pais e alunos'), findsOneWidget);
     expect(find.textContaining('Mostrando dados de'), findsOneWidget);
+  });
+
+  testWidgets('"Tentar de novo" da faixa mantém os avisos guardados na tela enquanto tenta', (
+    tester,
+  ) async {
+    app.api.responder('GET /avisos', avisosP1Json);
+    await app.abrir(tester);
+    await tester.pumpWidget(const SizedBox());
+    app.api.falharRede('GET /avisos');
+    await app.abrir(tester);
+    expect(find.byType(FaixaCache), findsOneWidget);
+    final resposta = Completer<http.Response>();
+    app.api.rotasAssincronas['GET /avisos'] = (_) => resposta.future;
+
+    await tester.tap(
+      find.descendant(of: find.byType(FaixaCache), matching: find.text('Tentar de novo')),
+    );
+    await tester.pump();
+
+    expect(find.byType(EsqueletoLista), findsNothing);
+    expect(find.text('Reunião de pais e alunos'), findsOneWidget);
+    resposta.completeError(http.ClientException('Connection refused'));
+    await tester.pumpAndSettle();
   });
 }

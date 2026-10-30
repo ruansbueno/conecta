@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/rotas.dart';
 import '../../models/usuario.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
@@ -58,12 +59,16 @@ class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
   }
 
   void _selecionar(Aba aba) {
+    final abrindoPerfil = aba == Aba.perfil && _atual != Aba.perfil;
     setState(() {
       _atual = aba;
       _visitadas.add(aba);
     });
-    if (aba == Aba.perfil) context.read<SessionController>().recarregarPerfil();
+    // Tocar de novo na aba já aberta não é uma nova abertura.
+    if (abrindoPerfil) context.read<SessionController>().recarregarPerfil();
   }
+
+  Perfil? _perfilAnterior;
 
   Widget _tela(Aba aba) => switch (aba) {
     Aba.avisos => const AvisosListaPage(),
@@ -76,6 +81,14 @@ class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
     // Um perfil novo muda o que cada aba mostra e oferece (atalhos de aluno, avisos visíveis):
     // as abas são recriadas e carregam de novo.
     final perfil = context.select<SessionController, Perfil?>((s) => s.usuario?.perfil);
+    if (_perfilAnterior != null && perfil != null && perfil != _perfilAnterior) {
+      // Telas empilhadas sobre as abas (disponíveis, solicitações, detalhe) eram do perfil
+      // anterior: fecham, e a pessoa volta às abas já recriadas.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => Rotas.navigatorKey.currentState?.popUntil((rota) => rota.isFirst),
+      );
+    }
+    _perfilAnterior = perfil;
     return Scaffold(
       body: IndexedStack(
         index: _atual.index,

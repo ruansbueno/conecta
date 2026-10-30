@@ -222,4 +222,120 @@ void main() {
       expect(c.semPermissao, isFalse);
     });
   });
+
+  group('robustez (pontos menores)', () {
+    test('cargas sobrepostas: vale a resposta do pedido mais recente', () async {
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /turmas/disponiveis'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+
+      final antiga = c.carregar();
+      final nova = c.carregar(); // "Tentar de novo" com a primeira ainda em curso
+      await pumpEventQueue();
+      respostas[1].complete(respostaJson(paginaJson([turmaMapa('NOVA')])));
+      await nova;
+      respostas[0].complete(respostaJson(paginaJson([turmaMapa('VELHA')])));
+      await antiga;
+
+      expect(c.lista.itens.single.codigo, 'NOVA');
+    });
+
+    test('recentes sobrepostas: vale a resposta do pedido mais recente', () async {
+      api.responder('GET /turmas/minhas', paginaJson([]));
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /solicitacoes/minhas'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+      final c = minhas();
+
+      final antiga = c.carregar();
+      await pumpEventQueue();
+      final nova = c.recarregar();
+      await pumpEventQueue();
+      respostas[1].complete(respostaJson(paginaJson([solicitacaoMapa('nova')])));
+      await nova;
+      respostas[0].complete(respostaJson(paginaJson([solicitacaoMapa('velha')])));
+      await antiga;
+
+      expect(c.recentes!.single.id, 'nova');
+    });
+
+    test('403 numa recarga de disponíveis também marca semPermissao', () async {
+      api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('A')]));
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+      await c.carregar();
+      api.responder('GET /turmas/disponiveis', _semPermissaoJson, 403);
+
+      await c.recarregar();
+
+      expect(c.semPermissao, isTrue);
+    });
+
+    test('403 ao carregar mais disponíveis também marca semPermissao', () async {
+      api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('A')], total: 30));
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+      await c.carregar();
+      api.responder('GET /turmas/disponiveis', _semPermissaoJson, 403);
+
+      await c.carregarMais();
+
+      expect(c.semPermissao, isTrue);
+    });
+
+    test(
+      'vários avisos de mudança seguidos: no máximo uma recarga em curso e uma depois',
+      () async {
+        api.responder('GET /turmas/minhas', paginaJson([]));
+        api.responder('GET /solicitacoes/minhas', paginaJson([]));
+        final mudancas = MudancasDeSolicitacao();
+        final c = MinhasTurmasController(
+          turmas,
+          solicitacoes,
+          usuarioId: 'u1',
+          aluno: true,
+          mudancas: mudancas,
+        );
+        await c.carregar();
+        api.pedidos.clear();
+        final resposta = Completer<http.Response>();
+        api.rotasAssincronas['GET /turmas/minhas'] = (_) => resposta.future;
+
+        mudancas
+          ..avisar()
+          ..avisar()
+          ..avisar();
+        await pumpEventQueue();
+        api.rotasAssincronas.remove('GET /turmas/minhas');
+        resposta.complete(respostaJson(paginaJson([])));
+        await pumpEventQueue();
+
+        expect(api.pedidos.where((p) => p.url.path == '/turmas/minhas'), hasLength(2));
+        c.dispose();
+      },
+    );
+    test(
+      '"Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando',
+      () async {
+        api.falharRede('GET /turmas/disponiveis');
+        final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+        await c.carregar(); // erro
+        final resposta = Completer<http.Response>();
+        api.rotasAssincronas['GET /turmas/disponiveis'] = (_) => resposta.future;
+        final tentativa = c.carregar(); // "Tentar de novo", em curso
+        api.rotasAssincronas.remove('GET /turmas/disponiveis');
+
+        await c.recarregar(); // uma recarga chega no meio e falha
+        resposta.complete(respostaJson(paginaJson([turmaMapa('VELHA')])));
+        await tentativa;
+
+        expect(c.lista.estado, isNot(EstadoLista.carregando));
+      },
+    );
+  });
 }

@@ -10,6 +10,7 @@ abstract final class Raios {
   static const botaoPequeno = 8.0;
   static const avatar = 8.0;
   static const avatarMedio = 9.0;
+  static const avatarGrande = 18.0;
 }
 
 /// Alvo mínimo de toque (RM-34). O design desenha botões de 42 px; o app usa 48.

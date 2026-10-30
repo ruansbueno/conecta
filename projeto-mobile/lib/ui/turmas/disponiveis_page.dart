@@ -48,7 +48,7 @@ class _DisponiveisPageState extends State<DisponiveisPage> {
     _controller.removeListener(_seRecusada);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(_controller.lista.falha!.mensagem)));
+    ).showSnackBar(SnackBar(content: Text(_controller.falhaDePermissao!.mensagem)));
     Navigator.of(context).pop();
   }
 
@@ -158,7 +158,10 @@ class _Corpo extends StatelessWidget {
     final mensageiro = ScaffoldMessenger.of(context);
     await controller.recarregar();
     final falha = controller.ultimaFalha;
-    if (falha != null) mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+    // Recusa por perfil: a própria tela explica e volta (listener na página).
+    if (falha != null && !controller.semPermissao) {
+      mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+    }
   }
 }
 

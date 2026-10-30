@@ -63,7 +63,8 @@ class _Minhas extends StatelessWidget {
       body: Column(
         children: [
           if (turmas.dadosDe != null)
-            FaixaCache(coletadoEm: turmas.dadosDe!, onRepetir: controller.carregar),
+            // Tenta sem tirar os dados guardados da tela; falhando, só um aviso breve.
+            FaixaCache(coletadoEm: turmas.dadosDe!, onRepetir: () => _recarregar(context)),
           Expanded(child: _corpo(context, controller)),
         ],
       ),

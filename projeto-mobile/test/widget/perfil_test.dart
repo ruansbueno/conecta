@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
+import '../apoio.dart';
 import '../fixtures/fabrica.dart';
 import '../fixtures/fixtures.dart';
 import 'app_falso.dart';
@@ -197,5 +200,82 @@ void main() {
 
     expect(find.text('Entrar'), findsOneWidget);
     expect(await app.cofre.ler(), isNull);
+  });
+
+  testWidgets('turmas de períodos diferentes: os dois períodos, em ordem', (tester) async {
+    await preparar(
+      _me(
+        turmas: [
+          {'id': 't1', 'codigo': 'A-1', 'nome': 'A', 'papel': 'aluno'},
+          {'id': 't2', 'codigo': 'B-1', 'nome': 'B', 'papel': 'aluno'},
+        ],
+      ),
+    );
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([
+        turmaMapa('B-1', papel: 'aluno'),
+        turmaMapa('A-1', papel: 'aluno', periodo: '2026/1'),
+      ]),
+    );
+    await app.abrir(tester);
+
+    await abrirAba(tester, 'Perfil');
+
+    expect(find.text('2026/1, 2026/2'), findsOneWidget);
+  });
+
+  testWidgets('tocar de novo na aba Perfil já aberta não pede o /me outra vez', (tester) async {
+    await preparar(_me());
+    app.api.responder('GET /turmas/minhas', paginaJson([]));
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+    final depoisDeAbrir = pedidosDeMe();
+
+    await abrirAba(tester, 'Perfil');
+    await abrirAba(tester, 'Perfil');
+
+    expect(pedidosDeMe(), depoisDeAbrir);
+  });
+
+  testWidgets('turmas mudaram com o período ainda carregando: a resposta antiga não volta', (
+    tester,
+  ) async {
+    await preparar(
+      _me(
+        turmas: [
+          {'id': 't1', 'codigo': 'A-1', 'nome': 'A', 'papel': 'aluno'},
+        ],
+      ),
+    );
+    final resposta = Completer<http.Response>();
+    app.api.rotasAssincronas['GET /turmas/minhas'] = (_) => resposta.future;
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+
+    app.api.responder('GET /me', _me(turmas: []));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(find.text('Nenhum vínculo'), findsOneWidget);
+    resposta.complete(respostaJson(paginaJson([turmaMapa('A-1', papel: 'aluno')])));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Período letivo'), findsNothing);
+  });
+
+  testWidgets('sair apaga o perfil guardado neste aparelho (RM-10)', (tester) async {
+    await preparar(_me());
+    app.api.responder('GET /turmas/minhas', paginaJson([]));
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+    expect(app.cache.ler('7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11', RecursoCache.perfil), isNotNull);
+
+    await tester.tap(find.text('Sair da conta'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Sair'));
+    await tester.pumpAndSettle();
+
+    expect(app.cache.ler('7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11', RecursoCache.perfil), isNull);
   });
 }

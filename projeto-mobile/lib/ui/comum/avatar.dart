@@ -5,9 +5,9 @@ import '../../theme/cores.dart';
 import '../../theme/tema.dart';
 import '../../theme/tipografia.dart';
 
-enum TamanhoAvatar { pequeno, medio }
+enum TamanhoAvatar { pequeno, medio, grande }
 
-/// Quadrado navy com as iniciais (design: `.avatar` / `.avatar.sm`).
+/// Quadrado navy com as iniciais (design: `.avatar` / `.avatar.sm`; o grande é o do perfil, m-13).
 class Avatar extends StatelessWidget {
   const Avatar({required this.nome, this.tamanho = TamanhoAvatar.pequeno, super.key});
 
@@ -16,21 +16,22 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pequeno = tamanho == TamanhoAvatar.pequeno;
+    final (lado, raio, fonte) = switch (tamanho) {
+      TamanhoAvatar.pequeno => (30.0, Raios.avatar, 11.5),
+      TamanhoAvatar.medio => (34.0, Raios.avatarMedio, 12.5),
+      TamanhoAvatar.grande => (64.0, 18.0, 22.0),
+    };
     return Semantics(
       label: nome,
       excludeSemantics: true,
       child: Container(
-        width: pequeno ? 30 : 34,
-        height: pequeno ? 30 : 34,
+        width: lado,
+        height: lado,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Cores.navy,
-          borderRadius: BorderRadius.circular(pequeno ? Raios.avatar : Raios.avatarMedio),
-        ),
+        decoration: BoxDecoration(color: Cores.navy, borderRadius: BorderRadius.circular(raio)),
         child: Text(
           iniciaisDe(nome),
-          style: pequeno ? Tipografia.avatar : Tipografia.avatar.copyWith(fontSize: 12.5),
+          style: Tipografia.avatar.copyWith(fontSize: fonte),
           textScaler: TextScaler.noScaling, // cabe no quadrado em qualquer escala de fonte
         ),
       ),

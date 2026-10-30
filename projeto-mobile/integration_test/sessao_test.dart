@@ -84,6 +84,8 @@ void main() {
 
     await app.abrirAba(tester, 'Perfil');
     await tester.tap(find.text('Sair da conta'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Sair'));
     await esperar(tester, find.text('Entrar'));
 
     expect(find.text('Entrar'), findsOneWidget);

@@ -162,4 +162,25 @@ void main() {
     );
     expect(find.text('Cancelar solicitação').hitTestable(), findsOneWidget);
   });
+
+  testWidgets('perfil a 200% sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api
+      ..responder('GET /avisos', avisosVazioJson)
+      ..responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('TADS-3A-2026-2', nome: 'TADS 3º Sem A', papel: 'aluno')]),
+      );
+    await app.abrir(tester);
+
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Perfil')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Período letivo'), findsOneWidget);
+  });
 }

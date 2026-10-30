@@ -68,6 +68,24 @@ void main() {
     );
   });
 
+  testWidgets('valores alinhados à direita do cartão, sem quebra desnecessária', (tester) async {
+    await preparar(_me());
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]),
+    );
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+
+    final curso = tester.getRect(find.text('Sistemas para Internet'));
+    final periodo = tester.getRect(find.text('2026/2'));
+    final vinculos = tester.getRect(find.text('1 vínculo'));
+    expect(periodo.right, moreOrLessEquals(curso.right, epsilon: 1));
+    expect(vinculos.right, moreOrLessEquals(curso.right, epsilon: 1));
+    expect(curso.right, greaterThan(tester.getSize(find.byType(MaterialApp)).width - 60));
+    expect(curso.height, lessThan(30), reason: 'o nome do curso cabe numa linha');
+  });
+
   testWidgets('coordenação sem vínculo: sem período nem lista de turmas', (tester) async {
     await preparar(_me(perfil: 'coordenacao', turmas: []));
     app.api.responder('GET /turmas/minhas', paginaJson([]));

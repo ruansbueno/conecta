@@ -222,17 +222,7 @@ class _Dados extends StatelessWidget {
             MergeSemantics(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  children: [
-                    Icon(icone, size: 20, color: Cores.apagado),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(rotulo, style: Tipografia.apoio)),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(valor, style: Tipografia.tituloCartao, textAlign: TextAlign.end),
-                    ),
-                  ],
-                ),
+                child: _LinhaDeDado(icone: icone, rotulo: rotulo, valor: valor),
               ),
             ),
           ],
@@ -272,4 +262,44 @@ class _ChipTurma extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Rótulo à esquerda e valor alinhado à direita; com a fonte do sistema grande, o valor desce
+/// para baixo do rótulo (RM-36).
+class _LinhaDeDado extends StatelessWidget {
+  const _LinhaDeDado({required this.icone, required this.rotulo, required this.valor});
+
+  final IconData icone;
+  final String rotulo;
+  final String valor;
+
+  @override
+  Widget build(BuildContext context) {
+    final grande = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final cabeca = [Icon(icone, size: 20, color: Cores.apagado), const SizedBox(width: 12)];
+    final textoValor = Text(valor, style: Tipografia.tituloCartao, textAlign: TextAlign.end);
+    if (grande) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ...cabeca,
+              Expanded(child: Text(rotulo, style: Tipografia.apoio)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Padding(padding: const EdgeInsets.only(left: 32), child: textoValor),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        ...cabeca,
+        Text(rotulo, style: Tipografia.apoio),
+        const SizedBox(width: 12),
+        Expanded(child: textoValor),
+      ],
+    );
+  }
 }

@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
+from src.api.deps.csrf import gerar_csrf
 from src.api.errors import DomainError, register_error_handlers
 from src.core.security import create_access_token, get_current_user, require_perfil
 from src.db.session import get_session
@@ -230,6 +231,20 @@ async def test_escrita_por_cookie_exige_csrf(mini_client, db, metodo):
     assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")
     assert (errado.status_code, errado.json()["code"]) == (403, "CSRF_INVALIDO")
     assert certo.status_code == 200
+
+
+@pytest.mark.parametrize("metodo", ["POST", "PATCH", "DELETE"])
+async def test_escrita_por_cookie_com_csrf_de_outra_sessao_e_403(mini_client, db, metodo):
+    # Cookie e cabeçalho iguais e bem assinados, mas para outra sessão (RF-33, emenda v2.2).
+    usuario = await _criar_usuario(db)
+    plantado = gerar_csrf(create_access_token(uuid.uuid4(), "aluno"))
+    mini_client.cookies.update(
+        {"conecta_sessao": create_access_token(usuario.id, "aluno"), "conecta_csrf": plantado}
+    )
+
+    r = await mini_client.request(metodo, "/protegida", headers={"X-CSRF-Token": plantado})
+
+    assert (r.status_code, r.json()["code"]) == (403, "CSRF_INVALIDO")
 
 
 async def test_escrita_por_cookie_sem_cookie_csrf_e_403(mini_client, db):

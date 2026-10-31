@@ -64,6 +64,9 @@ o mock **não** é validação da integração real (`spec.md` §9.1). Evidênci
 | `CSRF_SECRET` | Chave do HMAC que prende o token CSRF à sessão web; outra, diferente da `JWT_SECRET` |
 | `JWT_EXPIRES_SECONDS` | Validade do token e dos cookies (padrão 86400 = 24 h) |
 
+Trocar a `CSRF_SECRET` (ou implantar a emenda v2.2 sobre sessões antigas) invalida o CSRF das
+sessões abertas: as escritas delas recebem 403 `CSRF_INVALIDO` até um novo login.
+
 Os cookies são sempre `Secure`: a web precisa ser servida por HTTPS (ou `localhost`), no mesmo
 domínio da API sob `/api`, como previsto na `spec.md`.
 

@@ -20,8 +20,10 @@ const gerarCsrf = (sessao: string) => {
   return `${aleatorio}.${assinaturaCsrf(sessao, aleatorio)}`
 }
 const csrfConfere = (sessao: string, token: string) => {
-  const [aleatorio, assinatura] = token.split('.')
-  return !!aleatorio && assinatura === assinaturaCsrf(sessao, aleatorio)
+  // Como o partition da API: só o primeiro ponto separa, então `a.b.c` não confere.
+  const i = token.indexOf('.')
+  const aleatorio = i < 0 ? '' : token.slice(0, i)
+  return !!aleatorio && token.slice(i + 1) === assinaturaCsrf(sessao, aleatorio)
 }
 
 type Falha = { metodo: string; caminho: string; status: number; code: string; vezes: number }

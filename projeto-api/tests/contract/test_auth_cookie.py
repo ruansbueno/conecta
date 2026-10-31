@@ -182,8 +182,9 @@ async def test_cookie_de_sessao_expirado_tambem_e_apagado_no_logout(client):
 
 async def test_logout_por_cookie_continua_exigindo_csrf_mesmo_com_token_invalido(client):
     client.cookies.update(cookies_web("qualquer"))
-
     sem = await client.delete("/auth/sessao")
+
+    client.cookies.set("conecta_csrf", "c")
     nao_assinado = await client.delete("/auth/sessao", headers={"X-CSRF-Token": "c"})
 
     assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")

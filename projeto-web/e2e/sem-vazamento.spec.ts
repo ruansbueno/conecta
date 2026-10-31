@@ -41,7 +41,7 @@ test('o pacote servido não contém segredo (RW-44)', () => {
     .join('\n')
   rmSync(saida, { recursive: true })
 
-  for (const proibido of [/senha-teste/, /JWT_SECRET/, /DATABASE_URL/, /eyJhbGciOi/, /BEGIN [A-Z ]*PRIVATE KEY/]) {
+  for (const proibido of [/senha-teste/, /JWT_SECRET/, /CSRF_SECRET/, /DATABASE_URL/, /eyJhbGciOi/, /BEGIN [A-Z ]*PRIVATE KEY/]) {
     expect(conteudo).not.toMatch(proibido)
   }
 })

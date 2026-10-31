@@ -23,7 +23,7 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
       em `projeto-api/tests/contract/gestao/test_eventos_gestao.py` (não encerrados em ordem
       crescente; encerrados em ordem decrescente; em andamento só em `proximos`; valor inválido
       dá 422) e emenda ao contrato da E3 §5
-- [ ] T079 [P] `src/api/recursos/eventos.ts` e `horarios.ts`: chamadas e esquemas `zod` de
+- [x] T079 [P] `src/api/recursos/eventos.ts` e `horarios.ts`: chamadas e esquemas `zod` de
       eventos, versões, histórico, horários e envelope com conflitos; testes do cliente em
       `tests/unit/eventos-recurso.test.ts` e `horarios-recurso.test.ts`
 - [ ] T080 Mover `seletor-destinos`, `destinos-docente`, `linha-do-tempo` e `versoes` para

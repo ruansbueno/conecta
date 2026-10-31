@@ -166,7 +166,8 @@ compartilhável e a navegação para trás funciona. Cada página controla seus 
 **Escrita e CSRF**
 
 A API expõe o token CSRF em um cookie legível (não `httpOnly`); o cliente o lê e o envia no
-cabeçalho a cada `POST`, `PATCH` e `DELETE` — o padrão *double submit*. Esse é o **único** cookie
+cabeçalho a cada `POST`, `PATCH` e `DELETE` — o padrão *double submit*, que a API assina e prende à
+sessão (emenda v2.2 da API). Esse é o **único** cookie
 que o JavaScript toca, e ele não autentica nada sozinho. Após sucesso, a página recarrega a lista
 afetada; em erro, a tela devolve `{ code, mensagem, errors }` ao formulário, que marca os campos e
 **mantém tudo que foi digitado** (RW-42).

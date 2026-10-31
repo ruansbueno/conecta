@@ -85,7 +85,7 @@ estão na matriz de permissões da
 | Cache (app) | **shared_preferences** | Abrir o app sem rede com a última resposta recebida |
 | Plataforma web | **React + TypeScript, construídos com Vite** | Build estático servido no mesmo domínio da API, sem servidor de aplicação próprio |
 | Estilo (web) | **Tailwind CSS** | Interface densa de tabelas e formulários, com os tokens do design |
-| Sessão (web) | **Cookie `httpOnly` emitido pela API** + CSRF | O JavaScript nunca vê o token; toda escrita leva o cabeçalho `X-CSRF-Token` |
+| Sessão (web) | **Cookie `httpOnly` emitido pela API** + CSRF assinado | O JavaScript nunca vê o token; toda escrita leva o cabeçalho `X-CSRF-Token`, cujo valor a API assina e prende à sessão |
 | Testes (web) | Vitest, Testing Library, Playwright | Unidade, componente e ponta a ponta com API falsa |
 | Testes (API) | pytest, httpx | Contrato, integração e ponta a ponta |
 | Testes (app) | flutter_test, integration_test | Unidade, widget e integração com servidor falso |

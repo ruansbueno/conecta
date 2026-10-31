@@ -1,14 +1,28 @@
 // API falsa para o Playwright (D13): implementa o contrato da API de verdade — cookie de sessão
-// httpOnly, cookie CSRF legível e exigência de X-CSRF-Token nas escritas por cookie — e sabe
+// httpOnly, cookie CSRF legível e assinado para a sessão, e exigência de X-CSRF-Token nas escritas
+// por cookie — e sabe
 // forçar 401, 403, 409, 422 e lentidão pelos endpoints /__controle/*.
 // Roda direto no Node 24 (TypeScript sem etapa de build): node e2e/servidor-falso/servidor.ts
-import { randomUUID } from 'node:crypto'
+import { createHmac, randomUUID } from 'node:crypto'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 
 import { estadoInicial, type Estado } from './dados.ts'
 
 const PORTA = Number(process.env.PORTA ?? 8787)
 let estado: Estado = estadoInicial()
+
+// CSRF assinado como na API (RF-33, emenda v2.2): `<aleatório>.<HMAC da sessão e do aleatório>`.
+const CHAVE_CSRF = 'chave-do-servidor-falso'
+const assinaturaCsrf = (sessao: string, aleatorio: string) =>
+  createHmac('sha256', CHAVE_CSRF).update(`${sessao.length}!${sessao}!${aleatorio.length}!${aleatorio}`).digest('hex')
+const gerarCsrf = (sessao: string) => {
+  const aleatorio = randomUUID()
+  return `${aleatorio}.${assinaturaCsrf(sessao, aleatorio)}`
+}
+const csrfConfere = (sessao: string, token: string) => {
+  const [aleatorio, assinatura] = token.split('.')
+  return !!aleatorio && assinatura === assinaturaCsrf(sessao, aleatorio)
+}
 
 type Falha = { metodo: string; caminho: string; status: number; code: string; vezes: number }
 let falhas: Falha[] = []
@@ -109,7 +123,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       res,
       200,
       { access_token: token, token_type: 'bearer', expires_in: 86400, usuario: estado.publico(u) },
-      { 'Set-Cookie': [`conecta_sessao=${token}; HttpOnly; ${atributos}`, `conecta_csrf=csrf-${randomUUID()}; ${atributos}`] },
+      { 'Set-Cookie': [`conecta_sessao=${token}; HttpOnly; ${atributos}`, `conecta_csrf=${gerarCsrf(token)}; ${atributos}`] },
     )
   }
 
@@ -119,8 +133,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (!usuario.ativo) return erro(res, 403, 'USUARIO_INATIVO')
   const porCookie = !req.headers.authorization
   if (porCookie && ['POST', 'PATCH', 'DELETE'].includes(metodo)) {
-    const c = cookies(req).conecta_csrf
-    if (!c || req.headers['x-csrf-token'] !== c) return erro(res, 403, 'CSRF_INVALIDO')
+    const { conecta_csrf: c, conecta_sessao: sessao } = cookies(req)
+    if (!c || req.headers['x-csrf-token'] !== c || !csrfConfere(sessao ?? '', c)) return erro(res, 403, 'CSRF_INVALIDO')
   }
 
   if (metodo === 'DELETE' && caminho === '/auth/sessao') {

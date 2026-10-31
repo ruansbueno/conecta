@@ -10,8 +10,11 @@
   reavalia **perfil** e **ativo** do usuário no banco a cada requisição (o `perfil` do token é
   informativo).
 - Quando a autenticação vier por cookie, `POST`, `PATCH` e `DELETE` exigem **CSRF por double
-  submit** (RF-33): o valor do cookie legível `conecta_csrf` repetido no cabeçalho `X-CSRF-Token`.
-  Ausência ou divergência → 403 `CSRF_INVALIDO`. Com `Bearer`, o CSRF não é exigido.
+  submit assinado** (RF-33, emenda v2.2): o valor do cookie legível `conecta_csrf` repetido no
+  cabeçalho `X-CSRF-Token`. O valor tem a forma `<aleatório>.<assinatura>`, em que a assinatura
+  é um HMAC-SHA256 com a chave `CSRF_SECRET` sobre o cookie de sessão e o aleatório; a API a
+  confere contra o `conecta_sessao` da mesma requisição. Ausência, divergência ou assinatura que
+  não corresponde à sessão → 403 `CSRF_INVALIDO`. O cliente trata o valor como opaco. Com `Bearer`, o CSRF não é exigido.
 - **Entrega**: seções 1–9 são **E1** (consumidas pelo app); seções 10–15 são **E2**
   (`/gestao/*`, consumidas pela plataforma web).
 
@@ -111,11 +114,12 @@ cookies e usa `access_token`:
 
 ```http
 Set-Cookie: conecta_sessao=<token>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400
-Set-Cookie: conecta_csrf=<valor aleatório>; Secure; SameSite=Strict; Path=/; Max-Age=86400
+Set-Cookie: conecta_csrf=<aleatório>.<assinatura>; Secure; SameSite=Strict; Path=/; Max-Age=86400
 ```
 
 O cookie de sessão é `HttpOnly` — inacessível ao JavaScript. O de CSRF é legível de propósito: ele
-não autentica nada sozinho, só é devolvido em `X-CSRF-Token` nas escritas.
+não autentica nada sozinho, só é devolvido em `X-CSRF-Token` nas escritas. A assinatura o prende a
+este cookie de sessão: não serve para outra sessão, e não dá para fabricar um sem a `CSRF_SECRET`.
 
 **Efeitos**: 1º login cria o usuário com `perfil = aluno`; logins seguintes atualizam apenas `nome`
 e `ultimo_login_em`.

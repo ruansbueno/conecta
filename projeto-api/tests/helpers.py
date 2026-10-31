@@ -4,6 +4,7 @@ from http.cookies import SimpleCookie
 
 from sqlalchemy import update
 
+from src.api.deps.csrf import gerar_csrf
 from src.core.security import create_access_token
 from src.models.aviso import Aviso, AvisoDestino
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
@@ -31,6 +32,11 @@ def set_cookies(response) -> dict:
         jar.load(header)
         cookies.update(jar)
     return cookies
+
+
+def cookies_web(sessao: str) -> dict:
+    """Cookies de uma sessão web fabricada no teste, com o CSRF assinado para ela (RF-33)."""
+    return {"conecta_sessao": sessao, "conecta_csrf": gerar_csrf(sessao)}
 
 
 async def login(client, username="aluno.teste", password="senha-teste"):

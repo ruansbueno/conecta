@@ -67,10 +67,13 @@ fácil de errar. Mesma origem elimina os dois problemas e simplifica a implanta�
 
 ---
 
-## D4 — CSRF por *double submit*
+## D4 — CSRF por *double submit* (assinado desde a emenda v2.2 da API)
 
 **Decisão**: a API emite também um cookie **legível** com um token CSRF; o cliente o lê e o
 devolve em cabeçalho a cada `POST`, `PATCH` e `DELETE`. Requisições de leitura não precisam dele.
+Desde a emenda v2.2 da API, o token é assinado e preso à sessão (HMAC sobre o cookie de sessão):
+um token de outra sessão, plantado no navegador, é recusado. Para a web nada muda: o valor é opaco
+e continua sendo só repetido no cabeçalho.
 
 **Alternativas**: confiar apenas em `SameSite=Strict`; token CSRF por sessão guardado no servidor
 (*synchronizer token*).

@@ -1,10 +1,8 @@
-import secrets
-
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.deps.csrf import CSRF_COOKIE, verificar_csrf
+from src.api.deps.csrf import CSRF_COOKIE, gerar_csrf, verificar_csrf
 from src.api.errors import NaoAutenticado
 from src.core.config import Settings, get_settings
 from src.core.security import (
@@ -35,13 +33,14 @@ async def login(
 ) -> LoginResponse:
     sessao = await auth_service.login(session, provider, body.username, body.password)
 
-    # O app usa o token do corpo; a web, os cookies (RF-32). O de CSRF é legível de propósito.
+    # O app usa o token do corpo; a web, os cookies (RF-32). O de CSRF é legível de propósito
+    # e assinado sobre este cookie de sessão (RF-33).
     max_age = settings.JWT_EXPIRES_SECONDS
     response.set_cookie(
         SESSION_COOKIE, sessao.access_token, max_age=max_age, httponly=True, **_ATRIBUTOS_COOKIE
     )
     response.set_cookie(
-        CSRF_COOKIE, secrets.token_urlsafe(32), max_age=max_age, **_ATRIBUTOS_COOKIE
+        CSRF_COOKIE, gerar_csrf(sessao.access_token), max_age=max_age, **_ATRIBUTOS_COOKIE
     )
     return LoginResponse(
         access_token=sessao.access_token,
@@ -70,6 +69,6 @@ async def encerrar_sessao(
         return
     if SESSION_COOKIE not in request.cookies:
         raise NaoAutenticado()
-    verificar_csrf(request)
+    verificar_csrf(request, request.cookies[SESSION_COOKIE])
     response.delete_cookie(SESSION_COOKIE, httponly=True, **_ATRIBUTOS_COOKIE)
     response.delete_cookie(CSRF_COOKIE, **_ATRIBUTOS_COOKIE)

@@ -7,6 +7,7 @@ TEST_DATABASE_URL = os.environ.get(
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ["AUTH_PROVIDER"] = "mock"
 os.environ["JWT_SECRET"] = "segredo-de-teste-com-tamanho-suficiente-para-hs256"
+os.environ["CSRF_SECRET"] = "outro-segredo-de-teste-so-para-assinar-o-csrf"
 
 import pytest  # noqa: E402
 from alembic import command  # noqa: E402

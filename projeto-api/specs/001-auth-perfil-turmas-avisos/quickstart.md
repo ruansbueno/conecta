@@ -25,7 +25,8 @@ cp .env.example .env
 #   AUTH_PROVIDER=mock
 #   JWT_SECRET=<ao menos 32 bytes; gere com:
 #     python -c 'import secrets; print(secrets.token_urlsafe(48))'>
-# A API não sobe com o valor de exemplo do .env.example.
+#   CSRF_SECRET=<outro valor do mesmo jeito, diferente do JWT_SECRET>
+# A API não sobe com os valores de exemplo do .env.example.
 ```
 
 `AUTH_PROVIDER=mock` seleciona o `MockMoodleAuthProvider`. Para o Moodle real: `AUTH_PROVIDER=moodle`

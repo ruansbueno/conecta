@@ -72,7 +72,7 @@ async def get_current_user(
     if not usuario.ativo:
         raise UsuarioInativo()
     if via == "cookie":
-        verificar_csrf(request)
+        verificar_csrf(request, token)
     request.state.auth_via = via
     return usuario
 

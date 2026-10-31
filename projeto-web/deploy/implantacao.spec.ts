@@ -69,3 +69,33 @@ test('fontes têm os cabeçalhos de segurança e o nginx não informa a versão'
   expect(r.headers()['strict-transport-security']).toContain('max-age=')
   expect(r.headers()['server']).toBe('nginx')
 })
+
+async function entrarComo(page: import('@playwright/test').Page, usuario: string) {
+  await page.goto('/login')
+  await page.getByLabel('Usuário').fill(usuario)
+  await page.getByLabel('Senha').fill('senha-teste')
+  await page.getByRole('button', { name: 'Entrar' }).click()
+  await expect(page).toHaveURL(/\/painel$/)
+}
+
+test('escrita pela API real: o CSRF assinado da sessão passa (sair encerra a sessão)', async ({ page, context }) => {
+  await entrarComo(page, 'coord.teste')
+
+  await page.getByRole('button', { name: 'Sair' }).click()
+
+  await expect(page).toHaveURL(/\/login$/)
+  expect((await context.cookies()).map((c) => c.name)).not.toContain('conecta_sessao')
+})
+
+test('CSRF válido de outra sessão, plantado no navegador, é recusado pela API real (RF-33, v2.2)', async ({ page, context, request }) => {
+  const outra = await request.post('/api/auth/login', { data: { username: 'aluno.teste', password: 'senha-teste' } })
+  expect(outra.status()).toBe(200)
+  const plantado = (await request.storageState()).cookies.find((c) => c.name === 'conecta_csrf')!
+  await entrarComo(page, 'coord.teste')
+  await context.addCookies([{ ...plantado, name: 'conecta_csrf' }])
+
+  await page.getByRole('button', { name: 'Sair' }).click()
+
+  await expect(page.getByText('Não foi possível confirmar a sessão. Recarregue a página e tente de novo.')).toBeVisible()
+  await expect(page).toHaveURL(/\/painel$/)
+})

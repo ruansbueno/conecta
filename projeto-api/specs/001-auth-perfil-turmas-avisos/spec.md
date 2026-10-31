@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-auth-perfil-turmas-avisos`
 
-**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13
+**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13 | **Emenda (v2.2)**: 2026-10-31
 
 **Status**: Draft v2 — revisada a partir do parecer do orientador sobre a v1
 
@@ -24,6 +24,13 @@ a integração real e opera, por enquanto, com um provedor de autenticação sim
 > (2) os métodos de escrita passam a exigir **proteção CSRF** quando autenticados por cookie;
 > (3) a listagem de gestão ganha o filtro `situacao=agendado`; (4) fica registrada a data-limite
 > para a integração real com o Moodle. Requisitos novos: RF-32 a RF-34.
+
+> **Emenda v2.2 (2026-10-31)** — o *double submit* simples da v2.1 aceita qualquer par cookie e
+> cabeçalho iguais: quem consegue gravar um cookie no domínio (um subdomínio comprometido, por
+> exemplo) escolhe o próprio token. A OWASP recomenda a variante **assinada**, com o token
+> vinculado à sessão. O RF-33 passa a exigi-la, com uma chave própria (`CSRF_SECRET`). O
+> aplicativo não muda (usa `Bearer`), e a plataforma web também não: continua repetindo o cookie
+> no cabeçalho.
 
 ## 1. Escopo e Entregas
 
@@ -345,9 +352,13 @@ Entrega indicada entre colchetes.
   plataforma web. Os dois carregam o mesmo token e expiram em 24 h. Toda rota protegida MUST
   aceitar qualquer um dos dois.
 - **RF-33 [E1]**: Quando a requisição for autenticada por cookie, os métodos `POST`, `PATCH` e
-  `DELETE` MUST exigir proteção CSRF por *double submit*: um cookie legível com o token CSRF,
-  emitido no login, e o mesmo valor repetido em cabeçalho na requisição. Divergência ou ausência
-  MUST resultar em 403 `CSRF_INVALIDO`. Requisições autenticadas por `Bearer` MUST NOT exigir CSRF.
+  `DELETE` MUST exigir proteção CSRF por *double submit* **assinado** (emenda v2.2): um cookie
+  legível com o token CSRF, emitido no login, e o mesmo valor repetido em cabeçalho na
+  requisição. O token MUST ser um valor aleatório acompanhado de um HMAC, com chave própria
+  (`CSRF_SECRET`, distinta da do token de sessão), sobre o cookie de sessão e esse valor; a API
+  MUST conferir a assinatura contra o cookie de sessão da própria requisição, de modo que um token
+  de outra sessão, adulterado ou sem assinatura seja recusado. Divergência, ausência ou assinatura
+  inválida MUST resultar em 403 `CSRF_INVALIDO`. Requisições autenticadas por `Bearer` MUST NOT exigir CSRF.
   O sistema MUST oferecer `DELETE /auth/sessao`, que invalida o cookie de sessão.
 - **RF-34 [E2]**: A listagem de gestão de avisos MUST aceitar `situacao=agendado`, devolvendo os
   avisos ativos cuja `publicar_em` ainda não chegou, para que a paginação da plataforma web seja

@@ -8,6 +8,7 @@ from src.providers.auth.factory import ProvedorIndisponivel, provider_from_setti
 
 URL = "postgresql+asyncpg://x"
 SEGREDO_OK = "s" * 32
+CSRF_OK = "c" * 32
 
 
 @pytest.mark.parametrize(
@@ -17,15 +18,42 @@ SEGREDO_OK = "s" * 32
 )
 def test_jwt_secret_fraco_ou_de_exemplo_e_rejeitado(segredo):
     with pytest.raises(ValidationError, match="JWT_SECRET"):
-        Settings(DATABASE_URL=URL, JWT_SECRET=segredo)
+        Settings(DATABASE_URL=URL, JWT_SECRET=segredo, CSRF_SECRET=CSRF_OK)
 
 
 def test_jwt_secret_com_32_bytes_ou_mais_e_aceito():
-    assert Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK).JWT_SECRET == SEGREDO_OK
+    settings = Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=CSRF_OK)
+
+    assert settings.JWT_SECRET == SEGREDO_OK
+
+
+@pytest.mark.parametrize(
+    "segredo",
+    ["curto", "x" * 31, "troque-por-outro-segredo-local-so-para-o-csrf"],
+    ids=["curto", "31-bytes", "placeholder-do-env-example"],
+)
+def test_csrf_secret_fraco_ou_de_exemplo_e_rejeitado(segredo):
+    with pytest.raises(ValidationError, match="CSRF_SECRET"):
+        Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=segredo)
+
+
+def test_csrf_secret_e_obrigatoria(monkeypatch):
+    monkeypatch.delenv("CSRF_SECRET", raising=False)
+
+    with pytest.raises(ValidationError, match="CSRF_SECRET"):
+        Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, _env_file=None)
+
+
+def test_csrf_secret_igual_a_jwt_secret_e_rejeitada():
+    # Uma chave por finalidade: vazar uma não pode dar a outra (RF-33, emenda v2.2).
+    with pytest.raises(ValidationError, match="CSRF_SECRET"):
+        Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=SEGREDO_OK)
 
 
 def test_moodle_selecionado_enquanto_o_provedor_e_stub_falha_com_mensagem_clara():
-    settings = Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, AUTH_PROVIDER="moodle")
+    settings = Settings(
+        DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=CSRF_OK, AUTH_PROVIDER="moodle"
+    )
 
     with pytest.raises(ProvedorIndisponivel, match="AUTH_PROVIDER=mock"):
         provider_from_settings(settings)

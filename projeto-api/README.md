@@ -1,7 +1,7 @@
 # CONECTA — API
 
 API REST do CONECTA em FastAPI. Atende o aplicativo mobile (token `Bearer`) e a plataforma web
-(cookie de sessão com CSRF). Implementa:
+(cookie de sessão com CSRF assinado). Implementa:
 
 - **Entrega 1** (aplicativo): login, perfil, turmas e solicitações de inscrição, consulta de
   avisos.
@@ -18,7 +18,7 @@ Pré-requisitos: Docker e [`uv`](https://docs.astral.sh/uv/) (instala o Python 3
 
 ```bash
 docker compose up -d --wait db        # Postgres local na porta 5433 (CONECTA_DB_PORT muda)
-cp .env.example .env                  # e troque JWT_SECRET (instruções no arquivo)
+cp .env.example .env                  # e troque JWT_SECRET e CSRF_SECRET (instruções no arquivo)
 uv sync
 uv run alembic upgrade head
 uv run python -m scripts.seed_dev_data
@@ -61,7 +61,11 @@ o mock **não** é validação da integração real (`spec.md` §9.1). Evidênci
 | `DATABASE_URL` | Conexão PostgreSQL (`postgresql+asyncpg://…`); única diferença entre ambientes |
 | `AUTH_PROVIDER` | `mock` (usuários de teste) ou `moodle` (integração real) |
 | `JWT_SECRET` | Segredo de assinatura do token; longo e aleatório por ambiente |
+| `CSRF_SECRET` | Chave do HMAC que prende o token CSRF à sessão web; outra, diferente da `JWT_SECRET` |
 | `JWT_EXPIRES_SECONDS` | Validade do token e dos cookies (padrão 86400 = 24 h) |
+
+Trocar a `CSRF_SECRET` (ou implantar a emenda v2.2 sobre sessões antigas) invalida o CSRF das
+sessões abertas: as escritas delas recebem 403 `CSRF_INVALIDO` até um novo login.
 
 Os cookies são sempre `Secure`: a web precisa ser servida por HTTPS (ou `localhost`), no mesmo
 domínio da API sob `/api`, como previsto na `spec.md`.

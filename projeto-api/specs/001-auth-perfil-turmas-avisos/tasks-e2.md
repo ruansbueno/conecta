@@ -164,6 +164,22 @@ levam `@pytest.mark.mock_auth`.
 
 ---
 
+## Phase 9: Emenda v2.2 — CSRF assinado (RF-33)
+
+- [x] T133 [P] Unit test `tests/unit/test_config.py`: `CSRF_SECRET` obrigatória, com ao menos 32
+      bytes, diferente do valor de exemplo e diferente da `JWT_SECRET`
+- [x] T134 [P] Contract test `tests/contract/test_auth_cookie.py`: o token emitido no login tem a
+      forma `<aleatório>.<assinatura>` e vale só para o cookie de sessão emitido junto; token de
+      outra sessão, adulterado, sem assinatura ou de mesmo valor no cookie e no cabeçalho mas não
+      assinado → 403 `CSRF_INVALIDO` (inclusive no logout com token de sessão inválido)
+- [x] T135 `src/core/config.py` (`CSRF_SECRET`) e `src/api/deps/csrf.py` (emitir e conferir o
+      token assinado); login emite o token sobre o cookie de sessão; testes que fabricam cookies
+      passam a assinar o token pelo helper
+- [x] T136 [P] Atualizar `.env.example`, `README.md` da API e o servidor falso da plataforma web
+      (`projeto-web/e2e/servidor-falso`), que passa a emitir e conferir o token assinado
+
+---
+
 ## Dependencies & Execution Order
 
 - Phase 1 → Phases 2–7. Phase 4 (vínculos) usa a regra de `PERFIL_INCOMPATIVEL` também no

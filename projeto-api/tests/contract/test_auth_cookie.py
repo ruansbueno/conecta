@@ -1,8 +1,8 @@
-"""Sessão por cookie e CSRF por double submit (contracts/api.md §1, §1b; RF-32, RF-33)."""
+"""Sessão por cookie e CSRF por double submit assinado (contracts/api.md §1, §1b; RF-32, RF-33)."""
 
 import pytest
 
-from tests.helpers import login, set_cookies
+from tests.helpers import cookies_web, login, set_cookies
 
 pytestmark = pytest.mark.mock_auth
 
@@ -30,6 +30,14 @@ async def test_login_emite_cookie_csrf_legivel(client):
     assert csrf["samesite"].lower() == "strict"
     assert csrf["path"] == "/"
     assert csrf["max-age"] == "86400"
+
+
+async def test_csrf_tem_valor_aleatorio_e_assinatura(client):
+    r = await login(client)
+
+    aleatorio, _, assinatura = set_cookies(r)["conecta_csrf"].value.partition(".")
+    assert len(aleatorio) >= 32
+    assert len(assinatura) == 64  # HMAC-SHA256 em hexadecimal
 
 
 async def test_cada_login_gera_um_csrf_novo(client):
@@ -66,6 +74,43 @@ async def test_escrita_por_cookie_com_csrf_divergente_e_403(client):
 
     assert r.status_code == 403
     assert r.json()["code"] == "CSRF_INVALIDO"
+
+
+async def _sessao_de(client, username):
+    await login(client, username=username)
+    return client.cookies["conecta_sessao"], client.cookies["conecta_csrf"]
+
+
+async def test_csrf_de_outra_sessao_e_403(client):
+    # Quem planta um cookie no domínio usa o próprio par válido: a assinatura o prende à sessão.
+    _, csrf_do_atacante = await _sessao_de(client, "aluno2.teste")
+    sessao_da_vitima, _ = await _sessao_de(client, "aluno.teste")
+    client.cookies.clear()
+    client.cookies.update({"conecta_sessao": sessao_da_vitima, "conecta_csrf": csrf_do_atacante})
+
+    r = await client.delete("/auth/sessao", headers={"X-CSRF-Token": csrf_do_atacante})
+
+    assert (r.status_code, r.json()["code"]) == (403, "CSRF_INVALIDO")
+
+
+@pytest.mark.parametrize(
+    "adulterar",
+    [
+        lambda t: t.split(".")[0],
+        lambda t: t[:-1] + ("0" if t[-1] != "0" else "1"),
+        lambda t: "outro-aleatorio." + t.split(".")[1],
+        lambda t: "valor-qualquer-sem-assinatura",
+    ],
+    ids=["sem-assinatura", "assinatura-adulterada", "aleatorio-trocado", "nao-assinado"],
+)
+async def test_csrf_que_nao_corresponde_a_sessao_e_403_mesmo_igual_ao_cabecalho(client, adulterar):
+    await login(client)
+    falso = adulterar(client.cookies["conecta_csrf"])
+    client.cookies.set("conecta_csrf", falso)
+
+    r = await client.delete("/auth/sessao", headers={"X-CSRF-Token": falso})
+
+    assert (r.status_code, r.json()["code"]) == (403, "CSRF_INVALIDO")
 
 
 async def test_escrita_por_bearer_nao_exige_csrf_e_nao_mexe_em_cookies(client):
@@ -125,20 +170,25 @@ async def test_usuario_desativado_consegue_encerrar_a_sessao_web(client, session
 
 
 async def test_cookie_de_sessao_expirado_tambem_e_apagado_no_logout(client):
-    client.cookies.update({"conecta_sessao": "token-expirado-ou-invalido", "conecta_csrf": "c"})
+    client.cookies.update(cookies_web("token-expirado-ou-invalido"))
 
-    r = await client.delete("/auth/sessao", headers={"X-CSRF-Token": "c"})
+    r = await client.delete(
+        "/auth/sessao", headers={"X-CSRF-Token": client.cookies["conecta_csrf"]}
+    )
 
     assert r.status_code == 204
     assert set_cookies(r)["conecta_sessao"]["max-age"] == "0"
 
 
 async def test_logout_por_cookie_continua_exigindo_csrf_mesmo_com_token_invalido(client):
-    client.cookies.update({"conecta_sessao": "qualquer", "conecta_csrf": "c"})
+    client.cookies.update(cookies_web("qualquer"))
+    sem = await client.delete("/auth/sessao")
 
-    r = await client.delete("/auth/sessao")
+    client.cookies.set("conecta_csrf", "c")
+    nao_assinado = await client.delete("/auth/sessao", headers={"X-CSRF-Token": "c"})
 
-    assert (r.status_code, r.json()["code"]) == (403, "CSRF_INVALIDO")
+    assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")
+    assert (nao_assinado.status_code, nao_assinado.json()["code"]) == (403, "CSRF_INVALIDO")
 
 
 async def test_logout_por_bearer_invalido_e_401(client):

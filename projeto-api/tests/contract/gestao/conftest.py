@@ -35,3 +35,22 @@ def publicar(client):
         return r.json()
 
     return _publicar
+
+
+@pytest.fixture
+def cadastrar(client):
+    """Cria um evento pela API (POST /gestao/eventos) e devolve o corpo da resposta."""
+
+    async def _cadastrar(autor, **campos):
+        corpo = {
+            "titulo": "Evento de gestão",
+            "tipo": "palestra",
+            "inicio": futuro(),
+            "destinos": [{"tipo": "todos"}],
+            **campos,
+        }
+        r = await client.post("/gestao/eventos", headers=bearer(autor), json=corpo)
+        assert r.status_code == 201, r.text
+        return r.json()
+
+    return _cadastrar

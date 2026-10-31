@@ -78,19 +78,19 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 4: US3 — Gestão e auditoria do evento (RF-39 a RF-42)
 
-- [ ] T014 [P] [US3] Contract test `GET /gestao/eventos` (filtros do contrato, docente só os
+- [x] T014 [P] [US3] Contract test `GET /gestao/eventos` (filtros do contrato, docente só os
       próprios, `excluido` só para a gestão) e `GET /gestao/eventos/{id}` em
       `tests/contract/gestao/test_eventos_gestao.py`
-- [ ] T015 [P] [US3] Contract test do ciclo de vida: `PATCH` (versão + 1, `editado_em`, "nenhuma
+- [x] T015 [P] [US3] Contract test do ciclo de vida: `PATCH` (versão + 1, `editado_em`, "nenhuma
       alteração", `fim` coerente com o `inicio` resultante, `fim: null`), arquivar, desarquivar,
       excluir, 409 `EVENTO_NAO_EDITAVEL` e `EVENTO_SITUACAO_INVALIDA`, em
       `tests/contract/gestao/test_eventos_ciclo_de_vida.py`
-- [ ] T016 [P] [US3] Integration test: cada operação grava exatamente um registro com usuário e
+- [x] T016 [P] [US3] Integration test: cada operação grava exatamente um registro com usuário e
       data; a edição registra só os campos alterados com `de`/`para`; versões completas, inclusive
       de evento excluído para a gestão; docente não audita evento alheio (403); falha no meio não
       deixa versão nem histórico órfão, em `tests/integration/test_evento_versoes_historico.py`
       (SC-E3-003)
-- [ ] T017 [US3] Restante de `eventos_gestao_service` (listar, obter, editar, arquivar,
+- [x] T017 [US3] Restante de `eventos_gestao_service` (listar, obter, editar, arquivar,
       desarquivar, excluir, versões, histórico) e rotas de `/gestao/eventos`
 
 **Checkpoint**: eventos completos; o app e a web podem consumir a agenda.

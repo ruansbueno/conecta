@@ -181,10 +181,14 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 
 **Auth**: administração e coordenação (todos); docente (somente os que criou).
 **Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `tipo`,
-`autor_id`, `turma_id`, `de`, `ate`, `q`, `limit`, `offset`.
+`autor_id`, `turma_id`, `de`, `ate`, `q`, `quando`, `limit`, `offset`.
 
-**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` com a
-mesma janela da seção 1; não há filtro de encerrados na gestão.
+`quando` (emenda de 31/10/2026, para as abas da plataforma web): `proximos` traz os não
+encerrados, na ordem de `inicio` crescente (o mesmo "encerrado" da seção 1); `realizados`, os
+encerrados, na ordem de `inicio` **decrescente**. Sem `quando`, não há filtro de tempo.
+
+**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente (decrescente com
+`quando=realizados`). `de`/`ate` com a mesma janela da seção 1.
 
 ---
 

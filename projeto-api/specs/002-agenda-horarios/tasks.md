@@ -21,22 +21,22 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 1: Emendas e base comum (bloqueia as demais)
 
-- [ ] T001 [P] Emendar `data-model.md` e `contracts/api.md` com as decisões do plano: nomes físicos
+- [x] T001 [P] Emendar `data-model.md` e `contracts/api.md` com as decisões do plano: nomes físicos
       (D-E3-2), intervalo semiaberto e "encerrado" (D-E3-3, D-E3-4), ordem (D-E3-5), conflito só no
       mesmo período letivo (D-E3-9) e 404 para a grade de turma inativa (D-E3-10)
-- [ ] T002 Refatoração sem mudança de comportamento (D-E3-1): `repositories/alcance.py` com
+- [x] T002 Refatoração sem mudança de comportamento (D-E3-1): `repositories/alcance.py` com
       `alcanca(destino, usuario)`; `services/destinos.py` com a validação de destinos e a regra do
       docente; `destinos_canonicos(destinos)`; `schemas/destino.py`. Avisos passam a usá-los, e a
       suíte inteira continua verde sem tocar em teste de aviso
-- [ ] T003 [P] Erros de domínio em `src/api/errors.py`: `EVENTO_NAO_ENCONTRADO`,
+- [x] T003 [P] Erros de domínio em `src/api/errors.py`: `EVENTO_NAO_ENCONTRADO`,
       `HORARIO_NAO_ENCONTRADO`, `EVENTO_NAO_EDITAVEL`, `EVENTO_SITUACAO_INVALIDA`
-- [ ] T004 Models `evento.py` (Evento, EventoDestino), `evento_versao.py`, `evento_historico.py` e
+- [x] T004 Models `evento.py` (Evento, EventoDestino), `evento_versao.py`, `evento_historico.py` e
       `horario.py`, com os nomes físicos do D-E3-2, `CHECK` de tipo, situação, dia 1–7,
       `fim > inicio` (evento e horário) e índices `(st_evento, dt_inicio)`, `(id_usuario)` e
       `(id_turma, nr_dia_semana, hr_inicio)`; registro em `src/db/base.py`
-- [ ] T005 Migração Alembic das cinco tabelas, com os triggers de imutabilidade em
+- [x] T005 Migração Alembic das cinco tabelas, com os triggers de imutabilidade em
       `tb_evento_versao` e `tb_evento_historico` (mesma função da E2); `downgrade` completo
-- [ ] T006 [P] Integration test: `UPDATE`/`DELETE` em versão e histórico de evento falham no banco,
+- [x] T006 [P] Integration test: `UPDATE`/`DELETE` em versão e histórico de evento falham no banco,
       em `tests/integration/test_evento_auditoria_imutavel.py`; o teste de nomenclatura e o de
       models × migrações seguem verdes com as tabelas novas
 

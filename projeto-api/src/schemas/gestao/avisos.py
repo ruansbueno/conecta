@@ -4,39 +4,10 @@ from typing import Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from src.schemas.aviso import AutorOut, DestinoOut
+from src.schemas.common import AutorOut, PessoaOut
+from src.schemas.destino import DestinoIn, DestinoOut, DestinoVersaoOut, sem_repeticao
 
-TipoDestino = Literal["todos", "turma", "semestre", "docentes"]
 SituacaoGestao = Literal["ativo", "agendado", "arquivado", "excluido"]
-
-
-class DestinoIn(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    tipo: TipoDestino
-    turma_id: uuid.UUID | None = None
-    semestre: int | None = Field(None, ge=1, le=12)
-
-    @model_validator(mode="after")
-    def _referencia_coerente(self):
-        if self.tipo == "turma" and (self.turma_id is None or self.semestre is not None):
-            raise ValueError("destino turma exige turma_id e não aceita semestre")
-        if self.tipo == "semestre" and (self.semestre is None or self.turma_id is not None):
-            raise ValueError("destino semestre exige semestre e não aceita turma_id")
-        if self.tipo in ("todos", "docentes") and (
-            self.turma_id is not None or self.semestre is not None
-        ):
-            raise ValueError(f"destino {self.tipo} não aceita turma_id nem semestre")
-        return self
-
-    def chave(self) -> tuple:
-        return (self.tipo, self.turma_id, self.semestre)
-
-
-def _sem_repeticao(destinos: list[DestinoIn]) -> list[DestinoIn]:
-    if len({d.chave() for d in destinos}) != len(destinos):
-        raise ValueError("destino repetido")
-    return destinos
 
 
 class AvisoCreate(BaseModel):
@@ -50,7 +21,7 @@ class AvisoCreate(BaseModel):
     @field_validator("destinos")
     @classmethod
     def _destinos_unicos(cls, destinos: list[DestinoIn]) -> list[DestinoIn]:
-        return _sem_repeticao(destinos)
+        return sem_repeticao(destinos)
 
 
 class AvisoPatch(BaseModel):
@@ -79,7 +50,7 @@ class AvisoPatch(BaseModel):
     @field_validator("destinos")
     @classmethod
     def _destinos_unicos(cls, destinos: list[DestinoIn] | None) -> list[DestinoIn] | None:
-        return None if destinos is None else _sem_repeticao(destinos)
+        return None if destinos is None else sem_repeticao(destinos)
 
 
 class AvisoGestaoOut(BaseModel):
@@ -97,19 +68,6 @@ class AvisoGestaoOut(BaseModel):
     editado_em: datetime | None
     arquivado_em: datetime | None
     destinos: list[DestinoOut]
-
-
-class PessoaOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    nome: str
-
-
-class DestinoVersaoOut(BaseModel):
-    tipo: str
-    turma_id: uuid.UUID | None
-    semestre: int | None
 
 
 class VersaoOut(BaseModel):

@@ -5,6 +5,10 @@
 Estende o modelo da E1 (`specs/001-auth-perfil-turmas-avisos/data-model.md`), do qual reaproveita
 `Usuario`, `Turma`, `Vinculo` e, integralmente, o mecanismo de destino.
 
+> **Emenda (2026-10-31)**, das decisões do [plano](./plan.md): nomes físicos na nomenclatura do
+> banco (D-E3-2, tabela no fim desta página); conflito de horário só entre turmas do **mesmo
+> período letivo** (D-E3-9).
+
 ## Evento
 
 | Campo | Tipo | Regras |
@@ -67,8 +71,26 @@ Resultado da verificação feita ao criar ou editar um horário:
 
 - **sala**: outro horário com `local` equivalente — comparação normalizada, sem acento, sem
   diferença de caixa e com espaços colapsados — no mesmo `dia_semana`, com sobreposição de
-  intervalo, em turma ativa.
-- **docente**: outro horário com o mesmo `docente_id`, mesmo `dia_semana` e sobreposição.
+  intervalo, em turma ativa do mesmo período letivo.
+- **docente**: outro horário com o mesmo `docente_id`, mesmo `dia_semana` e sobreposição, em turma
+  ativa do mesmo período letivo.
+
+Turmas de períodos diferentes não conflitam: a grade do período seguinte costuma ser montada antes
+de a turma anterior ser desativada. Horário sem local não conflita por sala, e sem docente não
+conflita por docente.
 
 Sobreposição é `inicio_a < fim_b` e `inicio_b < fim_a` — encostar não é conflito. O resultado
 acompanha a resposta de sucesso e nunca bloqueia a gravação (RF-44).
+
+## Nomes físicos
+
+Seguem a nomenclatura da E1 (`specs/001-auth-perfil-turmas-avisos/data-model.md`, "Nomes
+físicos"). Nos models, os atributos usam os nomes do contrato.
+
+| Tabela | Colunas (atributo → coluna) |
+|---|---|
+| `tb_evento` | `id` → `id_evento`, `titulo` → `nm_evento`, `descricao` → `txt_evento`, `tipo` → `tp_evento`, `inicio` → `dt_inicio`, `fim` → `dt_fim`, `local` → `nm_local`, `autor_id` → `id_usuario`, `situacao` → `st_evento`, `versao_atual` → `nr_versao`, `criado_em` → `dt_cadastro`, `editado_em` → `dt_edicao`, `arquivado_em` → `dt_arquivamento`, `excluido_em` → `dt_exclusao` |
+| `tb_evento_destino` | `id` → `id_evento_destino`, `evento_id` → `id_evento`, `tipo` → `tp_destino`, `turma_id` → `id_turma`, `semestre` → `nr_semestre` |
+| `tb_evento_versao` | `id` → `id_evento_versao`, `evento_id` → `id_evento`, `versao` → `nr_versao`, `titulo` → `nm_evento`, `descricao` → `txt_evento`, `tipo` → `tp_evento`, `inicio` → `dt_inicio`, `fim` → `dt_fim`, `local` → `nm_local`, `destinos` → `txt_destinos`, `criada_por` → `id_usuario`, `criada_em` → `dt_versao` |
+| `tb_evento_historico` | `id` → `id_evento_historico`, `evento_id` → `id_evento`, `tipo` → `tp_operacao`, `usuario_id` → `id_usuario`, `ocorrido_em` → `dt_operacao`, `versao` → `nr_versao`, `alteracoes` → `txt_alteracoes` |
+| `tb_horario` | `id` → `id_horario`, `turma_id` → `id_turma`, `dia_semana` → `nr_dia_semana`, `inicio` → `hr_inicio`, `fim` → `hr_fim`, `disciplina` → `nm_disciplina`, `local` → `nm_local`, `docente_id` → `id_usuario_docente` |

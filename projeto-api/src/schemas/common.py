@@ -1,7 +1,8 @@
+import uuid
 from dataclasses import dataclass
 
 from fastapi import Query
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Page[T](BaseModel):
@@ -15,3 +16,17 @@ class Page[T](BaseModel):
 class PaginationParams:
     limit: int = Query(20, ge=1, le=100)
     offset: int = Query(0, ge=0)
+
+
+class AutorOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    nome: str
+
+
+class PessoaOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    nome: str

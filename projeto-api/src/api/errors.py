@@ -131,6 +131,28 @@ class AvisoNaoEncontrado(DomainError):
         super().__init__(404, "AVISO_NAO_ENCONTRADO", "Aviso não encontrado")
 
 
+class EventoNaoEncontrado(DomainError):
+    def __init__(self):
+        super().__init__(404, "EVENTO_NAO_ENCONTRADO", "Evento não encontrado")
+
+
+class EventoNaoEditavel(DomainError):
+    def __init__(self):
+        super().__init__(
+            409, "EVENTO_NAO_EDITAVEL", "Evento arquivado ou excluído não pode ser editado"
+        )
+
+
+class EventoSituacaoInvalida(DomainError):
+    def __init__(self, detail: str):
+        super().__init__(409, "EVENTO_SITUACAO_INVALIDA", detail)
+
+
+class HorarioNaoEncontrado(DomainError):
+    def __init__(self):
+        super().__init__(404, "HORARIO_NAO_ENCONTRADO", "Horário não encontrado")
+
+
 _MENSAGENS = {
     "missing": "campo obrigatório",
     "string_type": "deve ser um texto",

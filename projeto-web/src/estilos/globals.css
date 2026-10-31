@@ -72,6 +72,32 @@
     outline: 2px solid var(--color-azul);
     outline-offset: 2px;
   }
+  /* O preflight do Tailwind 4 deixa botões com o cursor padrão: tudo que se clica mostra a mão. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  select:not(:disabled),
+  summary,
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  label:has(input[type='checkbox']:not(:disabled)),
+  label:has(input[type='radio']:not(:disabled)) {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+  /* Seta própria no lugar da nativa, que ignora o padding e cola na borda: mesmo recuo do texto. */
+  select {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22' fill='none' stroke='%235B6B86' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 8.75 11 13.25l4.5-4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    background-size: 1.125rem;
+  }
 }
 
 /* Componentes de base do design (.btn, .input). */
@@ -90,6 +116,10 @@
   }
   .campo {
     @apply h-[46px] w-full rounded-[10px] border border-linha bg-branco px-3.5 text-sm text-tinta focus-within:border-azul focus-within:ring-[3px] focus-within:ring-foco;
+  }
+  /* O padding do .campo venceria o da camada base: o select reserva a direita para a seta. */
+  select.campo {
+    @apply pr-10;
   }
   .rotulo {
     @apply mb-1.5 block text-[12.5px] font-semibold text-apagado;

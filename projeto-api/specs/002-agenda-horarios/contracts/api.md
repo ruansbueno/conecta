@@ -7,6 +7,10 @@ formato de erro `{detail, code}`, catálogo de códigos, paginação (`limit`/`o
 autenticação por `Bearer` ou cookie de sessão com CSRF nas escritas (RF-32, RF-33) e o formato de
 destino.
 
+> **Emenda (2026-10-31)**, das decisões do [plano](../plan.md): semântica de `de`/`ate` e de
+> "encerrado" (D-E3-3, D-E3-4), ordem das listas (D-E3-5), `fim` no `PATCH` (D-E3-6) e 404 para a
+> grade de turma inativa (D-E3-10).
+
 Caminhos de consulta (clientes): `/eventos`, `/turmas/{turma_id}/horarios`.
 Caminhos de gestão: `/gestao/eventos`, `/gestao/turmas/{turma_id}/horarios`.
 
@@ -44,7 +48,12 @@ Eventos visíveis ao usuário, do mais próximo ao mais distante por `inicio`.
 | `turma_id` | — | UUID; filtra eventos com destino `turma` igual a esse id |
 | `limit` / `offset` | 20 / 0 | ver Paginação |
 
-Sem `de` e `ate`, devolve os eventos a partir de agora.
+`de` e `ate` filtram por `inicio` no intervalo **semiaberto** `[de, ate)`: a visão de mês pede do
+dia 1 ao dia 1 do mês seguinte, sem sobreposição. Cada um vale sozinho; `ate` igual a `de` é
+intervalo vazio. Um evento está **encerrado** quando o `fim` — ou o `inicio`, se não houver `fim` —
+já passou; um evento em andamento não está encerrado. Sem `de` e `ate`, devolve os eventos a partir
+de agora (os não encerrados). Com `situacao=arquivado`, `incluir_encerrados` não se aplica: a lista
+de arquivados traz todos. Ordem: `inicio` crescente e, no empate, `id`.
 
 **200**
 ```json
@@ -116,8 +125,8 @@ Grade semanal da turma, ordenada por dia e hora de início.
 `dia_semana`: 1 = segunda … 7 = domingo. `inicio` e `fim` são horas locais (`HH:MM`), sem data —
 a grade é recorrência semanal (RF-46).
 
-**Erros**: 401; 403 `SEM_PERMISSAO` (sem vínculo); 404 `TURMA_NAO_ENCONTRADA`.
-Turma inativa não devolve grade aos clientes.
+**Erros**: 401; 403 `SEM_PERMISSAO` (sem vínculo); 404 `TURMA_NAO_ENCONTRADA` (inexistente ou
+inativa, para todos os perfis; a gestão vê a grade de turma inativa pela seção 11).
 
 **Maps to**: RF-45.
 
@@ -149,11 +158,11 @@ leciona).
 | Campo | Obrigatório | Validação |
 |---|---|---|
 | titulo | Sim | 3–150 caracteres |
-| descricao | Não | até 5000 caracteres |
+| descricao | Não | 1–5000 caracteres (sem descrição: omitir ou `null`) |
 | tipo | Sim | `palestra`, `banca`, `reuniao`, `formatura`, `prova`, `data_importante`, `outro` |
 | inicio | Sim | ISO-8601 com fuso |
 | fim | Não | ISO-8601; MUST ser maior que `inicio` |
-| local | Não | até 120 caracteres |
+| local | Não | 1–120 caracteres (sem local: omitir ou `null`) |
 | destinos | Sim | 1–20 itens, sem repetição; mesmas regras de destino do aviso |
 
 **201**: evento de gestão (formato da seção 6), `versao_atual: 1`, `situacao: "ativo"`.
@@ -172,7 +181,8 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 **Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `tipo`,
 `autor_id`, `turma_id`, `de`, `ate`, `q`, `limit`, `offset`.
 
-**200**: lista paginada de eventos de gestão.
+**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` como na
+seção 1; não há filtro de encerrados na gestão.
 
 ---
 
@@ -207,7 +217,9 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 ## 7. PATCH /gestao/eventos/{evento_id}
 
 Parcial; ao menos um campo. `destinos`, se enviado, **substitui** a lista inteira. Campos e
-validações iguais aos de `POST`. Se nada mudou → 422 ("nenhuma alteração").
+validações iguais aos de `POST`. Se nada mudou → 422 ("nenhuma alteração"). `fim` é conferido com
+o `inicio` resultante (enviar só `inicio` depois do `fim` atual dá 422); `fim: null` torna o evento
+pontual. Datas passadas são aceitas, no `POST` e no `PATCH`.
 
 **200**: evento atualizado, com `versao_atual` incrementada e `editado_em` preenchido.
 Efeitos: nova versão + registro `editado` com `alteracoes`, no mesmo formato do aviso.
@@ -221,7 +233,9 @@ Efeitos: nova versão + registro `editado` com `alteracoes`, no mesmo formato do
 ## 8. POST /gestao/eventos/{evento_id}/arquivar · /desarquivar · DELETE /gestao/eventos/{evento_id}
 
 Mesma semântica dos avisos: arquivar e desarquivar devolvem 200 com o evento atualizado; excluir
-é lógico e devolve 204. Cada operação gera um registro de histórico.
+é lógico e devolve 204. Cada operação gera um registro de histórico. Diferença: num evento já
+excluído, arquivar e desarquivar dão 404 `EVENTO_NAO_ENCONTRADO` (no aviso, 409), porque o
+excluído não existe mais para a gestão, só para a auditoria.
 
 **Erros**: 403; 404; 409 `EVENTO_SITUACAO_INVALIDA` (arquivar/desarquivar fora de situação).
 

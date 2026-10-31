@@ -4,27 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-
-class AutorOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    nome: str
-
-
-class TurmaDestinoOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    nome: str
-
-
-class DestinoOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    tipo: Literal["todos", "turma", "semestre", "docentes"]
-    turma: TurmaDestinoOut | None
-    semestre: int | None
+from src.schemas.common import AutorOut
+from src.schemas.destino import DestinoOut
 
 
 class AvisoOut(BaseModel):

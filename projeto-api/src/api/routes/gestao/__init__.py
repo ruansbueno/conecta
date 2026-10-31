@@ -1,4 +1,4 @@
-"""Rotas de gestão (E2), consumidas pela plataforma web. Perfil aluno nunca entra (spec §2.3)."""
+"""Rotas de gestão (E2 e E3), consumidas pela plataforma web; perfil aluno nunca entra (§2.3)."""
 
 from fastapi import APIRouter, Depends
 
@@ -11,10 +11,18 @@ router = APIRouter(
 )
 
 
-from src.api.routes.gestao import avisos, solicitacoes, turmas, usuarios, vinculos  # noqa: E402
+from src.api.routes.gestao import (  # noqa: E402
+    avisos,
+    eventos,
+    solicitacoes,
+    turmas,
+    usuarios,
+    vinculos,
+)
 
 router.include_router(usuarios.router)
 router.include_router(turmas.router)
 router.include_router(vinculos.router)
 router.include_router(solicitacoes.router)
 router.include_router(avisos.router)
+router.include_router(eventos.router)

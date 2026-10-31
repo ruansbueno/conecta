@@ -21,22 +21,22 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 1: Emendas e base comum (bloqueia as demais)
 
-- [ ] T001 [P] Emendar `data-model.md` e `contracts/api.md` com as decisões do plano: nomes físicos
+- [x] T001 [P] Emendar `data-model.md` e `contracts/api.md` com as decisões do plano: nomes físicos
       (D-E3-2), intervalo semiaberto e "encerrado" (D-E3-3, D-E3-4), ordem (D-E3-5), conflito só no
       mesmo período letivo (D-E3-9) e 404 para a grade de turma inativa (D-E3-10)
-- [ ] T002 Refatoração sem mudança de comportamento (D-E3-1): `repositories/alcance.py` com
-      `alcanca(destino, usuario)`; `services/destinos.py` com a validação de destinos e a regra do
+- [x] T002 Refatoração sem mudança de comportamento (D-E3-1): `repositories/alcance.py` com
+      `alcanca(destino, do_dono, usuario)`; `services/destinos.py` com a validação de destinos e a regra do
       docente; `destinos_canonicos(destinos)`; `schemas/destino.py`. Avisos passam a usá-los, e a
       suíte inteira continua verde sem tocar em teste de aviso
-- [ ] T003 [P] Erros de domínio em `src/api/errors.py`: `EVENTO_NAO_ENCONTRADO`,
+- [x] T003 [P] Erros de domínio em `src/api/errors.py`: `EVENTO_NAO_ENCONTRADO`,
       `HORARIO_NAO_ENCONTRADO`, `EVENTO_NAO_EDITAVEL`, `EVENTO_SITUACAO_INVALIDA`
-- [ ] T004 Models `evento.py` (Evento, EventoDestino), `evento_versao.py`, `evento_historico.py` e
+- [x] T004 Models `evento.py` (Evento, EventoDestino), `evento_versao.py`, `evento_historico.py` e
       `horario.py`, com os nomes físicos do D-E3-2, `CHECK` de tipo, situação, dia 1–7,
       `fim > inicio` (evento e horário) e índices `(st_evento, dt_inicio)`, `(id_usuario)` e
       `(id_turma, nr_dia_semana, hr_inicio)`; registro em `src/db/base.py`
-- [ ] T005 Migração Alembic das cinco tabelas, com os triggers de imutabilidade em
+- [x] T005 Migração Alembic das cinco tabelas, com os triggers de imutabilidade em
       `tb_evento_versao` e `tb_evento_historico` (mesma função da E2); `downgrade` completo
-- [ ] T006 [P] Integration test: `UPDATE`/`DELETE` em versão e histórico de evento falham no banco,
+- [x] T006 [P] Integration test: `UPDATE`/`DELETE` em versão e histórico de evento falham no banco,
       em `tests/integration/test_evento_auditoria_imutavel.py`; o teste de nomenclatura e o de
       models × migrações seguem verdes com as tabelas novas
 
@@ -46,13 +46,13 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 2: US1 — Publicar um evento para o público certo (RF-35, RF-36)
 
-- [ ] T007 [P] [US1] Contract test `POST /gestao/eventos` (201 com versão 1 e `situacao: ativo`;
+- [x] T007 [P] [US1] Contract test `POST /gestao/eventos` (201 com versão 1 e `situacao: ativo`;
       422 de campos, `fim <= inicio`, destino repetido ou fora de 1–20; 403 aluno; 404 turma) em
       `tests/contract/gestao/test_eventos_criar.py`
-- [ ] T008 [P] [US1] Integration test: docente cria para turma em que leciona; `todos`, `semestre`
+- [x] T008 [P] [US1] Integration test: docente cria para turma em que leciona; `todos`, `semestre`
       ou turma alheia dão 403 `DESTINO_NAO_PERMITIDO`, em
       `tests/integration/test_evento_destino_docente.py`
-- [ ] T009 [US1] `schemas/gestao/eventos.py`, `services/eventos_gestao_service.criar` (evento +
+- [x] T009 [US1] `schemas/gestao/eventos.py`, `services/eventos_gestao_service.criar` (evento +
       destinos + versão 1 + histórico `criado` na mesma transação) e rota
       `POST /gestao/eventos`
 
@@ -60,37 +60,37 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 3: US2 — Consultar a agenda (RF-37, RF-38)
 
-- [ ] T010 [P] [US2] Contract test `GET /eventos` e `GET /eventos/{id}` (formato do item,
+- [x] T010 [P] [US2] Contract test `GET /eventos` e `GET /eventos/{id}` (formato do item,
       paginação, filtros `tipo`, `situacao`, `turma_id`; 422 de `ate < de` e de valores inválidos;
       404 de excluído ou fora do alcance) em `tests/contract/test_eventos_listar.py`
-- [ ] T011 [P] [US2] Integration test de visibilidade: cada tipo de destino alcança quem deve e
+- [x] T011 [P] [US2] Integration test de visibilidade: cada tipo de destino alcança quem deve e
       ninguém mais; vários destinos que coincidem dão uma entrega só; turma inativa suspende o
       alcance por turma e por semestre; arquivado só na lista de arquivados, em
       `tests/integration/test_evento_visibilidade.py` (SC-E3-001)
-- [ ] T012 [P] [US2] Integration test de tempo: sem filtro, "a partir de agora" com os em andamento;
+- [x] T012 [P] [US2] Integration test de tempo: sem filtro, "a partir de agora" com os em andamento;
       `[de, ate)` semiaberto; `incluir_encerrados`; evento sem `fim`; evento que cruza a
       meia-noite; um mês inteiro numa chamada (SC-E3-002), em
       `tests/integration/test_evento_intervalo.py`
-- [ ] T013 [US2] `repositories/evento_repository.py`, `services/evento_service.py`,
+- [x] T013 [US2] `repositories/evento_repository.py`, `services/evento_service.py`,
       `schemas/evento.py` e rotas `GET /eventos` e `GET /eventos/{id}`
 
 ---
 
 ## Phase 4: US3 — Gestão e auditoria do evento (RF-39 a RF-42)
 
-- [ ] T014 [P] [US3] Contract test `GET /gestao/eventos` (filtros do contrato, docente só os
+- [x] T014 [P] [US3] Contract test `GET /gestao/eventos` (filtros do contrato, docente só os
       próprios, `excluido` só para a gestão) e `GET /gestao/eventos/{id}` em
       `tests/contract/gestao/test_eventos_gestao.py`
-- [ ] T015 [P] [US3] Contract test do ciclo de vida: `PATCH` (versão + 1, `editado_em`, "nenhuma
+- [x] T015 [P] [US3] Contract test do ciclo de vida: `PATCH` (versão + 1, `editado_em`, "nenhuma
       alteração", `fim` coerente com o `inicio` resultante, `fim: null`), arquivar, desarquivar,
       excluir, 409 `EVENTO_NAO_EDITAVEL` e `EVENTO_SITUACAO_INVALIDA`, em
       `tests/contract/gestao/test_eventos_ciclo_de_vida.py`
-- [ ] T016 [P] [US3] Integration test: cada operação grava exatamente um registro com usuário e
+- [x] T016 [P] [US3] Integration test: cada operação grava exatamente um registro com usuário e
       data; a edição registra só os campos alterados com `de`/`para`; versões completas, inclusive
       de evento excluído para a gestão; docente não audita evento alheio (403); falha no meio não
       deixa versão nem histórico órfão, em `tests/integration/test_evento_versoes_historico.py`
       (SC-E3-003)
-- [ ] T017 [US3] Restante de `eventos_gestao_service` (listar, obter, editar, arquivar,
+- [x] T017 [US3] Restante de `eventos_gestao_service` (listar, obter, editar, arquivar,
       desarquivar, excluir, versões, histórico) e rotas de `/gestao/eventos`
 
 **Checkpoint**: eventos completos; o app e a web podem consumir a agenda.

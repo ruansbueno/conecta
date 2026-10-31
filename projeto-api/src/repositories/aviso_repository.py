@@ -1,37 +1,14 @@
 import uuid
 
-from sqlalchemy import ColumnElement, Select, and_, exists, func, or_, select
+from sqlalchemy import Select, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.models.aviso import Aviso, AvisoDestino
-from src.models.turma import Turma
 from src.models.usuario import Usuario
-from src.models.vinculo_turma import VinculoTurma
+from src.repositories.alcance import alcanca
 
 PUBLICADO_EM = func.coalesce(Aviso.publicar_em, Aviso.criado_em)
-
-
-def _alcanca(usuario: Usuario) -> ColumnElement[bool]:
-    """Algum destino do aviso alcança o usuário (regra de visibilidade, data-model.md).
-
-    EXISTS sobre os destinos: o aviso aparece uma vez só, por quantos destinos o alcancem.
-    """
-    vinculo_ativo = (
-        select(VinculoTurma.id)
-        .join(Turma, Turma.id == VinculoTurma.turma_id)
-        .where(VinculoTurma.usuario_id == usuario.id, Turma.ativa)
-    )
-    por_turma = exists(vinculo_ativo.where(Turma.id == AvisoDestino.turma_id))
-    por_semestre = exists(vinculo_ativo.where(Turma.semestre_curso == AvisoDestino.semestre))
-    alcances = [
-        AvisoDestino.tipo == "todos",
-        and_(AvisoDestino.tipo == "turma", por_turma),
-        and_(AvisoDestino.tipo == "semestre", por_semestre),
-    ]
-    if usuario.perfil == "docente":
-        alcances.append(AvisoDestino.tipo == "docentes")
-    return exists().where(AvisoDestino.aviso_id == Aviso.id, or_(*alcances))
 
 
 class AvisoRepository:
@@ -73,7 +50,10 @@ class AvisoRepository:
     @staticmethod
     def _visiveis(usuario: Usuario) -> Select:
         # Já publicado (agendados ficam ocultos até a data, RF-22) e alcançado por um destino.
-        return select(Aviso).where(func.now() >= PUBLICADO_EM, _alcanca(usuario))
+        return select(Aviso).where(
+            func.now() >= PUBLICADO_EM,
+            alcanca(AvisoDestino, AvisoDestino.aviso_id == Aviso.id, usuario),
+        )
 
     @staticmethod
     def _com_detalhes(stmt: Select) -> Select:

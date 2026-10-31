@@ -93,7 +93,12 @@ def test_nomes_de_restricoes_e_triggers_no_banco_sao_os_dos_models(migrated_db):
     restricoes, triggers = asyncio.run(ler())
 
     assert restricoes == {c.name for t in Base.metadata.sorted_tables for c in t.constraints}
-    assert triggers == {"tb_aviso_versao_imutavel", "tb_aviso_historico_imutavel"}
+    assert triggers == {
+        "tb_aviso_versao_imutavel",
+        "tb_aviso_historico_imutavel",
+        "tb_evento_versao_imutavel",
+        "tb_evento_historico_imutavel",
+    }
 
 
 def test_renomear_preserva_os_dados_e_volta_atras(migrated_db):

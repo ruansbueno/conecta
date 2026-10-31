@@ -4,6 +4,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db.base import coluna
 from src.models.usuario import Usuario
 
 
@@ -25,13 +26,14 @@ class UsuarioRepository:
         stmt = insert(Usuario).values(
             id=uuid.uuid4(), username=username, nome=nome, ultimo_login_em=func.now()
         )
+        novo = stmt.excluded
         stmt = stmt.on_conflict_do_update(
             index_elements=[Usuario.username],
             set_={
-                "nome": stmt.excluded.nome,
-                "ultimo_login_em": stmt.excluded.ultimo_login_em,
-                "atualizado_em": case(
-                    (Usuario.nome != stmt.excluded.nome, func.now()),
+                Usuario.nome: novo[coluna(Usuario.nome)],
+                Usuario.ultimo_login_em: novo[coluna(Usuario.ultimo_login_em)],
+                Usuario.atualizado_em: case(
+                    (Usuario.nome != novo[coluna(Usuario.nome)], func.now()),
                     else_=Usuario.atualizado_em,
                 ),
             },

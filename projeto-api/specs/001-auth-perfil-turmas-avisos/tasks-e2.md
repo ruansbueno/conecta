@@ -180,6 +180,20 @@ levam `@pytest.mark.mock_auth`.
 
 ---
 
+## Phase 10: Nomenclatura do banco (data-model.md, "Nomes físicos")
+
+- [x] T137 [P] Integration test `tests/integration/test_nomenclatura_banco.py`: toda tabela com
+      `tb_`, toda coluna com um prefixo do padrão, models e migrações sem diferença
+      (`compare_metadata`) e a migração preservando os dados na ida e na volta
+- [x] T138 Migração `5b7d2e9a4c13`: renomeia tabelas, colunas, restrições, índices e triggers, sem
+      mover dados; `downgrade` desfaz tudo
+- [x] T139 Models com os nomes físicos (atributos e JSON inalterados); `coluna()` em
+      `src/db/base.py` para os upserts; nomes de restrição usados pelos serviços para traduzir
+      `IntegrityError`; SQL cru dos testes
+- [x] T140 [P] Seção "Nomes físicos" em `data-model.md` e README da API
+
+---
+
 ## Dependencies & Execution Order
 
 - Phase 1 → Phases 2–7. Phase 4 (vínculos) usa a regra de `PERFIL_INCOMPATIVEL` também no

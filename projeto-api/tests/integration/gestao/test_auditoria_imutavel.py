@@ -31,10 +31,10 @@ async def auditoria(db):
 @pytest.mark.parametrize(
     "sql",
     [
-        "UPDATE aviso_versao SET titulo = 'adulterado'",
-        "DELETE FROM aviso_versao",
-        "UPDATE aviso_evento SET tipo = 'excluido'",
-        "DELETE FROM aviso_evento",
+        "UPDATE tb_aviso_versao SET nm_aviso = 'adulterado'",
+        "DELETE FROM tb_aviso_versao",
+        "UPDATE tb_aviso_historico SET tp_operacao = 'excluido'",
+        "DELETE FROM tb_aviso_historico",
     ],
 )
 async def test_banco_recusa_alterar_ou_apagar_auditoria(db, auditoria, sql):
@@ -67,9 +67,11 @@ async def test_tipo_de_evento_fora_do_enum_e_recusado(db, auditoria):
 
 
 async def test_versao_e_evento_guardam_jsonb_e_datas(db, auditoria):
-    versao = await db.scalar(text("SELECT destinos FROM aviso_versao"))
-    evento = (await db.execute(text("SELECT ocorrido_em, alteracoes FROM aviso_evento"))).one()
+    versao = await db.scalar(text("SELECT txt_destinos FROM tb_aviso_versao"))
+    evento = (
+        await db.execute(text("SELECT dt_operacao, txt_alteracoes FROM tb_aviso_historico"))
+    ).one()
 
     assert versao == [{"tipo": "todos", "turma_id": None, "semestre": None}]
-    assert evento.ocorrido_em is not None
-    assert evento.alteracoes is None
+    assert evento.dt_operacao is not None
+    assert evento.txt_alteracoes is None

@@ -1,5 +1,5 @@
 from sqlalchemy import MetaData
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, InstrumentedAttribute
 
 # Nomes de constraints estáveis, para que as migrações possam referenciá-las.
 NAMING_CONVENTION = {
@@ -13,6 +13,15 @@ NAMING_CONVENTION = {
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+
+def coluna(atributo: InstrumentedAttribute) -> str:
+    """Nome físico da coluna de um atributo (`Usuario.nome` → "nm_usuario").
+
+    Os atributos dos models mantêm os nomes do domínio; o banco usa a nomenclatura do
+    data-model.md. Expressões de nível Core, como `excluded` de um upsert, pedem o nome físico.
+    """
+    return atributo.property.columns[0].name
 
 
 # Import central dos models: registra as tabelas em Base.metadata para o Alembic.

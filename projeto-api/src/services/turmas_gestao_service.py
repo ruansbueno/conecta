@@ -10,7 +10,7 @@ from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
 from src.services.permissoes import gere_tudo, leciona, turmas_que_leciona
 
-_UNICO_CODIGO = "uq_turma_codigo"
+_UNICO_CODIGO = "uq_tb_turma_cod_turma"
 
 
 async def _totais(session: AsyncSession, ids: list[uuid.UUID]) -> dict[uuid.UUID, dict[str, int]]:

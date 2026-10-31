@@ -74,7 +74,7 @@ async def vincular(
         await session.commit()
     except IntegrityError as exc:
         await session.rollback()
-        if "uq_vinculo_turma_turma_usuario" in str(exc.orig):
+        if "uq_tb_usuario_turma_turma_usuario" in str(exc.orig):
             raise JaVinculado() from None
         raise
     await session.refresh(vinculo)

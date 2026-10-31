@@ -110,7 +110,7 @@ async def aprovar(
     except IntegrityError as exc:
         # Vínculo criado por outra via entre a checagem e a aprovação: mesma auto-recusa.
         await session.rollback()
-        if "uq_vinculo_turma_turma_usuario" not in str(exc.orig):
+        if "uq_tb_usuario_turma_turma_usuario" not in str(exc.orig):
             raise
         # O rollback expira os objetos da sessão; a permissão já foi checada: só trava de novo.
         solicitacao = await repo.get(solicitacao_id, for_update=True)

@@ -4,10 +4,13 @@ Entidades derivadas de `spec.md` (seções 2, 3 e 5) e das decisões em `researc
 
 **Entrega**: as tabelas `usuario`, `turma`, `vinculo_turma`, `solicitacao_inscricao`, `aviso` e
 `aviso_destino` são criadas na **E1**. `aviso_versao` e `aviso_evento` são criadas na **E2**
-(migração própria). A E3 acrescenta `evento`, `evento_destino` e `horario_turma` (seção final).
+(migração própria). A E3 acrescenta as tabelas da agenda e dos horários (seção final), já com os
+nomes físicos da seção [Nomes físicos](#nomes-físicos).
 
 Convenções: chaves UUID; timestamps com fuso (UTC); enums como `VARCHAR` + `CHECK`; nomes em
-`snake_case` sem acento.
+`snake_case` sem acento. As seções abaixo usam os nomes do domínio, que são também os atributos
+dos models e os campos do JSON; os nomes **no banco** seguem a nomenclatura da seção
+[Nomes físicos](#nomes-físicos).
 
 ## Usuario (E1)
 
@@ -166,6 +169,141 @@ Log de auditoria imutável.
 | alteracoes | JSONB, nulo | Em `editado`: `{campo: {"de": ..., "para": ...}}` para `titulo`, `conteudo`, `destinos`, `publicar_em` |
 
 Imutável: sem `UPDATE`/`DELETE` pela aplicação. Todo evento é gravado **na mesma transação** da operação que o originou.
+
+## Nomes físicos
+
+Desde a migração `5b7d2e9a4c13` (31/10/2026), o banco segue a nomenclatura do diagrama ER do
+projeto: toda tabela começa com `tb_`, e toda coluna tem um prefixo que diz o que ela guarda.
+
+| Prefixo | Uso | Exemplos |
+|---|---|---|
+| `id_` | chave primária e estrangeira | `id_usuario`, `id_turma`, `id_usuario_decisor` |
+| `nm_` | nome ou título curto | `nm_usuario`, `nm_turma`, `nm_aviso` |
+| `cod_` | código ou identificador textual | `cod_usuario` (login do Moodle), `cod_turma`, `cod_periodo_letivo` |
+| `txt_` | texto longo ou estruturado | `txt_aviso`, `txt_motivo_recusa`, `txt_destinos`, `txt_alteracoes` |
+| `fl_` | sim/não | `fl_ativo`, `fl_ativa`, `fl_inscricoes_abertas` |
+| `dt_` | data e hora | `dt_cadastro`, `dt_publicacao`, `dt_ultimo_acesso` |
+| `hr_` | hora sem data | (horários da E3) |
+| `nr_` | número | `nr_semestre`, `nr_versao` |
+| `st_` | situação de um ciclo de vida | `st_aviso`, `st_solicitacao` |
+| `tp_` | tipo ou categoria | `tp_perfil`, `tp_papel`, `tp_destino`, `tp_operacao` |
+
+Decisões: a data de criação é `dt_cadastro` em todas as tabelas (a de atualização, `dt_atualizacao`);
+o vínculo usa o nome do ER, `tb_usuario_turma`; o log do aviso passa a ser `tb_aviso_historico`,
+o que deixa "evento" livre para a agenda. A **estrutura** continua a desta página (destino com
+tipo, vínculo com papel e origem); o ER foi seguido só nos nomes.
+
+Restrições e índices começam pelo tipo e pela tabela, como manda a `NAMING_CONVENTION` de
+`src/db/base.py` (`pk_tb_usuario`, `fk_tb_aviso_id_usuario_tb_usuario`). Os sufixos dados à mão
+mantêm os termos do domínio (`ck_tb_turma_semestre_curso_valido`,
+`uq_tb_usuario_turma_turma_usuario`): quem precisar do nome de uma restrição consulta o model, não
+a convenção. `tests/integration/test_nomenclatura_banco.py` confere no banco migrado o padrão das
+tabelas e colunas, os nomes de restrições e triggers e que o autogenerate não vê diferença entre
+models e migrações.
+
+**Usuario** → `tb_usuario`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_usuario` |
+| `username` | `cod_usuario` |
+| `nome` | `nm_usuario` |
+| `perfil` | `tp_perfil` |
+| `ativo` | `fl_ativo` |
+| `criado_em` | `dt_cadastro` |
+| `atualizado_em` | `dt_atualizacao` |
+| `ultimo_login_em` | `dt_ultimo_acesso` |
+
+**Turma** → `tb_turma`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_turma` |
+| `codigo` | `cod_turma` |
+| `nome` | `nm_turma` |
+| `semestre_curso` | `nr_semestre` |
+| `periodo_letivo` | `cod_periodo_letivo` |
+| `inscricoes_abertas` | `fl_inscricoes_abertas` |
+| `ativa` | `fl_ativa` |
+| `criado_em` | `dt_cadastro` |
+| `atualizado_em` | `dt_atualizacao` |
+
+**VinculoTurma** → `tb_usuario_turma`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_usuario_turma` |
+| `turma_id` | `id_turma` |
+| `usuario_id` | `id_usuario` |
+| `papel` | `tp_papel` |
+| `origem` | `tp_origem` |
+| `criado_em` | `dt_vinculo` |
+| `criado_por` | `id_usuario_criador` |
+
+**SolicitacaoInscricao** → `tb_solicitacao_inscricao`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_solicitacao` |
+| `turma_id` | `id_turma` |
+| `aluno_id` | `id_usuario` |
+| `status` | `st_solicitacao` |
+| `solicitada_em` | `dt_solicitacao` |
+| `decidida_em` | `dt_decisao` |
+| `decidida_por` | `id_usuario_decisor` |
+| `motivo_recusa` | `txt_motivo_recusa` |
+
+**Aviso** → `tb_aviso`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_aviso` |
+| `titulo` | `nm_aviso` |
+| `conteudo` | `txt_aviso` |
+| `autor_id` | `id_usuario` |
+| `situacao` | `st_aviso` |
+| `publicar_em` | `dt_publicacao` |
+| `versao_atual` | `nr_versao` |
+| `criado_em` | `dt_cadastro` |
+| `editado_em` | `dt_edicao` |
+| `arquivado_em` | `dt_arquivamento` |
+| `excluido_em` | `dt_exclusao` |
+
+**AvisoDestino** → `tb_aviso_destino`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_aviso_destino` |
+| `aviso_id` | `id_aviso` |
+| `tipo` | `tp_destino` |
+| `turma_id` | `id_turma` |
+| `semestre` | `nr_semestre` |
+
+**AvisoVersao** → `tb_aviso_versao`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_aviso_versao` |
+| `aviso_id` | `id_aviso` |
+| `versao` | `nr_versao` |
+| `titulo` | `nm_aviso` |
+| `conteudo` | `txt_aviso` |
+| `destinos` | `txt_destinos` |
+| `publicar_em` | `dt_publicacao` |
+| `criada_por` | `id_usuario` |
+| `criada_em` | `dt_versao` |
+
+**AvisoEvento** → `tb_aviso_historico`
+
+| Atributo | Coluna |
+|---|---|
+| `id` | `id_aviso_historico` |
+| `aviso_id` | `id_aviso` |
+| `tipo` | `tp_operacao` |
+| `usuario_id` | `id_usuario` |
+| `ocorrido_em` | `dt_operacao` |
+| `versao` | `nr_versao` |
+| `alteracoes` | `txt_alteracoes` |
 
 ## Diagrama de relacionamento (textual)
 

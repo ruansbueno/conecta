@@ -2,21 +2,25 @@
 
 import uuid
 
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.errors import (
     ErroDeValidacao,
     HorarioNaoEncontrado,
     PerfilIncompativel,
+    SemPermissao,
     TurmaNaoEncontrada,
     UsuarioNaoEncontrado,
 )
 from src.models.horario import Horario
 from src.models.turma import Turma
 from src.models.usuario import Usuario
+from src.models.vinculo_turma import VinculoTurma
 from src.repositories.horario_repository import HorarioRepository
 from src.schemas.gestao.horarios import HorarioCreate, HorarioPatch
 from src.services.conflitos import mesma_sala
+from src.services.permissoes import gere_tudo
 
 _CAMPOS = ("dia_semana", "inicio", "fim", "disciplina", "local", "docente_id")
 
@@ -60,6 +64,29 @@ async def _gravar(
             conflitos.append({"tipo": "docente", **base})
     await session.commit()
     return await repo.obter_da_turma(turma.id, horario.id), conflitos
+
+
+async def consultar(
+    session: AsyncSession, usuario: Usuario, turma_id: uuid.UUID, limit: int, offset: int
+) -> tuple[list[Horario], int]:
+    """Grade para os clientes (RF-45): vínculo de qualquer papel, ou administração e coordenação.
+
+    Turma inexistente ou inativa é 404 para todos, antes da permissão (plan D-E3-10).
+    """
+    turma = await session.get(Turma, turma_id)
+    if turma is None or not turma.ativa:
+        raise TurmaNaoEncontrada()
+    if not gere_tudo(usuario):
+        vinculado = await session.scalar(
+            select(
+                exists().where(
+                    VinculoTurma.turma_id == turma_id, VinculoTurma.usuario_id == usuario.id
+                )
+            )
+        )
+        if not vinculado:
+            raise SemPermissao()
+    return await HorarioRepository(session).listar_da_turma(turma_id, None, limit, offset)
 
 
 async def criar(

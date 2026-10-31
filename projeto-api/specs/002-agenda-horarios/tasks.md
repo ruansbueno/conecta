@@ -117,10 +117,10 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 6: US5 — Consultar os horários da turma (RF-45)
 
-- [ ] T022 [P] [US5] Integration test: vínculo de qualquer papel consulta, ordenado por dia e hora;
+- [x] T022 [P] [US5] Integration test: vínculo de qualquer papel consulta, ordenado por dia e hora;
       sem vínculo, 403 `SEM_PERMISSAO`, exceto administração e coordenação; turma inativa, 404 para
       todos; turma sem grade, lista vazia, em `tests/integration/test_horario_acesso_por_vinculo.py`
-- [ ] T023 [US5] Consulta em `horarios_service` e rota `GET /turmas/{id}/horarios`
+- [x] T023 [US5] Consulta em `horarios_service` e rota `GET /turmas/{id}/horarios`
 
 ---
 

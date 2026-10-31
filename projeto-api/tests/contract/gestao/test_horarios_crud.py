@@ -3,7 +3,9 @@
 import uuid
 
 import pytest
+from sqlalchemy import update
 
+from src.models.usuario import Usuario
 from tests.helpers import bearer, criar_horario, criar_turma, criar_usuario
 
 AULA = {
@@ -215,7 +217,7 @@ async def test_editar_pode_tirar_local_e_docente(client, db, coord, turma, docen
 @pytest.mark.parametrize(
     ("corpo", "campo"),
     [
-        ({"inicio": "21:00"}, "fim"),
+        ({"inicio": "21:00"}, "inicio"),
         ({"fim": "19:00"}, "fim"),
         ({}, "body"),
         ({"dia_semana": None}, "body"),
@@ -263,3 +265,35 @@ async def test_remover_e_fisico(client, db, coord, turma):
     assert (r.status_code, r.content) == (204, b"")
     assert (de_novo.status_code, de_novo.json()["code"]) == (404, "HORARIO_NAO_ENCONTRADO")
     assert (await client.get(_url(turma), headers=bearer(coord))).json()["total"] == 0
+
+
+async def test_espacos_sao_aparados_e_local_em_branco_e_422(client, coord, turma):
+    em_branco = await client.post(_url(turma), headers=bearer(coord), json=AULA | {"local": "   "})
+    aparado = await client.post(
+        _url(turma),
+        headers=bearer(coord),
+        json=AULA | {"local": " Lab 4 ", "disciplina": "  Redes  ", "dia_semana": 2},
+    )
+
+    assert (em_branco.status_code, em_branco.json()["errors"][0]["campo"]) == (422, "local")
+    assert (aparado.json()["horario"]["local"], aparado.json()["horario"]["disciplina"]) == (
+        "Lab 4",
+        "Redes",
+    )
+
+
+async def test_reenviar_o_docente_atual_que_perdeu_o_perfil_nao_trava_a_edicao(
+    client, db, coord, turma, docente
+):
+    # Formulário que reenvia o objeto inteiro: o docente não mudou, a regra não se aplica.
+    horario = await criar_horario(db, turma, docente_id=docente.id)
+    await db.execute(update(Usuario).where(Usuario.id == docente.id).values(perfil="coordenacao"))
+    await db.commit()
+
+    r = await client.patch(
+        _url(turma, horario.id),
+        headers=bearer(coord),
+        json={"local": "Lab 9", "docente_id": str(docente.id)},
+    )
+
+    assert (r.status_code, r.json()["horario"]["local"]) == (200, "Lab 9")

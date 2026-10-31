@@ -6,7 +6,8 @@ from src.schemas.horario import ConflitoOut, Hora, HorarioOut
 
 
 class HorarioCreate(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    # Espaços nas pontas saem; um local só de espaços fica vazio e é recusado (min_length).
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     dia_semana: int = Field(ge=1, le=7)
     inicio: Hora
@@ -27,7 +28,8 @@ class HorarioCreate(BaseModel):
 class HorarioPatch(BaseModel):
     """Parcial; `local` e `docente_id` aceitam null. O `fim` é conferido no serviço."""
 
-    model_config = ConfigDict(extra="forbid")
+    # Espaços nas pontas saem; um local só de espaços fica vazio e é recusado (min_length).
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     dia_semana: int | None = Field(None, ge=1, le=7)
     inicio: Hora | None = None

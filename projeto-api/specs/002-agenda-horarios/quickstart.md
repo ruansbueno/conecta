@@ -5,6 +5,11 @@ do [quickstart da E1/E2](../001-auth-perfil-turmas-avisos/quickstart.md). O seed
 eventos (um de vários dias em andamento, próximos, um encerrado, um remarcado com histórico, um
 arquivado e um pontual) e a grade das turmas 3A, 3B e 5A, com um conflito de sala de propósito.
 
+> As datas dos eventos são fixadas na **primeira** execução do seed (relativas àquele dia) e não se
+> renovam depois: num banco semeado há semanas, a agenda de "próximos" pode vir vazia. Para
+> recriar a agenda, esvazie as tabelas dela (`TRUNCATE tb_evento, tb_evento_destino,
+> tb_evento_versao, tb_evento_historico`) e rode o seed de novo.
+
 ```bash
 entrar() {  # entrar <usuário> → imprime o cabeçalho Authorization
   curl -s -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" \
@@ -61,7 +66,8 @@ curl -X POST http://localhost:8000/gestao/turmas/$TURMA/horarios -H "$COORD" -H 
 Esperado: a grade da 3A vem ordenada por dia e hora, com o docente de cada aula; quem não tem
 vínculo recebe 403. O `POST` é aceito (201) e informa dois conflitos de sala no Lab 4: a aula de
 Banco de Dados II da própria 3A e a de Algoritmos da 3B. Docente e aluno recebem 403 em
-`/gestao/turmas/{id}/horarios`.
+`/gestao/turmas/{id}/horarios`. O `POST` não é idempotente: repetido, a 3A ganha outra aula e a
+contagem de conflitos muda; remova a aula com `DELETE /gestao/turmas/$TURMA/horarios/<id>`.
 
 ## 4. Suíte automatizada
 

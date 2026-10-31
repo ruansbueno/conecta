@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ColumnElement, Select, exists, func, or_, select
+from sqlalchemy import ColumnElement, Select, exists, false, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,8 +18,10 @@ def na_janela(de: datetime | None, ate: datetime | None) -> list[ColumnElement[b
 
     Entra quem começa antes de `ate` e ainda não tinha terminado em `de`: um evento de vários
     dias aparece em cada dia, semana ou mês que cobre. O pontual entra se começa em [de, ate);
-    o que termina exatamente em `de` fica de fora.
+    o que termina exatamente em `de` fica de fora. `de == ate` é janela vazia.
     """
+    if de is not None and de == ate:
+        return [false()]
     condicoes = []
     if ate is not None:
         condicoes.append(Evento.inicio < ate)

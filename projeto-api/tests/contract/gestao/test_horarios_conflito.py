@@ -143,3 +143,14 @@ async def test_na_edicao_o_proprio_horario_fica_de_fora(client, db, coord, turma
     assert sem.json()["conflitos"] == []
     assert [c["horario_id"] for c in com.json()["conflitos"]] == [str(outra.id)]
     assert com.status_code == 200
+
+
+async def test_horario_de_turma_inativa_nao_recebe_conflitos(client, db, coord, turmas):
+    # As aulas dela não vão acontecer: avisar seria ruído (plan D-E3-9).
+    _, b = turmas
+    inativa = await criar_turma(db, periodo_letivo="2026/2", ativa=False)
+    await criar_horario(db, b, dia_semana=2, local="Lab 4")
+
+    body = await _cadastrar(client, coord, inativa, local="Lab 4")
+
+    assert body["conflitos"] == []

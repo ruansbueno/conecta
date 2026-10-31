@@ -50,7 +50,11 @@ async def _gravar(
     await session.flush()
     repo = HorarioRepository(session)
     conflitos = []
-    for outro, turma_outro in await repo.candidatos_a_conflito(horario, turma.periodo_letivo):
+    # Turma inativa não tem aula acontecendo: conflito dela seria ruído (plan D-E3-9).
+    candidatos = (
+        await repo.candidatos_a_conflito(horario, turma.periodo_letivo) if turma.ativa else []
+    )
+    for outro, turma_outro in candidatos:
         base = {
             "local": outro.local,
             "horario_id": outro.id,
@@ -123,10 +127,14 @@ async def editar(
     enviados = dados.model_fields_set
     novo = {c: getattr(dados, c) if c in enviados else getattr(horario, c) for c in _CAMPOS}
     if novo["fim"] <= novo["inicio"]:
+        # O erro aponta o campo que a pessoa mexeu, para o formulário marcar o certo.
+        if "inicio" in enviados and "fim" not in enviados:
+            raise ErroDeValidacao("inicio", "deve ser menor que fim")
         raise ErroDeValidacao("fim", "deve ser maior que inicio")
     if all(novo[c] == getattr(horario, c) for c in _CAMPOS):
         raise ErroDeValidacao("body", "nenhuma alteração")
-    if "docente_id" in enviados:
+    # Só um docente novo é conferido: reenviar o atual, que perdeu o perfil, não trava a edição.
+    if "docente_id" in enviados and dados.docente_id != horario.docente_id:
         await _exigir_docente(session, dados.docente_id)
     for campo, valor in novo.items():
         setattr(horario, campo, valor)

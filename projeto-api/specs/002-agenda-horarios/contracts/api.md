@@ -302,7 +302,8 @@ Funcionam também para eventos excluídos (administração e coordenação).
 ```
 
 **`conflitos` nunca impede a criação** (RF-44): é informação para quem está cadastrando. Vem vazio
-quando não há sobreposição. Tipos: `sala` (mesmo `local`, comparação normalizada — sem acento,
+quando não há sobreposição, e sempre vazio para horário de turma inativa. Texto é gravado sem os
+espaços das pontas; `local` só de espaços dá 422. Tipos: `sala` (mesmo `local`, comparação normalizada — sem acento,
 sem diferença de maiúsculas e minúsculas, espaços colapsados) e `docente` (mesmo `docente_id`).
 
 **Erros**: 403 `SEM_PERMISSAO`; 404 `TURMA_NAO_ENCONTRADA`; 404 `USUARIO_NAO_ENCONTRADO`
@@ -334,7 +335,7 @@ Parcial; mesmos campos e validações de `POST`. **200**: mesmo envelope de `201
 Remoção **física**: horário não guarda histórico, por ser dado de configuração da grade, não
 comunicação. **204**.
 
-**Erros**: 403; 404 `HORARIO_NAO_ENCONTRADO`.
+**Erros**: 403; 404 `TURMA_NAO_ENCONTRADA` / `HORARIO_NAO_ENCONTRADO`.
 
 **Maps to**: RF-43.
 

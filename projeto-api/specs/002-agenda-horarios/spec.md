@@ -143,7 +143,8 @@ dessas turmas o recebem.
 1. **Given** eventos que alcançam o usuário, **When** consulta sem filtro, **Then** recebe os
    próximos, do mais próximo ao mais distante.
 2. **Given** o intervalo de um mês, **When** consulta com `de` e `ate`, **Then** recebe apenas os
-   eventos que começam dentro do intervalo.
+   eventos que tocam o intervalo — inclusive os de vários dias que começaram antes (emenda de
+   31/10/2026, plano D-E3-3).
 3. **Given** eventos já encerrados no intervalo, **When** consulta com `incluir_encerrados=true`,
    **Then** eles aparecem; com `false` ou omitido, não.
 4. **Given** um evento arquivado, **When** o destinatário consulta a lista ativa, **Then** não

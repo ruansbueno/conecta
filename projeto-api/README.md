@@ -82,7 +82,7 @@ em rotas, serviços ou contratos. Migrações em `alembic/`, scripts de desenvol
 
 Toda criação, edição, arquivamento, desarquivamento e exclusão grava, na mesma transação, a
 versão completa (quando há conteúdo novo) e um evento com usuário, data e o que mudou. As tabelas
-`aviso_versao` e `aviso_evento` são imutáveis: o próprio banco recusa `UPDATE` e `DELETE`.
+`tb_aviso_versao` e `tb_aviso_historico` são imutáveis: o próprio banco recusa `UPDATE` e `DELETE`.
 
 ## Pendente
 

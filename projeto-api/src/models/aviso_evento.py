@@ -15,21 +15,23 @@ TIPOS_EVENTO: tuple[str, ...] = get_args(TipoEvento)
 class AvisoEvento(Base):
     """Log de auditoria do aviso. Imutável: o banco recusa UPDATE e DELETE."""
 
-    __tablename__ = "aviso_evento"
+    __tablename__ = "tb_aviso_historico"
     __table_args__ = (
         CheckConstraint(
-            "tipo IN (" + ", ".join(f"'{t}'" for t in TIPOS_EVENTO) + ")", name="tipo_valido"
+            "tp_operacao IN (" + ", ".join(f"'{t}'" for t in TIPOS_EVENTO) + ")", name="tipo_valido"
         ),
-        Index("ix_aviso_evento_aviso_ocorrido", "aviso_id", "ocorrido_em"),
+        Index("ix_tb_aviso_historico_aviso_ocorrido", "id_aviso", "dt_operacao"),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    aviso_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("aviso.id"))
-    tipo: Mapped[str] = mapped_column(String(15))
-    usuario_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("usuario.id"))
-    ocorrido_em: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+    id: Mapped[uuid.UUID] = mapped_column(
+        "id_aviso_historico", primary_key=True, default=uuid.uuid4
     )
-    versao: Mapped[int | None]
+    aviso_id: Mapped[uuid.UUID] = mapped_column("id_aviso", ForeignKey("tb_aviso.id_aviso"))
+    tipo: Mapped[str] = mapped_column("tp_operacao", String(15))
+    usuario_id: Mapped[uuid.UUID] = mapped_column("id_usuario", ForeignKey("tb_usuario.id_usuario"))
+    ocorrido_em: Mapped[datetime] = mapped_column(
+        "dt_operacao", DateTime(timezone=True), server_default=func.now()
+    )
+    versao: Mapped[int | None] = mapped_column("nr_versao")
     # Em "editado": {campo: {"de": ..., "para": ...}}.
-    alteracoes: Mapped[dict | None] = mapped_column(JSONB)
+    alteracoes: Mapped[dict | None] = mapped_column("txt_alteracoes", JSONB)

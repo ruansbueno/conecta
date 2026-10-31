@@ -13,6 +13,7 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db.base import coluna
 from src.db.session import get_sessionmaker
 from src.models.aviso import Aviso, AvisoDestino
 from src.models.aviso_evento import AvisoEvento
@@ -98,10 +99,10 @@ async def _usuarios(session: AsyncSession) -> None:
         stmt = stmt.on_conflict_do_update(
             index_elements=[Usuario.username],
             set_={
-                "nome": stmt.excluded.nome,
-                "perfil": stmt.excluded.perfil,
-                "ativo": True,
-                "atualizado_em": func.now(),
+                Usuario.nome: stmt.excluded[coluna(Usuario.nome)],
+                Usuario.perfil: stmt.excluded[coluna(Usuario.perfil)],
+                Usuario.ativo: True,
+                Usuario.atualizado_em: func.now(),
             },
         )
         await session.execute(stmt)
@@ -119,10 +120,10 @@ async def _turmas(session: AsyncSession) -> None:
         stmt = stmt.on_conflict_do_update(
             index_elements=[Turma.codigo],
             set_={
-                "nome": stmt.excluded.nome,
-                "semestre_curso": stmt.excluded.semestre_curso,
-                "inscricoes_abertas": stmt.excluded.inscricoes_abertas,
-                "ativa": True,
+                Turma.nome: stmt.excluded[coluna(Turma.nome)],
+                Turma.semestre_curso: stmt.excluded[coluna(Turma.semestre_curso)],
+                Turma.inscricoes_abertas: stmt.excluded[coluna(Turma.inscricoes_abertas)],
+                Turma.ativa: True,
             },
         )
         await session.execute(stmt)
@@ -207,15 +208,15 @@ async def _avisos(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
             stmt.on_conflict_do_update(
                 index_elements=[Aviso.id],
                 set_={
-                    campo: stmt.excluded[campo]
+                    campo: stmt.excluded[coluna(campo)]
                     for campo in (
-                        "criado_em",
-                        "versao_atual",
-                        "editado_em",
-                        "situacao",
-                        "publicar_em",
-                        "arquivado_em",
-                        "excluido_em",
+                        Aviso.criado_em,
+                        Aviso.versao_atual,
+                        Aviso.editado_em,
+                        Aviso.situacao,
+                        Aviso.publicar_em,
+                        Aviso.arquivado_em,
+                        Aviso.excluido_em,
                     )
                 },
                 where=sem_auditoria,

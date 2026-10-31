@@ -103,7 +103,7 @@ async def test_perfil_fora_do_enum_e_rejeitado_pelo_banco(db):
     with pytest.raises(IntegrityError):
         await db.execute(
             text(
-                "INSERT INTO usuario (id, username, nome, perfil) "
+                "INSERT INTO tb_usuario (id_usuario, cod_usuario, nm_usuario, tp_perfil) "
                 "VALUES (gen_random_uuid(), 'x', 'X', 'superusuario')"
             )
         )

@@ -15,7 +15,7 @@ from src.models.usuario import Usuario
 from src.repositories.solicitacao_repository import SolicitacaoRepository
 from src.repositories.turma_repository import TurmaRepository
 
-_INDICE_PENDENTE = "uq_solicitacao_inscricao_pendente"
+_INDICE_PENDENTE = "uq_tb_solicitacao_inscricao_pendente"
 
 
 async def listar_disponiveis(

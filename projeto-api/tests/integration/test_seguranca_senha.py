@@ -43,7 +43,7 @@ async def test_login_nao_persiste_a_senha_em_nenhuma_coluna(client, db):
 
     await login(client)
 
-    linhas = (await db.execute(text("SELECT row_to_json(u)::text FROM usuario u"))).scalars()
+    linhas = (await db.execute(text("SELECT row_to_json(u)::text FROM tb_usuario u"))).scalars()
     assert all(SENHA_TESTE not in linha for linha in linhas)
 
 

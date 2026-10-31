@@ -29,7 +29,7 @@ async def _aviso(client, autor, **campos):
 async def test_seed_sobre_banco_da_e1_mantem_versao_atual_coerente(client, db):
     await seed(db)
     # Simula o banco da E1: avisos sem auditoria e o "semestre" ainda na versão 1.
-    await db.execute(text("TRUNCATE aviso_evento, aviso_versao"))
+    await db.execute(text("TRUNCATE tb_aviso_historico, tb_aviso_versao"))
     semestre = _aviso_id("semestre")
     await db.execute(
         update(Aviso).where(Aviso.id == semestre).values(versao_atual=1, editado_em=None)

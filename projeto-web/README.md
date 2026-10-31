@@ -42,7 +42,7 @@ implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento]
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | ✅ Completa (10 de 10 fases) |
-| **F2** | Gestão de agenda e de horários das turmas | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
+| **F2** | Gestão de agenda e de horários das turmas | Planejada: [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md) e [`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md) (23 tarefas); a E3 já está na API |
 
 ## Stack
 
@@ -105,9 +105,9 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-A F1 da web está fechada. O projeto segue com as fases 5 a 8 do aplicativo e, depois, a agenda e os
-horários (E3), que trazem as telas w-12 e w-13 da F2 desta plataforma (ordem no
-[README da raiz](../README.md#ordem-de-execução)).
+A F1 da web está fechada e a E3 já está na API. O próximo passo é implementar a F2 desta plataforma
+(telas w-12 e w-13), conforme [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md) e
+[`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md).
 
 Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado e
 o endereço da API. A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob

@@ -299,5 +299,5 @@ depende de US2; US5 depende de US4; o painel depende das listas.
 
 ## Fora destas tarefas
 
-- Fase F2 (agenda e horários): tarefas geradas após a spec E3 da API.
+- Fase F2 (agenda e horários): tarefas em [tasks-f2.md](./tasks-f2.md) (T078–T100).
 - Qualquer funcionalidade de aluno, notificações, relatórios e uso em telefone.

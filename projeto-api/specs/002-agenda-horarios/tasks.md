@@ -99,17 +99,17 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 5: US4 — Montar a grade de horários (RF-43, RF-44, RF-46, RF-47)
 
-- [ ] T018 [P] [US4] Unit test `tests/unit/test_conflito_horario.py`: normalização do local
+- [x] T018 [P] [US4] Unit test `tests/unit/test_conflito_horario.py`: normalização do local
       (acento, caixa, espaços), sobreposição estrita (encostar não conflita) e horário sem local ou
       sem docente
-- [ ] T019 [P] [US4] Contract test do CRUD de `/gestao/turmas/{id}/horarios` (201/200 com o
+- [x] T019 [P] [US4] Contract test do CRUD de `/gestao/turmas/{id}/horarios` (201/200 com o
       envelope `horario` + `conflitos`, 422 de dia, hora e campos, 404 de turma, horário de outra
       turma e docente, 409 `PERFIL_INCOMPATIVEL`, 403 docente e aluno, `DELETE` 204) em
       `tests/contract/gestao/test_horarios_crud.py`
-- [ ] T020 [P] [US4] Contract test dos conflitos: sala e docente informados e gravação aceita; turma
+- [x] T020 [P] [US4] Contract test dos conflitos: sala e docente informados e gravação aceita; turma
       de outro período ou inativa não conflita; o próprio horário fora na edição; os dois tipos ao
       mesmo tempo, em `tests/contract/gestao/test_horarios_conflito.py` (SC-E3-004)
-- [ ] T021 [US4] `services/conflitos.py`, `repositories/horario_repository.py`,
+- [x] T021 [US4] `services/conflitos.py`, `repositories/horario_repository.py`,
       `services/horarios_service.py` (gestão), `schemas/horario.py`, `schemas/gestao/horarios.py` e
       rotas de `/gestao/turmas/{id}/horarios`
 

@@ -14,6 +14,7 @@ router = APIRouter(
 from src.api.routes.gestao import (  # noqa: E402
     avisos,
     eventos,
+    horarios,
     solicitacoes,
     turmas,
     usuarios,
@@ -22,6 +23,7 @@ from src.api.routes.gestao import (  # noqa: E402
 
 router.include_router(usuarios.router)
 router.include_router(turmas.router)
+router.include_router(horarios.router)
 router.include_router(vinculos.router)
 router.include_router(solicitacoes.router)
 router.include_router(avisos.router)

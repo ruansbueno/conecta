@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.aviso import Aviso
 from src.models.aviso_evento import AvisoEvento
 from src.models.aviso_versao import AvisoVersao
+from src.models.evento import Evento
+from src.models.evento_historico import EventoHistorico
+from src.models.evento_versao import EventoVersao
 
 
 def destinos_canonicos(destinos) -> list[dict]:
@@ -59,6 +62,50 @@ class AuditoriaRepository:
                 tipo=tipo,
                 usuario_id=usuario_id,
                 # Hora aplicada sob o lock do aviso: o histórico segue a ordem real das escritas.
+                ocorrido_em=quando,
+                versao=versao,
+                alteracoes=alteracoes,
+            )
+        )
+
+
+class AuditoriaEventoRepository:
+    """Versões e histórico do evento, no mesmo padrão do aviso. Só insere."""
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    def registrar_versao(self, evento: Evento, autor_id: uuid.UUID, quando: datetime) -> None:
+        self.session.add(
+            EventoVersao(
+                evento_id=evento.id,
+                versao=evento.versao_atual,
+                titulo=evento.titulo,
+                descricao=evento.descricao,
+                tipo=evento.tipo,
+                inicio=evento.inicio,
+                fim=evento.fim,
+                local=evento.local,
+                destinos=destinos_canonicos(evento.destinos),
+                criada_por=autor_id,
+                criada_em=quando,
+            )
+        )
+
+    def registrar(
+        self,
+        evento: Evento,
+        tipo: str,
+        usuario_id: uuid.UUID,
+        quando: datetime,
+        versao: int | None = None,
+        alteracoes: dict | None = None,
+    ) -> None:
+        self.session.add(
+            EventoHistorico(
+                evento_id=evento.id,
+                tipo=tipo,
+                usuario_id=usuario_id,
                 ocorrido_em=quando,
                 versao=versao,
                 alteracoes=alteracoes,

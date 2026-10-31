@@ -46,13 +46,13 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 2: US1 — Publicar um evento para o público certo (RF-35, RF-36)
 
-- [ ] T007 [P] [US1] Contract test `POST /gestao/eventos` (201 com versão 1 e `situacao: ativo`;
+- [x] T007 [P] [US1] Contract test `POST /gestao/eventos` (201 com versão 1 e `situacao: ativo`;
       422 de campos, `fim <= inicio`, destino repetido ou fora de 1–20; 403 aluno; 404 turma) em
       `tests/contract/gestao/test_eventos_criar.py`
-- [ ] T008 [P] [US1] Integration test: docente cria para turma em que leciona; `todos`, `semestre`
+- [x] T008 [P] [US1] Integration test: docente cria para turma em que leciona; `todos`, `semestre`
       ou turma alheia dão 403 `DESTINO_NAO_PERMITIDO`, em
       `tests/integration/test_evento_destino_docente.py`
-- [ ] T009 [US1] `schemas/gestao/eventos.py`, `services/eventos_gestao_service.criar` (evento +
+- [x] T009 [US1] `schemas/gestao/eventos.py`, `services/eventos_gestao_service.criar` (evento +
       destinos + versão 1 + histórico `criado` na mesma transação) e rota
       `POST /gestao/eventos`
 

@@ -166,7 +166,7 @@ export default function HistoricoEvento() {
             <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[14px] text-navy-suave">
               <span className="inline-flex items-center gap-1.5">
                 <Icone nome="agenda" tamanho={16} />
-                {dataNumerica(e.inicio)} · {faixaDoEvento(e)}
+                {e.inicio.toLocaleDateString('pt-BR')} · {faixaDoEvento(e)}
               </span>
               {e.local && (
                 <span className="inline-flex items-center gap-1.5">

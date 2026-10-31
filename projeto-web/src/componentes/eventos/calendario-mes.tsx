@@ -1,5 +1,6 @@
 // Aba Mês da agenda (plan-f2 D-F2-7): semanas de segunda a domingo, até 3 títulos por dia e "+N";
-// escolher um dia mostra os eventos dele abaixo. Sem desenho próprio: tokens da w-12.
+// escolher um dia mostra os eventos dele abaixo. Sem desenho próprio: tokens da w-12. Tabela com
+// botões (Tab passa por eles); o dia escolhido tem aria-pressed.
 import type { EventoAgenda } from '../../api/schemas'
 import { diasDoCalendario, eventosDoDia, outroMes, type Mes } from '../../lib/agenda'
 import { Icone } from '../comum/icone'
@@ -34,11 +35,11 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
           <Icone nome="seta" tamanho={18} />
         </button>
       </div>
-      <table role="grid" aria-label={nomeDoMes(mes)} className="mt-4 w-full table-fixed border-collapse">
+      <table aria-label={nomeDoMes(mes)} className="mt-4 w-full table-fixed border-collapse">
         <thead>
           <tr>
             {SEMANA.map((d) => (
-              <th key={d} scope="col" role="columnheader" className="pb-2 text-[12.5px] font-semibold text-tenue">
+              <th key={d} scope="col" className="pb-2 text-[12.5px] font-semibold text-tenue">
                 {d}
               </th>
             ))}
@@ -55,9 +56,6 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                 return (
                   <td
                     key={dia.toISOString()}
-                    role="gridcell"
-                    aria-label={`${nomeDoDia(dia)}${quantos ? `, ${quantos} evento${quantos === 1 ? '' : 's'}` : ''}`}
-                    aria-selected={escolhido}
                     className={`h-[104px] border border-linha-suave align-top ${foraDoMes ? 'bg-fundo' : 'bg-branco'} ${
                       escolhido ? 'outline-2 -outline-offset-2 outline-azul' : ''
                     }`}
@@ -65,6 +63,7 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                     <button
                       type="button"
                       aria-label={`Ver os eventos de ${nomeDoDia(dia)}${quantos ? ` (${quantos})` : ''}`}
+                      aria-pressed={escolhido}
                       onClick={() => onEscolherDia(dia)}
                       className="flex h-full w-full flex-col items-stretch gap-1 p-2 text-left"
                     >

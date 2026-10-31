@@ -3,6 +3,7 @@
 import type { EventoHistorico } from '../../api/schemas'
 import { dataNumerica } from '../../lib/datas'
 import { compararDestinos, destinoDoContrato, type DestinoGuardado } from '../../lib/destinos'
+import { ROTULO_TIPO } from '../../lib/agenda'
 import { NOME_DO_ASSUNTO, type Assunto } from './assunto'
 import { rotuloDestino } from './chip-destino'
 
@@ -89,6 +90,17 @@ function Alteracao({ campo, de, para, nomes }: { campo: string; de: unknown; par
         <p className="text-[12.5px] text-tenue">{ROTULO_CAMPO[campo]}</p>
         <p className="mt-0.5 text-[13.5px] text-navy-suave">
           {data(de)} → {data(para)}
+        </p>
+      </div>
+    )
+  }
+  if (campo === 'tipo') {
+    const rotulo = (v: unknown) => ROTULO_TIPO[String(v)] ?? String(v ?? '')
+    return (
+      <div>
+        <p className="text-[12.5px] text-tenue">Tipo</p>
+        <p className="mt-0.5 text-[13.5px] text-navy-suave">
+          {rotulo(de)} → {rotulo(para)}
         </p>
       </div>
     )

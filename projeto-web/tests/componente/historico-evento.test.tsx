@@ -1,10 +1,10 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import HistoricoEvento from '../../src/paginas/eventos/historico'
 import { eventoGestao, pagina, versaoEvento } from '../fixtures'
-import { abrirEm, apiAgenda } from './apoio-agenda'
+import { abrirEm, apiAgenda, type Rotas } from './apoio-agenda'
 
 const autor = { id: 'u1', nome: 'Marina Duarte' }
 const HISTORICO = [
@@ -25,13 +25,19 @@ const HISTORICO = [
 describe('evento — histórico e versões (RW-34; plan-f2 D-F2-4)', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  function abrir() {
+  const ID = 'e7e00000-0000-4000-8000-0000000000e1'
+
+  function abrir(historico: unknown[] = HISTORICO, extra: Rotas = {}) {
     apiAgenda({
-      'GET /gestao/eventos/e7e00000-0000-4000-8000-0000000000e1': { status: 200, corpo: { ...eventoGestao, id: 'e7e00000-0000-4000-8000-0000000000e1' } },
-      'GET /gestao/eventos/e7e00000-0000-4000-8000-0000000000e1/historico': { status: 200, corpo: pagina(HISTORICO) },
-      'GET /gestao/eventos/e7e00000-0000-4000-8000-0000000000e1/versoes': { status: 200, corpo: pagina([{ ...versaoEvento, versao: 2, local: 'Lab 4' }, versaoEvento]) },
+      [`GET /gestao/eventos/${ID}`]: { status: 200, corpo: { ...eventoGestao, id: ID } },
+      [`GET /gestao/eventos/${ID}/historico`]: { status: 200, corpo: pagina(historico) },
+      [`GET /gestao/eventos/${ID}/versoes`]: {
+        status: 200,
+        corpo: pagina([{ ...versaoEvento, versao: 2, local: 'Lab 4' }, versaoEvento]),
+      },
+      ...extra,
     })
-    abrirEm('/eventos/e7e00000-0000-4000-8000-0000000000e1?aba=historico', '/eventos/:id', <HistoricoEvento />, ['/eventos', '/eventos/:id/editar'])
+    abrirEm(`/eventos/${ID}?aba=historico`, '/eventos/:id', <HistoricoEvento />, ['/eventos', '/eventos/:id/editar'])
   }
 
   it('linha do tempo com o vocabulário do evento e as mudanças de data e local', async () => {
@@ -61,5 +67,22 @@ describe('evento — histórico e versões (RW-34; plan-f2 D-F2-4)', () => {
 
     expect(screen.getByText('Cinco defesas, com arguição aberta ao público.')).toBeInTheDocument()
     expect(within(screen.getByRole('list', { name: 'Destinos do evento' })).getByText('Docentes')).toBeInTheDocument()
+  })
+
+  it('excluir pede confirmação e volta à agenda com a mensagem', async () => {
+    abrir(HISTORICO, { [`DELETE /gestao/eventos/${ID}`]: { status: 204 } })
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Excluir' }))
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Excluir' }))
+
+    await waitFor(() => expect(screen.getByTestId('onde')).toHaveTextContent(/^\/eventos$/))
+  })
+
+  it('mudança de tipo aparece com o rótulo, não com o valor da API', async () => {
+    abrir([{ id: 'h3', tipo: 'editado', usuario: autor, ocorrido_em: '2026-10-06T09:00:00Z', versao: 3, alteracoes: { tipo: { de: 'palestra', para: 'reuniao' } } }])
+
+    const linha = await screen.findByRole('list', { name: 'Linha do tempo' })
+    expect(within(linha).getByText(/Reunião/)).toBeInTheDocument()
+    expect(within(linha).queryByText(/reuniao/)).not.toBeInTheDocument()
   })
 })

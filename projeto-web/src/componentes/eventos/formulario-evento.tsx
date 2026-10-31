@@ -82,10 +82,14 @@ export function EditorEvento(props: Props) {
         value={f[c]}
         maxLength={max}
         aria-invalid={!!erros[c]}
-        aria-describedby={descricaoErro(c)}
+        aria-describedby={[descricaoErro(c), ajuda && `${idCampo(c)}-ajuda`].filter(Boolean).join(' ') || undefined}
         onChange={(e) => mudar({ [c]: e.target.value })}
       />
-      {ajuda && <p className="mt-1.5 text-[12.5px] text-tenue">{ajuda}</p>}
+      {ajuda && (
+        <p id={`${idCampo(c)}-ajuda`} className="mt-1.5 text-[12.5px] text-tenue">
+          {ajuda}
+        </p>
+      )}
       {erroDoCampo(c)}
     </div>
   )
@@ -98,12 +102,17 @@ export function EditorEvento(props: Props) {
         id={idCampo(c)}
         type="datetime-local"
         className="campo w-full"
-        value={f[c]}
+        value={f[c] === 'incompleto' ? '' : f[c]}
         aria-invalid={!!erros[c]}
-        aria-describedby={descricaoErro(c)}
-        onChange={(e) => mudar({ [c]: e.target.value })}
+        aria-describedby={[descricaoErro(c), ajuda && `${idCampo(c)}-ajuda`].filter(Boolean).join(' ') || undefined}
+        // Data sem hora (ou o contrário) chega vazia: marcar como incompleta, para não virar pontual.
+        onChange={(e) => mudar({ [c]: e.target.validity.badInput ? 'incompleto' : e.target.value })}
       />
-      {ajuda && <p className="mt-1.5 text-[12.5px] text-tenue">{ajuda}</p>}
+      {ajuda && (
+        <p id={`${idCampo(c)}-ajuda`} className="mt-1.5 text-[12.5px] text-tenue">
+          {ajuda}
+        </p>
+      )}
       {erroDoCampo(c)}
     </div>
   )

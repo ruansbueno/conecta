@@ -55,9 +55,13 @@ export function validarEvento(f: FormularioEvento): ErrosEvento {
   if (!r.success) {
     for (const issue of r.error.issues) erros[issue.path[0] as CampoEvento] ??= issue.message
   }
+  // O campo datetime-local entrega vazio quando falta a data ou a hora; o editor guarda "incompleto".
+  for (const c of ['inicio', 'fim'] as const) {
+    if (f[c] && Number.isNaN(new Date(f[c]).getTime())) erros[c] = 'Complete a data e a hora.'
+  }
   const inicio = quando(f.inicio)
   const fim = quando(f.fim)
-  if (inicio && fim && fim <= inicio) erros.fim = 'O fim precisa ser depois do início.'
+  if (!erros.inicio && !erros.fim && inicio && fim && fim <= inicio) erros.fim = 'O fim precisa ser depois do início.'
   return erros
 }
 

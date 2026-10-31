@@ -27,7 +27,8 @@ describe('abas da agenda (plan-f2 D-F2-1)', () => {
     expect(consultaDaAba('proximos', nov)).toEqual({ situacao: 'ativo', quando: 'proximos' })
     expect(consultaDaAba('realizados', nov)).toEqual({ situacao: 'ativo', quando: 'realizados' })
     expect(consultaDaAba('arquivados', nov)).toEqual({ situacao: 'arquivado' })
-    expect(consultaDaAba('mes', nov)).toEqual({ situacao: 'ativo', de: local(2026, 11, 1), ate: local(2026, 12, 1) })
+    // A grade mostra semanas inteiras: pede do primeiro ao último dia dela, não só o mês.
+    expect(consultaDaAba('mes', nov)).toEqual({ situacao: 'ativo', de: local(2026, 10, 26), ate: local(2026, 12, 7) })
   })
 
   it('mês da URL no formato AAAA-MM; inválido ou ausente vira o mês de hoje', () => {

@@ -1,14 +1,15 @@
 // T12: editar evento por PATCH parcial; só o que mudou é enviado (RW-34, RW-42; plan-f2 D-F2-5).
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { ApiError } from '../../api/erros'
-import { editarEvento, obterEvento } from '../../api/recursos/eventos'
+import { desarquivarEvento, editarEvento, obterEvento } from '../../api/recursos/eventos'
 import type { EventoAgenda } from '../../api/schemas'
 import { Confirmacao } from '../../componentes/comum/confirmacao'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EditorEvento, errosDoEventoNaApi, focarPrimeiroErroEvento } from '../../componentes/eventos/formulario-evento'
+import { dataRelativa } from '../../lib/datas'
 import { edicaoDoEvento, formularioDoEvento, formularioEventoVazio, validarEvento, type ErrosEvento, type FormularioEvento } from '../../lib/formulario-evento'
 import { apagarRascunho, lerRascunhoEvento, type ChaveRascunhoEvento } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
@@ -27,7 +28,9 @@ export default function EditarEvento() {
   const [evento, setEvento] = useState<Carga<EventoAgenda>>({ estado: 'carregando' })
   const [digitado, setFormulario] = useState<FormularioEvento | null>(null)
   const [erros, setErros] = useState<ErrosEvento>({})
-  const [alerta, setAlerta] = useState<string>()
+  const [alerta, setAlerta] = useState<ReactNode>()
+  const [alterado, setAlterado] = useState(false)
+  const [recuperadoEm, setRecuperadoEm] = useState<Date | null>(null)
   const [informacao, setInformacao] = useState<string>()
   const [enviando, setEnviando] = useState(false)
   const [salvo, setSalvo] = useState(false)
@@ -40,8 +43,15 @@ export default function EditarEvento() {
     }
     try {
       const atual = await obterEvento(id)
+      // Rascunho mais antigo que a última edição no servidor desfaria a versão de outra pessoa sem
+      // ninguém perceber: descarta. O mais novo volta, e a página avisa (como no aviso).
+      let r = lerRascunhoEvento(chave)
+      if (r && r.salvoEm <= (atual.editadoEm ?? atual.criadoEm)) {
+        apagarRascunho(chave)
+        r = null
+      }
       setEvento({ estado: 'pronto', dados: atual })
-      const r = lerRascunhoEvento(chave)
+      setRecuperadoEm(r?.salvoEm ?? null)
       setFormulario(r ? formularioDoRascunho(r) : formularioDoEvento(atual))
     } catch (e) {
       if (e instanceof ApiError && e.efeito === 'semPermissao') return navegar('/sem-permissao', { replace: true })
@@ -53,7 +63,8 @@ export default function EditarEvento() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- o estado muda depois do await
     void carregar()
   }, [carregar])
-  useRascunhoDoEvento(chave, digitado ?? VAZIO, digitado !== null && !salvo)
+  // Só depois de uma mudança: abrir e sair sem mexer não deixa rascunho.
+  useRascunhoDoEvento(chave, digitado ?? VAZIO, alterado && !salvo)
 
   if (!usuario || evento.estado === 'carregando' || turmas.carga.estado === 'carregando' || (evento.estado === 'pronto' && !digitado)) {
     return <Esqueleto rotulo="Carregando o evento" />
@@ -67,6 +78,15 @@ export default function EditarEvento() {
   if (atual.situacao !== 'ativo') return <Indisponivel mensagem={new ApiError({ code: 'EVENTO_NAO_EDITAVEL' }).mensagem} />
   const docente = usuario.perfil === 'docente'
   const formulario = docente ? soTurmasDoDocente(digitado!, turmas.carga.dados) : digitado!
+
+  async function desarquivar() {
+    try {
+      setEvento({ estado: 'pronto', dados: await desarquivarEvento(id) })
+      setAlerta('Evento desarquivado. Agora você pode salvar as alterações.')
+    } catch (e) {
+      setAlerta(mensagemDe(e))
+    }
+  }
 
   async function enviar() {
     const locais = validarEvento(formulario)
@@ -89,9 +109,30 @@ export default function EditarEvento() {
       setSalvo(true)
       navegar('/eventos', { replace: true, state: { mensagem: 'Evento salvo.' } })
     } catch (e) {
+      // A API também compara (ex.: espaços ou segundos de outro cliente): não é falha.
+      if (e instanceof ApiError && e.errors.some((x) => x.campo === 'body' && x.mensagem === 'nenhuma alteração')) {
+        setInformacao('Nada foi alterado.')
+        return
+      }
       setAlerta(mensagemDe(e))
       if (!(e instanceof ApiError)) return
+      if (e.efeito === 'semPermissao') navegar('/sem-permissao', { replace: true })
+      if (e.efeito === 'voltaLista') {
+        // Excluído enquanto se editava: o rascunho não serve mais.
+        apagarRascunho(chave)
+        navegar('/eventos', { replace: true, state: { mensagem: e.mensagem } })
+      }
       if (e.efeito === 'marcaCampos') setErros(errosDoEventoNaApi(e, formulario.destinos))
+      if (e.efeito === 'ofereceDesarquivar') {
+        setAlerta(
+          <span className="flex flex-wrap items-center gap-3">
+            {e.mensagem}
+            <button type="button" onClick={desarquivar} className="botao-secundario">
+              Desarquivar
+            </button>
+          </span>,
+        )
+      }
       if (e.efeito === 'recarrega') await turmas.recarregar()
     } finally {
       setEnviando(false)
@@ -102,9 +143,15 @@ export default function EditarEvento() {
     <>
       <EditorEvento
         modo="editar"
-        subtitulo={`Versão ${atual.versaoAtual} · salvar cria a versão ${atual.versaoAtual + 1}, e a anterior fica no histórico`}
+        subtitulo={
+          (recuperadoEm ? `Rascunho recuperado (salvo ${dataRelativa(recuperadoEm)}) · ` : '') +
+          `Salvar cria a versão ${atual.versaoAtual + 1}; as anteriores ficam no histórico`
+        }
         formulario={formulario}
-        onMudar={setFormulario}
+        onMudar={(f) => {
+          setFormulario(f)
+          setAlterado(true)
+        }}
         erros={erros}
         alerta={alerta}
         informacao={informacao}

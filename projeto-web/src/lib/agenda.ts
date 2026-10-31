@@ -58,8 +58,15 @@ export function consultaDaAba(aba: AbaAgenda, mes: Mes): FiltrosEventos {
     case 'arquivados':
       return { situacao: 'arquivado' }
     case 'mes':
-      return { situacao: 'ativo', ...janelaDoMes(mes) }
+      return { situacao: 'ativo', ...janelaDaGrade(mes) }
   }
+}
+
+/** Do primeiro ao último dia mostrados no calendário: os dias de outros meses também têm eventos. */
+export function janelaDaGrade(mes: Mes) {
+  const dias = diasDoCalendario(mes)
+  const ultimo = dias[dias.length - 1]
+  return { de: dias[0], ate: new Date(ultimo.getFullYear(), ultimo.getMonth(), ultimo.getDate() + 1) }
 }
 
 /** Semanas inteiras, de segunda a domingo, que cobrem o mês. */

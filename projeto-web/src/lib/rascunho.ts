@@ -91,7 +91,10 @@ export function lerRascunhoEvento(chave: ChaveRascunhoEvento): RascunhoEvento | 
     if (!bruto) return null
     const dados = JSON.parse(bruto)
     if (CAMPOS_EVENTO.some((c) => typeof dados[c] !== 'string') || !Array.isArray(dados.destinos)) return null
-    return { ...dados, salvoEm: new Date(dados.salvoEm) }
+    // Campo a campo: nada além do formulário sai do armazenamento.
+    const destinos = (dados.destinos as DestinoRascunho[]).filter((d) => d && typeof d.tipo === 'string')
+    const { titulo, tipo, inicio, fim, local, descricao } = dados
+    return { titulo, tipo, inicio, fim, local, descricao, destinos, salvoEm: new Date(dados.salvoEm) }
   } catch {
     return null
   }

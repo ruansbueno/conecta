@@ -40,6 +40,11 @@ describe('formulário de evento (plan-f2 D-F2-5)', () => {
     expect(validarEvento({ ...preenchido, fim: '2026-11-24T14:00' }).fim).toBe('O fim precisa ser depois do início.')
   })
 
+  it('data ou hora incompleta não vira evento pontual em silêncio', () => {
+    expect(validarEvento({ ...preenchido, fim: 'incompleto' }).fim).toBe('Complete a data e a hora.')
+    expect(validarEvento({ ...preenchido, inicio: 'incompleto' }).inicio).toBe('Complete a data e a hora.')
+  })
+
   it('limites de local, descrição e destinos', () => {
     expect(validarEvento({ ...preenchido, local: 'x'.repeat(121) }).local).toBe('O local pode ter até 120 caracteres.')
     expect(validarEvento({ ...preenchido, descricao: 'x'.repeat(5001) }).descricao).toBe(

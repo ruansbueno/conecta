@@ -118,4 +118,12 @@ describe('agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6)', () => {
 
     expect(await screen.findByRole('link', { name: 'Novo evento' })).toHaveAttribute('href', '/eventos/novo')
   })
+
+  it('enquanto carrega, mostra o carregando', async () => {
+    apiAgenda({ 'GET /gestao/eventos': () => ({ status: 200, corpo: pagina([]) }) })
+    abrir()
+
+    expect(screen.getByRole('status', { name: 'Carregando a agenda' })).toBeInTheDocument()
+    await screen.findByText('Nenhum evento próximo')
+  })
 })

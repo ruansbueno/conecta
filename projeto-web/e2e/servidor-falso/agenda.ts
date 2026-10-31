@@ -275,10 +275,11 @@ export async function tratarAgenda(ctx: Contexto): Promise<boolean> {
     if (metodo === 'PATCH' && !sufixo) {
       const corpo = await ctx.corpoJson(ctx.req)
       if (!corpo || Object.keys(corpo).length === 0) return (invalido([{ campo: 'body', mensagem: 'informe ao menos um campo' }]), true)
-      if (e.situacao !== 'ativo') return (erro(res, 409, 'EVENTO_NAO_EDITAVEL'), true)
-      if (!('destinos' in corpo) && !gestao && !doDocenteAinda()) return (erro(res, 403, 'DESTINO_NAO_PERMITIDO'), true)
+      // Como na API: o corpo é validado (422) antes de olhar a situação (409).
       const v = validarEvento(corpo, e, ctx)
       if (Array.isArray(v)) return (invalido(v), true)
+      if (e.situacao !== 'ativo') return (erro(res, 409, 'EVENTO_NAO_EDITAVEL'), true)
+      if (!('destinos' in corpo) && !gestao && !doDocenteAinda()) return (erro(res, 403, 'DESTINO_NAO_PERMITIDO'), true)
       if (v) return (erro(res, v.status, v.code), true)
       const alteracoes: Record<string, { de: unknown; para: unknown }> = {}
       for (const campo of ['titulo', 'descricao', 'tipo', 'inicio', 'fim', 'local'] as const) {

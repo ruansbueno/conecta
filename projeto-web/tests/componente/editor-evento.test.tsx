@@ -122,4 +122,101 @@ describe('editor de evento (T12; plan-f2 D-F2-5)', () => {
     expect(await screen.findByText('Eventos arquivados ou excluídos não podem ser editados.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Salvar alterações' })).not.toBeInTheDocument()
   })
+
+  describe('rascunho de edição (achado da revisão)', () => {
+    const ID = 'e7e00000-0000-4000-8000-0000000000e1'
+    const evento = { ...eventoGestao, id: ID, editado_em: '2026-10-05T09:00:00Z' }
+    const rascunho = (salvoEm: string) =>
+      localStorage.setItem(
+        `rascunho:evento:${ID}`,
+        JSON.stringify({
+          titulo: 'Título do rascunho',
+          tipo: 'banca',
+          inicio: '2026-11-24T14:00',
+          fim: '',
+          local: 'Sala do rascunho',
+          descricao: '',
+          destinos: [{ tipo: 'todos' }],
+          salvoEm,
+        }),
+      )
+    const abrirEdicao = () => abrirEm(`/eventos/${ID}/editar`, '/eventos/:id/editar', <EditarEvento />, ['/eventos', '/eventos/:id', '/sem-permissao'])
+
+    it('abrir sem mexer não grava rascunho', async () => {
+      apiAgenda({ [`GET /gestao/eventos/${ID}`]: { status: 200, corpo: evento } })
+      abrirEdicao()
+
+      await screen.findByLabelText('Local')
+      expect(localStorage.getItem(`rascunho:evento:${ID}`)).toBeNull()
+    })
+
+    it('rascunho mais antigo que a última edição no servidor é descartado', async () => {
+      rascunho('2026-10-04T09:00:00Z')
+      apiAgenda({ [`GET /gestao/eventos/${ID}`]: { status: 200, corpo: evento } })
+      abrirEdicao()
+
+      expect(await screen.findByLabelText('Local')).toHaveValue('Sala 203')
+      expect(localStorage.getItem(`rascunho:evento:${ID}`)).toBeNull()
+    })
+
+    it('rascunho mais novo volta e a página avisa', async () => {
+      rascunho('2026-10-06T09:00:00Z')
+      apiAgenda({ [`GET /gestao/eventos/${ID}`]: { status: 200, corpo: evento } })
+      abrirEdicao()
+
+      expect(await screen.findByLabelText('Local')).toHaveValue('Sala do rascunho')
+      expect(screen.getByText(/Rascunho recuperado/)).toBeInTheDocument()
+    })
+
+    async function salvarCom(resposta: { status: number; corpo?: unknown }, extras = {}) {
+      const chamadas = apiAgenda({
+        [`GET /gestao/eventos/${ID}`]: { status: 200, corpo: evento },
+        [`PATCH /gestao/eventos/${ID}`]: resposta,
+        ...extras,
+      })
+      abrirEdicao()
+      const local = await screen.findByLabelText('Local')
+      await userEvent.clear(local)
+      await userEvent.type(local, 'Lab 4')
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+      return chamadas
+    }
+
+    it('arquivado por outra pessoa durante a edição: oferece desarquivar', async () => {
+      const chamadas = await salvarCom(
+        { status: 409, corpo: erro('EVENTO_NAO_EDITAVEL') },
+        { [`POST /gestao/eventos/${ID}/desarquivar`]: { status: 200, corpo: evento } },
+      )
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Desarquivar' }))
+
+      expect(await screen.findByText(/Agora você pode salvar as alterações/)).toBeInTheDocument()
+      expect(chamadas.some((c) => c.chave === `POST /gestao/eventos/${ID}/desarquivar`)).toBe(true)
+      expect(screen.getByLabelText('Local')).toHaveValue('Lab 4')
+    })
+
+    it('excluído durante a edição: volta à agenda com a mensagem', async () => {
+      await salvarCom({ status: 404, corpo: erro('EVENTO_NAO_ENCONTRADO') })
+
+      await waitFor(() => expect(screen.getByTestId('onde')).toHaveTextContent(/^\/eventos$/))
+      expect(localStorage.getItem(`rascunho:evento:${ID}`)).toBeNull()
+    })
+
+    it('sem permissão leva à tela de sem permissão', async () => {
+      await salvarCom({ status: 403, corpo: erro('SEM_PERMISSAO') })
+
+      await waitFor(() => expect(screen.getByTestId('onde')).toHaveTextContent('/sem-permissao'))
+    })
+
+    it('"nenhuma alteração" da API não é falha', async () => {
+      await salvarCom({
+        status: 422,
+        corpo: erro('VALIDATION_ERROR', 'x', [{ campo: 'body', mensagem: 'nenhuma alteração' }]),
+      })
+
+      expect(await screen.findByText('Nada foi alterado.')).toBeInTheDocument()
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+  })
 })
+

@@ -166,7 +166,12 @@ export default function ListaEventos() {
               }}
               onEscolherDia={setDiaEscolhido}
             />
-            <div className="mt-2 border-t border-linha-suave">
+            {carga.dados.total > eventos.length && (
+              <p role="status" className="mx-6 mt-3 rounded-lg bg-alerta-fundo px-4 py-2.5 text-[13px] text-alerta">
+                Mostrando {eventos.length} de {carga.dados.total} eventos deste mês. Use o tipo ou a busca para ver os demais.
+              </p>
+            )}
+            <div aria-live="polite" className="mt-2 border-t border-linha-suave">
               {doDia.length === 0 ? (
                 <EstadoVazio
                   titulo={diaEscolhido ? `Nenhum evento em ${nomeDoDia(diaEscolhido)}` : VAZIO.mes[0]}

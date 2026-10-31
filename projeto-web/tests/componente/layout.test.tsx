@@ -14,9 +14,9 @@ const usuario = (perfil: string, nome = 'Marina Duarte') => ({
   turmas: [],
 })
 
-function itens(perfil: string) {
+function itens(perfil: string, caminho = '/avisos/novo') {
   render(
-    <MemoryRouter initialEntries={['/avisos/novo']}>
+    <MemoryRouter initialEntries={[caminho]}>
       <BarraLateral usuario={usuario(perfil)} onSair={() => {}} />
     </MemoryRouter>,
   )
@@ -26,16 +26,18 @@ function itens(perfil: string) {
 }
 
 describe('barra lateral por perfil (RW-11)', () => {
-  it('coordenação e administração veem todos os itens da F1, inclusive Usuários', () => {
-    expect(itens('coordenacao')).toEqual(['Painel', 'Avisos', 'Turmas', 'Solicitações', 'Usuários'])
+  it('coordenação e administração veem todos os itens, com a Agenda (F2)', () => {
+    expect(itens('coordenacao')).toEqual(['Painel', 'Avisos', 'Agenda', 'Turmas', 'Solicitações', 'Usuários'])
   })
 
-  it('docente vê "Meus avisos" e "Minhas turmas", sem Usuários', () => {
-    expect(itens('docente')).toEqual(['Painel', 'Meus avisos', 'Minhas turmas', 'Solicitações'])
+  it('docente vê "Meus avisos", "Agenda" e "Minhas turmas", sem Usuários', () => {
+    expect(itens('docente')).toEqual(['Painel', 'Meus avisos', 'Agenda', 'Minhas turmas', 'Solicitações'])
   })
 
-  it('itens da F2 (Agenda e Horários) não aparecem', () => {
-    expect(itens('administrador')).not.toContain('Agenda')
+  it('o histórico ou o editor de um evento marcam Agenda', () => {
+    itens('docente', '/eventos/e1/editar')
+
+    expect(screen.getByRole('link', { name: 'Agenda' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('o item da seção atual fica marcado', () => {

@@ -79,10 +79,12 @@ Avaliação contra `.specify/memory/constitution.md` v2.0.0:
     `hr_fim`, `nm_disciplina` (texto, como na spec), `nm_local`, `id_usuario_docente`.
 
   Nos models, os atributos usam os nomes do contrato (`titulo`, `inicio`, `disciplina`…).
-- **D-E3-3 — Intervalo da consulta (RF-38).** `de` e `ate` filtram por `inicio` no intervalo
-  semiaberto `[de, ate)`, para que a visão de mês peça "do dia 1 ao dia 1 do mês seguinte" sem
-  sobreposição. Só `de` ou só `ate` valem sozinhos. `ate < de` dá 422; `ate == de` é intervalo
-  vazio, não erro.
+- **D-E3-3 — Intervalo da consulta (RF-38).** `de` e `ate` formam a janela semiaberta `[de, ate)`,
+  para que a visão de mês peça "do dia 1 ao dia 1 do mês seguinte". **Emenda de 31/10/2026**: entra
+  todo evento que **toca** a janela (`inicio < ate` e, com `fim`, `fim > de`; sem `fim`,
+  `inicio >= de`), e não só os que começam nela — uma semana acadêmica aparece em cada dia e em
+  cada mês que cobre. A gestão usa a mesma regra. Só `de` ou só `ate` valem sozinhos. `ate < de`
+  dá 422; `ate == de` é intervalo vazio, não erro.
 - **D-E3-4 — Encerrado.** Um evento está encerrado quando `COALESCE(fim, inicio) < now()`. Com
   `incluir_encerrados=false` (padrão), a consulta tira os encerrados. Um evento em andamento
   (começou e ainda não terminou) **aparece**. Sem `de` nem `ate`, a lista é "a partir de agora":

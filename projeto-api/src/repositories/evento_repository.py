@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Select, exists, func, select
+from sqlalchemy import ColumnElement, Select, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -11,6 +11,21 @@ from src.repositories.alcance import alcanca
 
 # Encerrado: o fim — ou o início, num evento pontual — já passou (plan D-E3-4).
 TERMINO = func.coalesce(Evento.fim, Evento.inicio)
+
+
+def na_janela(de: datetime | None, ate: datetime | None) -> list[ColumnElement[bool]]:
+    """Eventos que tocam a janela semiaberta [de, ate) (plan D-E3-3, emenda de 31/10/2026).
+
+    Entra quem começa antes de `ate` e ainda não tinha terminado em `de`: um evento de vários
+    dias aparece em cada dia, semana ou mês que cobre. O pontual entra se começa em [de, ate);
+    o que termina exatamente em `de` fica de fora.
+    """
+    condicoes = []
+    if ate is not None:
+        condicoes.append(Evento.inicio < ate)
+    if de is not None:
+        condicoes.append(or_(Evento.inicio >= de, Evento.fim > de))
+    return condicoes
 
 
 class EventoRepository:
@@ -30,11 +45,7 @@ class EventoRepository:
         offset: int,
     ) -> tuple[list[Evento], int]:
         stmt = self._visiveis(usuario).where(Evento.situacao == situacao)
-        # Intervalo semiaberto [de, ate) sobre o início (plan D-E3-3).
-        if de is not None:
-            stmt = stmt.where(Evento.inicio >= de)
-        if ate is not None:
-            stmt = stmt.where(Evento.inicio < ate)
+        stmt = stmt.where(*na_janela(de, ate))
         # A lista de arquivados é histórica: não se filtra por encerrados.
         if situacao == "ativo" and not incluir_encerrados:
             stmt = stmt.where(func.now() <= TERMINO)

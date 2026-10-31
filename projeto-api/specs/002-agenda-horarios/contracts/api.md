@@ -48,8 +48,10 @@ Eventos visíveis ao usuário, do mais próximo ao mais distante por `inicio`.
 | `turma_id` | — | UUID; filtra eventos com destino `turma` igual a esse id |
 | `limit` / `offset` | 20 / 0 | ver Paginação |
 
-`de` e `ate` filtram por `inicio` no intervalo **semiaberto** `[de, ate)`: a visão de mês pede do
-dia 1 ao dia 1 do mês seguinte, sem sobreposição. Cada um vale sozinho; `ate` igual a `de` é
+`de` e `ate` formam a janela **semiaberta** `[de, ate)`: a visão de mês pede do dia 1 ao dia 1 do
+mês seguinte. Entra todo evento que **toca** a janela — começa antes de `ate` e termina depois de
+`de` (sem `fim`, começa em `de` ou depois) —, de modo que um evento de vários dias aparece em cada
+dia e em cada mês que cobre. Cada um vale sozinho; `ate` igual a `de` é
 intervalo vazio. Um evento está **encerrado** quando o `fim` — ou o `inicio`, se não houver `fim` —
 já passou; um evento em andamento não está encerrado. Sem `de` e `ate`, devolve os eventos a partir
 de agora (os não encerrados). Com `situacao=arquivado`, `incluir_encerrados` não se aplica: a lista
@@ -181,8 +183,8 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 **Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `tipo`,
 `autor_id`, `turma_id`, `de`, `ate`, `q`, `limit`, `offset`.
 
-**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` como na
-seção 1; não há filtro de encerrados na gestão.
+**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` com a
+mesma janela da seção 1; não há filtro de encerrados na gestão.
 
 ---
 

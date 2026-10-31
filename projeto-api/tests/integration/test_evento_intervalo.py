@@ -1,4 +1,7 @@
-"""O tempo na consulta da agenda (contracts E3 §1; plan D-E3-3, D-E3-4; RF-38; SC-E3-002)."""
+"""O tempo na consulta da agenda (contracts E3 §1; plan D-E3-3, D-E3-4; RF-38; SC-E3-002).
+
+A janela [de, ate) pega todo evento que a toca, não só os que começam nela (D-E3-3, emenda).
+"""
 
 from datetime import UTC, datetime, timedelta
 
@@ -48,22 +51,48 @@ async def test_evento_sem_fim_encerra_no_inicio(client, db, pessoas):
     assert str(pontual.id) in await _ids(client, aluno, "incluir_encerrados=true")
 
 
-async def test_intervalo_e_semiaberto_sobre_o_inicio(client, db, pessoas):
+async def test_janela_semiaberta_pega_o_que_a_toca(client, db, pessoas):
     coord, aluno = pessoas
     de, ate = datetime(2030, 3, 1, 3, tzinfo=UTC), datetime(2030, 4, 1, 3, tzinfo=UTC)
     no_comeco = await criar_evento(db, coord, [TODOS], inicio=de)
     antes = await criar_evento(db, coord, [TODOS], inicio=de - timedelta(seconds=1))
     no_fim = await criar_evento(db, coord, [TODOS], inicio=ate)
     dentro = await criar_evento(db, coord, [TODOS], inicio=ate - timedelta(seconds=1))
-    # Começa antes e termina dentro: fica de fora, porque o filtro é pelo início.
+    # Começa antes e termina dentro: toca a janela.
     cruza = await criar_evento(
         db, coord, [TODOS], inicio=de - timedelta(hours=1), fim=de + timedelta(hours=1)
     )
+    # Termina exatamente quando a janela começa: não a toca.
+    encosta = await criar_evento(db, coord, [TODOS], inicio=de - timedelta(hours=1), fim=de)
 
     ids = await _ids(client, aluno, _q(de=de, ate=ate))
 
-    assert ids == [str(no_comeco.id), str(dentro.id)]
-    assert {str(antes.id), str(no_fim.id), str(cruza.id)}.isdisjoint(ids)
+    assert ids == [str(cruza.id), str(no_comeco.id), str(dentro.id)]
+    assert {str(antes.id), str(no_fim.id), str(encosta.id)}.isdisjoint(ids)
+
+
+async def test_evento_de_varios_dias_aparece_em_cada_dia_que_cobre(client, db, pessoas):
+    coord, aluno = pessoas
+    segunda = datetime(2030, 9, 2, 11, tzinfo=UTC)
+    semana = await criar_evento(
+        db, coord, [TODOS], inicio=segunda, fim=segunda + timedelta(days=2, hours=10)
+    )
+
+    for dia in range(3):
+        de = datetime(2030, 9, 2 + dia, 3, tzinfo=UTC)
+        assert await _ids(client, aluno, _q(de=de, ate=de + timedelta(days=1))) == [str(semana.id)]
+    quinta = datetime(2030, 9, 5, 3, tzinfo=UTC)
+    assert await _ids(client, aluno, _q(de=quinta, ate=quinta + timedelta(days=1))) == []
+
+
+async def test_evento_que_cruza_a_virada_do_mes_aparece_nos_dois(client, db, pessoas):
+    coord, aluno = pessoas
+    inicio = datetime(2030, 10, 30, 12, tzinfo=UTC)
+    evento = await criar_evento(db, coord, [TODOS], inicio=inicio, fim=inicio + timedelta(days=3))
+    outubro, novembro, dezembro = (datetime(2030, m, 1, 3, tzinfo=UTC) for m in (10, 11, 12))
+
+    assert await _ids(client, aluno, _q(de=outubro, ate=novembro)) == [str(evento.id)]
+    assert await _ids(client, aluno, _q(de=novembro, ate=dezembro)) == [str(evento.id)]
 
 
 async def test_so_de_ou_so_ate(client, db, pessoas):

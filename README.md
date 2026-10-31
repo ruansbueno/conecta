@@ -152,8 +152,9 @@ seja confundida com validação real.
 
 **2. Agenda e horários (E3)** — a especificação está pronta
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
-eventos e de horários contratados; faltam o plano, as tarefas e a implementação, além das fases
-F2 do aplicativo e da plataforma web.
+eventos e de horários contratados, e o [plano](projeto-api/specs/002-agenda-horarios/plan.md) e as
+[tarefas](projeto-api/specs/002-agenda-horarios/tasks.md) da API (28 tarefas). Faltam a
+implementação na API e as fases F2 do aplicativo e da plataforma web.
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.

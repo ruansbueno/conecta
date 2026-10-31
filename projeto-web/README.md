@@ -42,7 +42,7 @@ implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento]
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | ✅ Completa (10 de 10 fases) |
-| **F2** | Gestão de agenda e de horários das turmas | Planejada: [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md) e [`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md) (23 tarefas); a E3 já está na API |
+| **F2** | Gestão de agenda e de horários das turmas | Agenda pronta (fases 11 e 12, [#25](https://github.com/ruansbueno/conecta/pull/25)); faltam a grade de horários e o polimento (fases 13 e 14) — [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md), [`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md) |
 
 ## Stack
 

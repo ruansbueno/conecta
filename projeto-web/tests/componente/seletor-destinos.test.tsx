@@ -35,3 +35,21 @@ describe('abas do seletor de destinos (padrão ARIA de abas)', () => {
     expect(screen.getByRole('tab', { name: 'Grupos' })).toHaveFocus()
   })
 })
+
+describe('seletor de destinos no evento (plan-f2 D-F2-4)', () => {
+  it('fala de evento, não de aviso', async () => {
+    render(
+      <SeletorDestinos
+        assunto="evento"
+        turmas={[]}
+        jaEscolhidos={[{ tipo: 'todos' }]}
+        onAdicionar={vi.fn()}
+        onFechar={vi.fn()}
+      />,
+    )
+    await userEvent.click(screen.getByRole('tab', { name: 'Grupos' }))
+
+    expect(screen.getByText('Já está no evento')).toBeInTheDocument()
+    expect(screen.getByText(/1 destino no evento/)).toBeInTheDocument()
+  })
+})

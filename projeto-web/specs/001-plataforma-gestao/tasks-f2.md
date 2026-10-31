@@ -32,7 +32,7 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 - [x] T081 [P] Servidor falso: `/gestao/eventos` (filtros, `quando`, janela por sobreposição,
       ciclo de vida, versões, histórico) e `/gestao/turmas/{id}/horarios` (CRUD e conflitos),
       fiel ao contrato da E3 (D-F2-15)
-- [ ] T082 Navegação: item "Agenda" (administração, coordenação, docente) e as rotas de eventos;
+- [x] T082 Navegação: item "Agenda" (administração, coordenação, docente) e as rotas de eventos;
       teste em `tests/componente/layout.test.tsx` (D-F2-3, D-F2-13). O item "Horários" e as rotas
       da grade entram com as páginas deles, na T094
 
@@ -45,19 +45,19 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 - [x] T083 [P] [US7a] `tests/unit/agenda-abas.test.ts`: mapeamento das quatro abas para a
       consulta da API e o estado na URL (D-F2-1); `tests/unit/formulario-evento.test.ts`: regras
       do formulário (fim depois do início, campos opcionais, destinos) (D-F2-5)
-- [ ] T084 [P] [US7a] `tests/componente/agenda-lista.test.tsx`: cartões como na w-12 (data,
+- [x] T084 [P] [US7a] `tests/componente/agenda-lista.test.tsx`: cartões como na w-12 (data,
       tipo, faixa de horas, "até HH:MM", vários dias, local, chips), abas, filtro de tipo, busca,
       vazio, erro e carregando (D-F2-6)
-- [ ] T085 [P] [US7a] `tests/componente/calendario-mes.test.tsx`: dias da semana, navegação de
+- [x] T085 [P] [US7a] `tests/componente/calendario-mes.test.tsx`: dias da semana, navegação de
       mês, evento de vários dias em cada dia, "+N", clique no dia filtra a lista (D-F2-7)
-- [ ] T086 [P] [US7a] `tests/componente/editor-evento.test.tsx`: criar e editar, docente restrito
+- [x] T086 [P] [US7a] `tests/componente/editor-evento.test.tsx`: criar e editar, docente restrito
       às suas turmas, 422 marcando o campo da API, nada digitado se perde em erro ou sem rede,
       rascunho local (D-F2-5)
-- [ ] T087 [US7a] `paginas/eventos/lista.tsx`, `componentes/eventos/cartao-evento.tsx` e
+- [x] T087 [US7a] `paginas/eventos/lista.tsx`, `componentes/eventos/cartao-evento.tsx` e
       `calendario-mes.tsx`
-- [ ] T088 [US7a] `paginas/eventos/novo.tsx`, `editar.tsx` e `componentes/eventos/
+- [x] T088 [US7a] `paginas/eventos/novo.tsx`, `editar.tsx` e `componentes/eventos/
       formulario-evento.tsx`, reaproveitando o seletor de destinos comum
-- [ ] T089 [US7a] Ações (arquivar, desarquivar, excluir com confirmação) e
+- [x] T089 [US7a] Ações (arquivar, desarquivar, excluir com confirmação) e
       `paginas/eventos/historico.tsx` com a linha do tempo e as versões comuns (RW-34)
 
 **Checkpoint**: agenda completa na web.

@@ -16,9 +16,9 @@ import {
 } from '../../lib/formulario-aviso'
 import { ChipDestino, rotuloDestino } from '../comum/chip-destino'
 import { Icone } from '../comum/icone'
-import { DestinosDocente } from './destinos-docente'
+import { DestinosDocente } from '../comum/destinos-docente'
 import { PreviaApp } from './previa-app'
-import { SeletorDestinos } from './seletor-destinos'
+import { SeletorDestinos } from '../comum/seletor-destinos'
 
 const ORDEM_CAMPOS: CampoAviso[] = ['titulo', 'conteudo', 'destinos', 'publicar_em']
 const idCampo = (c: CampoAviso) => `aviso-${c}`

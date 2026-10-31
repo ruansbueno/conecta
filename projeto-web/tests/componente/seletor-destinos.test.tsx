@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { SeletorDestinos } from '../../src/componentes/avisos/seletor-destinos'
+import { SeletorDestinos } from '../../src/componentes/comum/seletor-destinos'
 
 function abrir() {
   render(<SeletorDestinos turmas={[]} jaEscolhidos={[]} onAdicionar={vi.fn()} onFechar={vi.fn()} />)

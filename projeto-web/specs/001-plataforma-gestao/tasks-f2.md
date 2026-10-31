@@ -26,9 +26,9 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 - [x] T079 [P] `src/api/recursos/eventos.ts` e `horarios.ts`: chamadas e esquemas `zod` de
       eventos, versões, histórico, horários e envelope com conflitos; testes do cliente em
       `tests/unit/eventos-recurso.test.ts` e `horarios-recurso.test.ts`
-- [ ] T080 Mover `seletor-destinos`, `destinos-docente`, `linha-do-tempo` e `versoes` para
+- [x] T080 Mover `seletor-destinos`, `destinos-docente` e `linha-do-tempo` para
       `componentes/comum/`, com o nome do assunto como parâmetro (D-F2-4); a suíte da F1 continua
-      verde sem mudar teste de aviso
+      verde sem mudar teste de aviso (só o caminho do import)
 - [ ] T081 [P] Servidor falso: `/gestao/eventos` (filtros, `quando`, janela por sobreposição,
       ciclo de vida, versões, histórico) e `/gestao/turmas/{id}/horarios` (CRUD e conflitos),
       fiel ao contrato da E3 (D-F2-15)

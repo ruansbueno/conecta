@@ -68,9 +68,9 @@ CSS grid.
   item "Horários" da barra lateral abre `/horarios`, que lista as turmas ativas e lembra a
   última escolhida (preferência local, sem dado sensível); o detalhe da turma (T08) ganha o link
   "Horários" (decisão de 31/10/2026).
-- **D-F2-4 — Componentes comuns.** `seletor-destinos`, `destinos-docente`, `linha-do-tempo` e
-  `versoes` saem de `componentes/avisos/` para `componentes/comum/`, com nomes neutros (o texto
-  "aviso" vira parâmetro). A mudança vem antes das telas novas, sem alterar comportamento: os
+- **D-F2-4 — Componentes comuns.** `seletor-destinos`, `destinos-docente` e `linha-do-tempo` saem de
+  `componentes/avisos/` para `componentes/comum/`; o texto "aviso" vira parâmetro (`assunto`). A
+  lista de versões fica em cada módulo: as versões do aviso e as do evento têm campos diferentes. A mudança vem antes das telas novas, sem alterar comportamento: os
   testes dos avisos continuam passando como estão.
 - **D-F2-5 — Editor de evento.** Mesmo padrão do editor de aviso (T04/T15): campos título, tipo,
   início, fim (opcional), local (opcional), descrição (opcional) e destinos; rascunho local sem o

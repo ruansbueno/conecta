@@ -95,4 +95,5 @@ não roda no banco migrado, nem o contrário. Para implantar: parar a API, rodar
 
 - **Integração real com o Moodle** (T072): implementar `MoodleAuthProvider` e preencher o
   checklist da `spec.md` §9.4 quando houver acesso à API da instituição (data-limite 13/11/2026).
-- **Entrega 3**: agenda e horários (`specs/002-agenda-horarios`), com plano e tarefas a gerar.
+- **Entrega 3**: agenda e horários (`specs/002-agenda-horarios`), com plano e tarefas prontos e a
+  implementação por fazer.

@@ -191,10 +191,15 @@ projeto: toda tabela começa com `tb_`, e toda coluna tem um prefixo que diz o q
 Decisões: a data de criação é `dt_cadastro` em todas as tabelas (a de atualização, `dt_atualizacao`);
 o vínculo usa o nome do ER, `tb_usuario_turma`; o log do aviso passa a ser `tb_aviso_historico`,
 o que deixa "evento" livre para a agenda. A **estrutura** continua a desta página (destino com
-tipo, vínculo com papel e origem); o ER foi seguido só nos nomes. Nomes de restrição e de índice
-derivam desses nomes pela `NAMING_CONVENTION` de `src/db/base.py`. Um teste
-(`tests/integration/test_nomenclatura_banco.py`) confere o padrão no banco migrado e que models e
-migrações descrevem o mesmo esquema.
+tipo, vínculo com papel e origem); o ER foi seguido só nos nomes.
+
+Restrições e índices começam pelo tipo e pela tabela, como manda a `NAMING_CONVENTION` de
+`src/db/base.py` (`pk_tb_usuario`, `fk_tb_aviso_id_usuario_tb_usuario`). Os sufixos dados à mão
+mantêm os termos do domínio (`ck_tb_turma_semestre_curso_valido`,
+`uq_tb_usuario_turma_turma_usuario`): quem precisar do nome de uma restrição consulta o model, não
+a convenção. `tests/integration/test_nomenclatura_banco.py` confere no banco migrado o padrão das
+tabelas e colunas, os nomes de restrições e triggers e que o autogenerate não vê diferença entre
+models e migrações.
 
 **Usuario** → `tb_usuario`
 

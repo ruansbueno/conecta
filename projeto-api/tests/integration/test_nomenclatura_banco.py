@@ -70,6 +70,32 @@ def test_models_e_migracoes_descrevem_o_mesmo_esquema(migrated_db):
     assert asyncio.run(comparar()) == []
 
 
+def test_nomes_de_restricoes_e_triggers_no_banco_sao_os_dos_models(migrated_db):
+    # compare_metadata não olha nomes de CHECK, PK e FK nem triggers; o catálogo, sim.
+    async def ler():
+        engine = create_async_engine(migrated_db, poolclass=NullPool)
+        async with engine.connect() as conn:
+            restricoes = set(
+                await conn.scalars(
+                    text(
+                        "SELECT conname FROM pg_constraint "
+                        "WHERE connamespace = 'public'::regnamespace "
+                        "AND conrelid <> 'alembic_version'::regclass"
+                    )
+                )
+            )
+            triggers = set(
+                await conn.scalars(text("SELECT tgname FROM pg_trigger WHERE NOT tgisinternal"))
+            )
+        await engine.dispose()
+        return restricoes, triggers
+
+    restricoes, triggers = asyncio.run(ler())
+
+    assert restricoes == {c.name for t in Base.metadata.sorted_tables for c in t.constraints}
+    assert triggers == {"tb_aviso_versao_imutavel", "tb_aviso_historico_imutavel"}
+
+
 def test_renomear_preserva_os_dados_e_volta_atras(migrated_db):
     cfg = Config(os.path.join(os.path.dirname(__file__), "..", "..", "alembic.ini"))
     usuario, turma = uuid.uuid4(), uuid.uuid4()

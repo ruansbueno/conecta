@@ -84,6 +84,13 @@ Toda criação, edição, arquivamento, desarquivamento e exclusão grava, na me
 versão completa (quando há conteúdo novo) e um evento com usuário, data e o que mudou. As tabelas
 `tb_aviso_versao` e `tb_aviso_historico` são imutáveis: o próprio banco recusa `UPDATE` e `DELETE`.
 
+## Implantar uma migração que renomeia
+
+A migração `5b7d2e9a4c13` (nomenclatura do banco, 31/10/2026) só renomeia, mas o código anterior
+não roda no banco migrado, nem o contrário. Para implantar: parar a API, rodar
+`alembic upgrade head` e subir o código novo. Para voltar o código, rode antes
+`alembic downgrade 9e05f46bf9bf`.
+
 ## Pendente
 
 - **Integração real com o Moodle** (T072): implementar `MoodleAuthProvider` e preencher o

@@ -7,8 +7,9 @@ from src.core.security import apenas_aluno, get_current_user
 from src.db.session import get_session
 from src.models.usuario import Usuario
 from src.schemas.common import Page, PaginationParams
+from src.schemas.horario import HorarioOut
 from src.schemas.turma import SolicitacaoOut, TurmaMinhaOut, TurmaOut
-from src.services import turma_service
+from src.services import horarios_service, turma_service
 
 router = APIRouter(prefix="/turmas", tags=["turmas"])
 
@@ -54,3 +55,21 @@ async def solicitar(
 ) -> SolicitacaoOut:
     solicitacao = await turma_service.solicitar(session, aluno, turma_id)
     return SolicitacaoOut.model_validate(solicitacao)
+
+
+@router.get("/{turma_id}/horarios", response_model=Page[HorarioOut])
+async def horarios(
+    turma_id: uuid.UUID,
+    page: PaginationParams = Depends(),
+    usuario: Usuario = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> Page[HorarioOut]:
+    itens, total = await horarios_service.consultar(
+        session, usuario, turma_id, page.limit, page.offset
+    )
+    return Page(
+        items=[HorarioOut.model_validate(h) for h in itens],
+        total=total,
+        limit=page.limit,
+        offset=page.offset,
+    )

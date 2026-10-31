@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from http.cookies import SimpleCookie
 
 from sqlalchemy import update
@@ -8,6 +8,7 @@ from src.api.deps.csrf import gerar_csrf
 from src.core.security import create_access_token
 from src.models.aviso import Aviso, AvisoDestino
 from src.models.evento import Evento, EventoDestino
+from src.models.horario import Horario
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -114,6 +115,19 @@ async def criar_evento(db, autor, destinos, **campos):
     db.add(evento)
     await db.commit()
     return evento
+
+
+async def criar_horario(db, turma, **campos):
+    """Aula da grade direto no banco; horas como "HH:MM"."""
+    campos.setdefault("dia_semana", 1)
+    campos.setdefault("disciplina", "Banco de Dados II")
+    for campo, padrao in (("inicio", "19:10"), ("fim", "20:50")):
+        valor = campos.get(campo, padrao)
+        campos[campo] = time.fromisoformat(valor) if isinstance(valor, str) else valor
+    horario = Horario(turma_id=turma.id, **campos)
+    db.add(horario)
+    await db.commit()
+    return horario
 
 
 TODOS = {"tipo": "todos"}

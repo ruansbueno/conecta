@@ -26,6 +26,7 @@ from src.models.evento_versao import EventoVersao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.repositories.auditoria_repository import AuditoriaEventoRepository, destinos_canonicos
+from src.repositories.evento_repository import na_janela
 from src.schemas.gestao.eventos import EventoCreate, EventoPatch
 from src.services.destinos import (
     destinos_atuais,
@@ -130,11 +131,8 @@ async def listar(
         stmt = stmt.where(
             exists().where(EventoDestino.evento_id == Evento.id, EventoDestino.turma_id == turma_id)
         )
-    # Mesmo intervalo semiaberto da consulta (plan D-E3-3); a gestão vê também os encerrados.
-    if de is not None:
-        stmt = stmt.where(Evento.inicio >= de)
-    if ate is not None:
-        stmt = stmt.where(Evento.inicio < ate)
+    # Mesma janela da consulta (plan D-E3-3); a gestão vê também os encerrados.
+    stmt = stmt.where(*na_janela(de, ate))
     if q:
         termo = f"%{q.strip()}%"
         stmt = stmt.where(

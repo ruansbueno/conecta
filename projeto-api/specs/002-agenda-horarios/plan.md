@@ -79,10 +79,12 @@ Avaliação contra `.specify/memory/constitution.md` v2.0.0:
     `hr_fim`, `nm_disciplina` (texto, como na spec), `nm_local`, `id_usuario_docente`.
 
   Nos models, os atributos usam os nomes do contrato (`titulo`, `inicio`, `disciplina`…).
-- **D-E3-3 — Intervalo da consulta (RF-38).** `de` e `ate` filtram por `inicio` no intervalo
-  semiaberto `[de, ate)`, para que a visão de mês peça "do dia 1 ao dia 1 do mês seguinte" sem
-  sobreposição. Só `de` ou só `ate` valem sozinhos. `ate < de` dá 422; `ate == de` é intervalo
-  vazio, não erro.
+- **D-E3-3 — Intervalo da consulta (RF-38).** `de` e `ate` formam a janela semiaberta `[de, ate)`,
+  para que a visão de mês peça "do dia 1 ao dia 1 do mês seguinte". **Emenda de 31/10/2026**: entra
+  todo evento que **toca** a janela (`inicio < ate` e, com `fim`, `fim > de`; sem `fim`,
+  `inicio >= de`), e não só os que começam nela — uma semana acadêmica aparece em cada dia e em
+  cada mês que cobre. A gestão usa a mesma regra. Só `de` ou só `ate` valem sozinhos. `ate < de`
+  dá 422; `ate == de` é intervalo vazio, não erro.
 - **D-E3-4 — Encerrado.** Um evento está encerrado quando `COALESCE(fim, inicio) < now()`. Com
   `incluir_encerrados=false` (padrão), a consulta tira os encerrados. Um evento em andamento
   (começou e ainda não terminou) **aparece**. Sem `de` nem `ate`, a lista é "a partir de agora":
@@ -109,16 +111,20 @@ Avaliação contra `.specify/memory/constitution.md` v2.0.0:
     caixa, espaços colapsados); horário sem local nunca conflita por sala;
   - **docente**: mesmo `docente_id`; horário sem docente nunca conflita por docente.
 
-  O próprio horário fica de fora da comparação na edição. Um mesmo horário pode aparecer duas vezes
+  O próprio horário fica de fora da comparação na edição, e um horário de turma inativa não
+  recebe conflitos (as aulas dela não acontecem). Um mesmo horário pode aparecer duas vezes
   na lista, uma por tipo. A normalização é feita em Python sobre os candidatos já filtrados no SQL
   por dia, período e sobreposição (a grade de um período é pequena), sem extensão `unaccent`.
 - **D-E3-10 — Grade de turma inativa.** `GET /turmas/{id}/horarios` de turma inativa dá 404
   `TURMA_NAO_ENCONTRADA` para todos os perfis (decisão de 31/10/2026); a gestão continua vendo a
   grade por `/gestao/turmas/{id}/horarios`. Vínculo de qualquer papel dá acesso; administração e
-  coordenação consultam qualquer turma ativa.
+  coordenação consultam qualquer turma ativa. Todas as rotas de `/gestao/turmas/{id}/horarios`,
+  inclusive a leitura, são só de administração e coordenação: o docente consulta a grade pela rota
+  dos clientes, como os alunos.
 - **D-E3-11 — Docente do horário.** `docente_id` precisa existir (404 `USUARIO_NAO_ENCONTRADO`) e
   ter perfil `docente` (409 `PERFIL_INCOMPATIVEL`, RF-47). Um docente desativado continua aceito: o
-  que a regra pede é o perfil, e a coordenação decide se troca (spec, casos de borda).
+  que a regra pede é o perfil, e a coordenação decide se troca (spec, casos de borda). Na edição, o
+  docente só é conferido quando muda: reenviar o atual, que perdeu o perfil, não trava o `PATCH`.
 - **D-E3-12 — Horário não tem auditoria.** Como no contrato: remoção física, sem versões e sem
   histórico. `PATCH` com corpo vazio ou sem mudança dá 422, como nas demais rotas de gestão.
 - **D-E3-13 — Concorrência.** Escritas de evento travam a linha (`SELECT … FOR UPDATE`), como as

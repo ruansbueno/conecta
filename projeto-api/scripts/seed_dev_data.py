@@ -1,13 +1,14 @@
 """Dados fictícios de desenvolvimento: `python -m scripts.seed_dev_data`.
 
 Cria (ou restaura) os usuários de teste do MockMoodleAuthProvider com seus perfis, as turmas
-A, B, C (3º semestre) e D (5º), vínculos e solicitações de exemplo. Na E1 o perfil só muda por
+A, B, C (3º semestre) e D (5º), vínculos e solicitações de exemplo, avisos e, na E3, eventos da
+agenda e a grade de horários. Na E1 o perfil só muda por
 aqui; na E2, pelo administrador (RF-08). Pode ser executado várias vezes.
 """
 
 import asyncio
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 
 from sqlalchemy import exists, func, select
 from sqlalchemy.dialects.postgresql import insert
@@ -18,11 +19,15 @@ from src.db.session import get_sessionmaker
 from src.models.aviso import Aviso, AvisoDestino
 from src.models.aviso_evento import AvisoEvento
 from src.models.aviso_versao import AvisoVersao
+from src.models.evento import Evento
+from src.models.horario import Horario
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
 from src.providers.auth.mock_moodle import USUARIOS_TESTE
+from src.schemas.gestao.eventos import EventoCreate, EventoPatch
+from src.services import eventos_gestao_service
 
 PERFIS_TESTE: dict[str, str] = {
     "admin.conecta": "administrador",  # administrador de implantação
@@ -71,6 +76,62 @@ AVISOS_TESTE_TITULOS: dict[str, str] = {
     "excluido": "Aviso publicado por engano",
 }
 
+# Eventos da agenda, com datas relativas à primeira execução do seed. Cada um é reconhecido
+# pelo título: depois de criado, nada mais é reescrito (versões e histórico são imutáveis).
+# título: (autor, tipo, início em horas a partir de agora, duração em horas ou None, local,
+#          destinos, operação extra)
+EVENTOS_TESTE: dict[str, tuple] = {
+    "Semana acadêmica": ("coord.teste", "palestra", -24, 72, "Auditório", ["todos"], None),
+    "Palestra: carreira em TI": (
+        "coord.teste",
+        "palestra",
+        7 * 24,
+        2,
+        "Auditório",
+        ["todos"],
+        None,
+    ),
+    "Prova de Banco de Dados II": (
+        "docente.teste",
+        "prova",
+        10 * 24,
+        2,
+        "Lab 4",
+        ["turma:TADS-3A-2026-2"],
+        None,
+    ),
+    "Defesas de TCC II": (
+        "coord.teste",
+        "banca",
+        14 * 24,
+        4,
+        "Sala 203",
+        ["semestre:5", "docentes"],
+        "remarcar",
+    ),
+    "Reunião de colegiado": ("coord.teste", "reuniao", -3 * 24, 2, "Sala 101", ["docentes"], None),
+    "Formatura 2026/1": ("coord.teste", "formatura", -60 * 24, 3, "Ginásio", ["todos"], "arquivar"),
+    "Prazo de rematrícula": (
+        "coord.teste",
+        "data_importante",
+        20 * 24,
+        None,
+        None,
+        ["todos"],
+        None,
+    ),
+}
+
+# (codigo da turma, dia_semana, início, fim, disciplina, local, docente) — 3A e 3B dividem o
+# Lab 4 na segunda às 19h10, de propósito, para a web mostrar um conflito de sala.
+HORARIOS_TESTE = [
+    ("TADS-3A-2026-2", 1, "19:10", "20:50", "Banco de Dados II", "Lab 4", "docente.teste"),
+    ("TADS-3A-2026-2", 1, "21:00", "22:40", "Engenharia de Software", "Sala 203", None),
+    ("TADS-3A-2026-2", 3, "19:10", "20:50", "Redes de Computadores", "Lab 5", None),
+    ("TADS-3B-2026-2", 1, "19:10", "20:50", "Algoritmos", "lab 4", None),
+    ("TADS-5A-2026-2", 4, "19:10", "22:40", "Projeto Integrador", "Sala 301", "docente.teste"),
+]
+
 # Ids fixos derivados da chave: o seed reconhece os avisos que já criou.
 _NAMESPACE_AVISOS = uuid.UUID("5f0c8a52-3c1e-4a8e-9b1d-2e6f7a9c0d13")
 
@@ -88,7 +149,10 @@ async def seed(session: AsyncSession) -> None:
     await _vinculos(session, usuarios, turmas)
     await _solicitacoes(session, usuarios, turmas)
     await _avisos(session, usuarios, turmas)
+    await _horarios(session, usuarios, turmas)
     await session.commit()
+    # Por último: o serviço de gestão grava cada evento com versão e histórico e faz commit.
+    await _eventos(session, turmas)
 
 
 async def _usuarios(session: AsyncSession) -> None:
@@ -287,13 +351,68 @@ async def _auditoria(session, chave, aviso_id, autor, destinos, conteudo, extras
     await session.flush()
 
 
+def _destino(texto: str, turmas: dict) -> dict:
+    tipo, _, valor = texto.partition(":")
+    if tipo == "turma":
+        return {"tipo": "turma", "turma_id": turmas[valor]}
+    if tipo == "semestre":
+        return {"tipo": "semestre", "semestre": int(valor)}
+    return {"tipo": tipo}
+
+
+async def _eventos(session: AsyncSession, turmas: dict) -> None:
+    existentes = set(await session.scalars(select(Evento.titulo)))
+    agora = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    for titulo, (username, tipo, horas, duracao, local, destinos, extra) in EVENTOS_TESTE.items():
+        if titulo in existentes:
+            continue
+        autor = await session.scalar(select(Usuario).where(Usuario.username == username))
+        inicio = agora + timedelta(hours=horas)
+        dados = EventoCreate(
+            titulo=titulo,
+            tipo=tipo,
+            inicio=inicio,
+            fim=inicio + timedelta(hours=duracao) if duracao else None,
+            local=local,
+            destinos=[_destino(d, turmas) for d in destinos],
+        )
+        evento = await eventos_gestao_service.criar(session, autor, dados)
+        if extra == "remarcar":
+            await eventos_gestao_service.editar(
+                session, autor, evento.id, EventoPatch(local="Lab 4")
+            )
+        elif extra == "arquivar":
+            await eventos_gestao_service.arquivar(session, autor, evento.id)
+
+
+async def _horarios(session: AsyncSession, usuarios: dict, turmas: dict) -> None:
+    """A grade de uma turma só é semeada enquanto ela não tem nenhuma aula."""
+    com_grade = set(await session.scalars(select(Horario.turma_id).distinct()))
+    for codigo, dia, inicio, fim, disciplina, local, docente in HORARIOS_TESTE:
+        if turmas[codigo] in com_grade:
+            continue
+        session.add(
+            Horario(
+                turma_id=turmas[codigo],
+                dia_semana=dia,
+                inicio=time.fromisoformat(inicio),
+                fim=time.fromisoformat(fim),
+                disciplina=disciplina,
+                local=local,
+                docente_id=usuarios[docente] if docente else None,
+            )
+        )
+    await session.flush()
+
+
 async def main() -> None:
     async with get_sessionmaker()() as session:
         await seed(session)
     print(
         f"Seed concluído: {len(PERFIS_TESTE)} usuários de teste (senha: senha-teste), "
         f"{len(TURMAS_TESTE)} turmas, {len(VINCULOS_TESTE)} vínculos, "
-        f"{len(AVISOS_TESTE_TITULOS)} avisos."
+        f"{len(AVISOS_TESTE_TITULOS)} avisos, {len(EVENTOS_TESTE)} eventos, "
+        f"{len(HORARIOS_TESTE)} horários."
     )
 
 

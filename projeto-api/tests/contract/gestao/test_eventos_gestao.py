@@ -31,6 +31,14 @@ async def test_gestao_ve_todos_menos_excluidos_por_inicio_crescente(client, coor
     assert await _ids(client, coord) == [passado["id"], cedo["id"], tarde["id"]]
 
 
+async def test_intervalo_da_gestao_tambem_e_por_sobreposicao(client, coord, cadastrar):
+    semana = await cadastrar(coord, inicio="2030-09-02T11:00:00Z", fim="2030-09-04T21:00:00Z")
+
+    assert await _ids(client, coord, "de=2030-09-03T03:00:00Z&ate=2030-09-04T03:00:00Z") == [
+        semana["id"]
+    ]
+
+
 async def test_docente_ve_so_os_que_criou(client, db, coord, docente, cadastrar):
     turma = await criar_turma(db)
     await vincular(db, turma, docente.id, papel="docente")

@@ -202,3 +202,17 @@ async def test_filtro_por_turma_alheia_nao_vaza(client, coord, aluno, db):
     r = await client.get(f"/eventos?turma_id={alheia.id}", headers=bearer(aluno))
 
     assert (r.status_code, r.json()["total"]) == (200, 0)
+
+
+async def test_ate_igual_a_de_e_vazio_mesmo_com_evento_em_andamento_no_instante(
+    client, coord, aluno, db
+):
+    inicio = datetime(2026, 11, 10, 11, tzinfo=UTC)
+    await criar_evento(db, coord, [TODOS], inicio=inicio, fim=inicio + timedelta(hours=2))
+
+    r = await client.get(
+        "/eventos?de=2026-11-10T12:00:00Z&ate=2026-11-10T12:00:00Z&incluir_encerrados=true",
+        headers=bearer(aluno),
+    )
+
+    assert (r.status_code, r.json()["total"]) == (200, 0)

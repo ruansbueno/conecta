@@ -99,17 +99,17 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 5: US4 — Montar a grade de horários (RF-43, RF-44, RF-46, RF-47)
 
-- [ ] T018 [P] [US4] Unit test `tests/unit/test_conflito_horario.py`: normalização do local
+- [x] T018 [P] [US4] Unit test `tests/unit/test_conflito_horario.py`: normalização do local
       (acento, caixa, espaços), sobreposição estrita (encostar não conflita) e horário sem local ou
       sem docente
-- [ ] T019 [P] [US4] Contract test do CRUD de `/gestao/turmas/{id}/horarios` (201/200 com o
+- [x] T019 [P] [US4] Contract test do CRUD de `/gestao/turmas/{id}/horarios` (201/200 com o
       envelope `horario` + `conflitos`, 422 de dia, hora e campos, 404 de turma, horário de outra
       turma e docente, 409 `PERFIL_INCOMPATIVEL`, 403 docente e aluno, `DELETE` 204) em
       `tests/contract/gestao/test_horarios_crud.py`
-- [ ] T020 [P] [US4] Contract test dos conflitos: sala e docente informados e gravação aceita; turma
+- [x] T020 [P] [US4] Contract test dos conflitos: sala e docente informados e gravação aceita; turma
       de outro período ou inativa não conflita; o próprio horário fora na edição; os dois tipos ao
       mesmo tempo, em `tests/contract/gestao/test_horarios_conflito.py` (SC-E3-004)
-- [ ] T021 [US4] `services/conflitos.py`, `repositories/horario_repository.py`,
+- [x] T021 [US4] `services/conflitos.py`, `repositories/horario_repository.py`,
       `services/horarios_service.py` (gestão), `schemas/horario.py`, `schemas/gestao/horarios.py` e
       rotas de `/gestao/turmas/{id}/horarios`
 
@@ -117,25 +117,25 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 6: US5 — Consultar os horários da turma (RF-45)
 
-- [ ] T022 [P] [US5] Integration test: vínculo de qualquer papel consulta, ordenado por dia e hora;
+- [x] T022 [P] [US5] Integration test: vínculo de qualquer papel consulta, ordenado por dia e hora;
       sem vínculo, 403 `SEM_PERMISSAO`, exceto administração e coordenação; turma inativa, 404 para
       todos; turma sem grade, lista vazia, em `tests/integration/test_horario_acesso_por_vinculo.py`
-- [ ] T023 [US5] Consulta em `horarios_service` e rota `GET /turmas/{id}/horarios`
+- [x] T023 [US5] Consulta em `horarios_service` e rota `GET /turmas/{id}/horarios`
 
 ---
 
 ## Phase 7: Ponta a ponta e polimento
 
-- [ ] T024 [P] Matriz de permissões da E3 em `tests/contract/gestao/test_permissoes_matriz_e3.py`:
+- [x] T024 [P] Matriz de permissões da E3 em `tests/contract/gestao/test_permissoes_matriz_e3.py`:
       cada rota de eventos e horários × quatro perfis (spec §2.3, RF-43)
-- [ ] T025 [P] E2E `tests/e2e/test_fluxo_agenda.py`: a coordenação cria um evento para duas turmas
+- [x] T025 [P] E2E `tests/e2e/test_fluxo_agenda.py`: a coordenação cria um evento para duas turmas
       e a grade de uma delas; um aluno de uma das turmas vê o evento uma vez e a grade; um aluno de
       outra turma não vê nada (SC-E3-001, SC-E3-005)
-- [ ] T026 Seed: eventos de exemplo (próximos, em andamento, encerrados neste mês, um arquivado e
+- [x] T026 Seed: eventos de exemplo (próximos, em andamento, encerrados neste mês, um arquivado e
       um editado com histórico) e a grade das turmas de teste, com um conflito de sala, idempotente
-- [ ] T027 [P] Atualizar o `README.md` da API, o `quickstart.md` (fluxos com `curl`), o checklist da
+- [x] T027 [P] Atualizar o `README.md` da API, o `quickstart.md` (fluxos com `curl`), o checklist da
       spec (`plan.md` e `tasks.md` gerados) e o `ER.architect` pelo gerador (fora do commit)
-- [ ] T028 Validação manual do quickstart da E3 e evidência de testes em `evidencias/`
+- [x] T028 Validação manual do quickstart da E3 e evidência de testes em `evidencias/`
 
 **Checkpoint**: E3 completa na API; as fases F2 do app e da web podem começar.
 

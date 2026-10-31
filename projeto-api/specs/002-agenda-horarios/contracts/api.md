@@ -48,8 +48,10 @@ Eventos visíveis ao usuário, do mais próximo ao mais distante por `inicio`.
 | `turma_id` | — | UUID; filtra eventos com destino `turma` igual a esse id |
 | `limit` / `offset` | 20 / 0 | ver Paginação |
 
-`de` e `ate` filtram por `inicio` no intervalo **semiaberto** `[de, ate)`: a visão de mês pede do
-dia 1 ao dia 1 do mês seguinte, sem sobreposição. Cada um vale sozinho; `ate` igual a `de` é
+`de` e `ate` formam a janela **semiaberta** `[de, ate)`: a visão de mês pede do dia 1 ao dia 1 do
+mês seguinte. Entra todo evento que **toca** a janela — começa antes de `ate` e termina depois de
+`de` (sem `fim`, começa em `de` ou depois) —, de modo que um evento de vários dias aparece em cada
+dia e em cada mês que cobre. Cada um vale sozinho; `ate` igual a `de` é
 intervalo vazio. Um evento está **encerrado** quando o `fim` — ou o `inicio`, se não houver `fim` —
 já passou; um evento em andamento não está encerrado. Sem `de` e `ate`, devolve os eventos a partir
 de agora (os não encerrados). Com `situacao=arquivado`, `incluir_encerrados` não se aplica: a lista
@@ -181,8 +183,8 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 **Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `tipo`,
 `autor_id`, `turma_id`, `de`, `ate`, `q`, `limit`, `offset`.
 
-**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` como na
-seção 1; não há filtro de encerrados na gestão.
+**200**: lista paginada de eventos de gestão, na ordem de `inicio` crescente. `de`/`ate` com a
+mesma janela da seção 1; não há filtro de encerrados na gestão.
 
 ---
 
@@ -300,7 +302,8 @@ Funcionam também para eventos excluídos (administração e coordenação).
 ```
 
 **`conflitos` nunca impede a criação** (RF-44): é informação para quem está cadastrando. Vem vazio
-quando não há sobreposição. Tipos: `sala` (mesmo `local`, comparação normalizada — sem acento,
+quando não há sobreposição, e sempre vazio para horário de turma inativa. Texto é gravado sem os
+espaços das pontas; `local` só de espaços dá 422. Tipos: `sala` (mesmo `local`, comparação normalizada — sem acento,
 sem diferença de maiúsculas e minúsculas, espaços colapsados) e `docente` (mesmo `docente_id`).
 
 **Erros**: 403 `SEM_PERMISSAO`; 404 `TURMA_NAO_ENCONTRADA`; 404 `USUARIO_NAO_ENCONTRADO`
@@ -332,7 +335,7 @@ Parcial; mesmos campos e validações de `POST`. **200**: mesmo envelope de `201
 Remoção **física**: horário não guarda histórico, por ser dado de configuração da grade, não
 comunicação. **204**.
 
-**Erros**: 403; 404 `HORARIO_NAO_ENCONTRADO`.
+**Erros**: 403; 404 `TURMA_NAO_ENCONTRADA` / `HORARIO_NAO_ENCONTRADO`.
 
 **Maps to**: RF-43.
 

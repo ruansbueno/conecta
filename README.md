@@ -114,7 +114,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 28/10/2026 (F1 da web completa). Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 31/10/2026 (CSRF assinado na API). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -137,6 +137,7 @@ achados corrigidos com teste antes do merge.
 | **Web — fase 9** | Painel da coordenação e do docente (números do `total` das listas, blocos que falham sozinhos), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | Vitest + Playwright | [#10](https://github.com/ruansbueno/conecta/pull/10) |
 | **Web — pontos menores** | Os achados menores das revisões das fases 5 a 9: textos e datas, carregamento e mensagens das listas, foco e leitores de tela, comportamento das telas e um servidor falso mais fiel à API | 271 testes (Vitest) + 30 de ponta a ponta (Playwright) | [#11](https://github.com/ruansbueno/conecta/pull/11) |
 | **Web — fase 10** | Mensagens de erro conferidas contra a spec, axe (WCAG 2.1 AA) em todas as telas, uso só com teclado do login à exclusão de um aviso, nada digitado se perde sem rede, [evidências](projeto-web/evidencias/RELATORIO.md) com capturas ao lado do design e implantação estática com nginx verificada em Docker | 275 testes (Vitest) + 47 de ponta a ponta (Playwright) + 6 da implantação | [#13](https://github.com/ruansbueno/conecta/pull/13) |
+| **API — CSRF assinado** | Emenda v2.2 (RF-33): o token CSRF da web passa a ser assinado com chave própria (`CSRF_SECRET`) e preso à sessão; token de outra sessão, adulterado ou sem assinatura é recusado | 594 testes (API) + 8 da implantação contra a API real | [#19](https://github.com/ruansbueno/conecta/pull/19) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.

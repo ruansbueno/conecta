@@ -177,6 +177,110 @@ export const eventoSchema = z
   .transform(({ ocorrido_em, ...e }) => ({ ...e, ocorridoEm: ocorrido_em }))
 export type EventoHistorico = z.infer<typeof eventoSchema>
 
+// --- Agenda (E3, contracts §4–9). "Evento" aqui é o da agenda; o do histórico é `eventoSchema`.
+
+export const eventoAgendaSchema = z
+  .object({
+    id: z.string(),
+    titulo: z.string(),
+    descricao: z.string().nullable(),
+    tipo: z.string(),
+    inicio: data,
+    fim: dataOuNulo,
+    local: z.string().nullable(),
+    autor: pessoaSchema,
+    situacao: z.string(),
+    versao_atual: z.number(),
+    criado_em: data,
+    editado_em: dataOuNulo,
+    arquivado_em: dataOuNulo,
+    destinos: z.array(destinoSchema),
+  })
+  .transform((e) => ({
+    id: e.id,
+    titulo: e.titulo,
+    descricao: e.descricao,
+    tipo: e.tipo,
+    inicio: e.inicio,
+    fim: e.fim,
+    local: e.local,
+    autor: e.autor,
+    situacao: e.situacao,
+    versaoAtual: e.versao_atual,
+    criadoEm: e.criado_em,
+    editadoEm: e.editado_em,
+    arquivadoEm: e.arquivado_em,
+    destinos: e.destinos,
+  }))
+export type EventoAgenda = z.infer<typeof eventoAgendaSchema>
+
+export const versaoEventoSchema = z
+  .object({
+    versao: z.number(),
+    titulo: z.string(),
+    descricao: z.string().nullable(),
+    tipo: z.string(),
+    inicio: data,
+    fim: dataOuNulo,
+    local: z.string().nullable(),
+    destinos: z.array(
+      z.object({ tipo: z.string(), turma_id: z.string().nullable(), semestre: z.number().nullable() }),
+    ),
+    criada_por: pessoaSchema,
+    criada_em: data,
+  })
+  .transform(({ criada_por, criada_em, ...v }) => ({ ...v, criadaPor: criada_por, criadaEm: criada_em }))
+export type VersaoEvento = z.infer<typeof versaoEventoSchema>
+
+// --- Grade de horários (E3, contracts §3, §10–13). Horas em "HH:MM", sem data.
+
+export const aulaSchema = z
+  .object({
+    id: z.string(),
+    turma_id: z.string(),
+    dia_semana: z.number(),
+    inicio: z.string(),
+    fim: z.string(),
+    disciplina: z.string(),
+    local: z.string().nullable(),
+    docente: pessoaSchema.nullable(),
+  })
+  .transform((a) => ({
+    id: a.id,
+    turmaId: a.turma_id,
+    diaSemana: a.dia_semana,
+    inicio: a.inicio,
+    fim: a.fim,
+    disciplina: a.disciplina,
+    local: a.local,
+    docente: a.docente,
+  }))
+export type Aula = z.infer<typeof aulaSchema>
+
+export const conflitoSchema = z
+  .object({
+    tipo: z.string(),
+    local: z.string().nullable(),
+    horario_id: z.string(),
+    turma: z.object({ id: z.string(), codigo: z.string(), nome: z.string() }),
+    inicio: z.string(),
+    fim: z.string(),
+  })
+  .transform(({ horario_id, ...c }) => ({
+    tipo: c.tipo,
+    local: c.local,
+    horarioId: horario_id,
+    turma: c.turma,
+    inicio: c.inicio,
+    fim: c.fim,
+  }))
+export type Conflito = z.infer<typeof conflitoSchema>
+
+export const aulaComConflitosSchema = z.object({
+  horario: aulaSchema,
+  conflitos: z.array(conflitoSchema),
+})
+
 export const paginaSchema = <T extends z.ZodType>(item: T) =>
   z.object({ items: z.array(item), total: z.number(), limit: z.number(), offset: z.number() })
 export type Pagina<T> = { items: T[]; total: number; limit: number; offset: number }

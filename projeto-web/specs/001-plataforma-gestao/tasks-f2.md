@@ -19,22 +19,22 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 11: Base da F2 (bloqueia as demais)
 
-- [ ] T078 API: `GET /gestao/eventos?quando=proximos|realizados` (D-F2-2), com teste de contrato
+- [x] T078 API: `GET /gestao/eventos?quando=proximos|realizados` (D-F2-2), com teste de contrato
       em `projeto-api/tests/contract/gestao/test_eventos_gestao.py` (não encerrados em ordem
       crescente; encerrados em ordem decrescente; em andamento só em `proximos`; valor inválido
       dá 422) e emenda ao contrato da E3 §5
-- [ ] T079 [P] `src/api/recursos/eventos.ts` e `horarios.ts`: chamadas e esquemas `zod` de
+- [x] T079 [P] `src/api/recursos/eventos.ts` e `horarios.ts`: chamadas e esquemas `zod` de
       eventos, versões, histórico, horários e envelope com conflitos; testes do cliente em
       `tests/unit/eventos-recurso.test.ts` e `horarios-recurso.test.ts`
-- [ ] T080 Mover `seletor-destinos`, `destinos-docente`, `linha-do-tempo` e `versoes` para
+- [x] T080 Mover `seletor-destinos`, `destinos-docente` e `linha-do-tempo` para
       `componentes/comum/`, com o nome do assunto como parâmetro (D-F2-4); a suíte da F1 continua
-      verde sem mudar teste de aviso
-- [ ] T081 [P] Servidor falso: `/gestao/eventos` (filtros, `quando`, janela por sobreposição,
+      verde sem mudar teste de aviso (só o caminho do import)
+- [x] T081 [P] Servidor falso: `/gestao/eventos` (filtros, `quando`, janela por sobreposição,
       ciclo de vida, versões, histórico) e `/gestao/turmas/{id}/horarios` (CRUD e conflitos),
       fiel ao contrato da E3 (D-F2-15)
-- [ ] T082 Navegação: itens "Agenda" (administração, coordenação, docente) e "Horários"
-      (administração, coordenação); rotas novas registradas com a guarda de perfil (D-F2-3,
-      D-F2-13); teste em `tests/unit/navegacao.test.ts`
+- [x] T082 Navegação: item "Agenda" (administração, coordenação, docente) e as rotas de eventos;
+      teste em `tests/componente/layout.test.tsx` (D-F2-3, D-F2-13). O item "Horários" e as rotas
+      da grade entram com as páginas deles, na T094
 
 **Checkpoint**: dados e navegação prontos; avisos intactos.
 
@@ -42,22 +42,22 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 12: US7a — Agenda (T12; RW-34)
 
-- [ ] T083 [P] [US7a] `tests/unit/agenda-abas.test.ts`: mapeamento das quatro abas para a
+- [x] T083 [P] [US7a] `tests/unit/agenda-abas.test.ts`: mapeamento das quatro abas para a
       consulta da API e o estado na URL (D-F2-1); `tests/unit/formulario-evento.test.ts`: regras
       do formulário (fim depois do início, campos opcionais, destinos) (D-F2-5)
-- [ ] T084 [P] [US7a] `tests/componente/agenda-lista.test.tsx`: cartões como na w-12 (data,
+- [x] T084 [P] [US7a] `tests/componente/agenda-lista.test.tsx`: cartões como na w-12 (data,
       tipo, faixa de horas, "até HH:MM", vários dias, local, chips), abas, filtro de tipo, busca,
       vazio, erro e carregando (D-F2-6)
-- [ ] T085 [P] [US7a] `tests/componente/calendario-mes.test.tsx`: dias da semana, navegação de
+- [x] T085 [P] [US7a] `tests/componente/calendario-mes.test.tsx`: dias da semana, navegação de
       mês, evento de vários dias em cada dia, "+N", clique no dia filtra a lista (D-F2-7)
-- [ ] T086 [P] [US7a] `tests/componente/editor-evento.test.tsx`: criar e editar, docente restrito
+- [x] T086 [P] [US7a] `tests/componente/editor-evento.test.tsx`: criar e editar, docente restrito
       às suas turmas, 422 marcando o campo da API, nada digitado se perde em erro ou sem rede,
       rascunho local (D-F2-5)
-- [ ] T087 [US7a] `paginas/eventos/lista.tsx`, `componentes/eventos/cartao-evento.tsx` e
+- [x] T087 [US7a] `paginas/eventos/lista.tsx`, `componentes/eventos/cartao-evento.tsx` e
       `calendario-mes.tsx`
-- [ ] T088 [US7a] `paginas/eventos/novo.tsx`, `editar.tsx` e `componentes/eventos/
+- [x] T088 [US7a] `paginas/eventos/novo.tsx`, `editar.tsx` e `componentes/eventos/
       formulario-evento.tsx`, reaproveitando o seletor de destinos comum
-- [ ] T089 [US7a] Ações (arquivar, desarquivar, excluir com confirmação) e
+- [x] T089 [US7a] Ações (arquivar, desarquivar, excluir com confirmação) e
       `paginas/eventos/historico.tsx` com a linha do tempo e as versões comuns (RW-34)
 
 **Checkpoint**: agenda completa na web.
@@ -77,7 +77,9 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 - [ ] T093 [P] [US7b] `tests/componente/escolher-turma.test.tsx`: lista das turmas ativas, lembra
       a última, link "Horários" no detalhe da turma (D-F2-3)
 - [ ] T094 [US7b] `paginas/horarios/escolher-turma.tsx`, `paginas/horarios/grade.tsx` e os
-      componentes `grade-semanal`, `modal-aula`, `conflitos` e `docentes-da-grade`
+      componentes `grade-semanal`, `modal-aula`, `conflitos` e `docentes-da-grade`; item
+      "Horários" na barra lateral (administração e coordenação), rotas com a guarda de perfil, e
+      a grade de uma turma marcando "Horários", não "Turmas"
 - [ ] T095 [US7b] "Avisar a turma": mensagem depois de salvar ou remover, cartão "Mudou alguma
       aula?" e `/avisos/novo?turma=<id>` com a turma como destino; teste em
       `tests/componente/avisar-turma.test.tsx` (RW-36, D-F2-11)

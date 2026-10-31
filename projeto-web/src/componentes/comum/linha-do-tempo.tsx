@@ -1,23 +1,34 @@
-// T06 (design w-06): eventos do aviso do mais recente ao mais antigo, com autor, data e, nas
+// T06 (design w-06): histórico do aviso ou do evento do mais recente ao mais antigo, com autor, data e, nas
 // edições, o que mudou — texto antes e depois, destinos como conjunto (RW-20).
 import type { EventoHistorico } from '../../api/schemas'
 import { dataNumerica } from '../../lib/datas'
 import { compararDestinos, destinoDoContrato, type DestinoGuardado } from '../../lib/destinos'
-import { rotuloDestino } from '../comum/chip-destino'
+import { ROTULO_TIPO } from '../../lib/agenda'
+import { NOME_DO_ASSUNTO, type Assunto } from './assunto'
+import { rotuloDestino } from './chip-destino'
 
-const TITULO: Record<string, string> = {
-  criado: 'Aviso criado',
-  editado: 'Aviso editado',
-  arquivado: 'Aviso arquivado',
-  desarquivado: 'Aviso desarquivado',
-  excluido: 'Aviso excluído',
+const ACAO: Record<string, string> = {
+  criado: 'criado',
+  editado: 'editado',
+  arquivado: 'arquivado',
+  desarquivado: 'desarquivado',
+  excluido: 'excluído',
 }
 
-const RESUMO: Record<string, string> = {
-  criado: 'Versão 1 registrada com título, conteúdo e destinos.',
-  arquivado: 'Saiu dos avisos ativos do aplicativo.',
-  desarquivado: 'Voltou aos avisos ativos do aplicativo.',
-  excluido: 'Saiu do aplicativo e da gestão; versões e histórico continuam aqui.',
+function titulo(assunto: Assunto, tipo: string) {
+  return ACAO[tipo] ? `${NOME_DO_ASSUNTO[assunto].Nome} ${ACAO[tipo]}` : undefined
+}
+
+function resumo(assunto: Assunto, tipo: string) {
+  const { ativos } = NOME_DO_ASSUNTO[assunto]
+  const campos = assunto === 'aviso' ? 'título, conteúdo e destinos' : 'título, data, local e destinos'
+  const resumos: Record<string, string> = {
+    criado: `Versão 1 registrada com ${campos}.`,
+    arquivado: `Saiu dos ${ativos} do aplicativo.`,
+    desarquivado: `Voltou aos ${ativos} do aplicativo.`,
+    excluido: 'Saiu do aplicativo e da gestão; versões e histórico continuam aqui.',
+  }
+  return resumos[tipo]
 }
 
 const PONTO: Record<string, string> = {
@@ -28,7 +39,16 @@ const PONTO: Record<string, string> = {
   excluido: 'border-perigo',
 }
 
-const ROTULO_CAMPO: Record<string, string> = { titulo: 'Título', conteudo: 'Conteúdo', publicar_em: 'Publicação' }
+const ROTULO_CAMPO: Record<string, string> = {
+  titulo: 'Título',
+  conteudo: 'Conteúdo',
+  publicar_em: 'Publicação',
+  descricao: 'Descrição',
+  tipo: 'Tipo',
+  inicio: 'Início',
+  fim: 'Fim',
+  local: 'Local',
+}
 
 function quando(v: unknown) {
   if (typeof v !== 'string') return 'imediata'
@@ -62,6 +82,29 @@ function Alteracao({ campo, de, para, nomes }: { campo: string; de: unknown; par
       </div>
     )
   }
+  if (campo === 'inicio' || campo === 'fim') {
+    // Datas do evento; fim nulo é evento pontual.
+    const data = (v: unknown) => (typeof v === 'string' ? quando(v) : 'sem fim')
+    return (
+      <div>
+        <p className="text-[12.5px] text-tenue">{ROTULO_CAMPO[campo]}</p>
+        <p className="mt-0.5 text-[13.5px] text-navy-suave">
+          {data(de)} → {data(para)}
+        </p>
+      </div>
+    )
+  }
+  if (campo === 'tipo') {
+    const rotulo = (v: unknown) => ROTULO_TIPO[String(v)] ?? String(v ?? '')
+    return (
+      <div>
+        <p className="text-[12.5px] text-tenue">Tipo</p>
+        <p className="mt-0.5 text-[13.5px] text-navy-suave">
+          {rotulo(de)} → {rotulo(para)}
+        </p>
+      </div>
+    )
+  }
   return (
     <div>
       <p className="text-[12.5px] text-tenue">{ROTULO_CAMPO[campo] ?? campo}</p>
@@ -77,7 +120,15 @@ function Alteracao({ campo, de, para, nomes }: { campo: string; de: unknown; par
   )
 }
 
-export function LinhaDoTempo({ eventos, nomes }: { eventos: EventoHistorico[]; nomes: Map<string, string> }) {
+export function LinhaDoTempo({
+  eventos,
+  nomes,
+  assunto = 'aviso',
+}: {
+  eventos: EventoHistorico[]
+  nomes: Map<string, string>
+  assunto?: Assunto
+}) {
   return (
     <ol aria-label="Linha do tempo" className="relative">
       {eventos.map((e, i) => (
@@ -85,7 +136,7 @@ export function LinhaDoTempo({ eventos, nomes }: { eventos: EventoHistorico[]; n
           {i < eventos.length - 1 && <span aria-hidden="true" className="absolute top-5 bottom-0 left-[9px] w-px bg-linha" />}
           <span aria-hidden="true" className={`absolute top-1 left-0 size-[19px] rounded-full border-[3px] bg-branco ${PONTO[e.tipo] ?? 'border-tenue'}`} />
           <div className="flex flex-wrap items-baseline gap-x-2.5">
-            <h3 className="text-[15px] font-semibold text-navy">{TITULO[e.tipo] ?? e.tipo}</h3>
+            <h3 className="text-[15px] font-semibold text-navy">{titulo(assunto, e.tipo) ?? e.tipo}</h3>
             <time dateTime={e.ocorridoEm.toISOString()} className="text-[13px] text-tenue">
               {dataNumerica(e.ocorridoEm)}
             </time>
@@ -100,7 +151,7 @@ export function LinhaDoTempo({ eventos, nomes }: { eventos: EventoHistorico[]; n
                 <Alteracao key={campo} campo={campo} de={de} para={para} nomes={nomes} />
               ))
             ) : (
-              <p className="text-[13.5px] text-navy-suave">{RESUMO[e.tipo] ?? 'Ação registrada.'}</p>
+              <p className="text-[13.5px] text-navy-suave">{resumo(assunto, e.tipo) ?? 'Ação registrada.'}</p>
             )}
           </div>
         </li>

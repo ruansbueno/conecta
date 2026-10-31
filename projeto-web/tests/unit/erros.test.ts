@@ -35,6 +35,12 @@ describe('mapa code → mensagem e efeito (spec §6)', () => {
     )
   })
 
+  it('eventos da agenda (F2): mesmos efeitos dos avisos', () => {
+    expect(new ApiError({ code: 'EVENTO_NAO_EDITAVEL', status: 409 }).efeito).toBe('ofereceDesarquivar')
+    expect(new ApiError({ code: 'EVENTO_SITUACAO_INVALIDA', status: 409 }).efeito).toBe('recarrega')
+    expect(new ApiError({ code: 'EVENTO_NAO_ENCONTRADO', status: 404 }).efeito).toBe('voltaLista')
+  })
+
   it('AVISO_SITUACAO_INVALIDA explica que a situação mudou por fora (a lista é recarregada)', () => {
     expect(new ApiError({ code: 'AVISO_SITUACAO_INVALIDA', status: 409 }).mensagem).toBe(
       'A situação deste aviso mudou enquanto você olhava. A lista foi atualizada.',

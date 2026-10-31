@@ -14,6 +14,10 @@ const EditarAviso = lazy(() => import('./paginas/avisos/editar'))
 const HistoricoAviso = lazy(() => import('./paginas/avisos/historico'))
 const ListaAvisos = lazy(() => import('./paginas/avisos/lista'))
 const ListaTurmas = lazy(() => import('./paginas/turmas/lista'))
+const ListaEventos = lazy(() => import('./paginas/eventos/lista'))
+const NovoEvento = lazy(() => import('./paginas/eventos/novo'))
+const EditarEvento = lazy(() => import('./paginas/eventos/editar'))
+const HistoricoEvento = lazy(() => import('./paginas/eventos/historico'))
 const DetalheTurma = lazy(() => import('./paginas/turmas/detalhe'))
 const Solicitacoes = lazy(() => import('./paginas/solicitacoes'))
 const Usuarios = lazy(() => import('./paginas/usuarios'))
@@ -31,6 +35,10 @@ export function Rotas() {
             <Route path="/avisos/novo" element={<NovoAviso />} />
             <Route path="/avisos/:id/editar" element={<EditarAviso />} />
             <Route path="/avisos/:id" element={<HistoricoAviso />} />
+            <Route path="/eventos" element={<ListaEventos />} />
+            <Route path="/eventos/novo" element={<NovoEvento />} />
+            <Route path="/eventos/:id/editar" element={<EditarEvento />} />
+            <Route path="/eventos/:id" element={<HistoricoEvento />} />
             <Route path="/turmas" element={<ListaTurmas />} />
             <Route path="/turmas/:id" element={<DetalheTurma />} />
             <Route path="/solicitacoes" element={<Solicitacoes />} />

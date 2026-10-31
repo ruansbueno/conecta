@@ -1,13 +1,14 @@
 // T05 (design w-05): turmas, semestres e grupos em abas, com busca e seleção múltipla; respeita o
-// limite de 20 destinos do aviso (RW-16).
+// limite de 20 destinos do aviso ou do evento (RW-16).
 import { useId, useMemo, useState } from 'react'
 
 import type { DestinoEscolhido, Turma } from '../../api/schemas'
 import { chaveDestino, LIMITE_DESTINOS } from '../../lib/formulario-aviso'
 import { quantidade } from '../../lib/texto'
-import { Abas, idDaAba, idDoPainel } from '../comum/abas'
-import { Busca } from '../comum/busca'
-import { Modal } from '../comum/modal'
+import { Abas, idDaAba, idDoPainel } from './abas'
+import { NOME_DO_ASSUNTO, type Assunto } from './assunto'
+import { Busca } from './busca'
+import { Modal } from './modal'
 
 const ABAS = ['turmas', 'semestres', 'grupos'] as const
 type Aba = (typeof ABAS)[number]
@@ -23,9 +24,11 @@ interface Props {
   jaEscolhidos: DestinoEscolhido[]
   onAdicionar: (novos: DestinoEscolhido[]) => void
   onFechar: () => void
+  assunto?: Assunto
 }
 
-export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }: Props) {
+export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar, assunto = 'aviso' }: Props) {
+  const { nome, Nome } = NOME_DO_ASSUNTO[assunto]
   const [aba, setAba] = useState<Aba>('turmas')
   const [busca, setBusca] = useState('')
   const [marcados, setMarcados] = useState<DestinoEscolhido[]>([])
@@ -69,7 +72,7 @@ export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }:
               {rotulo}
             </span>
             <span id={`${id}-d`} className="block text-[12.5px] text-apagado">
-              {noAviso ? 'Já está no aviso' : descricao}
+              {noAviso ? `Já está no ${nome}` : descricao}
             </span>
           </span>
         </label>
@@ -88,8 +91,8 @@ export function SeletorDestinos({ turmas, jaEscolhidos, onAdicionar, onFechar }:
         <>
           <p className={`text-[13px] ${passou ? 'font-semibold text-perigo' : 'text-apagado'}`} aria-live="polite">
             {passou
-              ? `Um aviso pode ter até ${LIMITE_DESTINOS} destinos: desmarque ${total - LIMITE_DESTINOS}.`
-              : `${quantos} selecionado${quantos === 1 ? '' : 's'} · ${total} destino${total === 1 ? '' : 's'} no aviso`}
+              ? `${Nome === 'Aviso' ? 'Um aviso' : 'Um evento'} pode ter até ${LIMITE_DESTINOS} destinos: desmarque ${total - LIMITE_DESTINOS}.`
+              : `${quantos} selecionado${quantos === 1 ? '' : 's'} · ${total} destino${total === 1 ? '' : 's'} no ${nome}`}
           </p>
           <span className="grow" />
           <button type="button" onClick={onFechar} className="botao-secundario">

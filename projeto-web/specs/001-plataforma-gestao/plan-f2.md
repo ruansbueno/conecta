@@ -64,13 +64,13 @@ CSS grid.
   contrato na API e espelho no servidor falso. Sem ela, Realizados abriria pelo evento mais
   antigo e repetiria os que estão em andamento (decisão de 31/10/2026).
 - **D-F2-3 — Rotas.** `/eventos` (lista), `/eventos/novo`, `/eventos/[id]/editar`,
-  `/eventos/[id]/historico`; `/horarios` (escolha da turma) e `/turmas/[id]/horarios` (grade). O
+  `/eventos/[id]` (detalhe; `?aba=historico` abre o histórico e as versões, como no aviso); `/horarios` (escolha da turma) e `/turmas/[id]/horarios` (grade). O
   item "Horários" da barra lateral abre `/horarios`, que lista as turmas ativas e lembra a
   última escolhida (preferência local, sem dado sensível); o detalhe da turma (T08) ganha o link
   "Horários" (decisão de 31/10/2026).
-- **D-F2-4 — Componentes comuns.** `seletor-destinos`, `destinos-docente`, `linha-do-tempo` e
-  `versoes` saem de `componentes/avisos/` para `componentes/comum/`, com nomes neutros (o texto
-  "aviso" vira parâmetro). A mudança vem antes das telas novas, sem alterar comportamento: os
+- **D-F2-4 — Componentes comuns.** `seletor-destinos`, `destinos-docente` e `linha-do-tempo` saem de
+  `componentes/avisos/` para `componentes/comum/`; o texto "aviso" vira parâmetro (`assunto`). A
+  lista de versões fica em cada módulo: as versões do aviso e as do evento têm campos diferentes. A mudança vem antes das telas novas, sem alterar comportamento: os
   testes dos avisos continuam passando como estão.
 - **D-F2-5 — Editor de evento.** Mesmo padrão do editor de aviso (T04/T15): campos título, tipo,
   início, fim (opcional), local (opcional), descrição (opcional) e destinos; rascunho local sem o
@@ -81,11 +81,13 @@ CSS grid.
   de horas, local e
   chips de destino. Evento sem fim mostra só a hora de início, e o do tipo "data importante" sem fim
   mostra "até HH:MM", lido como prazo (como no desenho); "dia todo" não existe na API. Evento de
-  vários dias mostra "de 02/09 a 04/09". Ações: editar e arquivar (na
-  aba Arquivados, desarquivar); excluir e histórico ficam no menu do cartão e no editor.
-- **D-F2-7 — Calendário do mês.** Grade de 7 colunas (segunda a domingo) com navegação ‹ ›; cada
-  dia lista os títulos dos eventos que o tocam (até 3, depois "+N"); clicar num dia filtra a lista
-  abaixo do calendário. Sem desenho próprio: segue os tokens e componentes da w-12.
+  vários dias mostra "de 02/09 a 04/09". Ações: editar, arquivar (na
+  aba Arquivados, desarquivar) e histórico; excluir fica no detalhe do evento, com confirmação.
+- **D-F2-7 — Calendário do mês.** Tabela de 7 colunas (segunda a domingo) com navegação ‹ ›; cada
+  dia é um botão com os títulos dos eventos que o tocam (até 3, depois "+N"), e o escolhido fica
+  marcado (`aria-pressed`); escolher um dia filtra a lista abaixo do calendário. A consulta pede a
+  janela da grade inteira, para os dias de outros meses também mostrarem seus eventos; acima de
+  100 eventos, a página avisa que o mês está incompleto. Sem desenho próprio: segue os tokens e componentes da w-12.
 - **D-F2-8 — Grade semanal.** Colunas de segunda a sexta sempre; sábado e domingo só quando houver
   aula neles. As linhas são os horários de início distintos da turma, em ordem, e cada cartão
   mostra disciplina, local e docente. As faixas "Intervalo" do desenho não são geradas: a API não

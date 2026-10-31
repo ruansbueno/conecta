@@ -140,3 +140,33 @@ async def test_inexistente_e_404(client, coord):
     r = await client.get(f"/gestao/eventos/{uuid.uuid4()}", headers=bearer(coord))
 
     assert (r.status_code, r.json()["code"]) == (404, "EVENTO_NAO_ENCONTRADO")
+
+
+async def test_quando_separa_proximos_e_realizados(client, coord, cadastrar):
+    # plan-f2 da web, D-F2-2: Próximos em ordem crescente; Realizados, mais recentes primeiro.
+    antigo = await cadastrar(coord, inicio="2020-01-10T10:00:00Z")
+    recente = await cadastrar(coord, inicio="2021-06-10T10:00:00Z", fim="2021-06-10T12:00:00Z")
+    em_andamento = await cadastrar(coord, inicio="2020-02-01T10:00:00Z", fim=futuro(24 * 365))
+    logo = await cadastrar(coord, inicio=futuro(24))
+    depois = await cadastrar(coord, inicio=futuro(48))
+
+    proximos = await _ids(client, coord, "quando=proximos")
+    realizados = await _ids(client, coord, "quando=realizados")
+
+    assert proximos == [em_andamento["id"], logo["id"], depois["id"]]
+    assert realizados == [recente["id"], antigo["id"]]
+
+
+async def test_quando_combina_com_situacao_e_vale_para_o_docente(client, db, coord, cadastrar):
+    arquivado = await cadastrar(coord, inicio="2020-01-10T10:00:00Z")
+    await client.post(f"/gestao/eventos/{arquivado['id']}/arquivar", headers=bearer(coord))
+    ativo = await cadastrar(coord, inicio="2020-03-10T10:00:00Z")
+
+    assert await _ids(client, coord, "quando=realizados&situacao=ativo") == [ativo["id"]]
+    assert await _ids(client, coord, "quando=realizados&situacao=arquivado") == [arquivado["id"]]
+
+
+async def test_quando_invalido_e_422(client, coord):
+    r = await client.get("/gestao/eventos?quando=ontem", headers=bearer(coord))
+
+    assert (r.status_code, r.json()["errors"][0]["campo"]) == (422, "quando")

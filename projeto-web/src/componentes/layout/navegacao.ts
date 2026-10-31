@@ -20,7 +20,7 @@ export const ROTULO_PERFIL: Record<string, string> = {
 
 /**
  * Itens visíveis por perfil (spec §3, RW-11). Conveniência de interface: quem nega é a API.
- * Agenda e Horários são da F2 e só entram quando a fase for liberada.
+ * Agenda (F2) é de administração, coordenação e docente (plan-f2 D-F2-13).
  */
 export function navegacaoDoPerfil(perfil: string): GrupoNavegacao[] {
   const docente = perfil === 'docente'
@@ -28,7 +28,10 @@ export function navegacaoDoPerfil(perfil: string): GrupoNavegacao[] {
     { titulo: 'Acompanhar', itens: [{ para: '/painel', rotulo: 'Painel', icone: 'painel' }] },
     {
       titulo: 'Comunicação',
-      itens: [{ para: '/avisos', rotulo: docente ? 'Meus avisos' : 'Avisos', icone: 'avisos' }],
+      itens: [
+        { para: '/avisos', rotulo: docente ? 'Meus avisos' : 'Avisos', icone: 'avisos' },
+        { para: '/eventos', rotulo: 'Agenda', icone: 'agenda' },
+      ],
     },
     {
       titulo: 'Acadêmico',

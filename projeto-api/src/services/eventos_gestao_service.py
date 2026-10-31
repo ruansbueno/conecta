@@ -26,7 +26,7 @@ from src.models.evento_versao import EventoVersao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.repositories.auditoria_repository import AuditoriaEventoRepository, destinos_canonicos
-from src.repositories.evento_repository import na_janela
+from src.repositories.evento_repository import TERMINO, na_janela
 from src.schemas.gestao.eventos import EventoCreate, EventoPatch
 from src.services.destinos import (
     destinos_atuais,
@@ -108,6 +108,7 @@ async def listar(
     q: str | None,
     limit: int,
     offset: int,
+    quando: str | None = None,
 ) -> tuple[list[Evento], int]:
     if de is not None and ate is not None and ate < de:
         raise ErroDeValidacao("ate", "deve ser maior ou igual a de")
@@ -140,9 +141,17 @@ async def listar(
                 Evento.titulo.ilike(termo), Evento.descricao.ilike(termo), Evento.local.ilike(termo)
             )
         )
+    # Próximos: não encerrados, como na consulta dos clientes; realizados: o complemento, dos mais
+    # recentes para os mais antigos (contracts E3 §5; plan-f2 da web, D-F2-2).
+    ordem = (Evento.inicio, Evento.id)
+    if quando == "proximos":
+        stmt = stmt.where(func.now() <= TERMINO)
+    elif quando == "realizados":
+        stmt = stmt.where(func.now() > TERMINO)
+        ordem = (Evento.inicio.desc(), Evento.id.desc())
     total = await session.scalar(select(func.count()).select_from(stmt.subquery()))
     eventos = await session.scalars(
-        _com_detalhes(stmt).order_by(Evento.inicio, Evento.id).limit(limit).offset(offset)
+        _com_detalhes(stmt).order_by(*ordem).limit(limit).offset(offset)
     )
     return list(eventos), total
 

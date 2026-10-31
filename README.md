@@ -114,7 +114,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 31/10/2026 (E3 completa na API). Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 31/10/2026 (agenda na web). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -141,6 +141,7 @@ achados corrigidos com teste antes do merge.
 | **API — nomenclatura do banco** | Tabelas com `tb_` e colunas com prefixo (`id_`, `nm_`, `cod_`, `txt_`, `fl_`, `dt_`, `hr_`, `nr_`, `st_`, `tp_`), como no diagrama ER; só os nomes mudam, a API e os clientes ficam iguais | 599 testes (API) + 8 da implantação contra a API real | [#20](https://github.com/ruansbueno/conecta/pull/20) |
 | **API — E3, eventos** | Agenda: criar evento para o público certo (regra de alcance única, compartilhada com os avisos), consulta com intervalo e encerrados, gestão com versões e histórico imutáveis | 733 testes (API) | [#22](https://github.com/ruansbueno/conecta/pull/22) |
 | **API — E3, horários** | Grade semanal das turmas com conflitos de sala e de docente informados sem bloquear, consulta por vínculo, eventos de vários dias em cada dia que cobrem, matriz de permissões, ponta a ponta e seed da agenda: E3 completa na API | 886 testes (API) | [#23](https://github.com/ruansbueno/conecta/pull/23) |
+| **Web — F2, agenda** | Agenda com abas Próximos, Mês (calendário), Realizados e Arquivados, editor de evento com o seletor de destinos dos avisos, histórico e versões; `quando=proximos\|realizados` na API | 339 testes (Vitest) + 47 de ponta a ponta (Playwright) | [#25](https://github.com/ruansbueno/conecta/pull/25) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.
@@ -156,9 +157,9 @@ seja confundida com validação real.
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
 eventos e de horários contratados, e o [plano](projeto-api/specs/002-agenda-horarios/plan.md) e as
 [tarefas](projeto-api/specs/002-agenda-horarios/tasks.md) da API (28 tarefas), todas feitas: a E3
-está completa na API. A F2 da plataforma web está
-[planejada](projeto-web/specs/001-plataforma-gestao/plan-f2.md) (23 tarefas); faltam a
-implementação dela e a F2 do aplicativo.
+está completa na API. Na F2 da plataforma web
+([plano](projeto-web/specs/001-plataforma-gestao/plan-f2.md)), a agenda está pronta; faltam a grade
+de horários e a F2 do aplicativo.
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.

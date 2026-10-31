@@ -6,6 +6,7 @@
 import { createHmac, randomUUID } from 'node:crypto'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 
+import { tratarAgenda } from './agenda.ts'
 import { estadoInicial, type Estado } from './dados.ts'
 
 const PORTA = Number(process.env.PORTA ?? 8787)
@@ -470,6 +471,24 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       .map(usuarioGestao)
     return json(res, 200, pagina(itens, url))
   }
+
+  const daAgenda = await tratarAgenda({
+    req,
+    res,
+    url,
+    metodo,
+    caminho,
+    usuario,
+    gestao,
+    agenda: estado.agenda,
+    turmas: estado.turmas,
+    usuarios: estado.usuarios,
+    corpoJson,
+    json,
+    erro,
+    pagina,
+  })
+  if (daAgenda) return
 
   return erro(res, 404, 'NAO_ENCONTRADO')
 }

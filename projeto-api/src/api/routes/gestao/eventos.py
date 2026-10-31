@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import AwareDatetime
@@ -40,12 +41,24 @@ async def listar(
     de: AwareDatetime | None = Query(None),
     ate: AwareDatetime | None = Query(None),
     q: str | None = Query(None, max_length=100),
+    quando: Literal["proximos", "realizados"] | None = None,
     page: PaginationParams = Depends(),
     usuario: Usuario = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> Page[EventoGestaoOut]:
     eventos, total = await service.listar(
-        session, usuario, situacao, tipo, autor_id, turma_id, de, ate, q, page.limit, page.offset
+        session,
+        usuario,
+        situacao,
+        tipo,
+        autor_id,
+        turma_id,
+        de,
+        ate,
+        q,
+        page.limit,
+        page.offset,
+        quando,
     )
     return Page(
         items=[EventoGestaoOut.model_validate(e) for e in eventos],

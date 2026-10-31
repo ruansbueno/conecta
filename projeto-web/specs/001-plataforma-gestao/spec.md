@@ -464,6 +464,9 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | `AVISO_NAO_EDITAVEL` | Avisos arquivados ou excluídos não podem ser editados. | Oferece desarquivar |
 | `AVISO_SITUACAO_INVALIDA` | A situação deste aviso mudou enquanto você olhava. A lista foi atualizada. | Recarrega o aviso |
 | `AVISO_NAO_ENCONTRADO` | Este aviso não está mais disponível. | Volta à lista |
+| `EVENTO_NAO_EDITAVEL` | Eventos arquivados ou excluídos não podem ser editados. | Oferece desarquivar (F2) |
+| `EVENTO_SITUACAO_INVALIDA` | A situação deste evento mudou enquanto você olhava. A agenda foi atualizada. | Recarrega a agenda (F2) |
+| `EVENTO_NAO_ENCONTRADO` | Este evento não está mais disponível. | Volta à agenda (F2) |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
 | `CSRF_INVALIDO` | Não foi possível confirmar a sessão. Recarregue a página e tente de novo. | Permanece (tentar de novo não resolve) |
 | `TURMA_NAO_ENCONTRADA` | Esta turma não está mais disponível. | Recarrega; no detalhe, oferece voltar às turmas |

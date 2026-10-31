@@ -87,3 +87,56 @@ export const meAdmin = {
   perfil: 'administrador',
   turmas: [] as { id: string; codigo: string; nome: string; papel: string }[],
 }
+
+export const eventoGestao = {
+  id: 'e7e00000-0000-4000-8000-000000000001',
+  titulo: 'Defesas de TCC II',
+  descricao: 'Cinco defesas, com arguição aberta ao público.',
+  tipo: 'banca',
+  inicio: '2026-11-24T17:00:00Z',
+  fim: '2026-11-24T21:00:00Z',
+  local: 'Sala 203',
+  autor: { id: '11aa0000-0000-4000-8000-000000000001', nome: 'Maria Coordenadora' },
+  situacao: 'ativo',
+  versao_atual: 2,
+  criado_em: '2026-10-01T12:00:00Z',
+  editado_em: '2026-10-05T09:00:00Z',
+  arquivado_em: null,
+  destinos: [
+    { tipo: 'semestre', turma: null, semestre: 6 },
+    { tipo: 'docentes', turma: null, semestre: null },
+  ],
+}
+
+export const versaoEvento = {
+  versao: 1,
+  titulo: 'Defesas de TCC II',
+  descricao: null,
+  tipo: 'banca',
+  inicio: '2026-11-24T17:00:00Z',
+  fim: null,
+  local: 'Sala 203',
+  destinos: [{ tipo: 'todos', turma_id: null, semestre: null }],
+  criada_por: { id: '11aa0000-0000-4000-8000-000000000001', nome: 'Maria Coordenadora' },
+  criada_em: '2026-10-01T12:00:00Z',
+}
+
+export const horario = {
+  id: 'c9d80000-0000-4000-8000-000000000001',
+  turma_id: 'c3f0a1b2-0000-4000-8000-000000000001',
+  dia_semana: 1,
+  inicio: '19:10',
+  fim: '20:50',
+  disciplina: 'Banco de Dados II',
+  local: 'Lab 4',
+  docente: { id: '22bb0000-0000-4000-8000-000000000001', nome: 'Helena Prado' },
+}
+
+export const conflito = {
+  tipo: 'sala',
+  local: 'Lab 4',
+  horario_id: 'f4e30000-0000-4000-8000-000000000001',
+  turma: { id: 'd7a10000-0000-4000-8000-000000000001', codigo: 'SI-3B-2026-2', nome: 'SI 3º Sem B' },
+  inicio: '19:10',
+  fim: '20:50',
+}

@@ -1,6 +1,8 @@
 // Massa do servidor falso, com os mesmos nomes do seed da API (projeto-api/scripts/seed_dev_data.py).
 import { randomUUID } from 'node:crypto'
 
+import { agendaInicial } from './agenda.ts'
+
 export interface UsuarioFalso {
   id: string
   username: string
@@ -160,6 +162,7 @@ export function estadoInicial() {
     turmas,
     usuarios,
     avisos,
+    agenda: agendaInicial(turmas, usuarios),
     auditoria,
     turmaSaida,
     vinculosDa(turmaId: string, papel?: string | null) {

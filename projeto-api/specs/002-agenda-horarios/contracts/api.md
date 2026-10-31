@@ -158,11 +158,11 @@ leciona).
 | Campo | Obrigatório | Validação |
 |---|---|---|
 | titulo | Sim | 3–150 caracteres |
-| descricao | Não | até 5000 caracteres |
+| descricao | Não | 1–5000 caracteres (sem descrição: omitir ou `null`) |
 | tipo | Sim | `palestra`, `banca`, `reuniao`, `formatura`, `prova`, `data_importante`, `outro` |
 | inicio | Sim | ISO-8601 com fuso |
 | fim | Não | ISO-8601; MUST ser maior que `inicio` |
-| local | Não | até 120 caracteres |
+| local | Não | 1–120 caracteres (sem local: omitir ou `null`) |
 | destinos | Sim | 1–20 itens, sem repetição; mesmas regras de destino do aviso |
 
 **201**: evento de gestão (formato da seção 6), `versao_atual: 1`, `situacao: "ativo"`.
@@ -233,7 +233,9 @@ Efeitos: nova versão + registro `editado` com `alteracoes`, no mesmo formato do
 ## 8. POST /gestao/eventos/{evento_id}/arquivar · /desarquivar · DELETE /gestao/eventos/{evento_id}
 
 Mesma semântica dos avisos: arquivar e desarquivar devolvem 200 com o evento atualizado; excluir
-é lógico e devolve 204. Cada operação gera um registro de histórico.
+é lógico e devolve 204. Cada operação gera um registro de histórico. Diferença: num evento já
+excluído, arquivar e desarquivar dão 404 `EVENTO_NAO_ENCONTRADO` (no aviso, 409), porque o
+excluído não existe mais para a gestão, só para a auditoria.
 
 **Erros**: 403; 404; 409 `EVENTO_SITUACAO_INVALIDA` (arquivar/desarquivar fora de situação).
 

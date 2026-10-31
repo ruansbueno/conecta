@@ -76,19 +76,18 @@ async def test_so_de_ou_so_ate(client, db, pessoas):
     assert await _ids(client, aluno, _q(ate=corte)) == [str(cedo.id)]
 
 
-async def test_mes_inteiro_com_encerrados_numa_chamada(client, db, pessoas):
+async def test_janela_com_encerrados_numa_chamada(client, db, pessoas):
     # A visão de mês do app marca também os dias que já passaram (SC-E3-002).
     coord, aluno = pessoas
-    de = AGORA.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    ate = (de + timedelta(days=32)).replace(day=1)
-    passado = await criar_evento(db, coord, [TODOS], inicio=de + timedelta(hours=1))
-    futuro = await criar_evento(db, coord, [TODOS], inicio=ate - timedelta(hours=1))
+    agora = datetime.now(UTC)
+    de, ate = agora - timedelta(days=15), agora + timedelta(days=15)
+    passado = await criar_evento(db, coord, [TODOS], inicio=agora - timedelta(days=1))
+    futuro = await criar_evento(db, coord, [TODOS], inicio=agora + timedelta(days=1))
 
     sem = await _ids(client, aluno, _q(de=de, ate=ate))
     com = await _ids(client, aluno, _q(de=de, ate=ate) + "&incluir_encerrados=true")
 
-    if passado.inicio < AGORA:
-        assert str(passado.id) not in sem
+    assert sem == [str(futuro.id)]
     assert com == [str(passado.id), str(futuro.id)]
 
 

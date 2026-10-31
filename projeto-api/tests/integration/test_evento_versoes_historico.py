@@ -159,7 +159,7 @@ async def test_inexistente_e_404(client, coord):
     assert (r.status_code, r.json()["code"]) == (404, "EVENTO_NAO_ENCONTRADO")
 
 
-@pytest.mark.parametrize("operacao", ["criar", "editar", "arquivar"])
+@pytest.mark.parametrize("operacao", ["criar", "editar", "arquivar", "desarquivar", "excluir"])
 async def test_falha_ao_gravar_o_historico_desfaz_a_operacao_inteira(
     app, db, monkeypatch, coord, operacao
 ):
@@ -168,6 +168,8 @@ async def test_falha_ao_gravar_o_historico_desfaz_a_operacao_inteira(
         evento = None
         if operacao != "criar":
             evento = await _criar(c, coord)
+        if operacao == "desarquivar":
+            await c.post(f"/gestao/eventos/{evento['id']}/arquivar", headers=bearer(coord))
 
         def falhar(*_, **__):
             raise RuntimeError("disco cheio")
@@ -182,8 +184,12 @@ async def test_falha_ao_gravar_o_historico_desfaz_a_operacao_inteira(
                     headers=bearer(coord),
                     json={"titulo": "Editado"},
                 )
+            case "excluir":
+                r = await c.delete(f"/gestao/eventos/{evento['id']}", headers=bearer(coord))
             case _:
-                r = await c.post(f"/gestao/eventos/{evento['id']}/arquivar", headers=bearer(coord))
+                r = await c.post(
+                    f"/gestao/eventos/{evento['id']}/{operacao}", headers=bearer(coord)
+                )
 
     assert r.status_code == 500
     db.expire_all()
@@ -191,10 +197,12 @@ async def test_falha_ao_gravar_o_historico_desfaz_a_operacao_inteira(
         assert (await _contar(db, Evento), await _contar(db, EventoVersao)) == (0, 0)
     else:
         guardado = await db.get(Evento, evento["id"])
+        situacao_antes = "arquivado" if operacao == "desarquivar" else "ativo"
         assert (guardado.titulo, guardado.situacao, guardado.versao_atual) == (
             "Banca de TCC",
-            "ativo",
+            situacao_antes,
             1,
         )
         assert await _contar(db, EventoVersao) == 1
-    assert await _contar(db, EventoHistorico) == (0 if operacao == "criar" else 1)
+    registros_antes = {"criar": 0, "desarquivar": 2}.get(operacao, 1)
+    assert await _contar(db, EventoHistorico) == registros_antes

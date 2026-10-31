@@ -23,11 +23,11 @@ class EventoCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     titulo: str = Field(min_length=3, max_length=150)
-    descricao: str | None = Field(None, max_length=5000)
+    descricao: str | None = Field(None, min_length=1, max_length=5000)
     tipo: TipoDeEvento
     inicio: AwareDatetime
     fim: AwareDatetime | None = None
-    local: str | None = Field(None, max_length=120)
+    local: str | None = Field(None, min_length=1, max_length=120)
     destinos: list[DestinoIn] = Field(min_length=1, max_length=20)
 
     @field_validator("fim")
@@ -53,11 +53,11 @@ class EventoPatch(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     titulo: str | None = Field(None, min_length=3, max_length=150)
-    descricao: str | None = Field(None, max_length=5000)
+    descricao: str | None = Field(None, min_length=1, max_length=5000)
     tipo: TipoDeEvento | None = None
     inicio: AwareDatetime | None = None
     fim: AwareDatetime | None = None
-    local: str | None = Field(None, max_length=120)
+    local: str | None = Field(None, min_length=1, max_length=120)
     destinos: list[DestinoIn] | None = Field(None, min_length=1, max_length=20)
 
     @model_validator(mode="before")

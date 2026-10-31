@@ -193,3 +193,12 @@ async def test_detalhe_indisponivel_e_404_indistinguivel(client, coord, aluno, d
     r = await client.get(f"/eventos/{evento_id}", headers=bearer(aluno))
 
     assert (r.status_code, r.json()["code"]) == (404, "EVENTO_NAO_ENCONTRADO")
+
+
+async def test_filtro_por_turma_alheia_nao_vaza(client, coord, aluno, db):
+    alheia = await criar_turma(db)
+    await criar_evento(db, coord, [turma_destino(alheia)])
+
+    r = await client.get(f"/eventos?turma_id={alheia.id}", headers=bearer(aluno))
+
+    assert (r.status_code, r.json()["total"]) == (200, 0)

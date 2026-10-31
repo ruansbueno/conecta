@@ -25,7 +25,7 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
       (D-E3-2), intervalo semiaberto e "encerrado" (D-E3-3, D-E3-4), ordem (D-E3-5), conflito só no
       mesmo período letivo (D-E3-9) e 404 para a grade de turma inativa (D-E3-10)
 - [x] T002 Refatoração sem mudança de comportamento (D-E3-1): `repositories/alcance.py` com
-      `alcanca(destino, usuario)`; `services/destinos.py` com a validação de destinos e a regra do
+      `alcanca(destino, do_dono, usuario)`; `services/destinos.py` com a validação de destinos e a regra do
       docente; `destinos_canonicos(destinos)`; `schemas/destino.py`. Avisos passam a usá-los, e a
       suíte inteira continua verde sem tocar em teste de aviso
 - [x] T003 [P] Erros de domínio em `src/api/errors.py`: `EVENTO_NAO_ENCONTRADO`,

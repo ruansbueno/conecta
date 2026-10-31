@@ -73,6 +73,7 @@ async def test_editar_sem_mudanca_e_422(client, coord, cadastrar):
         {"tipo": "festa"},
         {"destinos": []},
         {"cor": 1},
+        {"local": ""},
     ],
     ids=[
         "vazio",
@@ -82,6 +83,7 @@ async def test_editar_sem_mudanca_e_422(client, coord, cadastrar):
         "tipo",
         "sem-destino",
         "desconhecido",
+        "local-vazio",
     ],
 )
 async def test_patch_invalido_e_422(client, coord, cadastrar, corpo):
@@ -202,3 +204,33 @@ async def test_docente_que_deixou_a_turma_nao_desarquiva(client, docente_desvinc
     r = await client.post(f"{url}/desarquivar", headers=bearer(docente))
 
     assert (r.status_code, r.json()["code"]) == (403, "DESTINO_NAO_PERMITIDO")
+
+
+async def test_excluir_evento_arquivado(client, coord, cadastrar):
+    evento = await cadastrar(coord)
+    await client.post(f"/gestao/eventos/{evento['id']}/arquivar", headers=bearer(coord))
+
+    r = await client.delete(f"/gestao/eventos/{evento['id']}", headers=bearer(coord))
+
+    assert r.status_code == 204
+
+
+async def test_docente_nao_desarquiva_evento_alheio(client, db, coord, cadastrar):
+    docente = await criar_usuario(db, username="docente.desarq", perfil="docente")
+    evento = await cadastrar(coord)
+    await client.post(f"/gestao/eventos/{evento['id']}/arquivar", headers=bearer(coord))
+
+    r = await client.post(f"/gestao/eventos/{evento['id']}/desarquivar", headers=bearer(docente))
+
+    assert (r.status_code, r.json()["code"]) == (403, "SEM_PERMISSAO")
+
+
+@pytest.mark.parametrize("acao", ["arquivar", "desarquivar"])
+async def test_arquivar_ou_desarquivar_excluido_e_404(client, coord, cadastrar, acao):
+    # Diferente do aviso (409): excluído não existe mais para a gestão (contracts E3 §8).
+    evento = await cadastrar(coord)
+    await client.delete(f"/gestao/eventos/{evento['id']}", headers=bearer(coord))
+
+    r = await client.post(f"/gestao/eventos/{evento['id']}/{acao}", headers=bearer(coord))
+
+    assert (r.status_code, r.json()["code"]) == (404, "EVENTO_NAO_ENCONTRADO")

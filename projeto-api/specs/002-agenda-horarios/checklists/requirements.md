@@ -39,6 +39,6 @@
 - [x] Decisões registradas com motivo (seção 7)
 - [x] Suposições explícitas (seção 6)
 - [x] Matriz de rastreabilidade requisito → teste preenchida
-- [ ] `plan.md` e `tasks.md` — gerados após a validação da E1, conforme a regra de entrega
+- [x] `plan.md` e `tasks.md` — gerados em 31/10/2026, depois da E1 e da E2 integradas
 
-**Resultado**: spec aprovada; planejamento técnico aguarda a validação da E1.
+**Resultado**: spec aprovada, planejada e implementada na API (E3 completa em 31/10/2026).

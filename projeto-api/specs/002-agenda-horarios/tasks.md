@@ -126,16 +126,16 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 7: Ponta a ponta e polimento
 
-- [ ] T024 [P] Matriz de permissões da E3 em `tests/contract/gestao/test_permissoes_matriz_e3.py`:
+- [x] T024 [P] Matriz de permissões da E3 em `tests/contract/gestao/test_permissoes_matriz_e3.py`:
       cada rota de eventos e horários × quatro perfis (spec §2.3, RF-43)
-- [ ] T025 [P] E2E `tests/e2e/test_fluxo_agenda.py`: a coordenação cria um evento para duas turmas
+- [x] T025 [P] E2E `tests/e2e/test_fluxo_agenda.py`: a coordenação cria um evento para duas turmas
       e a grade de uma delas; um aluno de uma das turmas vê o evento uma vez e a grade; um aluno de
       outra turma não vê nada (SC-E3-001, SC-E3-005)
-- [ ] T026 Seed: eventos de exemplo (próximos, em andamento, encerrados neste mês, um arquivado e
+- [x] T026 Seed: eventos de exemplo (próximos, em andamento, encerrados neste mês, um arquivado e
       um editado com histórico) e a grade das turmas de teste, com um conflito de sala, idempotente
-- [ ] T027 [P] Atualizar o `README.md` da API, o `quickstart.md` (fluxos com `curl`), o checklist da
+- [x] T027 [P] Atualizar o `README.md` da API, o `quickstart.md` (fluxos com `curl`), o checklist da
       spec (`plan.md` e `tasks.md` gerados) e o `ER.architect` pelo gerador (fora do commit)
-- [ ] T028 Validação manual do quickstart da E3 e evidência de testes em `evidencias/`
+- [x] T028 Validação manual do quickstart da E3 e evidência de testes em `evidencias/`
 
 **Checkpoint**: E3 completa na API; as fases F2 do app e da web podem começar.
 

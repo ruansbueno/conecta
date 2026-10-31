@@ -117,7 +117,9 @@ Avaliação contra `.specify/memory/constitution.md` v2.0.0:
 - **D-E3-10 — Grade de turma inativa.** `GET /turmas/{id}/horarios` de turma inativa dá 404
   `TURMA_NAO_ENCONTRADA` para todos os perfis (decisão de 31/10/2026); a gestão continua vendo a
   grade por `/gestao/turmas/{id}/horarios`. Vínculo de qualquer papel dá acesso; administração e
-  coordenação consultam qualquer turma ativa.
+  coordenação consultam qualquer turma ativa. Todas as rotas de `/gestao/turmas/{id}/horarios`,
+  inclusive a leitura, são só de administração e coordenação: o docente consulta a grade pela rota
+  dos clientes, como os alunos.
 - **D-E3-11 — Docente do horário.** `docente_id` precisa existir (404 `USUARIO_NAO_ENCONTRADO`) e
   ter perfil `docente` (409 `PERFIL_INCOMPATIVEL`, RF-47). Um docente desativado continua aceito: o
   que a regra pede é o perfil, e a coordenação decide se troca (spec, casos de borda).

@@ -7,10 +7,15 @@ API REST do CONECTA em FastAPI. Atende o aplicativo mobile (token `Bearer`) e a 
   avisos.
 - **Entrega 2** (gestão, `/gestao/*`): usuários e perfis, turmas, vínculos, decisão de
   solicitações, publicação e ciclo de vida de avisos, com versões e histórico imutáveis.
+- **Entrega 3** (agenda e horários): eventos com os mesmos destinos, versões e histórico dos
+  avisos (`/eventos`, `/gestao/eventos`) e a grade semanal das turmas, com conflitos de sala e de
+  docente informados sem bloquear (`/turmas/{id}/horarios`, `/gestao/turmas/{id}/horarios`).
 
 Especificação, contrato e tarefas em
 [`specs/001-auth-perfil-turmas-avisos/`](specs/001-auth-perfil-turmas-avisos/) (`tasks.md` para a
-E1; `plan-e2.md` e `tasks-e2.md` para a E2).
+E1; `plan-e2.md` e `tasks-e2.md` para a E2) e
+[`specs/002-agenda-horarios/`](specs/002-agenda-horarios/) para a E3 (com o próprio
+`quickstart.md`).
 
 ## Rodando localmente
 
@@ -28,13 +33,15 @@ uv run uvicorn src.main:app --reload  # http://localhost:8000/docs
 O seed cria usuários fictícios para os quatro perfis, todos com a senha `senha-teste`:
 `admin.conecta`, `admin.teste`, `coord.teste`, `docente.teste`, `aluno.teste`, `aluno2.teste`,
 `aluno3.teste` e `aluno.sem.turma`. Também cria as turmas A, B, C (3º semestre) e D (5º),
-vínculos, solicitações e avisos de exemplo. Pode ser executado de novo sem duplicar nada.
+vínculos, solicitações e avisos de exemplo, eventos da agenda e a grade das turmas 3A, 3B e 5A
+(com um conflito de sala de propósito). Pode ser executado de novo sem duplicar nada.
 
 Para validar os fluxos de ponta a ponta com `curl`, siga o
 [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md). Os avisos do seed já vêm com
 versões e histórico (um editado, um arquivado e um excluído), para a plataforma web exibir a linha
 do tempo. Solicitações são decididas em `POST /gestao/solicitacoes/{id}/aprovar|recusar`; o
-script `scripts.aprovar_solicitacao` segue disponível e usa as mesmas regras.
+script `scripts.aprovar_solicitacao` segue disponível e usa as mesmas regras. Os fluxos da agenda
+e da grade estão no [`quickstart.md` da E3](specs/002-agenda-horarios/quickstart.md).
 
 ## Testes
 
@@ -46,7 +53,8 @@ uv run ruff check . && uv run ruff format --check .
 
 Os testes de integração usam o banco `conecta_test`, recriado pelas migrações a cada execução
 (a suíte recusa qualquer banco cujo nome não termine em `_test`). `tests/e2e/` executa o roteiro
-de ponta a ponta da `spec.md` §9.3: publicar pela gestão e receber no aplicativo.
+de ponta a ponta da `spec.md` §9.3 (publicar pela gestão e receber no aplicativo) e o da E3
+(agenda e grade montadas pela gestão e consultadas pelos clientes).
 
 **Mock × real.** Testes que dependem do provedor simulado levam `@pytest.mark.mock_auth`; os da
 integração real com o Moodle, `@pytest.mark.moodle_real`, e só rodam com `MOODLE_URL`
@@ -95,5 +103,3 @@ não roda no banco migrado, nem o contrário. Para implantar: parar a API, rodar
 
 - **Integração real com o Moodle** (T072): implementar `MoodleAuthProvider` e preencher o
   checklist da `spec.md` §9.4 quando houver acesso à API da instituição (data-limite 13/11/2026).
-- **Entrega 3**: agenda e horários (`specs/002-agenda-horarios`). Eventos prontos: `GET /eventos`,
-  `GET /eventos/{id}` e `/gestao/eventos` (ciclo de vida, versões e histórico). Horários por fazer.

@@ -203,6 +203,9 @@ hospedagem que separe os domínios reabre a decisão D2 de `research.md`.
 
 ## Fase F2 (planejada, não implementada)
 
+> Planejada em detalhe em [plan-f2.md](./plan-f2.md) (31/10/2026), com as tarefas em
+> [tasks-f2.md](./tasks-f2.md).
+
 Entra quando a spec E3 da API for publicada. Previsão de impacto: dois conjuntos de endpoints,
 tipos `Evento` e `HorarioDeTurma`, duas rotas com seus formulários e dois itens de navegação. O
 editor de evento reaproveita o seletor de destinos e a linha do tempo dos avisos — o que confirma

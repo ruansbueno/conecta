@@ -156,7 +156,9 @@ seja confundida com validação real.
 ([`002-agenda-horarios`](projeto-api/specs/002-agenda-horarios/spec.md)), com os endpoints de
 eventos e de horários contratados, e o [plano](projeto-api/specs/002-agenda-horarios/plan.md) e as
 [tarefas](projeto-api/specs/002-agenda-horarios/tasks.md) da API (28 tarefas), todas feitas: a E3
-está completa na API. Faltam as fases F2 do aplicativo e da plataforma web.
+está completa na API. A F2 da plataforma web está
+[planejada](projeto-web/specs/001-plataforma-gestao/plan-f2.md) (23 tarefas); faltam a
+implementação dela e a F2 do aplicativo.
 
 **Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
 tablet.

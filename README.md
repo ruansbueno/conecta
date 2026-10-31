@@ -114,7 +114,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 ## Andamento
 
-Atualizado em 31/10/2026 (eventos da agenda na API). Cada etapa entrou por pull request, com revisão independente e os
+Atualizado em 31/10/2026 (E3 completa na API). Cada etapa entrou por pull request, com revisão independente e os
 achados corrigidos com teste antes do merge.
 
 ### Pronto
@@ -140,6 +140,7 @@ achados corrigidos com teste antes do merge.
 | **API — CSRF assinado** | Emenda v2.2 (RF-33): o token CSRF da web passa a ser assinado com chave própria (`CSRF_SECRET`) e preso à sessão; token de outra sessão, adulterado ou sem assinatura é recusado | 594 testes (API) + 8 da implantação contra a API real | [#19](https://github.com/ruansbueno/conecta/pull/19) |
 | **API — nomenclatura do banco** | Tabelas com `tb_` e colunas com prefixo (`id_`, `nm_`, `cod_`, `txt_`, `fl_`, `dt_`, `hr_`, `nr_`, `st_`, `tp_`), como no diagrama ER; só os nomes mudam, a API e os clientes ficam iguais | 599 testes (API) + 8 da implantação contra a API real | [#20](https://github.com/ruansbueno/conecta/pull/20) |
 | **API — E3, eventos** | Agenda: criar evento para o público certo (regra de alcance única, compartilhada com os avisos), consulta com intervalo e encerrados, gestão com versões e histórico imutáveis | 733 testes (API) | [#22](https://github.com/ruansbueno/conecta/pull/22) |
+| **API — E3, horários** | Grade semanal das turmas com conflitos de sala e de docente informados sem bloquear, consulta por vínculo, eventos de vários dias em cada dia que cobrem, matriz de permissões, ponta a ponta e seed da agenda: E3 completa na API | 886 testes (API) | [#23](https://github.com/ruansbueno/conecta/pull/23) |
 
 O fluxo **web → API → app** já fecha para os avisos: o que a coordenação ou um docente publica na
 web aparece no aplicativo para exatamente quem está nos destinos.

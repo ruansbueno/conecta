@@ -60,18 +60,18 @@ horários (consulta e gestão, com conflitos), seed e E2E. Os clientes têm tare
 
 ## Phase 3: US2 — Consultar a agenda (RF-37, RF-38)
 
-- [ ] T010 [P] [US2] Contract test `GET /eventos` e `GET /eventos/{id}` (formato do item,
+- [x] T010 [P] [US2] Contract test `GET /eventos` e `GET /eventos/{id}` (formato do item,
       paginação, filtros `tipo`, `situacao`, `turma_id`; 422 de `ate < de` e de valores inválidos;
       404 de excluído ou fora do alcance) em `tests/contract/test_eventos_listar.py`
-- [ ] T011 [P] [US2] Integration test de visibilidade: cada tipo de destino alcança quem deve e
+- [x] T011 [P] [US2] Integration test de visibilidade: cada tipo de destino alcança quem deve e
       ninguém mais; vários destinos que coincidem dão uma entrega só; turma inativa suspende o
       alcance por turma e por semestre; arquivado só na lista de arquivados, em
       `tests/integration/test_evento_visibilidade.py` (SC-E3-001)
-- [ ] T012 [P] [US2] Integration test de tempo: sem filtro, "a partir de agora" com os em andamento;
+- [x] T012 [P] [US2] Integration test de tempo: sem filtro, "a partir de agora" com os em andamento;
       `[de, ate)` semiaberto; `incluir_encerrados`; evento sem `fim`; evento que cruza a
       meia-noite; um mês inteiro numa chamada (SC-E3-002), em
       `tests/integration/test_evento_intervalo.py`
-- [ ] T013 [US2] `repositories/evento_repository.py`, `services/evento_service.py`,
+- [x] T013 [US2] `repositories/evento_repository.py`, `services/evento_service.py`,
       `schemas/evento.py` e rotas `GET /eventos` e `GET /eventos/{id}`
 
 ---

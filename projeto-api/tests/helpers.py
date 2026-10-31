@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from http.cookies import SimpleCookie
 
 from sqlalchemy import update
@@ -7,6 +7,7 @@ from sqlalchemy import update
 from src.api.deps.csrf import gerar_csrf
 from src.core.security import create_access_token
 from src.models.aviso import Aviso, AvisoDestino
+from src.models.evento import Evento, EventoDestino
 from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
@@ -101,6 +102,18 @@ async def criar_aviso(db, autor, destinos, **campos):
     db.add(aviso)
     await db.commit()
     return aviso
+
+
+async def criar_evento(db, autor, destinos, **campos):
+    """Evento direto no banco. `destinos`: dicts como {"tipo": "turma", "turma_id": ...}."""
+    campos.setdefault("titulo", "Evento de teste")
+    campos.setdefault("tipo", "palestra")
+    campos.setdefault("inicio", datetime.now(UTC) + timedelta(days=1))
+    evento = Evento(autor_id=autor.id, **campos)
+    evento.destinos = [EventoDestino(**d) for d in destinos]
+    db.add(evento)
+    await db.commit()
+    return evento
 
 
 TODOS = {"tipo": "todos"}

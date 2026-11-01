@@ -68,25 +68,19 @@ class _Agenda extends StatelessWidget {
       ),
       body: Column(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Row(
-              children: [
-                for (final (visao, texto) in [
-                  (VisaoAgenda.proximos, 'Próximos'),
-                  (VisaoAgenda.provas, 'Provas'),
-                  (VisaoAgenda.mes, 'Mês'),
-                ]) ...[
-                  Pilula(
-                    texto,
-                    ativa: controller.visao == visao,
-                    onTap: () => controller.alternar(visao),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ],
-            ),
+          LinhaDePilulas(
+            children: [
+              for (final (visao, texto) in [
+                (VisaoAgenda.proximos, 'Próximos'),
+                (VisaoAgenda.provas, 'Provas'),
+                (VisaoAgenda.mes, 'Mês'),
+              ])
+                Pilula(
+                  texto,
+                  ativa: controller.visao == visao,
+                  onTap: () => controller.alternar(visao),
+                ),
+            ],
           ),
           const Divider(),
           Expanded(

@@ -145,25 +145,19 @@ class _Alternancia extends StatelessWidget {
   final ValueChanged<SituacaoAviso> onMudar;
 
   @override
-  // Rolagem horizontal: com fonte a 200% as pílulas não cabem lado a lado (RM-36).
-  Widget build(BuildContext context) => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-    child: Row(
-      children: [
-        Pilula(
-          'Ativos',
-          ativa: atual == SituacaoAviso.ativo,
-          onTap: () => onMudar(SituacaoAviso.ativo),
-        ),
-        const SizedBox(width: 8),
-        Pilula(
-          'Arquivados',
-          ativa: atual == SituacaoAviso.arquivado,
-          onTap: () => onMudar(SituacaoAviso.arquivado),
-        ),
-      ],
-    ),
+  Widget build(BuildContext context) => LinhaDePilulas(
+    children: [
+      Pilula(
+        'Ativos',
+        ativa: atual == SituacaoAviso.ativo,
+        onTap: () => onMudar(SituacaoAviso.ativo),
+      ),
+      Pilula(
+        'Arquivados',
+        ativa: atual == SituacaoAviso.arquivado,
+        onTap: () => onMudar(SituacaoAviso.arquivado),
+      ),
+    ],
   );
 }
 

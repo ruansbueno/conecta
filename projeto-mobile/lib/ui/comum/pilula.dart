@@ -46,3 +46,28 @@ class Pilula extends StatelessWidget {
     ),
   );
 }
+
+/// As pílulas de uma tela, alinhadas à esquerda como no design. Rolam na horizontal: com fonte a
+/// 200% não cabem lado a lado (RM-36).
+class LinhaDePilulas extends StatelessWidget {
+  const LinhaDePilulas({required this.children, super.key});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      child: Row(
+        children: [
+          for (final (i, filho) in children.indexed) ...[
+            if (i > 0) const SizedBox(width: 8),
+            filho,
+          ],
+        ],
+      ),
+    ),
+  );
+}

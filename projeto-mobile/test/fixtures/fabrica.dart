@@ -73,3 +73,52 @@ Map<String, dynamic> solicitacaoMapa(
   'decidida_em': decididaEm,
   'motivo_recusa': motivoRecusa,
 };
+
+/// Eventos e aulas no formato da E3 (contracts E3 §1–3).
+Map<String, dynamic> eventoMapa(
+  String id, {
+  String titulo = 'Evento',
+  String tipo = 'palestra',
+  required DateTime inicio,
+  DateTime? fim,
+  String? local = 'Auditório',
+  String? descricao,
+  String? editadoEm,
+  List<Map<String, dynamic>>? destinos,
+}) => {
+  'id': id,
+  'titulo': titulo,
+  'descricao': descricao,
+  'tipo': tipo,
+  'inicio': inicio.toUtc().toIso8601String(),
+  'fim': fim?.toUtc().toIso8601String(),
+  'local': local,
+  'autor': {'id': 'autor-1', 'nome': 'Marina Duarte'},
+  'situacao': 'ativo',
+  'editado_em': editadoEm,
+  'destinos':
+      destinos ??
+      [
+        {'tipo': 'todos', 'turma': null, 'semestre': null},
+      ],
+};
+
+Map<String, dynamic> aulaMapa(
+  String id, {
+  String turmaId = 'turma-SI-3A',
+  int diaSemana = 1,
+  String inicio = '19:10',
+  String fim = '20:50',
+  String disciplina = 'Banco de Dados II',
+  String? local = 'Lab 4',
+  Map<String, dynamic>? docente = const {'id': 'doc-1', 'nome': 'Helena Prado'},
+}) => {
+  'id': id,
+  'turma_id': turmaId,
+  'dia_semana': diaSemana,
+  'inicio': inicio,
+  'fim': fim,
+  'disciplina': disciplina,
+  'local': local,
+  'docente': docente,
+};

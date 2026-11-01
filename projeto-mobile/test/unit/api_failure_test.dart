@@ -16,6 +16,8 @@ void main() {
     expect(falha('NAO_AUTENTICADO', 401).efeito, EfeitoFalha.encerraSessao);
     expect(falha('AVISO_NAO_ENCONTRADO', 404).mensagem, 'Este aviso não está mais disponível.');
     expect(falha('AVISO_NAO_ENCONTRADO', 404).efeito, EfeitoFalha.voltaLista);
+    expect(falha('EVENTO_NAO_ENCONTRADO', 404).mensagem, 'Este evento não está mais disponível.');
+    expect(falha('EVENTO_NAO_ENCONTRADO', 404).efeito, EfeitoFalha.voltaLista);
     expect(falha('VALIDATION_ERROR', 422).efeito, EfeitoFalha.marcaCampos);
     expect(
       falha('SEM_PERMISSAO', 403).mensagem,

@@ -409,6 +409,7 @@ Estados: **C** carregando · **V** vazio · **E** erro de rede/servidor · **401
 | `SOLICITACAO_NAO_PENDENTE` | Esta solicitação já foi decidida. | Recarrega a lista |
 | `SOLICITACAO_NAO_ENCONTRADA` | Esta solicitação não existe mais. | Recarrega a lista |
 | `AVISO_NAO_ENCONTRADO` | Este aviso não está mais disponível. | Volta à lista |
+| `EVENTO_NAO_ENCONTRADO` | Este evento não está mais disponível. | Volta à agenda (F2) |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
 | sem rede | Sem conexão. Verifique a rede e tente de novo. | Oferece repetir |
 | 5xx ou `code` desconhecido | Não foi possível carregar agora. Tente de novo em instantes. | Oferece repetir |

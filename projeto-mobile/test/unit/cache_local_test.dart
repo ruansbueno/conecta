@@ -61,4 +61,13 @@ void main() {
 
     expect(cache.ler('u1', RecursoCache.perfil), isNull);
   });
+
+  test('recurso com sufixo: uma entrada por item (grade por turma)', () async {
+    await cache.gravar('u1', RecursoCache.horarios, {'total': 1}, sufixo: 't1');
+    await cache.gravar('u1', RecursoCache.horarios, {'total': 2}, sufixo: 't2');
+
+    expect(cache.ler('u1', RecursoCache.horarios, sufixo: 't1')!.dados, {'total': 1});
+    expect(cache.ler('u1', RecursoCache.horarios, sufixo: 't2')!.dados, {'total': 2});
+    expect(prefs.getKeys(), contains('cache:u1:horarios:t1'));
+  });
 }

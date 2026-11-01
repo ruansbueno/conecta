@@ -6,7 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum RecursoCache {
   perfil('perfil'),
   avisosAtivosP1('avisos_ativos_p1'),
-  turmasMinhas('turmas_minhas');
+  turmasMinhas('turmas_minhas'),
+
+  /// F2 (plan-f2 D-AF2-8): primeira página de Próximos sem filtro, o mês corrente e a grade de
+  /// cada turma aberta (com o id da turma como sufixo).
+  agendaProximosP1('agenda_proximos_p1'),
+  agendaMes('agenda_mes'),
+  horarios('horarios');
 
   const RecursoCache(this.chave);
   final String chave;
@@ -27,25 +33,26 @@ class CacheLocal {
 
   final SharedPreferences _prefs;
 
-  static String _chave(String usuarioId, RecursoCache recurso) =>
-      'cache:$usuarioId:${recurso.chave}';
+  static String _chave(String usuarioId, RecursoCache recurso, String? sufixo) =>
+      'cache:$usuarioId:${recurso.chave}${sufixo == null ? '' : ':$sufixo'}';
 
   /// Chamado só depois de uma resposta 2xx (quem chama garante).
   Future<void> gravar(
     String usuarioId,
     RecursoCache recurso,
     Map<String, dynamic> dados, {
+    String? sufixo,
     DateTime? agora,
   }) => _prefs.setString(
-    _chave(usuarioId, recurso),
+    _chave(usuarioId, recurso, sufixo),
     jsonEncode({
       'coletado_em': (agora ?? DateTime.now().toUtc()).toIso8601String(),
       'dados': dados,
     }),
   );
 
-  ConteudoGuardado? ler(String usuarioId, RecursoCache recurso) {
-    final bruto = _prefs.getString(_chave(usuarioId, recurso));
+  ConteudoGuardado? ler(String usuarioId, RecursoCache recurso, {String? sufixo}) {
+    final bruto = _prefs.getString(_chave(usuarioId, recurso, sufixo));
     if (bruto == null) return null;
     try {
       final json = jsonDecode(bruto) as Map<String, dynamic>;

@@ -37,6 +37,7 @@ const _mapa = <String, (String, EfeitoFalha)>{
   'SOLICITACAO_NAO_PENDENTE': ('Esta solicitação já foi decidida.', EfeitoFalha.recarrega),
   'SOLICITACAO_NAO_ENCONTRADA': ('Esta solicitação não existe mais.', EfeitoFalha.recarrega),
   'AVISO_NAO_ENCONTRADO': ('Este aviso não está mais disponível.', EfeitoFalha.voltaLista),
+  'EVENTO_NAO_ENCONTRADO': ('Este evento não está mais disponível.', EfeitoFalha.voltaLista),
   'VALIDATION_ERROR': ('Confira os campos destacados.', EfeitoFalha.marcaCampos),
   ApiFailure.semRede: (_semConexao, EfeitoFalha.repetir),
   ApiFailure.timeout: (_semConexao, EfeitoFalha.repetir),

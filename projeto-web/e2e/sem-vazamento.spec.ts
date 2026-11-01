@@ -15,7 +15,7 @@ test('o token nunca chega ao JavaScript nem ao armazenamento do navegador (RW-02
   await entrar(page, 'coord.teste')
   await estaNaGestao(page)
 
-  const sessao = (await page.context().cookies()).find((c) => c.name === 'conecta_sessao')!
+  const sessao = (await page.context().cookies()).find((c) => c.name === '__Host-conecta_sessao')!
   const visto = await page.evaluate(() => ({
     cookie: document.cookie,
     local: JSON.stringify({ ...localStorage }),
@@ -25,7 +25,7 @@ test('o token nunca chega ao JavaScript nem ao armazenamento do navegador (RW-02
   expect(sessao.httpOnly).toBe(true)
   expect(sessao.secure).toBe(true)
   expect(sessao.sameSite).toBe('Strict')
-  expect(visto.cookie).not.toContain('conecta_sessao')
+  expect(visto.cookie).not.toContain('__Host-conecta_sessao')
   expect(visto.cookie).not.toContain(sessao.value)
   expect(visto.local).not.toContain(sessao.value)
   expect(visto.session).not.toContain(sessao.value)

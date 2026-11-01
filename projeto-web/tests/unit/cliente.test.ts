@@ -27,12 +27,13 @@ async function falha(promessa: Promise<unknown>): Promise<ApiError> {
 
 describe('cliente da API', () => {
   beforeEach(() => {
-    document.cookie = 'conecta_csrf=csrf-123; path=/'
+    // Como a API emite: __Host- só vale com Secure e Path=/ (o jsdom aplica a regra).
+    document.cookie = '__Host-conecta_csrf=csrf-123; Secure; path=/'
   })
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.useRealTimers()
-    document.cookie = 'conecta_csrf=; Max-Age=0; path=/'
+    document.cookie = '__Host-conecta_csrf=; Max-Age=0; Secure; path=/'
   })
 
   it('sucesso: valida pelo esquema e manda credentials em toda chamada', async () => {

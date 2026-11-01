@@ -29,7 +29,7 @@ test('aluno vê a orientação do aplicativo e a sessão é encerrada', async ({
 
   await expect(page.getByRole('heading', { name: /gestão é para administração/ })).toBeVisible()
   const cookies = await page.context().cookies()
-  expect(cookies.find((c) => c.name === 'conecta_sessao')?.value ?? '').toBe('')
+  expect(cookies.find((c) => c.name === '__Host-conecta_sessao')?.value ?? '').toBe('')
   await page.goto('/painel')
   await expect(page).toHaveURL(/\/login$/)
 })

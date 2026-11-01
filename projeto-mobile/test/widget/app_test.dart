@@ -52,9 +52,7 @@ void main() {
     expect(find.widgetWithText(AppBar, 'Avisos'), findsOneWidget);
   });
 
-  testWidgets('barra com Avisos, Agenda, Turmas e Perfil; Horários entra com a grade (T083)', (
-    tester,
-  ) async {
+  testWidgets('barra com as cinco abas da spec §3', (tester) async {
     await guardarSessao();
     api.responder('GET /me', meJson);
 
@@ -67,8 +65,7 @@ void main() {
       ))
         t.data,
     ];
-    expect(rotulos, ['Avisos', 'Agenda', 'Turmas', 'Perfil']);
-    expect(find.text('Horários'), findsNothing);
+    expect(rotulos, ['Avisos', 'Agenda', 'Turmas', 'Horários', 'Perfil']);
   });
 
   testWidgets('cada aba expõe a ação de toque ao leitor de tela', (tester) async {
@@ -79,7 +76,7 @@ void main() {
     await abrir(tester);
 
     final barra = find.byKey(const Key('barra-abas'));
-    for (final aba in ['Avisos', 'Agenda', 'Turmas', 'Perfil']) {
+    for (final aba in ['Avisos', 'Agenda', 'Turmas', 'Horários', 'Perfil']) {
       final no = tester.getSemantics(find.descendant(of: barra, matching: find.text(aba)));
       expect(no.getSemanticsData().hasAction(SemanticsAction.tap), isTrue, reason: aba);
     }

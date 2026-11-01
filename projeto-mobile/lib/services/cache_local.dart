@@ -12,7 +12,10 @@ enum RecursoCache {
   /// cada turma aberta (com o id da turma como sufixo).
   agendaProximosP1('agenda_proximos_p1'),
   agendaMes('agenda_mes'),
-  horarios('horarios');
+  horarios('horarios'),
+
+  /// Turma escolhida em Horários: só o id, lembrado por usuário.
+  horariosTurma('horarios_turma');
 
   const RecursoCache(this.chave);
   final String chave;
@@ -64,6 +67,9 @@ class CacheLocal {
       return null; // entrada corrompida: como se não houvesse cache
     }
   }
+
+  Future<void> apagar(String usuarioId, RecursoCache recurso, {String? sufixo}) =>
+      _prefs.remove(_chave(usuarioId, recurso, sufixo));
 
   /// Encerrar a sessão apaga tudo do usuário (RM-30).
   Future<void> apagarUsuario(String usuarioId) async {

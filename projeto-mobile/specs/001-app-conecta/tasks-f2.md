@@ -99,7 +99,7 @@ terminou em T066.
 
 ## Phase 11: US6b — Horários (RM-27; PR de horários e polimento)
 
-- [ ] T082 [P] [US6b] `test/widget/horarios_page_test.dart`. Teste da grade (m-12):
+- [x] T082 [P] [US6b] `test/widget/horarios_page_test.dart`. Teste da grade (m-12):
   - sem vínculo: estado vazio com o texto da US6;
   - um vínculo: código como texto;
   - mais de um: a folha troca a turma, e a escolha fica lembrada;
@@ -107,9 +107,9 @@ terminou em T066.
   - grade agrupada por dia, só os dias com aula, com disciplina, horas, local e docente;
   - 403 e 404 com as mensagens próprias, recarregando as turmas (D-AF2-7);
   - cache por turma.
-- [ ] T083 [US6b] `lib/state/horarios_controller.dart`, `ui/horarios/horarios_page.dart` e
+- [x] T083 [US6b] `lib/state/horarios_controller.dart`, `ui/horarios/horarios_page.dart` e
   `folha_turmas.dart`; aba Horários na casca, completando as cinco da spec §3
-- [ ] T084 [US6b] Servidor falso com a grade e `integration_test/horarios_test.dart`:
+- [x] T084 [US6b] Servidor falso com a grade e `integration_test/horarios_test.dart`:
   - aluno com duas turmas troca a turma e vê a grade;
   - vínculo removido na API: mensagem e volta.
 
@@ -119,13 +119,13 @@ terminou em T066.
 
 ## Phase 12: Polimento e evidências
 
-- [ ] T085 [P] `integration_test/offline_test.dart`: agenda, mês corrente, detalhe e grade abrem sem
+- [x] T085 [P] `integration_test/offline_test.dart`: agenda, mês corrente, detalhe e grade abrem sem
   rede com a faixa de data (SC-005)
-- [ ] T086 [P] Telas novas com a fonte do sistema em 200%, sem cortes (RM-36). Leitor de tela: dias
+- [x] T086 [P] Telas novas com a fonte do sistema em 200%, sem cortes (RM-36). Leitor de tela: dias
   do mês, chips, cartões e folhas com nome e estado (RM-35).
-- [ ] T087 [P] Comparar m-10, m-10b, m-11 e m-12 com capturas no emulador contra a API local real,
+- [x] T087 [P] Comparar m-10, m-10b, m-11 e m-12 com capturas no emulador contra a API local real,
   registrando as diferenças deliberadas (D-AF2-11) em `evidencias/`
-- [ ] T088 Fechar a documentação:
+- [x] T088 Fechar a documentação:
   - spec §3 (abas liberadas) e §11 (rastreabilidade RM-24 a RM-27 com os testes finais);
   - matriz de mensagens;
   - README do projeto;

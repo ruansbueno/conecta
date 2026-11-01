@@ -7,6 +7,7 @@ import '../../state/mes_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/chip_destino.dart';
+import '../comum/escala.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/faixa_cache.dart';
@@ -288,8 +289,9 @@ class _ItemDoDia extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Acompanha a fonte do sistema: "o dia todo" não quebra (RM-36).
                 SizedBox(
-                  width: 68,
+                  width: larguraEscalada(context, 68, Tipografia.tituloCartao.fontSize!),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -297,7 +299,12 @@ class _ItemDoDia extends StatelessWidget {
                         rotuloNoDia(evento, dia),
                         style: Tipografia.tituloCartao.copyWith(fontSize: 14),
                       ),
-                      Text(evento.rotuloTipo, style: Tipografia.meta),
+                      // O tipo é uma palavra só ("Palestra"): encolhe em vez de quebrar no meio.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(evento.rotuloTipo, maxLines: 1, style: Tipografia.meta),
+                      ),
                     ],
                   ),
                 ),

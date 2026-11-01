@@ -74,8 +74,7 @@ corrente e trata `403 SEM_PERMISSAO` como resposta legítima sempre que estiver 
 
 ## 3. Navegação e Inventário de Telas
 
-Cinco abas fixas na base. As abas Agenda e Horários pertencem a F2 e só aparecem quando a fase
-estiver liberada.
+Cinco abas fixas na base. Agenda e Horários vieram com a F2 (01/11/2026).
 
 ```
 [ Avisos ] [ Agenda* ] [ Turmas ] [ Horários* ] [ Perfil ]      * F2
@@ -500,9 +499,12 @@ Origem única: `design/README.md` e as telas em `design/mobile/`.
 | RM-08 a RM-10 | RF-11 | T14 | unidade `session_controller_test`; widget `perfil_test`; integração `perfil_atualizado_test`, `sessao_test` |
 | RM-11 a RM-17 | RF-20 a RF-23, RF-25 | T02–T05 | unidade `avisos_repository_test`, `avisos_controller_test`; widget `avisos_lista_test`, `aviso_detalhe_test`; integração `avisos_test` |
 | RM-18 a RM-23 | RF-12 a RF-16 | T06–T09 | unidade `turmas_repository_test`, `turmas_controller_test`, `solicitacoes_repository_test`, `solicitacoes_controller_test`; widget `turmas_test`, `solicitacoes_test`; integração `solicitacao_fluxo_test` |
-| RM-24 a RM-27 | RF-31 (E3) | T10–T13 | planejados na F2 |
-| RM-28 a RM-31 | — | T02, T06, T14 | unidade `cache_local_test`; widget `avisos_lista_test`, `turmas_test`, `perfil_test`; integração `offline_test` (SC-005), `token_seguro_test` (SC-006) |
+| RM-24 a RM-26 | RF-37, RF-38 (E3) | T10–T12 | unidade `evento_test`, `eventos_repository_test`, `calendario_test`; widget `agenda_page_test`, `mes_view_test`, `detalhe_evento_test`; integração `agenda_test` |
+| RM-27 | RF-45 (E3) | T13 | unidade `aula_test`, `horarios_repository_test`; widget `horarios_page_test`; integração `horarios_test` |
+| RM-28 a RM-31 | — | T02, T06, T10–T14 | unidade `cache_local_test`, `eventos_repository_test`, `horarios_repository_test`; widget `avisos_lista_test`, `turmas_test`, `perfil_test`, `agenda_page_test`, `mes_view_test`, `horarios_page_test`; integração `offline_test` (SC-005, também agenda, mês corrente, detalhe e grade), `token_seguro_test` (SC-006) |
 | RM-32 a RM-37 | — | todas | widget `comum_test` (estados), `acessibilidade_test` (contraste, 48 dp, rótulos e ordem de leitura; SC-007), `escala_fonte_test` (200%) |
 | RM-38 a RM-40 | SC-005 da API | todas | unidade `api_client_test` (registro de falhas), `api_failure_test`, `mensagens_spec_test` (tabela da seção 6); integração `erro_desconhecido_test` |
 
-Relatório de execução e comparação com o design: [`evidencias/RELATORIO.md`](../../evidencias/RELATORIO.md).
+Relatórios de execução e comparação com o design: F1 em
+[`evidencias/RELATORIO.md`](../../evidencias/RELATORIO.md), F2 em
+[`evidencias/RELATORIO-F2.md`](../../evidencias/RELATORIO-F2.md).

@@ -6,6 +6,7 @@ import 'config/rotas.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/avisos_repository.dart';
 import 'repositories/eventos_repository.dart';
+import 'repositories/horarios_repository.dart';
 import 'repositories/solicitacoes_repository.dart';
 import 'repositories/turmas_repository.dart';
 import 'services/api_client.dart';
@@ -46,6 +47,7 @@ class ConectaApp extends StatelessWidget {
         Provider(create: (_) => AvisosRepository(d.api, d.cache)),
         Provider(create: (_) => TurmasRepository(d.api, d.cache)),
         Provider(create: (_) => EventosRepository(d.api, d.cache)),
+        Provider(create: (_) => HorariosRepository(d.api, d.cache)),
         Provider(create: (_) => SolicitacoesRepository(d.api)),
         ChangeNotifierProvider(create: (_) => MudancasDeSolicitacao()),
         ChangeNotifierProvider(

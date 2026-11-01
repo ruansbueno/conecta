@@ -244,6 +244,32 @@ void main() {
       expect(c.lista.itens.single.codigo, 'NOVA');
     });
 
+    test('recarga superada termina com o resultado da mais recente (a falha dela)', () async {
+      api.responder('GET /turmas/disponiveis', paginaJson([turmaMapa('A')]));
+      final c = DisponiveisController(turmas, solicitacoes, MudancasDeSolicitacao());
+      await c.carregar();
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /turmas/disponiveis'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+
+      var puxadaTerminou = false;
+      final puxada = c.recarregar().then((_) => puxadaTerminou = true);
+      final nova = c.recarregar(); // ex.: a recarga depois de um 409 ao solicitar
+      await pumpEventQueue();
+      respostas[0].complete(respostaJson(paginaJson([turmaMapa('VELHA')])));
+      await pumpEventQueue();
+      expect(puxadaTerminou, isFalse, reason: 'a recarga mais recente ainda está em curso');
+      respostas[1].completeError(http.ClientException('Connection refused'));
+      await nova;
+      await puxada;
+
+      expect(c.ultimaFalha?.code, ApiFailure.semRede);
+      expect(c.lista.itens.single.codigo, 'A');
+    });
+
     test('recentes sobrepostas: vale a resposta do pedido mais recente', () async {
       api.responder('GET /turmas/minhas', paginaJson([]));
       final respostas = <Completer<http.Response>>[];

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:conecta/services/api_client.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
@@ -263,6 +264,33 @@ void main() {
 
     expect(find.text('Período letivo'), findsNothing);
   });
+
+  for (final (caso, rota) in [
+    ('falha da API', (_) => respostaJson('{"detail": "x", "code": "ERRO_INTERNO"}', 500)),
+    ('erro inesperado', (_) => throw StateError('cliente HTTP quebrado')),
+  ]) {
+    testWidgets('$caso na carga do período: a linha some e a falha vai uma vez ao log (RM-38)', (
+      tester,
+    ) async {
+      final registro = <String>[];
+      final original = ApiClient.registrar;
+      ApiClient.registrar = registro.add;
+      addTearDown(() => ApiClient.registrar = original);
+      await preparar(
+        _me(
+          turmas: [
+            {'id': 't1', 'codigo': 'A-1', 'nome': 'A', 'papel': 'aluno'},
+          ],
+        ),
+      );
+      app.api.rotas['GET /turmas/minhas'] = rota;
+      await app.abrir(tester);
+      await abrirAba(tester, 'Perfil');
+
+      expect(find.text('Período letivo'), findsNothing);
+      expect(registro.where((l) => l.startsWith('GET /turmas/minhas')), hasLength(1));
+    });
+  }
 
   testWidgets('sair apaga o perfil guardado neste aparelho (RM-10)', (tester) async {
     await preparar(_me());

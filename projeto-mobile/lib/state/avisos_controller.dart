@@ -22,6 +22,9 @@ class ListaAvisos {
   /// Número da carga ou recarga mais recente: só a resposta dela é aplicada.
   int pedido = 0;
 
+  /// A carga ou recarga do pedido mais recente, até terminar.
+  Future<void> vigente = Future.value();
+
   /// Data dos dados quando a tela mostra o cache por falta de rede; `null` com dados frescos.
   DateTime? dadosDe;
 
@@ -54,20 +57,23 @@ class AvisosController extends ChangeNotifier {
   }
 
   /// Primeira carga: sem rede, cai no cache (só ativos) ou no estado de erro.
-  Future<void> carregar() async {
+  Future<void> carregar() {
     final alvo = lista;
-    final situacao = _situacao;
     final pedido = ++alvo.pedido;
     alvo
       ..estado = EstadoLista.carregando
       ..falha = null;
     notifyListeners();
+    return alvo.vigente = _carregar(alvo, _situacao, pedido);
+  }
+
+  Future<void> _carregar(ListaAvisos alvo, SituacaoAviso situacao, int pedido) async {
     try {
       final pagina = await _repo.listar(usuarioId: usuarioId, situacao: situacao);
-      if (pedido != alvo.pedido) return;
+      if (pedido != alvo.pedido) return alvo.vigente;
       _substituir(alvo, pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
-      if (pedido != alvo.pedido) return;
+      if (pedido != alvo.pedido) return alvo.vigente;
       final emCache = situacao == SituacaoAviso.ativo ? _repo.avisosEmCache(usuarioId) : null;
       if (emCache != null && falha.efeito == EfeitoFalha.repetir) {
         final (pagina, coletadoEm) = emCache;
@@ -82,20 +88,25 @@ class AvisosController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela.
-  Future<void> recarregar() async {
+  /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela. Superada por um
+  /// pedido mais novo, termina junto com ele: quem puxou vê o resultado (e a falha) que valeu.
+  Future<void> recarregar() {
     final alvo = lista;
     // Só há o que manter na tela com conteúdo ou vazio; carregando ou com erro, recarregar é uma
     // carga completa (senão uma recarga que falha deixaria a lista presa no esqueleto).
     if (alvo.estado != EstadoLista.conteudo && alvo.estado != EstadoLista.vazio) return carregar();
     final pedido = ++alvo.pedido;
     _ultimaFalha = null;
+    return alvo.vigente = _recarregar(alvo, _situacao, pedido);
+  }
+
+  Future<void> _recarregar(ListaAvisos alvo, SituacaoAviso situacao, int pedido) async {
     try {
-      final pagina = await _repo.listar(usuarioId: usuarioId, situacao: _situacao);
-      if (pedido != alvo.pedido) return;
+      final pagina = await _repo.listar(usuarioId: usuarioId, situacao: situacao);
+      if (pedido != alvo.pedido) return alvo.vigente;
       _substituir(alvo, pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
-      if (pedido != alvo.pedido) return;
+      if (pedido != alvo.pedido) return alvo.vigente;
       _ultimaFalha = falha;
     }
     notifyListeners();

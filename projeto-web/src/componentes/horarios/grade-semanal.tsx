@@ -12,13 +12,13 @@ interface Props {
 
 const detalhes = (a: Aula) => [a.local, a.docente?.nome].filter(Boolean) as string[]
 
-function rotuloDaAula(a: Aula) {
-  return [a.disciplina, NOME_DIA[a.diaSemana].toLowerCase(), `${a.inicio}–${a.fim}`, ...detalhes(a)].join(', ') + '. Editar aula'
-}
-
 export function GradeSemanal({ turma, grade, onEditar, onNova }: Props) {
   return (
     <div className="overflow-x-auto rounded-xl border border-linha bg-branco px-6 pt-4 pb-6">
+      {/* Descrição dos cartões: oculta, mas lida pelo aria-describedby. */}
+      <p id="dica-editar-aula" hidden>
+        Abre a edição da aula.
+      </p>
       <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-x-3 border-spacing-y-0">
         <caption className="sr-only">Grade semanal da {turma}</caption>
         <thead>
@@ -58,18 +58,23 @@ export function GradeSemanal({ turma, grade, onEditar, onNova }: Props) {
                       <ul className="space-y-2">
                         {aulas.map((a) => (
                           <li key={a.id}>
+                            {/* O nome do botão é o próprio texto do cartão (WCAG 2.5.3); o dia vem do
+                                cabeçalho da coluna, como em qualquer célula de tabela. */}
                             <button
                               type="button"
-                              aria-label={rotuloDaAula(a)}
                               onClick={() => onEditar(a)}
+                              aria-describedby="dica-editar-aula"
                               className="block min-h-[88px] w-full rounded-r-lg border-l-[3px] border-azul bg-azul-superficie/60 px-4 py-3 text-left hover:bg-azul-superficie"
                             >
-                              <span className="block text-[13.5px] font-semibold text-navy">{a.disciplina}</span>
+                              <span className="block text-[13.5px] font-semibold text-navy">{a.disciplina}</span>{' '}
                               <span className="mt-1 block text-[12.5px] font-medium text-navy-suave">
                                 {a.inicio}–{a.fim}
                               </span>
                               {detalhes(a).length > 0 && (
-                                <span className="mt-0.5 block text-[12.5px] text-apagado">{detalhes(a).join(' · ')}</span>
+                                <>
+                                  {' '}
+                                  <span className="mt-0.5 block text-[12.5px] text-apagado">{detalhes(a).join(' · ')}</span>
+                                </>
                               )}
                             </button>
                           </li>

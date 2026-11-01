@@ -42,7 +42,7 @@ implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento]
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, painel, avisos com destinos/histórico/versões, turmas, vínculos, solicitações, usuários e perfis | ✅ Completa (10 de 10 fases) |
-| **F2** | Gestão de agenda e de horários das turmas | Agenda pronta (fases 11 e 12, [#25](https://github.com/ruansbueno/conecta/pull/25)); faltam a grade de horários e o polimento (fases 13 e 14) — [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md), [`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md) |
+| **F2** | Gestão de agenda e de horários das turmas | ✅ Completa (fases 11 a 14): agenda [#25](https://github.com/ruansbueno/conecta/pull/25), grade de horários e polimento [#26](https://github.com/ruansbueno/conecta/pull/26) — [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md), [`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md) |
 
 ## Stack
 
@@ -59,7 +59,7 @@ mesma origem, e proteção CSRF em toda escrita.
 
 ## Andamento
 
-Atualizado em 28/10/2026.
+Atualizado em 01/11/2026.
 
 | Fase da F1 | Conteúdo | Situação |
 |---|---|---|
@@ -75,9 +75,16 @@ Atualizado em 28/10/2026.
 | — Pontos menores | Achados menores das revisões das fases 5 a 9 (textos e datas, listas, foco e leitores de tela, comportamento, servidor falso) | ✅ [#11](https://github.com/ruansbueno/conecta/pull/11) |
 | 10. Polimento e evidências | Mensagens de erro conferidas contra a spec, axe (WCAG 2.1 AA) em todas as telas, uso só com teclado, nada digitado se perde sem rede, evidências com capturas e implantação estática com nginx | ✅ [#13](https://github.com/ruansbueno/conecta/pull/13) |
 
-**Testes**: 275 de unidade e componente (Vitest), 47 de ponta a ponta (Playwright) e 6 da
+| Fase da F2 | Conteúdo | Situação |
+|---|---|---|
+| 11. Fundação da F2 | Emenda `quando` na API, recursos e esquemas da E3, componentes comuns (destinos, linha do tempo), servidor falso com eventos e horários | ✅ [#25](https://github.com/ruansbueno/conecta/pull/25) |
+| 12. US7a — Agenda | Abas Próximos, Mês, Realizados e Arquivados (w-12), calendário do mês, editor de evento com rascunho, ações e histórico com versões | ✅ [#25](https://github.com/ruansbueno/conecta/pull/25) |
+| 13. US7b — Horários | Escolha da turma, grade semanal (w-13), modal de aula, conflitos como atenção, docentes da grade, "avisar a turma" levando ao aviso com a turma como destino | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
+| 14. Polimento da F2 | E2E da agenda e dos horários, axe e teclado nas telas novas, validação visual contra a API real, rastreabilidade e mensagens | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
+
+**Testes**: 380 de unidade e componente (Vitest), 54 de ponta a ponta (Playwright) e 8 da
 implantação (`deploy/verificar.sh`), além da validação visual de cada tela contra a API local real
-([relatório](evidencias/RELATORIO.md)).
+([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md)).
 
 ## Como rodar
 
@@ -105,9 +112,8 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-A F1 da web está fechada e a E3 já está na API. O próximo passo é implementar a F2 desta plataforma
-(telas w-12 e w-13), conforme [`plan-f2.md`](specs/001-plataforma-gestao/plan-f2.md) e
-[`tasks-f2.md`](specs/001-plataforma-gestao/tasks-f2.md).
+A web está completa nas fases F1 e F2. O próximo passo do projeto é a F2 do aplicativo (agenda e
+horários do aluno e do docente), em [`projeto-mobile`](../projeto-mobile).
 
 Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado e
 o endereço da API. A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob

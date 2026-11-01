@@ -17,10 +17,11 @@ describe('grade semanal (T13, w-13, plan-f2 D-F2-8)', () => {
     const bd = within(tabela).getByRole('button', { name: /banco de dados ii/i })
     expect(bd).toHaveTextContent('19:10–20:50')
     expect(bd).toHaveTextContent('Lab 4 · Helena Prado')
-    expect(bd).toHaveAccessibleName('Banco de Dados II, segunda, 19:10–20:50, Lab 4, Helena Prado. Editar aula')
+    expect(bd).toHaveAccessibleName('Banco de Dados II 19:10–20:50 Lab 4 · Helena Prado')
+    expect(bd).toHaveAccessibleDescription('Abre a edição da aula.')
     // Sem local e sem docente: o cartão não inventa nada.
     expect(within(tabela).getByRole('button', { name: /engenharia de software/i })).toHaveAccessibleName(
-      'Engenharia de Software, segunda, 21:00–22:40. Editar aula',
+      'Engenharia de Software 21:00–22:40',
     )
   })
 

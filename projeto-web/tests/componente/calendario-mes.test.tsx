@@ -32,10 +32,10 @@ describe('agenda — aba Mês (plan-f2 D-F2-7)', () => {
     abrirEm('/eventos?aba=mes&mes=2026-11', '/eventos', <ListaEventos />)
 
     for (const dia of ['2 de novembro', '3 de novembro', '4 de novembro']) {
-      const botao = await screen.findByRole('button', { name: new RegExp(`^Ver os eventos de ${dia}`) })
+      const botao = await screen.findByRole('button', { name: new RegExp(`^${dia}`) })
       expect(within(botao).getByText('Semana Acadêmica')).toBeInTheDocument()
     }
-    expect(within(screen.getByRole('button', { name: /^Ver os eventos de 5 de novembro/ })).getByText('+1')).toBeInTheDocument()
+    expect(within(screen.getByRole('button', { name: /^5 de novembro/ })).getByText('+1')).toBeInTheDocument()
   })
 
   it('‹ › trocam o mês na URL e pedem a nova janela', async () => {
@@ -54,7 +54,7 @@ describe('agenda — aba Mês (plan-f2 D-F2-7)', () => {
     apiAgenda({ 'GET /gestao/eventos': { status: 200, corpo: pagina([SEMANA, ...PALESTRAS]) } })
     abrirEm('/eventos?aba=mes&mes=2026-11', '/eventos', <ListaEventos />)
 
-    const dia = await screen.findByRole('button', { name: /^Ver os eventos de 3 de novembro/ })
+    const dia = await screen.findByRole('button', { name: /^3 de novembro/ })
     await userEvent.click(dia)
 
     expect(dia).toHaveAttribute('aria-pressed', 'true')
@@ -68,7 +68,7 @@ describe('agenda — aba Mês (plan-f2 D-F2-7)', () => {
     apiAgenda({ 'GET /gestao/eventos': { status: 200, corpo: pagina([outubro]) } })
     abrirEm('/eventos?aba=mes&mes=2026-11', '/eventos', <ListaEventos />)
 
-    expect(within(await screen.findByRole('button', { name: /^Ver os eventos de 30 de outubro/ })).getByText('Prova de outubro')).toBeInTheDocument()
+    expect(within(await screen.findByRole('button', { name: /^30 de outubro/ })).getByText('Prova de outubro')).toBeInTheDocument()
   })
 
   it('mais eventos do que cabem numa página: avisa que o mês está incompleto', async () => {

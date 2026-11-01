@@ -272,9 +272,9 @@ export default function GradeHorarios() {
         )}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
         <DocentesDaGrade docentes={docentesDaTurma} />
-        <section aria-labelledby="mudou-aula" className="self-start rounded-xl border border-linha bg-branco">
+        <section aria-labelledby="mudou-aula" className="rounded-xl border border-linha bg-branco">
           <h2 id="mudou-aula" className="border-b border-linha-suave px-7 py-5 text-[15px] font-semibold text-navy">
             Mudou alguma aula?
           </h2>

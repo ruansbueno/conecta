@@ -90,17 +90,17 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 14: Ponta a ponta e polimento
 
-- [ ] T096 [P] `e2e/agenda.spec.ts`: coordenação cria, edita, arquiva, desarquiva e exclui um
+- [x] T096 [P] `e2e/agenda.spec.ts`: coordenação cria, edita, arquiva, desarquiva e exclui um
       evento, vê o histórico; o mês mostra o evento de vários dias em cada dia; docente só cria
       para suas turmas
-- [ ] T097 [P] `e2e/horarios.spec.ts`: coordenação escolhe a turma, cria aula com conflito (salva
+- [x] T097 [P] `e2e/horarios.spec.ts`: coordenação escolhe a turma, cria aula com conflito (salva
       e avisada), edita, remove e segue para o aviso da turma; docente não vê "Horários"
-- [ ] T098 [P] Acessibilidade das telas novas: axe sem violação, só teclado (abas, calendário,
+- [x] T098 [P] Acessibilidade das telas novas: axe sem violação, só teclado (abas, calendário,
       grade, modais) e mensagens anunciadas (RW-39, RW-40)
-- [ ] T099 [P] Validação visual com Chrome headless contra a API local real, ao lado de
+- [x] T099 [P] Validação visual com Chrome headless contra a API local real, ao lado de
       `w-12-agenda.png` e `w-13-horarios.png`, registrando as diferenças deliberadas (D-F2-14) em
       `evidencias/`
-- [ ] T100 Atualizar a matriz de rastreabilidade da spec (seção 11) e a matriz de erros (seção 6)
+- [x] T100 Atualizar a matriz de rastreabilidade da spec (seção 11) e a matriz de erros (seção 6)
       para T12 e T13, o README do projeto e anexar o relatório de execução
 
 **Checkpoint**: F2 completa na web.

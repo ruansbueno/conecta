@@ -247,6 +247,10 @@ export default function DetalheTurma() {
         </div>
         {gestao && (
           <div className="flex flex-wrap gap-2.5">
+            <Link to={`/turmas/${t.id}/horarios`} className="botao-secundario">
+              <Icone nome="horarios" tamanho={17} />
+              Horários
+            </Link>
             {t.ativa && (
               <button
                 type="button"

@@ -445,8 +445,8 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | T10 Usuários | `GET /gestao/usuarios`, `GET /gestao/usuarios/{id}` | C, V, E, 401, 403 | Coordenação só lê |
 | T11 Alterar perfil | `PATCH /gestao/usuarios/{id}` | C, E, 403, 404, 409 `PERFIL_INCOMPATIVEL`, 422 | 422 cobre autodesativação e último administrador |
 | T16 Sem permissão | — | — | Resposta do servidor a `403`; não expõe dados |
-| T12 Agenda (F2) | `/gestao/eventos` (E3) | C, V, E, 401, 403 | Bloqueada até a spec E3 |
-| T13 Horários (F2) | `/gestao/turmas/{id}/horarios` (E3) | C, V, E, 401, 403 | Bloqueada até a spec E3 |
+| T12 Agenda (F2) | `GET /gestao/eventos` (com `quando`, `de`/`ate`, `tipo`, `q`), `POST`, `PATCH`, `POST …/arquivar`, `POST …/desarquivar`, `DELETE`, `GET …/versoes`, `GET …/historico` (E3) | C, V, E, 401, 403, 404 `EVENTO_NAO_ENCONTRADO`, 409 `EVENTO_NAO_EDITAVEL`, 409 `EVENTO_SITUACAO_INVALIDA`, 422 | Docente vê e gere só os eventos que criou |
+| T13 Horários (F2) | `GET /gestao/turmas/{id}/horarios`, `POST`, `PATCH …/{horario_id}`, `DELETE …/{horario_id}`, `GET /gestao/usuarios?perfil=docente` (E3) | C, V, E, 401, 403, 404 `TURMA_NAO_ENCONTRADA`, 404 `HORARIO_NAO_ENCONTRADO`, 404 `USUARIO_NAO_ENCONTRADO`, 409 `PERFIL_INCOMPATIVEL`, 422 | Só administração e coordenação; conflitos vêm no 201/200 e não impedem salvar |
 
 ### Mensagens por código
 
@@ -467,6 +467,7 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | `EVENTO_NAO_EDITAVEL` | Eventos arquivados ou excluídos não podem ser editados. | Oferece desarquivar (F2) |
 | `EVENTO_SITUACAO_INVALIDA` | A situação deste evento mudou enquanto você olhava. A agenda foi atualizada. | Recarrega a agenda (F2) |
 | `EVENTO_NAO_ENCONTRADO` | Este evento não está mais disponível. | Volta à agenda (F2) |
+| `HORARIO_NAO_ENCONTRADO` | Esta aula não está mais na grade. | Fecha a modal e recarrega a grade (F2) |
 | `VALIDATION_ERROR` | Confira os campos destacados. | Marca os campos de `errors[]` |
 | `CSRF_INVALIDO` | Não foi possível confirmar a sessão. Recarregue a página e tente de novo. | Permanece (tentar de novo não resolve) |
 | `TURMA_NAO_ENCONTRADA` | Esta turma não está mais disponível. | Recarrega; no detalhe, oferece voltar às turmas |
@@ -592,8 +593,9 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 | RW-28 a RW-30 | RF-17 | T09 | unidade `solicitacoes-recurso.test`; componente `solicitacoes.test`; e2e `solicitacoes.spec` |
 | RW-31 a RW-33 | RF-09 | T10, T11 | unidade `usuarios-recurso.test`; componente `usuarios.test`, `perfil-modal.test`; e2e `usuarios.spec` |
 | — painel | RF-30 | T02, T14 | componente `painel.test`; e2e `painel.spec`, `fluxo-completo.spec` |
-| RW-34 a RW-36, RW-46 | RF-35 a RF-47 (E3) | T12, T13 | planejados na F2 |
-| RW-37 a RW-42 | — | todas | componente `comum.test` (estados, modal, tabela, abas); e2e `acessibilidade.spec` (axe, WCAG 2.1 AA), `teclado.spec`, `sem-perder-texto.spec`; unidade `mensagens-spec.test` (tabela da seção 6) |
+| RW-34 | RF-35 a RF-42 (E3) | T12 | unidade `agenda-abas.test`, `formulario-evento.test`, `eventos-recurso.test`; componente `agenda-lista.test`, `calendario-mes.test`, `editor-evento.test`, `historico-evento.test`; e2e `agenda.spec` |
+| RW-35, RW-36, RW-46 | RF-43 a RF-47 (E3) | T13 | unidade `grade.test`, `horarios-recurso.test`; componente `grade-semanal.test`, `modal-aula.test`, `conflitos.test`, `escolher-turma.test`, `avisar-turma.test`, `detalhe-turma.test`; e2e `horarios.spec` |
+| RW-37 a RW-42 | — | todas | componente `comum.test` (estados, modal, tabela, abas); e2e `acessibilidade.spec` (axe, WCAG 2.1 AA, também agenda e horários), `teclado.spec` (também abas, calendário, grade e modal de aula), `sem-perder-texto.spec`; unidade `mensagens-spec.test` (tabela da seção 6) |
 | RW-43, RW-44 | RF-10, RF-30 | todas | revisão de código; e2e `sem-vazamento.spec` |
 | RW-45 | — | todas | `deploy/verificar.sh` + `deploy/implantacao.spec` (nginx, HTTPS, `/api`, cookie `Secure`) |
 

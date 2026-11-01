@@ -26,8 +26,8 @@ function itens(perfil: string, caminho = '/avisos/novo') {
 }
 
 describe('barra lateral por perfil (RW-11)', () => {
-  it('coordenação e administração veem todos os itens, com a Agenda (F2)', () => {
-    expect(itens('coordenacao')).toEqual(['Painel', 'Avisos', 'Agenda', 'Turmas', 'Solicitações', 'Usuários'])
+  it('coordenação e administração veem todos os itens, com Agenda e Horários (F2)', () => {
+    expect(itens('coordenacao')).toEqual(['Painel', 'Avisos', 'Agenda', 'Turmas', 'Horários', 'Solicitações', 'Usuários'])
   })
 
   it('docente vê "Meus avisos", "Agenda" e "Minhas turmas", sem Usuários', () => {

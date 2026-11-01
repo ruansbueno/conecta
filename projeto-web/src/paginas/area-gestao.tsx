@@ -4,7 +4,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { ApiError } from '../api/erros'
 import { listarSolicitacoes } from '../api/recursos/solicitacoes'
 import { Casca } from '../componentes/layout/casca'
-import { navegacaoDoPerfil } from '../componentes/layout/navegacao'
+import { itemAtivo, navegacaoDoPerfil } from '../componentes/layout/navegacao'
 import { useSessao } from '../sessao/contexto'
 
 /** O que a área de gestão oferece às páginas dentro dela (via `useOutletContext`). */
@@ -16,7 +16,8 @@ export interface ContextoGestao {
 const tituloDaSecao = (perfil: string, caminho: string) =>
   navegacaoDoPerfil(perfil)
     .flatMap((g) => g.itens)
-    .find((item) => caminho.startsWith(item.para))?.rotulo ?? 'CONECTA'
+    // Mesma regra da barra lateral: a grade de uma turma é de Horários.
+    .find((item) => itemAtivo(item.para, caminho))?.rotulo ?? 'CONECTA'
 
 /** Rotas autenticadas da gestão dentro da casca (a guarda ExigirSessao fica por fora). */
 export default function AreaGestao() {

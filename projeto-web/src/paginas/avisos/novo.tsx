@@ -1,6 +1,6 @@
 // T04/T15: publicar aviso (RW-15, RW-16, RW-17, RW-22, RW-42).
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { ApiError } from '../../api/erros'
 import { criarAviso } from '../../api/recursos/avisos'
@@ -19,6 +19,7 @@ import {
 } from '../../lib/formulario-aviso'
 import { apagarRascunho, lerRascunho } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
+import { idDaUrl } from '../lista-na-url'
 import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useTurmasDestino } from './comum'
 
 const CHAVE = 'rascunho:aviso:novo'
@@ -46,6 +47,24 @@ export default function NovoAviso() {
   const [publicado, setPublicado] = useState(false)
   const [descartando, setDescartando] = useState(false)
   useRascunhoAutomatico(CHAVE, digitado, !publicado)
+
+  // `?turma=<id>` (vindo da grade de horários, RW-36): a turma entra como destino, uma vez, se
+  // estiver entre as que a pessoa pode escolher.
+  const [params] = useSearchParams()
+  const turmaDaUrl = idDaUrl(params.get('turma'))
+  const turmaAplicada = useRef(false)
+  useEffect(() => {
+    if (turmaAplicada.current || !turmaDaUrl || carga.estado !== 'pronto') return
+    turmaAplicada.current = true
+    const t = carga.dados.find((x) => x.id === turmaDaUrl)
+    if (!t) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- aplicado uma vez, quando as turmas chegam
+    setFormulario((f) =>
+      f.destinos.some((d) => d.tipo === 'turma' && d.turmaId === t.id)
+        ? f
+        : { ...f, destinos: [...f.destinos, { tipo: 'turma', turmaId: t.id, turmaNome: t.nome }] },
+    )
+  }, [turmaDaUrl, carga])
 
   if (!usuario || carga.estado === 'carregando') return <Esqueleto rotulo="Carregando o editor" />
   if (carga.estado === 'erro') return <EstadoErro mensagem={carga.mensagem} onRepetir={recarregar} />

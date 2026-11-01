@@ -6,6 +6,9 @@ import { Icone } from './icone'
 const FOCAVEIS =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
+/** Modais abertos, do mais antigo ao mais recente: só o de cima responde a Esc e a Tab. */
+const abertos: symbol[] = []
+
 interface Props {
   titulo: string
   descricao?: string
@@ -32,7 +35,11 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
     const focaveis = () => [...(caixa.current?.querySelectorAll<HTMLElement>(FOCAVEIS) ?? [])]
     ;(focaveis()[0] ?? caixa.current)?.focus()
 
+    const eu = Symbol()
+    abertos.push(eu)
     const aoTeclar = (e: KeyboardEvent) => {
+      // Uma confirmação aberta sobre outro modal: Esc fecha só ela.
+      if (abertos.at(-1) !== eu) return
       if (e.key === 'Escape') {
         e.preventDefault()
         fechar.current()
@@ -54,6 +61,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
     document.addEventListener('keydown', aoTeclar)
     return () => {
       document.removeEventListener('keydown', aoTeclar)
+      abertos.splice(abertos.indexOf(eu), 1)
       origem?.focus()
     }
   }, [])

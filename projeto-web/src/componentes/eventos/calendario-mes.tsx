@@ -1,6 +1,7 @@
 // Aba Mês da agenda (plan-f2 D-F2-7): semanas de segunda a domingo, até 3 títulos por dia e "+N";
 // escolher um dia mostra os eventos dele abaixo. Sem desenho próprio: tokens da w-12. Tabela com
 // botões (Tab passa por eles); o dia escolhido tem aria-pressed.
+import { quantidade } from '../../lib/texto'
 import type { EventoAgenda } from '../../api/schemas'
 import { diasDoCalendario, eventosDoDia, outroMes, type Mes } from '../../lib/agenda'
 import { Icone } from '../comum/icone'
@@ -62,7 +63,6 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                   >
                     <button
                       type="button"
-                      aria-label={`Ver os eventos de ${nomeDoDia(dia)}${quantos ? ` (${quantos})` : ''}`}
                       aria-pressed={escolhido}
                       onClick={() => onEscolherDia(dia)}
                       className="flex h-full w-full flex-col items-stretch gap-1 p-2 text-left"
@@ -73,6 +73,12 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                         }`}
                       >
                         {dia.getDate()}
+                        {/* O nome do botão começa pelo que se vê (WCAG 2.5.3): "15 de novembro, 2 eventos: …". */}
+                        {' '}
+                        <span className="sr-only">
+                          {nomeDoDia(dia).slice(String(dia.getDate()).length).trim()}
+                          {quantos ? `, ${quantidade(quantos, 'evento')}:` : ', sem eventos'}
+                        </span>
                       </span>
                       {doDia.slice(0, POR_DIA).map((e) => (
                         <span key={e.id} className="truncate rounded bg-azul-superficie px-1.5 py-0.5 text-[12px] text-navy">

@@ -66,21 +66,21 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 13: US7b — Horários (T13; RW-35, RW-36, RW-46)
 
-- [ ] T090 [P] [US7b] `tests/unit/grade.test.ts`: montagem da grade (colunas de segunda a sexta,
+- [x] T090 [P] [US7b] `tests/unit/grade.test.ts`: montagem da grade (colunas de segunda a sexta,
       sábado e domingo só com aula, linhas pelos inícios distintos, docentes da grade) (D-F2-8,
       D-F2-12)
-- [ ] T091 [P] [US7b] `tests/componente/grade-semanal.test.tsx` e `modal-aula.test.tsx`: grade
+- [x] T091 [P] [US7b] `tests/componente/grade-semanal.test.tsx` e `modal-aula.test.tsx`: grade
       como na w-13, criar, editar e remover aula, docente entre os de perfil docente, 422 e 409
       `PERFIL_INCOMPATIVEL` no campo certo (D-F2-9)
-- [ ] T092 [P] [US7b] `tests/componente/conflitos.test.tsx`: conflitos mostrados como atenção,
+- [x] T092 [P] [US7b] `tests/componente/conflitos.test.tsx`: conflitos mostrados como atenção,
       não erro, com sala ou docente, turma, dia e horas; foco na mensagem (RW-46, D-F2-10)
-- [ ] T093 [P] [US7b] `tests/componente/escolher-turma.test.tsx`: lista das turmas ativas, lembra
+- [x] T093 [P] [US7b] `tests/componente/escolher-turma.test.tsx`: lista das turmas ativas, lembra
       a última, link "Horários" no detalhe da turma (D-F2-3)
-- [ ] T094 [US7b] `paginas/horarios/escolher-turma.tsx`, `paginas/horarios/grade.tsx` e os
+- [x] T094 [US7b] `paginas/horarios/escolher-turma.tsx`, `paginas/horarios/grade.tsx` e os
       componentes `grade-semanal`, `modal-aula`, `conflitos` e `docentes-da-grade`; item
       "Horários" na barra lateral (administração e coordenação), rotas com a guarda de perfil, e
       a grade de uma turma marcando "Horários", não "Turmas"
-- [ ] T095 [US7b] "Avisar a turma": mensagem depois de salvar ou remover, cartão "Mudou alguma
+- [x] T095 [US7b] "Avisar a turma": mensagem depois de salvar ou remover, cartão "Mudou alguma
       aula?" e `/avisos/novo?turma=<id>` com a turma como destino; teste em
       `tests/componente/avisar-turma.test.tsx` (RW-36, D-F2-11)
 
@@ -90,17 +90,17 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 14: Ponta a ponta e polimento
 
-- [ ] T096 [P] `e2e/agenda.spec.ts`: coordenação cria, edita, arquiva, desarquiva e exclui um
+- [x] T096 [P] `e2e/agenda.spec.ts`: coordenação cria, edita, arquiva, desarquiva e exclui um
       evento, vê o histórico; o mês mostra o evento de vários dias em cada dia; docente só cria
       para suas turmas
-- [ ] T097 [P] `e2e/horarios.spec.ts`: coordenação escolhe a turma, cria aula com conflito (salva
+- [x] T097 [P] `e2e/horarios.spec.ts`: coordenação escolhe a turma, cria aula com conflito (salva
       e avisada), edita, remove e segue para o aviso da turma; docente não vê "Horários"
-- [ ] T098 [P] Acessibilidade das telas novas: axe sem violação, só teclado (abas, calendário,
+- [x] T098 [P] Acessibilidade das telas novas: axe sem violação, só teclado (abas, calendário,
       grade, modais) e mensagens anunciadas (RW-39, RW-40)
-- [ ] T099 [P] Validação visual com Chrome headless contra a API local real, ao lado de
+- [x] T099 [P] Validação visual com Chrome headless contra a API local real, ao lado de
       `w-12-agenda.png` e `w-13-horarios.png`, registrando as diferenças deliberadas (D-F2-14) em
       `evidencias/`
-- [ ] T100 Atualizar a matriz de rastreabilidade da spec (seção 11) e a matriz de erros (seção 6)
+- [x] T100 Atualizar a matriz de rastreabilidade da spec (seção 11) e a matriz de erros (seção 6)
       para T12 e T13, o README do projeto e anexar o relatório de execução
 
 **Checkpoint**: F2 completa na web.

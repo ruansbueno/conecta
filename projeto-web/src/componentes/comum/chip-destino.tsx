@@ -44,7 +44,7 @@ export function ChipDestino({ destino, onRemover }: { destino: Destino; onRemove
           type="button"
           onClick={onRemover}
           aria-label={`Remover destino ${rotulo}`}
-          className="inline-flex size-5 items-center justify-center rounded-full text-tenue hover:text-navy"
+          className="inline-flex size-5 items-center justify-center rounded-full text-apagado hover:text-navy"
         >
           <Icone nome="x" tamanho={13} />
         </button>

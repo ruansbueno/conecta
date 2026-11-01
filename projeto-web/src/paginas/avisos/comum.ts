@@ -7,7 +7,7 @@ import type { FormularioAviso } from '../../lib/formulario-aviso'
 import { apagarRascunho, salvarRascunho, type ChaveRascunho } from '../../lib/rascunho'
 import { mensagemDe, type Carga } from '../comum'
 
-export { mensagemDe, useMensagemTrazida, type Carga } from '../comum'
+export { mensagemDe, useMensagemTrazida, useSairDoEditor, type Carga } from '../comum'
 
 
 /**

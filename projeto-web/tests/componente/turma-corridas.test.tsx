@@ -137,6 +137,37 @@ describe('detalhe da turma sob corrida', () => {
   })
 })
 
+describe('vincular: trocar de papel no meio da carga', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('quem já está na turma vem do papel aberto agora, não de uma resposta atrasada do anterior', async () => {
+    let liberarDocentes: () => void = () => undefined
+    api({
+      [`GET /gestao/turmas/${ID}`]: () => json(200, turma),
+      [`GET /gestao/turmas/${ID}/vinculos`]: (q) =>
+        q.get('papel') === 'docente'
+          ? new Promise((r) => (liberarDocentes = () => r(json(200, pagina([vinculo('d1', 'Ricardo Lemos', 'docente')])))))
+          : q.get('papel') === 'aluno'
+            ? json(200, pagina([vinculo('a1', 'Júlia Santos', 'aluno')]))
+            : json(200, pagina([])),
+      'GET /gestao/usuarios': () => json(200, pagina([pessoa('a1', 'Júlia Santos')])),
+    })
+    abrir(`/turmas/${ID}`)
+    // Abre o de docente e, antes de a lista dos docentes chegar, troca para o de aluno.
+    await userEvent.click(await screen.findByRole('button', { name: 'Vincular docente' }))
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Vincular docente' })).getByRole('button', { name: 'Cancelar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Vincular aluno' }))
+    const dialogo = screen.getByRole('dialog', { name: 'Vincular aluno' })
+    await userEvent.type(within(dialogo).getByRole('searchbox'), 'jú')
+    expect(await within(dialogo).findByRole('radio', { name: /Júlia Santos/ })).toBeDisabled()
+
+    await act(async () => liberarDocentes())
+
+    expect(within(dialogo).getByRole('radio', { name: /Júlia Santos/ })).toBeDisabled()
+    expect(within(dialogo).getByText('Já está na turma')).toBeInTheDocument()
+  })
+})
+
 describe('id inválido no endereço (a API real responde 422)', () => {
   afterEach(() => vi.unstubAllGlobals())
 

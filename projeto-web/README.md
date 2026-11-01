@@ -112,9 +112,10 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-A web está completa nas fases F1 e F2. O próximo passo do projeto é a F2 do aplicativo (agenda e
-horários do aluno e do docente), em [`projeto-mobile`](../projeto-mobile).
+A web está completa nas fases F1 e F2, assim como o aplicativo. Falta só a integração real com o
+Moodle, que é da API (a web não muda).
 
-Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado e
-o endereço da API. A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob
+Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado,
+o endereço da API e, se o HTTPS público não usar a porta 443, a porta do redirecionamento de HTTP
+(`map` no topo do arquivo). A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob
 `/api` e HTTPS — está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

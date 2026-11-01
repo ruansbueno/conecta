@@ -22,7 +22,7 @@ import {
 import { apagarRascunho, lerRascunho, type ChaveRascunho } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
 import { idDaUrl } from '../lista-na-url'
-import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useTurmasDestino, type Carga } from './comum'
+import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useSairDoEditor, useTurmasDestino, type Carga } from './comum'
 
 const NADA_ALTERADO = 'Nenhuma alteração para salvar.'
 
@@ -69,6 +69,7 @@ export default function EditarAviso() {
   const chave: ChaveRascunho = `rascunho:aviso:${id}`
   const { usuario } = useSessao()
   const navegar = useNavigate()
+  const sairDoEditor = useSairDoEditor(`/avisos/${id}`)
   const turmas = useTurmasDestino()
   const [aviso, setAviso] = useState<Carga<AvisoGestao>>({ estado: 'carregando' })
   const [digitado, setFormulario] = useState<FormularioAviso>(formularioVazio)
@@ -226,7 +227,7 @@ export default function EditarAviso() {
           destrutiva
           onConfirmar={() => {
             apagarRascunho(chave)
-            navegar(`/avisos/${id}`)
+            sairDoEditor()
           }}
           onCancelar={() => setDescartando(false)}
         />

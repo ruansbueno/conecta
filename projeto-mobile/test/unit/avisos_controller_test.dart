@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:conecta/models/aviso.dart';
 import 'package:conecta/repositories/avisos_repository.dart';
+import 'package:conecta/services/api_failure.dart';
 import 'package:conecta/state/avisos_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -204,6 +205,31 @@ void main() {
       await antiga;
 
       expect(controller.lista.itens, hasLength(1));
+    });
+
+    test('recarga superada termina com o resultado da mais recente (a falha dela)', () async {
+      paginado(2);
+      await controller.carregar();
+      final respostas = <Completer<http.Response>>[];
+      api.rotasAssincronas['GET /avisos'] = (_) {
+        final c = Completer<http.Response>();
+        respostas.add(c);
+        return c.future;
+      };
+
+      var puxadaTerminou = false;
+      final puxada = controller.recarregar().then((_) => puxadaTerminou = true);
+      final nova = controller.recarregar();
+      await pumpEventQueue();
+      respostas[0].complete(respostaJson(paginaAvisosJson(total: 3)));
+      await pumpEventQueue();
+      expect(puxadaTerminou, isFalse, reason: 'a recarga mais recente ainda está em curso');
+      respostas[1].completeError(http.ClientException('Connection refused'));
+      await nova;
+      await puxada;
+
+      expect(controller.ultimaFalha?.code, ApiFailure.semRede);
+      expect(controller.lista.itens, hasLength(2));
     });
 
     test('"carregar mais" antigo, depois de uma recarga, não libera o pedido novo', () async {

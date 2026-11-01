@@ -29,10 +29,12 @@ export function criarEncerrador({ encerrarNaApi, aoEncerrar }: Dependencias) {
       try {
         await encerrarNaApi()
       } catch (e) {
-        // Sessão já inválida na API: nada a apagar lá. Numa saída pedida, qualquer outra falha
-        // deixaria o cookie vivo (computador compartilhado, RW-09): a sessão continua e quem
+        // Sessão já inválida na API: nada a apagar lá. CSRF inválido também encerra: a API recusa,
+        // mas expira os cookies na mesma resposta (01/11/2026). Numa saída pedida, qualquer outra
+        // falha deixaria o cookie vivo (computador compartilhado, RW-09): a sessão continua e quem
         // chamou mostra o erro. Na expiração, segue o encerramento local.
-        const jaInvalida = e instanceof ApiError && (e.code === 'NAO_AUTENTICADO' || e.code === 'USUARIO_INATIVO')
+        const jaInvalida =
+          e instanceof ApiError && ['NAO_AUTENTICADO', 'USUARIO_INATIVO', 'CSRF_INVALIDO'].includes(e.code)
         if (motivo === 'saida' && !jaInvalida) throw e
       }
       // Sessão expirada preserva o rascunho: quem reentra recupera o texto (edge case da spec).

@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { solicitacaoGestaoSchema } from '../../src/api/schemas'
+import { TabelaSolicitacoes } from '../../src/componentes/solicitacoes/tabela'
 import Solicitacoes from '../../src/paginas/solicitacoes'
 import { SessaoProvider } from '../../src/sessao/contexto'
 import { erro, me, pagina, solicitacao, turma } from '../fixtures'
@@ -341,5 +343,26 @@ describe('decidir (RW-29, RW-30)', () => {
     abrir('/solicitacoes?turma=00000000-0000-4000-8000-0000000000ff')
     const seletor = await screen.findByRole('combobox', { name: 'Turma' })
     await waitFor(() => expect(seletor).toHaveDisplayValue('Turma do endereço'))
+  })
+})
+
+describe('tabela de solicitações: um "agora" só para a lista inteira', () => {
+  it('a data segue o momento em que a lista chegou, não o relógio de cada linha', () => {
+    // Lista carregada em 31/12 e vista depois da virada: as datas seguem o momento da carga, sem
+    // misturar, na mesma lista, linhas com e sem o ano.
+    // Horas locais: em qualquer fuso, os dois momentos ficam em 31/12.
+    const s = solicitacaoGestaoSchema.parse({ ...solicitacao, solicitada_em: new Date(2025, 11, 31, 15).toISOString() })
+    render(
+      <TabelaSolicitacoes
+        legenda="Solicitações"
+        solicitacoes={[s]}
+        agora={new Date(2025, 11, 31, 18)}
+        ocupado={false}
+        onAprovar={() => undefined}
+        onRecusar={() => undefined}
+      />,
+    )
+    const celula = screen.getByRole('cell', { name: /31\/12/ })
+    expect(celula).not.toHaveTextContent('2025')
   })
 })

@@ -44,12 +44,79 @@ class _DisponiveisPageState extends State<DisponiveisPage> {
   }
 
   void _seRecusada() {
-    if (!_controller.semPermissao || !mounted) return;
+    final falha = _controller.falhaDePermissao;
+    if (falha != null) _sairPorPermissao(falha);
+  }
+
+  /// `403` guardado enquanto a folha de confirmação de outro pedido está aberta.
+  ApiFailure? _recusaAdiada;
+  bool _saiu = false;
+
+  /// Um `403` explica o perfil e volta a Minhas turmas. Com a folha de confirmação aberta (o 201
+  /// de outro pedido), espera a folha fechar: ela conta um pedido que deu certo, e fechar o que
+  /// estiver por cima tiraria a folha em vez da tela.
+  void _sairPorPermissao(ApiFailure falha) {
+    if (_saiu || !mounted) return;
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) {
+      _recusaAdiada = falha;
+      return;
+    }
+    _saiu = true;
     _controller.removeListener(_seRecusada);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(_controller.falhaDePermissao!.mensagem)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(falha.mensagem)));
     Navigator.of(context).pop();
+  }
+
+  /// Envia o pedido (contrato §7) e segue o efeito da resposta: folha de confirmação; recarga
+  /// (feita pelo controller); Minhas solicitações para um pedido duplicado; volta para um `403`;
+  /// "Tentar de novo" sem rede. Se a pessoa saiu da tela durante o envio, a mudança já foi
+  /// avisada (Minhas turmas recarrega) e só resta uma mensagem curta: nada de folha ou navegação.
+  Future<void> _solicitar(Turma turma) async {
+    if (_controller.enviando(turma.id)) return;
+    final mensageiro = ScaffoldMessenger.of(context);
+    final falha = await _controller.solicitar(turma);
+    if (falha == null) {
+      if (!mounted) {
+        mensageiro.showSnackBar(
+          SnackBar(content: Text('Solicitação de inscrição em ${turma.nome} enviada.')),
+        );
+        return;
+      }
+      final navegador = Navigator.of(context);
+      final saida = await mostrarFolhaConfirmacao(context, turma.nome);
+      if (!mounted) return;
+      // Um `403` chegou com a folha aberta: vale ele, qualquer que tenha sido a saída da folha.
+      final recusa = _recusaAdiada;
+      if (recusa != null) return _sairPorPermissao(recusa);
+      if (saida == SaidaDaFolha.verSolicitacoes) {
+        unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
+      } else if (saida == SaidaDaFolha.voltarAsTurmas) {
+        navegador.pop();
+      }
+      return;
+    }
+    if (falha.code == 'SEM_PERMISSAO') {
+      if (mounted) return _sairPorPermissao(falha);
+      mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+      return;
+    }
+    mensageiro.showSnackBar(
+      SnackBar(
+        content: Text(falha.mensagem),
+        action: falha.efeito == EfeitoFalha.repetir && mounted
+            ? SnackBarAction(
+                label: 'Tentar de novo',
+                // A mensagem sobrevive à tela: o toque só vale se ela ainda estiver aberta.
+                onPressed: () {
+                  if (mounted) _solicitar(turma);
+                },
+              )
+            : null,
+      ),
+    );
+    if (mounted && falha.efeito == EfeitoFalha.abreSolicitacoes) {
+      unawaited(Navigator.of(context).pushReplacementNamed(Rotas.solicitacoes));
+    }
   }
 
   @override
@@ -190,15 +257,11 @@ class _TurmaDisponivel extends StatelessWidget {
           ),
         ),
         acao: FilledButton(
-          // O contexto é o da tela, não o do cartão: depois do 201 o cartão sai da lista, mas a
-          // folha de confirmação ainda precisa abrir.
+          // O envio fica na tela, não no cartão: depois do 201 o cartão sai da lista, mas a folha
+          // de confirmação ainda precisa abrir.
           onPressed: enviando
               ? null
-              : () => solicitar(
-                  context.findAncestorStateOfType<_DisponiveisPageState>()!.context,
-                  context.read<DisponiveisController>(),
-                  turma,
-                ),
+              : () => context.findAncestorStateOfType<_DisponiveisPageState>()!._solicitar(turma),
           child: enviando
               ? const SizedBox.square(
                   dimension: 18,
@@ -212,53 +275,5 @@ class _TurmaDisponivel extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-/// Envia o pedido (contrato §7) e segue o efeito da resposta: folha de confirmação; recarga
-/// (feita pelo controller); Minhas solicitações para um pedido duplicado; volta para um `403`;
-/// "Tentar de novo" sem rede. Se a pessoa saiu da tela durante o envio, a mudança já foi avisada
-/// (Minhas turmas recarrega) e só resta uma mensagem curta: nada de folha ou navegação.
-/// [context] é o da tela de disponíveis ([_DisponiveisPageState]).
-Future<void> solicitar(BuildContext context, DisponiveisController controller, Turma turma) async {
-  if (controller.enviando(turma.id)) return;
-  final mensageiro = ScaffoldMessenger.of(context);
-  final falha = await controller.solicitar(turma);
-  if (falha == null) {
-    if (!context.mounted) {
-      mensageiro.showSnackBar(
-        SnackBar(content: Text('Solicitação de inscrição em ${turma.nome} enviada.')),
-      );
-      return;
-    }
-    final navegador = Navigator.of(context);
-    final saida = await mostrarFolhaConfirmacao(context, turma.nome);
-    if (!context.mounted) return;
-    if (saida == SaidaDaFolha.verSolicitacoes) {
-      unawaited(navegador.pushReplacementNamed(Rotas.solicitacoes));
-    } else if (saida == SaidaDaFolha.voltarAsTurmas) {
-      navegador.pop();
-    }
-    return;
-  }
-  mensageiro.showSnackBar(
-    SnackBar(
-      content: Text(falha.mensagem),
-      action: falha.efeito == EfeitoFalha.repetir && context.mounted
-          ? SnackBarAction(
-              label: 'Tentar de novo',
-              // A mensagem sobrevive à tela: o toque só vale se ela ainda estiver aberta.
-              onPressed: () {
-                if (context.mounted) solicitar(context, controller, turma);
-              },
-            )
-          : null,
-    ),
-  );
-  if (!context.mounted) return;
-  if (falha.efeito == EfeitoFalha.abreSolicitacoes) {
-    unawaited(Navigator.of(context).pushReplacementNamed(Rotas.solicitacoes));
-  } else if (falha.code == 'SEM_PERMISSAO') {
-    Navigator.of(context).pop();
   }
 }

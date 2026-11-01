@@ -6,14 +6,14 @@
   (`2026-10-05T14:30:00Z`); ids em UUID; campos em `snake_case` sem acento.
 - Recursos protegidos aceitam **dois meios equivalentes** de autenticação (RF-32): o cabeçalho
   `Authorization: Bearer <token>`, usado pelo aplicativo mobile, ou o **cookie de sessão**
-  `conecta_sessao`, usado pela plataforma web. Os dois carregam o mesmo token de 24 h. A API
+  `__Host-conecta_sessao`, usado pela plataforma web. Os dois carregam o mesmo token de 24 h. A API
   reavalia **perfil** e **ativo** do usuário no banco a cada requisição (o `perfil` do token é
   informativo).
 - Quando a autenticação vier por cookie, `POST`, `PATCH` e `DELETE` exigem **CSRF por double
-  submit assinado** (RF-33, emenda v2.2): o valor do cookie legível `conecta_csrf` repetido no
+  submit assinado** (RF-33, emenda v2.2): o valor do cookie legível `__Host-conecta_csrf` repetido no
   cabeçalho `X-CSRF-Token`. O valor tem a forma `<aleatório>.<assinatura>`, em que a assinatura
   é um HMAC-SHA256 com a chave `CSRF_SECRET` sobre o cookie de sessão e o aleatório; a API a
-  confere contra o `conecta_sessao` da mesma requisição. Ausência, divergência ou assinatura que
+  confere contra o `__Host-conecta_sessao` da mesma requisição. Ausência, divergência ou assinatura que
   não corresponde à sessão → 403 `CSRF_INVALIDO`. O cliente trata o valor como opaco. Com `Bearer`, o CSRF não é exigido.
 - **Entrega**: seções 1–9 são **E1** (consumidas pelo app); seções 10–15 são **E2**
   (`/gestao/*`, consumidas pela plataforma web).
@@ -113,8 +113,8 @@ Autentica via `AuthProvider` configurado (mock ou Moodle) e emite o token (24 h)
 cookies e usa `access_token`:
 
 ```http
-Set-Cookie: conecta_sessao=<token>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400
-Set-Cookie: conecta_csrf=<aleatório>.<assinatura>; Secure; SameSite=Strict; Path=/; Max-Age=86400
+Set-Cookie: __Host-conecta_sessao=<token>; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400
+Set-Cookie: __Host-conecta_csrf=<aleatório>.<assinatura>; Secure; SameSite=Strict; Path=/; Max-Age=86400
 ```
 
 O cookie de sessão é `HttpOnly` — inacessível ao JavaScript. O de CSRF é legível de propósito: ele
@@ -137,12 +137,19 @@ e `ultimo_login_em`.
 
 ## 1b. DELETE /auth/sessao
 
-Encerra a sessão por cookie: invalida `conecta_sessao` e `conecta_csrf`.
+Encerra a sessão por cookie: invalida `__Host-conecta_sessao` e `__Host-conecta_csrf`.
 
 **Auth**: cookie de sessão (exige `X-CSRF-Token`). Com `Bearer`, responde 204 sem efeito — o
 aplicativo encerra a sessão descartando o token localmente.
 
 **204** sem corpo. Os cookies voltam com `Max-Age=0`.
+
+**403** `CSRF_INVALIDO` quando o CSRF falta ou não confere. Mesmo assim os dois cookies voltam com
+`Max-Age=0` (emenda de 01/11/2026): sair nunca deixa a sessão no navegador, e um site de fora só
+conseguiria deslogar a pessoa.
+
+**Prefixo `__Host-`** (emenda de 01/11/2026): o navegador só aceita os dois cookies com `Secure`,
+`Path=/` e sem `Domain`, e nenhum subdomínio consegue gravá-los nem substituí-los.
 
 **Maps to**: RF-32, RF-33.
 

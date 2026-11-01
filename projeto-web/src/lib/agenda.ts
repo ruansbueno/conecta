@@ -94,12 +94,18 @@ export function eventosDoDia<T extends NoTempo>(eventos: T[], dia: Date): T[] {
 const doisDigitos = (n: number) => String(n).padStart(2, '0')
 const hhmm = (d: Date) => `${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`
 const ddmm = (d: Date) => `${doisDigitos(d.getDate())}/${doisDigitos(d.getMonth() + 1)}`
+const DIA_MS = 86_400_000
 
 /** Texto de horário do cartão da agenda (D-F2-6). */
 export function faixaDoEvento({ tipo, inicio, fim }: { tipo: string } & NoTempo): string {
   if (!fim) return tipo === 'data_importante' ? `até ${hhmm(inicio)}` : hhmm(inicio)
   // Terminar à meia-noite conta como o fim do dia em que começou.
   const ultimoInstante = new Date(fim.getTime() - 1)
-  const mesmoDia = ultimoInstante.toDateString() === inicio.toDateString()
-  return mesmoDia ? `${hhmm(inicio)} – ${hhmm(fim)}` : `de ${ddmm(inicio)} a ${ddmm(ultimoInstante)}`
+  if (ultimoInstante.toDateString() === inicio.toDateString()) return `${hhmm(inicio)} – ${hhmm(fim)}`
+  // O ano só aparece quando as duas datas caem em anos diferentes (o cartão já não mostra o ano).
+  const outroAno = inicio.getFullYear() !== ultimoInstante.getFullYear()
+  const data = (d: Date) => (outroAno ? `${ddmm(d)}/${d.getFullYear()}` : ddmm(d))
+  // Menos de um dia que vira a noite (22:00 às 02:00): as datas sozinhas perderiam as horas.
+  if (fim.getTime() - inicio.getTime() < DIA_MS) return `${data(inicio)} ${hhmm(inicio)} – ${data(fim)} ${hhmm(fim)}`
+  return `de ${data(inicio)} a ${data(ultimoInstante)}`
 }

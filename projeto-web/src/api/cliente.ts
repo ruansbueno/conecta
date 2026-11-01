@@ -24,12 +24,15 @@ export function aoSessaoInvalida(ouvinte: Ouvinte): () => void {
   return () => ouvintes.delete(ouvinte)
 }
 
+/** Prefixo `__Host-` (API, 01/11/2026): só com Secure, Path=/ e sem Domain. */
+const COOKIE_CSRF = '__Host-conecta_csrf'
+
 /** Único cookie que o JavaScript lê: o CSRF, que não autentica nada sozinho (D4). */
 function tokenCsrf(): string | undefined {
   return document.cookie
     .split('; ')
-    .find((c) => c.startsWith('conecta_csrf='))
-    ?.slice('conecta_csrf='.length)
+    .find((c) => c.startsWith(`${COOKIE_CSRF}=`))
+    ?.slice(COOKIE_CSRF.length + 1)
 }
 
 function montarUrl(caminho: string, query?: Record<string, unknown>): string {

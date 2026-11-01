@@ -87,11 +87,14 @@ export default function DetalheTurma() {
   // estar filtrada por outro papel).
   const [jaNoPapel, setJaNoPapel] = useState(new Set<string>())
 
+  // Fechar e abrir com outro papel antes da resposta: só a lista do formulário aberto por último vale.
+  const ultimoVincular = useRef(0)
   function abrirVincular(p: Papel) {
+    const pedido = ++ultimoVincular.current
     setJaNoPapel(new Set())
     setVinculando(p)
     listarVinculos(id, { papel: p, limit: LIMITE_VINCULOS })
-      .then((v) => setJaNoPapel(new Set(v.items.map((x) => x.usuario.id))))
+      .then((v) => pedido === ultimoVincular.current && setJaNoPapel(new Set(v.items.map((x) => x.usuario.id))))
       .catch(() => undefined)
   }
   const emCurso = useRef(false)

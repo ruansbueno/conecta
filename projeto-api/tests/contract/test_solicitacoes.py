@@ -98,7 +98,7 @@ async def test_solicitar_por_cookie_exige_csrf(client, db):
     sem = await client.post(f"/turmas/{turma.id}/solicitacoes")
     com = await client.post(
         f"/turmas/{turma.id}/solicitacoes",
-        headers={"X-CSRF-Token": client.cookies["conecta_csrf"]},
+        headers={"X-CSRF-Token": client.cookies["__Host-conecta_csrf"]},
     )
 
     assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")

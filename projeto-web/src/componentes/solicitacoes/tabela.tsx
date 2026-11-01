@@ -68,7 +68,7 @@ export function TabelaSolicitacoes({ legenda, solicitacoes, agora, ocupado, onAp
         const dias = diasEsperando(s, agora)
         return (
           <>
-            <span className="whitespace-nowrap">{dataNumerica(s.solicitadaEm)}</span>
+            <span className="whitespace-nowrap">{dataNumerica(s.solicitadaEm, agora)}</span>
             {s.status === 'pendente' && esperaDemais(s, agora) && (
               <span className="mt-1 block w-fit rounded-full bg-alerta-fundo px-2 py-0.5 text-xs font-semibold text-alerta">
                 há {dias} dias

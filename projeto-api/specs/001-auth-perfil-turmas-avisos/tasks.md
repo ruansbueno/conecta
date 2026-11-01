@@ -108,12 +108,12 @@ Projeto único (web-service), conforme `plan.md`: `src/`, `tests/`, `alembic/` n
       (selecionado por `Settings.AUTH_PROVIDER`), trata falha do provedor como `CREDENCIAIS_INVALIDAS`,
       verifica `ativo`, faz upsert e emite JWT (RF-01, RF-04, RF-06) (dep. T012, T013, T014, T026)
 - [x] T028 [US1] `src/api/routes/auth.py`: `POST /auth/login`, devolvendo o token no corpo **e**
-      os cookies `conecta_sessao` (`HttpOnly`, `Secure`, `SameSite=Strict`, 24 h) e `conecta_csrf`
+      os cookies `__Host-conecta_sessao` (`HttpOnly`, `Secure`, `SameSite=Strict`, 24 h) e `__Host-conecta_csrf`
       (legível) (RF-32) (dep. T025, T027)
 - [x] T028a [US1] `src/core/security.py` (continuação): aceitar autenticação por cookie de sessão
       além do cabeçalho `Bearer`, com o mesmo resultado em `get_current_user` (RF-32) (dep. T019)
 - [x] T028b [US1] `src/api/deps/csrf.py`: dependência que exige `X-CSRF-Token` igual ao cookie
-      `conecta_csrf` em `POST`, `PATCH` e `DELETE` autenticados por cookie; 403 `CSRF_INVALIDO` em
+      `__Host-conecta_csrf` em `POST`, `PATCH` e `DELETE` autenticados por cookie; 403 `CSRF_INVALIDO` em
       ausência ou divergência; nenhuma exigência com `Bearer` (RF-33) (dep. T028a)
 - [x] T028c [US1] `src/api/routes/auth.py`: `DELETE /auth/sessao`, invalidando os dois cookies com
       `Max-Age=0` (RF-33) (dep. T028, T028b)

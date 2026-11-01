@@ -113,3 +113,41 @@ test('docente vê só os seus avisos e não tem a aba Excluídos', async ({ page
   await expect(page.getByText('Nenhum aviso ativo')).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Excluídos' })).toHaveCount(0)
 })
+
+test('servidor falso: "publicar agora" num agendado grava a hora da publicação, como a API (D-E2-6)', async () => {
+  const API = 'http://localhost:8787'
+  const login = await fetch(`${API}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'coord.teste', password: 'senha-teste' }),
+  })
+  const { access_token } = (await login.json()) as { access_token: string }
+  const chamar = async (metodo: string, caminho: string, corpo: unknown) => {
+    const r = await fetch(`${API}${caminho}`, {
+      method: metodo,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${access_token}` },
+      body: JSON.stringify(corpo),
+    })
+    return { status: r.status, corpo: (await r.json()) as Record<string, unknown> }
+  }
+  const amanha = new Date(Date.now() + 86_400_000).toISOString()
+  const criado = await chamar('POST', '/gestao/avisos', { titulo: TITULO, conteudo: 'Pauta.', publicar_em: amanha, destinos: [{ tipo: 'docentes' }] })
+  const id = criado.corpo.id as string
+
+  // Recusado: nada muda; o aviso continua agendado e pode ser reagendado.
+  expect((await chamar('PATCH', `/gestao/avisos/${id}`, { titulo: 'x', publicar_em: null })).status).toBe(422)
+  const depoisDaRecusa = await chamar('PATCH', `/gestao/avisos/${id}`, { publicar_em: new Date(Date.now() + 2 * 86_400_000).toISOString() })
+  expect(depoisDaRecusa.status).toBe(200)
+
+  const antes = Date.now()
+  const agora = await chamar('PATCH', `/gestao/avisos/${id}`, { publicar_em: null })
+  expect(agora.status).toBe(200)
+  // A API grava a hora da publicação em publicar_em (não cai na data de criação), e publicado_em é a mesma.
+  const publicadoEm = new Date(agora.corpo.publicado_em as string).getTime()
+  expect(publicadoEm).toBeGreaterThanOrEqual(antes - 1000)
+  expect(publicadoEm).toBeLessThanOrEqual(Date.now() + 1000)
+  expect(agora.corpo.publicar_em).toBe(agora.corpo.publicado_em)
+  const historico = await fetch(`${API}/gestao/avisos/${id}/historico`, { headers: { Authorization: `Bearer ${access_token}` } })
+  const [ultimo] = ((await historico.json()) as { items: { alteracoes: Record<string, { para: unknown }> }[] }).items
+  expect(ultimo.alteracoes.publicar_em.para).toBe(agora.corpo.publicado_em)
+})

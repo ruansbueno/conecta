@@ -48,11 +48,11 @@ describe('sair (RW-09)', () => {
     expect(screen.getByText('painel')).toBeInTheDocument()
   })
 
-  it('CSRF inválido não pede para "tentar em instantes"', async () => {
+  it('CSRF inválido também sai: a API recusa, mas já expirou os cookies (01/11/2026)', async () => {
     montar({ status: 403, corpo: erro('CSRF_INVALIDO') })
     await userEvent.click(await screen.findByRole('button', { name: 'Sair' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/Recarregue a página/)
+    expect(await screen.findByText('tela de login')).toBeInTheDocument()
   })
 })
 

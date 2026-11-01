@@ -29,6 +29,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.{ts,tsx}'],
-    css: false,
+    // Só o tema é processado: o teste de contraste lê as cores dele (`?raw`).
+    css: { include: [/globals\.css/] },
   },
 })

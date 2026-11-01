@@ -89,7 +89,9 @@ class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
     final perfil = context.select<SessionController, Perfil?>((s) => s.usuario?.perfil);
     if (_perfilAnterior != null && perfil != null && perfil != _perfilAnterior) {
       // Telas empilhadas sobre as abas (disponíveis, solicitações, detalhe) eram do perfil
-      // anterior: fecham, e a pessoa volta às abas já recriadas.
+      // anterior: fecham, e a pessoa volta às abas já recriadas. Diálogos e folhas também
+      // fecham, de propósito: todos são abertos por uma aba ou por uma tela empilhada, e a
+      // resposta iria para uma tela que acabou de ser descartada.
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => Rotas.navigatorKey.currentState?.popUntil((rota) => rota.isFirst),
       );

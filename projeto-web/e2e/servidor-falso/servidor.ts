@@ -38,6 +38,9 @@ const json = (res: ServerResponse, status: number, corpo?: unknown, cabecalhos: 
 const erro = (res: ServerResponse, status: number, code: string, detail = code, errors?: object[]) =>
   json(res, status, { detail, code, ...(errors ? { errors } : {}) })
 
+const expira = 'Secure; SameSite=Strict; Path=/; Max-Age=0'
+const cookiesExpirados = [`__Host-conecta_sessao=; HttpOnly; ${expira}`, `__Host-conecta_csrf=; ${expira}`]
+
 const cookies = (req: IncomingMessage) =>
   Object.fromEntries(
     (req.headers.cookie ?? '').split(/;\s*/).filter(Boolean).map((c) => {
@@ -59,7 +62,7 @@ async function corpoJson(req: IncomingMessage): Promise<Record<string, unknown> 
 
 function usuarioDaSessao(req: IncomingMessage) {
   const auth = req.headers.authorization?.replace(/^Bearer /, '')
-  const token = auth ?? cookies(req).conecta_sessao
+  const token = auth ?? cookies(req)['__Host-conecta_sessao']
   return token ? estado.sessoes.get(token) : undefined
 }
 
@@ -126,7 +129,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       res,
       200,
       { access_token: token, token_type: 'bearer', expires_in: 86400, usuario: estado.publico(u) },
-      { 'Set-Cookie': [`conecta_sessao=${token}; HttpOnly; ${atributos}`, `conecta_csrf=${gerarCsrf(token)}; ${atributos}`] },
+      { 'Set-Cookie': [`__Host-conecta_sessao=${token}; HttpOnly; ${atributos}`, `__Host-conecta_csrf=${gerarCsrf(token)}; ${atributos}`] },
     )
   }
 
@@ -136,13 +139,18 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (!usuario.ativo) return erro(res, 403, 'USUARIO_INATIVO')
   const porCookie = !req.headers.authorization
   if (porCookie && ['POST', 'PATCH', 'DELETE'].includes(metodo)) {
-    const { conecta_csrf: c, conecta_sessao: sessao } = cookies(req)
-    if (!c || req.headers['x-csrf-token'] !== c || !csrfConfere(sessao ?? '', c)) return erro(res, 403, 'CSRF_INVALIDO')
+    const { '__Host-conecta_csrf': c, '__Host-conecta_sessao': sessao } = cookies(req)
+    if (!c || req.headers['x-csrf-token'] !== c || !csrfConfere(sessao ?? '', c)) {
+      // Como a API (01/11/2026): sair com CSRF inválido é recusado, mas os cookies expiram.
+      if (metodo === 'DELETE' && caminho === '/auth/sessao') {
+        return json(res, 403, { detail: 'CSRF_INVALIDO', code: 'CSRF_INVALIDO' }, { 'Set-Cookie': cookiesExpirados })
+      }
+      return erro(res, 403, 'CSRF_INVALIDO')
+    }
   }
 
   if (metodo === 'DELETE' && caminho === '/auth/sessao') {
-    const expira = 'Secure; SameSite=Strict; Path=/; Max-Age=0'
-    return json(res, 204, undefined, { 'Set-Cookie': [`conecta_sessao=; HttpOnly; ${expira}`, `conecta_csrf=; ${expira}`] })
+    return json(res, 204, undefined, { 'Set-Cookie': cookiesExpirados })
   }
   if (metodo === 'GET' && caminho === '/me') return json(res, 200, estado.me(usuario))
 
@@ -289,7 +297,6 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       if (new Date(existente.publicado_em as string) <= new Date()) {
         return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'publicar_em', mensagem: 'aviso já publicado não pode ser reagendado' }])
       }
-      if (corpo.publicar_em === null) existente.publicado_em = new Date().toISOString()
     }
     const resultado = estado.validarAviso(corpo, usuario, gestao, !!existente)
     if (!('ok' in resultado)) {
@@ -320,7 +327,7 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
       return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'query', mensagem: 'filtro inválido' }])
     }
     if (turmaId && !estado.turmas.some((t) => t.id === turmaId)) return erro(res, 404, 'TURMA_NAO_ENCONTRADA')
-    const publicadoEm = (a: (typeof estado.avisos)[number]) => String(a.publicar_em ?? a.criado_em)
+    const publicadoEm = (a: (typeof estado.avisos)[number]) => String(a.publicado_em)
     const itens = estado.avisos.filter(
       (a) =>
         (gestao || a.autor.id === usuario.id) &&

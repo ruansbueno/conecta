@@ -20,7 +20,7 @@ import {
 import { apagarRascunho, lerRascunho } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
 import { idDaUrl } from '../lista-na-url'
-import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useTurmasDestino } from './comum'
+import { mensagemDe, soTurmasPermitidas, useRascunhoAutomatico, useSairDoEditor, useTurmasDestino } from './comum'
 
 const CHAVE = 'rascunho:aviso:novo'
 
@@ -36,6 +36,7 @@ function inicial(): { formulario: FormularioAviso; recuperadoEm: Date | null } {
 export default function NovoAviso() {
   const { usuario } = useSessao()
   const navegar = useNavigate()
+  const sairDoEditor = useSairDoEditor('/avisos')
   const { carga, recarregar } = useTurmasDestino()
   const [comeco] = useState(inicial)
   const [digitado, setFormulario] = useState(comeco.formulario)
@@ -113,7 +114,7 @@ export default function NovoAviso() {
 
   const descartar = () => {
     apagarRascunho(CHAVE)
-    navegar('/avisos')
+    sairDoEditor()
   }
 
   return (

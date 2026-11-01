@@ -19,11 +19,14 @@ npm run build >/dev/null
 openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=localhost" \
   -keyout "$TMP/conecta.key" -out "$TMP/conecta.crt" >/dev/null 2>&1
 
+# A verificação publica o HTTPS numa porta que não é a 443: o redirecionamento de HTTP precisa dela.
+sed "s/default \"\";/default \":$PORTA_HTTPS\";/" deploy/nginx.conf > "$TMP/nginx.conf"
+
 # `api` no nginx.conf aponta para a máquina (onde a API local roda).
 docker run -d --name "$NOME" --add-host=api:host-gateway \
   -p "$PORTA_HTTP:80" -p "$PORTA_HTTPS:443" \
   -v "$PWD/dist:/usr/share/nginx/html:ro" \
-  -v "$PWD/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
+  -v "$TMP/nginx.conf:/etc/nginx/conf.d/default.conf:ro" \
   -v "$TMP:/etc/nginx/certs:ro" \
   nginx:1.27-alpine >/dev/null
 

@@ -60,7 +60,10 @@ async def test_sem_autenticacao_e_401(client, metodo, rota):
 async def test_escrita_por_cookie_sem_csrf_e_403(client, db, metodo, rota):
     admin = await criar_usuario(db, username="admin.csrf", perfil="administrador")
     client.cookies.update(
-        {"conecta_sessao": create_access_token(admin.id, admin.perfil), "conecta_csrf": "c"}
+        {
+            "__Host-conecta_sessao": create_access_token(admin.id, admin.perfil),
+            "__Host-conecta_csrf": "c",
+        }
     )
 
     r = await client.request(metodo, rota, json={})

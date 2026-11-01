@@ -12,10 +12,11 @@ test('rota desconhecida cai no index.html e a aplicação decide (vai ao login)'
   await expect(page.getByRole('heading', { name: 'Acesso à gestão' })).toBeVisible()
 })
 
-test('HTTP vai para HTTPS', async ({ request }) => {
+test('HTTP vai para HTTPS, na porta HTTPS configurada', async ({ request }) => {
   const r = await request.get(process.env.URL_HTTP ?? 'http://localhost:8080/painel', { maxRedirects: 0 })
   expect(r.status()).toBe(301)
-  expect(r.headers()['location']).toMatch(/^https:\/\//)
+  const destino = new URL(process.env.URL_IMPLANTACAO ?? 'https://localhost:8443')
+  expect(r.headers()['location']).toBe(`${destino.origin}/painel`)
 })
 
 test('login pela API em /api: cookie de sessão Secure e httpOnly; recarregar uma rota funda mantém a sessão', async ({ page, context }) => {
@@ -25,9 +26,9 @@ test('login pela API em /api: cookie de sessão Secure e httpOnly; recarregar um
   await page.getByRole('button', { name: 'Entrar' }).click()
   await expect(page).toHaveURL(/\/painel$/)
 
-  const sessao = (await context.cookies()).find((c) => c.name === 'conecta_sessao')
+  const sessao = (await context.cookies()).find((c) => c.name === '__Host-conecta_sessao')
   expect(sessao).toMatchObject({ secure: true, httpOnly: true, sameSite: 'Strict' })
-  expect(await page.evaluate(() => document.cookie)).not.toContain('conecta_sessao')
+  expect(await page.evaluate(() => document.cookie)).not.toContain('__Host-conecta_sessao')
 
   await page.goto('/avisos?situacao=ativo')
   await expect(page.getByRole('heading', { level: 1, name: 'Avisos' })).toBeVisible()
@@ -84,18 +85,43 @@ test('escrita pela API real: o CSRF assinado da sessão passa (sair encerra a se
   await page.getByRole('button', { name: 'Sair' }).click()
 
   await expect(page).toHaveURL(/\/login$/)
-  expect((await context.cookies()).map((c) => c.name)).not.toContain('conecta_sessao')
+  expect((await context.cookies()).map((c) => c.name)).not.toContain('__Host-conecta_sessao')
 })
 
 test('CSRF válido de outra sessão, plantado no navegador, é recusado pela API real (RF-33, v2.2)', async ({ page, context, request }) => {
   const outra = await request.post('/api/auth/login', { data: { username: 'aluno.teste', password: 'senha-teste' } })
   expect(outra.status()).toBe(200)
-  const plantado = (await request.storageState()).cookies.find((c) => c.name === 'conecta_csrf')!
+  const plantado = (await request.storageState()).cookies.find((c) => c.name === '__Host-conecta_csrf')!
   await entrarComo(page, 'coord.teste')
-  await context.addCookies([{ ...plantado, name: 'conecta_csrf' }])
+  await context.addCookies([{ ...plantado, name: '__Host-conecta_csrf' }])
 
   await page.getByRole('button', { name: 'Sair' }).click()
 
-  await expect(page.getByText('Não foi possível confirmar a sessão. Recarregue a página e tente de novo.')).toBeVisible()
-  await expect(page).toHaveURL(/\/painel$/)
+  // A API recusa (403 CSRF_INVALIDO), mas expira os cookies na mesma resposta (01/11/2026): a
+  // pessoa sai mesmo assim, e a sessão não fica no navegador.
+  await expect(page).toHaveURL(/\/login$/)
+  expect((await context.cookies()).map((c) => c.name)).not.toContain('__Host-conecta_sessao')
+})
+
+test('os cookies vêm com o prefixo __Host- e Secure, Path=/ e sem Domain (cabeçalho bruto)', async ({ request }) => {
+  const r = await request.post('/api/auth/login', { data: { username: 'aluno.teste', password: 'senha-teste' } })
+  const setCookie = r.headersArray().filter((h) => h.name.toLowerCase() === 'set-cookie').map((h) => h.value)
+  expect(setCookie.map((c) => c.split('=')[0]).sort()).toEqual(['__Host-conecta_csrf', '__Host-conecta_sessao'])
+  for (const c of setCookie) {
+    expect(c).toMatch(/;\s*Secure/i)
+    expect(c).toMatch(/;\s*Path=\/(;|$)/i)
+    expect(c).not.toMatch(/;\s*Domain=/i)
+  }
+})
+
+test('redirecionamento da própria API (barra no fim) fica sob /api, na mesma origem', async ({ request }) => {
+  const r = await request.get('/api/turmas/minhas/', { maxRedirects: 0 })
+  expect(r.status()).toBe(307)
+  expect(r.headers()['location']).toBe('/api/turmas/minhas')
+})
+
+test('a documentação da API não fica exposta pela plataforma', async ({ request }) => {
+  for (const caminho of ['/api/docs', '/api/redoc', '/api/openapi.json']) {
+    expect((await request.get(caminho)).status(), caminho).toBe(404)
+  }
 })

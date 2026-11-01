@@ -299,6 +299,37 @@ void main() {
       expect(find.widgetWithText(AppBar, 'Minhas solicitações'), findsOneWidget);
     });
 
+    for (final saida in ['Voltar às turmas', 'Ver minhas solicitações']) {
+      testWidgets('403 com a folha aberta: a folha fica, e "$saida" volta a Minhas turmas', (
+        tester,
+      ) async {
+        await abrirDisponiveis(tester);
+        final recusa = Completer<http.Response>();
+        app.api.rotasAssincronas['POST /turmas/turma-TADS-5A-2026-2/solicitacoes'] = (_) =>
+            recusa.future;
+        app.api.responder('POST /turmas/turma-DADOS-1/solicitacoes', '{"id": "s9"}', 201);
+
+        await tester.tap(find.widgetWithText(FilledButton, 'Solicitar').last);
+        await tester.pump();
+        // A outra turma: 201 e a folha abre. Sem `pumpAndSettle`: o indicador do envio em curso
+        // não para, e o relógio chegaria ao timeout do pedido.
+        await tester.tap(find.widgetWithText(FilledButton, 'Solicitar').first);
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('Solicitação enviada'), findsOneWidget);
+        recusa.complete(respostaJson(_erro('SEM_PERMISSAO'), 403));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Solicitação enviada'), findsOneWidget);
+        await tester.tap(find.text(saida));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Esta ação não está disponível para o seu perfil.'), findsOneWidget);
+        expect(find.widgetWithText(AppBar, 'Minhas turmas'), findsOneWidget);
+        expect(find.byKey(const Key('barra-abas')), findsOneWidget);
+      });
+    }
+
     testWidgets('resposta que chega depois de sair da tela não abre a folha nem navega', (
       tester,
     ) async {

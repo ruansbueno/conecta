@@ -51,6 +51,9 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
   /// "Tentar de novo" com a carga anterior ainda em curso, uma recarga cruzada).
   int _pedido = 0;
 
+  /// A carga ou recarga do pedido mais recente, até terminar.
+  Future<void> _vigente = Future.value();
+
   /// Falha de uma recarga que manteve a lista na tela (para um aviso breve).
   ApiFailure? get ultimaFalha => _ultimaFalha;
 
@@ -59,18 +62,22 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
   /// Sem rede na primeira carga: o que houver guardado, com a data da coleta.
   (Pagina<T>, DateTime)? emCache() => null;
 
-  Future<void> carregar() async {
+  Future<void> carregar() {
     final pedido = ++_pedido;
     lista
       ..estado = EstadoLista.carregando
       ..falha = null;
     notifyListeners();
+    return _vigente = _carregar(pedido);
+  }
+
+  Future<void> _carregar(int pedido) async {
     try {
       final pagina = await buscar(0);
-      if (pedido != _pedido) return;
+      if (pedido != _pedido) return _vigente;
       lista.substituir(pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
-      if (pedido != _pedido) return;
+      if (pedido != _pedido) return _vigente;
       final guardado = falha.efeito == EfeitoFalha.repetir ? emCache() : null;
       if (guardado != null) {
         final (pagina, coletadoEm) = guardado;
@@ -82,20 +89,25 @@ abstract class ControllerDeLista<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela.
-  Future<void> recarregar() async {
+  /// Puxar para recarregar (RM-15): falhando, mantém o que já estava na tela. Superada por um
+  /// pedido mais novo, termina junto com ele: quem puxou vê o resultado (e a falha) que valeu.
+  Future<void> recarregar() {
     // Só há o que manter na tela com conteúdo ou vazio; carregando ou com erro, recarregar é uma
     // carga completa (senão uma recarga que falha deixaria a lista presa no esqueleto).
     final naTela = lista.estado == EstadoLista.conteudo || lista.estado == EstadoLista.vazio;
     if (!naTela) return carregar();
     final pedido = ++_pedido;
     _ultimaFalha = null;
+    return _vigente = _recarregar(pedido);
+  }
+
+  Future<void> _recarregar(int pedido) async {
     try {
       final pagina = await buscar(0);
-      if (pedido != _pedido) return;
+      if (pedido != _pedido) return _vigente;
       lista.substituir(pagina.items, pagina.total);
     } on ApiFailure catch (falha) {
-      if (pedido != _pedido) return;
+      if (pedido != _pedido) return _vigente;
       _ultimaFalha = falha;
     }
     notifyListeners();

@@ -38,7 +38,7 @@ def set_cookies(response) -> dict:
 
 def cookies_web(sessao: str) -> dict:
     """Cookies de uma sessão web fabricada no teste, com o CSRF assinado para ela (RF-33)."""
-    return {"conecta_sessao": sessao, "conecta_csrf": gerar_csrf(sessao)}
+    return {"__Host-conecta_sessao": sessao, "__Host-conecta_csrf": gerar_csrf(sessao)}
 
 
 async def login(client, username="aluno.teste", password="senha-teste"):

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   edicaoDoEvento,
@@ -43,6 +43,27 @@ describe('formulário de evento (plan-f2 D-F2-5)', () => {
   it('data ou hora incompleta não vira evento pontual em silêncio', () => {
     expect(validarEvento({ ...preenchido, fim: 'incompleto' }).fim).toBe('Complete a data e a hora.')
     expect(validarEvento({ ...preenchido, inicio: 'incompleto' }).inicio).toBe('Complete a data e a hora.')
+  })
+
+  describe('hora que não existe no fuso (horário de verão)', () => {
+    // Nova York adianta o relógio de 02:00 para 03:00 em 14/03/2027: 02:30 não existe lá.
+    beforeEach(() => {
+      vi.stubEnv('TZ', 'America/New_York')
+    })
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('é recusada no campo, em vez de virar outra hora em silêncio', () => {
+      const mensagem = 'Este horário não existe neste fuso por causa do horário de verão. Escolha outro.'
+      expect(validarEvento({ ...preenchido, inicio: '2027-03-14T02:30', fim: '2027-03-14T05:00' }).inicio).toBe(mensagem)
+      expect(validarEvento({ ...preenchido, inicio: '2027-03-14T01:00', fim: '2027-03-14T02:15' }).fim).toBe(mensagem)
+    })
+
+    it('a hora que existe (inclusive a repetida, quando o relógio volta) passa', () => {
+      expect(validarEvento({ ...preenchido, inicio: '2027-03-14T03:00', fim: '2027-03-14T05:00' })).toEqual({})
+      expect(validarEvento({ ...preenchido, inicio: '2026-11-01T01:30', fim: '2026-11-01T03:00' })).toEqual({})
+    })
   })
 
   it('limites de local, descrição e destinos', () => {

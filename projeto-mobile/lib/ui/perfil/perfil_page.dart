@@ -5,6 +5,8 @@ import '../../config/curso.dart';
 import '../../models/turma.dart';
 import '../../models/usuario.dart';
 import '../../repositories/turmas_repository.dart';
+import '../../services/api_client.dart';
+import '../../services/api_failure.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
@@ -56,8 +58,13 @@ class _PerfilPageState extends State<PerfilPage> {
     try {
       final pagina = await repo.minhas(usuarioId: usuario.id);
       if (mounted && carga == _cargaDoPeriodo) setState(() => _periodo = _periodos(pagina.items));
-    } on Object {
-      // Sem rede e sem cache, a linha some; o resto do perfil vem do `/me`.
+    } on ApiFailure {
+      // Sem rede e sem cache, a linha some; o resto do perfil vem do `/me`. O ApiClient já
+      // registrou a falha (RM-38).
+    } on Object catch (erro) {
+      // Erro fora do ApiClient (cliente HTTP, cache): a linha some do mesmo jeito, mas sem passar
+      // pelo log do cliente. Só o tipo: a mensagem pode trazer dados da resposta.
+      ApiClient.registrarFalha('GET /turmas/minhas → ${erro.runtimeType}');
     }
   }
 

@@ -60,4 +60,18 @@ void main() {
     );
     expect(repo.gradeEmCache('u1', 't1'), isNull);
   });
+
+  test('turma escolhida em Horários fica lembrada por usuário e sai no logout', () async {
+    expect(repo.turmaLembrada('u1'), isNull);
+
+    await repo.lembrarTurma('u1', 't2');
+
+    expect(repo.turmaLembrada('u1'), 't2');
+    expect(repo.turmaLembrada('u2'), isNull);
+    await repo.esquecerTurma('u1');
+    expect(repo.turmaLembrada('u1'), isNull);
+    await repo.lembrarTurma('u1', 't3');
+    await cache.apagarUsuario('u1');
+    expect(repo.turmaLembrada('u1'), isNull);
+  });
 }

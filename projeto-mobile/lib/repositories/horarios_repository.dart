@@ -34,4 +34,14 @@ class HorariosRepository {
       return null;
     }
   }
+
+  /// Turma escolhida em Horários (plan-f2 D-AF2-6): só o id, sai no logout com o resto do cache.
+  String? turmaLembrada(String usuarioId) =>
+      _cache.ler(usuarioId, RecursoCache.horariosTurma)?.dados['turma_id'] as String?;
+
+  Future<void> lembrarTurma(String usuarioId, String turmaId) =>
+      _cache.gravar(usuarioId, RecursoCache.horariosTurma, {'turma_id': turmaId});
+
+  Future<void> esquecerTurma(String usuarioId) =>
+      _cache.apagar(usuarioId, RecursoCache.horariosTurma);
 }

@@ -8,14 +8,16 @@ import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../agenda/agenda_page.dart';
 import '../avisos/lista_page.dart';
+import '../horarios/horarios_page.dart';
 import '../perfil/perfil_page.dart';
 import '../turmas/minhas_page.dart';
 
-/// Abas da spec §3. Horários (F2) entra com a grade (tasks-f2 T083).
+/// As cinco abas da spec §3.
 enum Aba {
   avisos('Avisos', Icons.campaign_outlined, Icons.campaign),
   agenda('Agenda', Icons.calendar_today_outlined, Icons.calendar_today),
   turmas('Turmas', Icons.school_outlined, Icons.school),
+  horarios('Horários', Icons.schedule_outlined, Icons.schedule),
   perfil('Perfil', Icons.person_outline, Icons.person);
 
   const Aba(this.rotulo, this.icone, this.iconeAtivo);
@@ -76,6 +78,7 @@ class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
     Aba.avisos => const AvisosListaPage(),
     Aba.agenda => const AgendaPage(),
     Aba.turmas => const MinhasTurmasPage(),
+    Aba.horarios => const HorariosPage(),
     Aba.perfil => const PerfilPage(),
   };
 
@@ -165,7 +168,20 @@ class _ItemAba extends StatelessWidget {
             children: [
               Icon(ativa ? aba.iconeAtivo : aba.icone, size: 22, color: cor),
               const SizedBox(height: 4),
-              Text(aba.rotulo, style: Tipografia.aba.copyWith(color: cor)),
+              // Cinco abas: com a fonte grande, o rótulo encolhe para caber em vez de quebrar no
+              // meio da palavra ("Horário/s"). O nome para o leitor de tela não muda.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    aba.rotulo,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: Tipografia.aba.copyWith(color: cor),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

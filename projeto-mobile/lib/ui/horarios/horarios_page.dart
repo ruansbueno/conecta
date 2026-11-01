@@ -9,6 +9,7 @@ import '../../state/horarios_controller.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/escala.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
@@ -45,19 +46,38 @@ class HorariosPage extends StatelessWidget {
   }
 }
 
-class _Horarios extends StatelessWidget {
+class _Horarios extends StatefulWidget {
   const _Horarios();
+
+  @override
+  State<_Horarios> createState() => _HorariosState();
+}
+
+class _HorariosState extends State<_Horarios> {
+  late final HorariosController _controller = context.read<HorariosController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_mostrarAviso);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_mostrarAviso);
+    super.dispose();
+  }
+
+  /// 403/404 da grade: um aviso breve, fora do build; a tela já recarregou as turmas.
+  void _mostrarAviso() {
+    final aviso = _controller.consumirAviso();
+    if (aviso == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(aviso)));
+  }
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<HorariosController>();
-    // 403/404 da grade: um aviso breve; a tela já recarregou as turmas.
-    final aviso = controller.consumirAviso();
-    if (aviso != null) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(aviso))),
-      );
-    }
     return Scaffold(
       appBar: AppBar(title: const Text('Horários'), toolbarHeight: 60, titleSpacing: 20),
       body: switch (controller.estado) {
@@ -102,21 +122,27 @@ class _Conteudo extends StatelessWidget {
                 Text(turma.nome, style: Tipografia.apoio),
                 const SizedBox(height: 12),
                 if (variasTurmas)
-                  OutlinedButton.icon(
-                    key: const Key('trocar-turma'),
-                    onPressed: () async {
-                      final escolhida = await escolherTurma(
-                        context,
-                        controller.turmas,
-                        controller.turma,
-                      );
-                      if (escolhida != null && escolhida.id != turma.id) {
-                        await controller.escolher(escolhida);
-                      }
-                    },
-                    iconAlignment: IconAlignment.end,
-                    icon: const Icon(Icons.arrow_forward, size: 18),
-                    label: Text('Turma ${turma.codigo}'),
+                  // O leitor de tela ouve o que o botão faz, não só o código da turma.
+                  MergeSemantics(
+                    child: Semantics(
+                      hint: 'Trocar de turma',
+                      child: OutlinedButton.icon(
+                        key: const Key('trocar-turma'),
+                        onPressed: () async {
+                          final escolhida = await escolherTurma(
+                            context,
+                            controller.turmas,
+                            controller.turma,
+                          );
+                          if (escolhida != null && escolhida.id != turma.id) {
+                            await controller.escolher(escolhida);
+                          }
+                        },
+                        iconAlignment: IconAlignment.end,
+                        icon: const Icon(Icons.arrow_forward, size: 18),
+                        label: Text('Turma ${turma.codigo}'),
+                      ),
+                    ),
                   )
                 else
                   Text('Turma ${turma.codigo}', style: Tipografia.tituloCartao),
@@ -178,7 +204,7 @@ class _Dia extends StatelessWidget {
         // A coluna acompanha a fonte do sistema, para a sigla nunca quebrar (RM-36); a mesma
         // largura em todos os dias mantém as barras alinhadas.
         SizedBox(
-          width: MediaQuery.textScalerOf(context).scale(56),
+          width: larguraEscalada(context, 56, Tipografia.meta.fontSize!),
           child: Padding(
             padding: const EdgeInsets.only(top: 2),
             // A sigla é visual; o leitor de tela ouve o dia por extenso.

@@ -4,6 +4,7 @@ import '../../models/evento.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/chip_destino.dart';
+import '../comum/escala.dart';
 import 'calendario.dart';
 
 /// Item de Próximos e Provas (design m-10): data à esquerda (só no primeiro evento do dia), barra
@@ -40,7 +41,7 @@ class EventoCard extends StatelessWidget {
                 children: [
                   // Acompanha a fonte do sistema: a data não quebra em "3 / 0" (RM-36).
                   SizedBox(
-                    width: MediaQuery.textScalerOf(context).scale(44),
+                    width: larguraEscalada(context, 44, Tipografia.tituloGrande.fontSize!),
                     child: mostrarData
                         ? Column(
                             children: [

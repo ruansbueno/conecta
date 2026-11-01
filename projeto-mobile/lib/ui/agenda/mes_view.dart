@@ -7,6 +7,7 @@ import '../../state/mes_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/chip_destino.dart';
+import '../comum/escala.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/faixa_cache.dart';
@@ -290,7 +291,7 @@ class _ItemDoDia extends StatelessWidget {
               children: [
                 // Acompanha a fonte do sistema: "o dia todo" não quebra (RM-36).
                 SizedBox(
-                  width: MediaQuery.textScalerOf(context).scale(68),
+                  width: larguraEscalada(context, 68, Tipografia.tituloCartao.fontSize!),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

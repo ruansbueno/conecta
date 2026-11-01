@@ -4,7 +4,7 @@
 No issues found! (ran in 2.1s)
 
 ## flutter test
-00:14 +344: All tests passed!
+00:14 +348: All tests passed! (rodado de novo após os achados da revisão; integração de horarios_test e offline_test também repetida: passa)
 
 ## flutter test integration_test -d emulator-5554
 00:00 +0: integration_test/offline_test.dart: sem rede, as três abas abrem com o conteúdo guardado e a data

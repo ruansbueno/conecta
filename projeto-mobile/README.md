@@ -68,7 +68,7 @@ Atualizado em 01/11/2026.
 | 11. US6b — Horários | Aba Horários: grade da turma por dia (m-12), troca de turma com a escolha lembrada, mensagens próprias quando o vínculo some, grade guardada por turma | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | 12. Polimento da F2 | Sem rede na agenda e na grade, fonte a 200% conferida no aparelho, leitor de tela, comparação com o design | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 
-**Testes**: 344 de unidade e de widget (`flutter test`), mais 22 de integração no aparelho com servidor falso
+**Testes**: 348 de unidade e de widget (`flutter test`), mais 22 de integração no aparelho com servidor falso
 em `integration_test/`.
 
 ## Como rodar

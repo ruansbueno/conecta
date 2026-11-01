@@ -119,7 +119,7 @@ que `GET /turmas/minhas` devolve.
   - Aberto de fora da lista (link direto), mostra o esqueleto até a resposta.
 
 - **D-AF2-6 — Horários (m-12).**
-  - **Turmas:** vêm de `GET /turmas/minhas`, do cache da aba Turmas.
+  - **Turmas:** vêm de `GET /turmas/minhas`, do cache da aba Turmas. Só a primeira página (20 turmas): limite conhecido, folgado para aluno e docente do curso.
   - **Sem vínculo:** estado vazio "A grade aparece depois do vínculo com uma turma." (cenário 5 da
     US6).
   - **Com um vínculo:** o código da turma aparece como texto.

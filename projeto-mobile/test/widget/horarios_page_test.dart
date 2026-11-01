@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 import '../apoio.dart';
 import '../fixtures/fabrica.dart';
@@ -157,7 +160,13 @@ void main() {
 
     await abrirHorarios(tester);
 
-    expect(find.text('Você não está mais nesta turma.'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text('Você não está mais nesta turma.'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Algoritmos'), findsOneWidget);
     expect(find.text('Turma SI-3B'), findsOneWidget);
   });
@@ -182,7 +191,14 @@ void main() {
     await abrirHorarios(tester);
 
     // No aviso breve e no erro da grade: a única turma da lista não responde mais.
-    expect(find.text('Esta turma não está mais disponível.'), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(SnackBar),
+        matching: find.text('Esta turma não está mais disponível.'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Tentar de novo'), findsOneWidget);
   });
 
   testWidgets('sem rede: a grade guardada da turma, com a faixa', (tester) async {
@@ -203,5 +219,74 @@ void main() {
     app.api.falharRede('GET /turmas/minhas');
     await abrirHorarios(tester);
     expect(find.text('Tentar de novo'), findsOneWidget);
+  });
+
+  testWidgets('403/404 esquecem a turma lembrada (D-AF2-7)', (tester) async {
+    await app.cache.gravar(usuario, RecursoCache.horariosTurma, {'turma_id': 'turma-SI-3A'});
+    app.api.responder('GET /turmas/minhas', paginaJson([si3a]));
+    app.api.responder('GET /turmas/turma-SI-3A/horarios', erroTurma, 404);
+
+    await abrirHorarios(tester);
+
+    expect(app.cache.ler(usuario, RecursoCache.horariosTurma), isNull);
+  });
+
+  testWidgets('sem rede: a faixa da grade guardada não fica na turma que não tem cache', (
+    tester,
+  ) async {
+    app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));
+    app.api.responder('GET /turmas/turma-SI-3A/horarios', paginaJson(gradeA));
+    await abrirHorarios(tester);
+
+    app.api.falharRede('GET /turmas/minhas');
+    app.api.falharRede('GET /turmas/turma-SI-3A/horarios');
+    app.api.falharRede('GET /turmas/turma-SI-3B/horarios');
+    await tester.pumpWidget(const SizedBox());
+    await abrirHorarios(tester);
+    expect(find.byType(FaixaCache), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('trocar-turma')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('SI-3B — Sistemas para Internet 3B'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FaixaCache), findsNothing);
+    expect(find.text('Tentar de novo'), findsOneWidget);
+  });
+
+  testWidgets(
+    'trocar de turma: a grade da turma anterior, que chega depois, é descartada',
+    (tester) async {
+      final atrasada = Completer<http.Response>();
+      app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));
+      app.api.rotasAssincronas['GET /turmas/turma-SI-3A/horarios'] = (_) => atrasada.future;
+      app.api.responder(
+        'GET /turmas/turma-SI-3B/horarios',
+        paginaJson([aulaMapa('b1', turmaId: 'turma-SI-3B', disciplina: 'Algoritmos')]),
+      );
+
+      await abrirHorarios(tester);
+      await tester.tap(find.byKey(const Key('trocar-turma')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('SI-3B — Sistemas para Internet 3B'));
+      await tester.pumpAndSettle();
+      atrasada.complete(respostaJson(paginaJson(gradeA)));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Turma SI-3B'), findsOneWidget);
+      expect(find.text('Algoritmos'), findsOneWidget);
+      expect(find.text('Banco de Dados II'), findsNothing);
+    },
+  );
+
+  testWidgets('o botão da turma diz ao leitor de tela que troca a turma', (tester) async {
+    app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));
+    app.api.responder('GET /turmas/turma-SI-3A/horarios', paginaJson(gradeA));
+    final semantica = tester.ensureSemantics();
+
+    await abrirHorarios(tester);
+
+    expect(tester.getSemantics(find.byKey(const Key('trocar-turma'))).hint, 'Trocar de turma');
+    semantica.dispose();
   });
 }

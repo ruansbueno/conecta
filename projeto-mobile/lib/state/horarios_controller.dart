@@ -80,6 +80,7 @@ class HorariosController extends ChangeNotifier {
     if (possiveis.isEmpty) {
       turma = turmas.first;
       estadoDaGrade = EstadoLista.erro;
+      dadosDe = null;
       falha = const ApiFailure(code: 'TURMA_NAO_ENCONTRADA');
       mensagemDaGrade = _ultimaPerda;
       notifyListeners();
@@ -91,9 +92,13 @@ class HorariosController extends ChangeNotifier {
   }
 
   Future<void> escolher(TurmaVinculada nova) async {
+    // O número do pedido vem antes de qualquer espera: uma resposta da turma anterior que chegue
+    // durante o `lembrarTurma` já é descartada.
+    final pedido = ++_pedido;
     turma = nova;
     await _horarios.lembrarTurma(usuarioId, nova.id);
-    await _carregarGrade(++_pedido);
+    if (pedido != _pedido) return;
+    await _carregarGrade(pedido);
   }
 
   /// "Tentar de novo" da faixa ou do erro: as turmas e a grade.
@@ -104,6 +109,8 @@ class HorariosController extends ChangeNotifier {
     estadoDaGrade = EstadoLista.carregando;
     falha = null;
     mensagemDaGrade = null;
+    // A faixa de dados guardados é da grade anterior: outra turma pode não ter cache.
+    dadosDe = null;
     notifyListeners();
     try {
       // Sem rede nas turmas, nem tenta a grade: vai direto ao que estava guardado.

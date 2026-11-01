@@ -9,7 +9,7 @@ A saída das verificações está em [`testes-app-2026-11-01.txt`](testes-app-20
 | Verificação | Como | Resultado |
 |---|---|---|
 | Análise estática | `flutter analyze` | sem problemas |
-| Unidade e widget | `flutter test` | 344 testes, todos passam |
+| Unidade e widget | `flutter test` | 348 testes, todos passam |
 | Integração no aparelho | `flutter test integration_test -d emulator-5554` (Android 16, emulador), servidor falso no contrato da E3 | 22 testes em 9 arquivos, todos passam |
 | Mensagens de erro | `test/unit/mensagens_spec_test.dart` contra a tabela da spec §6, agora com `EVENTO_NAO_ENCONTRADO` | spec e app iguais |
 | Sem rede (T085, SC-005) | `integration_test/offline_test.dart`: depois de visitar as abas, o app é reaberto sem servidor | Próximos, o mês corrente, o detalhe (com o evento que veio da lista) e a grade da turma abrem com o que estava guardado e a faixa com a data |
@@ -34,6 +34,17 @@ A saída das verificações está em [`testes-app-2026-11-01.txt`](testes-app-20
 - **Grade com 403 numa turma que a lista ainda traz:** a tela não fica dando voltas. Cada turma que
   respondeu 403 ou 404 não é escolhida de novo na mesma rodada, e o erro mostra a mensagem própria
   ("Você não está mais nesta turma.").
+- **Revisão independente:**
+  - **Captura errada:** a m-10 tinha saído na visão de mês; foi refeita.
+  - **Faixa de dados guardados:** não passa mais de uma turma para outra.
+  - **Troca de turma:** o número do pedido vem antes de lembrar a escolha.
+  - **Aviso breve:** sai de um ouvinte do controller, fora do `build`.
+  - **Colunas:** crescem na proporção do texto (escala não linear do Android 14+).
+  - **Botão da turma:** diz ao leitor de tela que troca a turma.
+  - **Testes:** cobrem a turma lembrada esquecida no 403/404 e a SnackBar de fato.
+
+**Limite conhecido:** Horários lista só a primeira página das turmas (20), o bastante para aluno e
+docente do curso.
 
 ## Telas comparadas com o design (T087)
 

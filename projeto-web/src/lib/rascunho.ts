@@ -20,6 +20,8 @@ export interface Rascunho {
 }
 
 const PREFIXO = 'rascunho:'
+/** Preferência da tela de horários (plan-f2 D-F2-3): só o id da última turma; sai junto no logout. */
+const CHAVE_TURMA_HORARIOS = 'preferencia:horarios:turma'
 
 export function salvarRascunho(chave: ChaveRascunho, dados: Omit<Rascunho, 'salvoEm'>): void {
   try {
@@ -55,7 +57,7 @@ export function apagarRascunho(chave: ChaveRascunho | ChaveRascunhoEvento): void
 export function apagarTodosRascunhos(): void {
   try {
     for (const chave of Object.keys(localStorage)) {
-      if (chave.startsWith(PREFIXO)) localStorage.removeItem(chave)
+      if (chave.startsWith(PREFIXO) || chave === CHAVE_TURMA_HORARIOS) localStorage.removeItem(chave)
     }
   } catch {
     // sem armazenamento: nada a apagar
@@ -95,6 +97,22 @@ export function lerRascunhoEvento(chave: ChaveRascunhoEvento): RascunhoEvento | 
     const destinos = (dados.destinos as DestinoRascunho[]).filter((d) => d && typeof d.tipo === 'string')
     const { titulo, tipo, inicio, fim, local, descricao } = dados
     return { titulo, tipo, inicio, fim, local, descricao, destinos, salvoEm: new Date(dados.salvoEm) }
+  } catch {
+    return null
+  }
+}
+
+export function lembrarTurmaDosHorarios(turmaId: string): void {
+  try {
+    localStorage.setItem(CHAVE_TURMA_HORARIOS, turmaId)
+  } catch {
+    // sem armazenamento: a tela só não lembra a última turma
+  }
+}
+
+export function ultimaTurmaDosHorarios(): string | null {
+  try {
+    return localStorage.getItem(CHAVE_TURMA_HORARIOS)
   } catch {
     return null
   }

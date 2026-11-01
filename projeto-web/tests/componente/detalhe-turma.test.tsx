@@ -97,6 +97,20 @@ describe('detalhe da turma (T08, RW-25, RW-26)', () => {
     expect(within(await tabelaVinculos()).getByRole('row', { name: /Caio Ribeiro/ })).toHaveTextContent('Carga inicial')
   })
 
+  it('gestão vê o link Horários para a grade da turma; docente não (plan-f2 D-F2-3)', async () => {
+    api()
+    abrir()
+    expect(await screen.findByRole('link', { name: 'Horários' })).toHaveAttribute('href', `/turmas/${ID}/horarios`)
+    vi.unstubAllGlobals()
+  })
+
+  it('docente não vê o link Horários', async () => {
+    api({}, 'docente')
+    abrir()
+    await screen.findByRole('heading', { level: 1, name: turma.nome })
+    expect(screen.queryByRole('link', { name: 'Horários' })).not.toBeInTheDocument()
+  })
+
   it('filtro por papel vai para a API; busca filtra os nomes carregados', async () => {
     const chamadas = api()
     abrir()

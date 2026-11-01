@@ -42,10 +42,21 @@ export function navegacaoDoPerfil(perfil: string): GrupoNavegacao[] {
     },
   ]
   if (perfil === 'administrador' || perfil === 'coordenacao') {
+    // Horários (F2) só para a gestão: o docente consulta a grade pelo aplicativo (D-F2-13).
+    grupos[2].itens.splice(1, 0, { para: '/horarios', rotulo: 'Horários', icone: 'horarios' })
     grupos.push({
       titulo: 'Administração',
       itens: [{ para: '/usuarios', rotulo: 'Usuários', icone: 'usuarios' }],
     })
   }
   return grupos
+}
+
+/** A grade de uma turma (`/turmas/:id/horarios`) é de Horários, não de Turmas (T094). */
+const GRADE = /^\/turmas\/[^/]+\/horarios(\/|$)/
+
+/** Item marcado na barra lateral: a própria rota ou uma abaixo dela. */
+export function itemAtivo(para: string, caminho: string): boolean {
+  if (GRADE.test(caminho)) return para === '/horarios'
+  return caminho === para || caminho.startsWith(`${para}/`)
 }

@@ -43,6 +43,7 @@ const MAPA: Record<string, [string, Efeito]> = {
   EVENTO_NAO_EDITAVEL: ['Eventos arquivados ou excluídos não podem ser editados.', 'ofereceDesarquivar'],
   EVENTO_SITUACAO_INVALIDA: ['A situação deste evento mudou enquanto você olhava. A agenda foi atualizada.', 'recarrega'],
   EVENTO_NAO_ENCONTRADO: ['Este evento não está mais disponível.', 'voltaLista'],
+  HORARIO_NAO_ENCONTRADO: ['Esta aula não está mais na grade.', 'recarrega'],
   TURMA_NAO_ENCONTRADA: ['Esta turma não está mais disponível.', 'recarrega'],
   USUARIO_NAO_ENCONTRADO: ['Esta pessoa não está mais disponível.', 'recarrega'],
   VINCULO_NAO_ENCONTRADO: ['Este vínculo já tinha sido removido.', 'recarrega'],

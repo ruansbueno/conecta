@@ -90,8 +90,11 @@ CSS grid.
   100 eventos, a página avisa que o mês está incompleto. Sem desenho próprio: segue os tokens e componentes da w-12.
 - **D-F2-8 — Grade semanal.** Colunas de segunda a sexta sempre; sábado e domingo só quando houver
   aula neles. As linhas são os horários de início distintos da turma, em ordem, e cada cartão
-  mostra disciplina, local e docente. As faixas "Intervalo" do desenho não são geradas: a API não
-  tem esse conceito.
+  mostra disciplina, a faixa início–fim, local e docente (a linha é só o início; aulas da mesma
+  linha podem terminar em horas diferentes). Cartão com aula abre a edição; célula vazia é um botão
+  que abre a modal de nova aula já com o dia e o início daquela linha. O seletor da turma acima da
+  grade volta a `/horarios` para trocar de turma. As faixas "Intervalo" do desenho não são
+  geradas: a API não tem esse conceito (decisões de 01/11/2026).
 - **D-F2-9 — Modal de aula.** Criar, editar e remover numa modal com dia, início, fim,
   disciplina, local e docente. O docente é escolhido entre os usuários de perfil docente
   (`GET /gestao/usuarios?perfil=docente`). Remover pede confirmação (é físico, sem histórico).

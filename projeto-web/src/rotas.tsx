@@ -21,6 +21,8 @@ const HistoricoEvento = lazy(() => import('./paginas/eventos/historico'))
 const DetalheTurma = lazy(() => import('./paginas/turmas/detalhe'))
 const Solicitacoes = lazy(() => import('./paginas/solicitacoes'))
 const Usuarios = lazy(() => import('./paginas/usuarios'))
+const EscolherTurmaHorarios = lazy(() => import('./paginas/horarios/escolher-turma'))
+const GradeHorarios = lazy(() => import('./paginas/horarios/grade'))
 
 export function Rotas() {
   return (
@@ -44,6 +46,8 @@ export function Rotas() {
             <Route path="/solicitacoes" element={<Solicitacoes />} />
             <Route element={<ExigirSessao perfis={['administrador', 'coordenacao']} />}>
               <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/horarios" element={<EscolherTurmaHorarios />} />
+              <Route path="/turmas/:id/horarios" element={<GradeHorarios />} />
             </Route>
           </Route>
         </Route>

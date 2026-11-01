@@ -66,21 +66,21 @@ T078, depois da F1 ([tasks.md](./tasks.md)).
 
 ## Phase 13: US7b — Horários (T13; RW-35, RW-36, RW-46)
 
-- [ ] T090 [P] [US7b] `tests/unit/grade.test.ts`: montagem da grade (colunas de segunda a sexta,
+- [x] T090 [P] [US7b] `tests/unit/grade.test.ts`: montagem da grade (colunas de segunda a sexta,
       sábado e domingo só com aula, linhas pelos inícios distintos, docentes da grade) (D-F2-8,
       D-F2-12)
-- [ ] T091 [P] [US7b] `tests/componente/grade-semanal.test.tsx` e `modal-aula.test.tsx`: grade
+- [x] T091 [P] [US7b] `tests/componente/grade-semanal.test.tsx` e `modal-aula.test.tsx`: grade
       como na w-13, criar, editar e remover aula, docente entre os de perfil docente, 422 e 409
       `PERFIL_INCOMPATIVEL` no campo certo (D-F2-9)
-- [ ] T092 [P] [US7b] `tests/componente/conflitos.test.tsx`: conflitos mostrados como atenção,
+- [x] T092 [P] [US7b] `tests/componente/conflitos.test.tsx`: conflitos mostrados como atenção,
       não erro, com sala ou docente, turma, dia e horas; foco na mensagem (RW-46, D-F2-10)
-- [ ] T093 [P] [US7b] `tests/componente/escolher-turma.test.tsx`: lista das turmas ativas, lembra
+- [x] T093 [P] [US7b] `tests/componente/escolher-turma.test.tsx`: lista das turmas ativas, lembra
       a última, link "Horários" no detalhe da turma (D-F2-3)
-- [ ] T094 [US7b] `paginas/horarios/escolher-turma.tsx`, `paginas/horarios/grade.tsx` e os
+- [x] T094 [US7b] `paginas/horarios/escolher-turma.tsx`, `paginas/horarios/grade.tsx` e os
       componentes `grade-semanal`, `modal-aula`, `conflitos` e `docentes-da-grade`; item
       "Horários" na barra lateral (administração e coordenação), rotas com a guarda de perfil, e
       a grade de uma turma marcando "Horários", não "Turmas"
-- [ ] T095 [US7b] "Avisar a turma": mensagem depois de salvar ou remover, cartão "Mudou alguma
+- [x] T095 [US7b] "Avisar a turma": mensagem depois de salvar ou remover, cartão "Mudou alguma
       aula?" e `/avisos/novo?turma=<id>` com a turma como destino; teste em
       `tests/componente/avisar-turma.test.tsx` (RW-36, D-F2-11)
 

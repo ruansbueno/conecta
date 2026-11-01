@@ -1,9 +1,9 @@
-import { NavLink } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import type { UsuarioSessao } from '../../api/schemas'
 import { Avatar } from '../comum/avatar'
 import { Icone, Marca } from '../comum/icone'
-import { navegacaoDoPerfil, ROTULO_PERFIL } from './navegacao'
+import { itemAtivo, navegacaoDoPerfil, ROTULO_PERFIL } from './navegacao'
 
 interface Props {
   usuario: UsuarioSessao
@@ -14,6 +14,8 @@ interface Props {
 
 /** Barra lateral de 252 px (design `.side`), agrupada por assunto e filtrada pelo perfil. */
 export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
+  // Link com aria-current próprio: o NavLink marcaria Turmas também na grade de uma turma.
+  const { pathname } = useLocation()
   return (
     <aside className="flex w-[252px] shrink-0 flex-col border-r border-linha bg-branco px-3.5 pt-[22px] pb-4">
       <div className="flex items-center gap-[9px] px-3 pt-1 pb-0.5 text-navy">
@@ -27,15 +29,15 @@ export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
             <ul>
               {grupo.itens.map((item) => (
                 <li key={item.para}>
-                  <NavLink
+                  <Link
                     to={item.para}
-                    className={({ isActive }) =>
+                    aria-current={itemAtivo(item.para, pathname) ? 'page' : undefined}
+                    className={
                       `flex h-10 items-center gap-[11px] rounded-[9px] px-3 text-[13.5px] ${
-                        isActive
+                        itemAtivo(item.para, pathname)
                           ? 'bg-azul-superficie font-semibold text-azul-escuro'
                           : 'font-medium text-navy-suave hover:bg-fundo'
-                      }`
-                    }
+                      }`}
                   >
                     <Icone nome={item.icone} tamanho={19} />
                     <span className="flex-1">{item.rotulo}</span>
@@ -51,7 +53,7 @@ export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
                         <span className="sr-only">{contadores[item.para] === 1 ? 'pendente' : 'pendentes'}</span>
                       </>
                     )}
-                  </NavLink>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -350,12 +350,13 @@ describe('tabela de solicitações: um "agora" só para a lista inteira', () => 
   it('a data segue o momento em que a lista chegou, não o relógio de cada linha', () => {
     // Lista carregada em 31/12 e vista depois da virada: as datas seguem o momento da carga, sem
     // misturar, na mesma lista, linhas com e sem o ano.
-    const s = solicitacaoGestaoSchema.parse({ ...solicitacao, solicitada_em: '2025-12-31T15:00:00Z' })
+    // Horas locais: em qualquer fuso, os dois momentos ficam em 31/12.
+    const s = solicitacaoGestaoSchema.parse({ ...solicitacao, solicitada_em: new Date(2025, 11, 31, 15).toISOString() })
     render(
       <TabelaSolicitacoes
         legenda="Solicitações"
         solicitacoes={[s]}
-        agora={new Date('2025-12-31T18:00:00Z')}
+        agora={new Date(2025, 11, 31, 18)}
         ocupado={false}
         onAprovar={() => undefined}
         onRecusar={() => undefined}

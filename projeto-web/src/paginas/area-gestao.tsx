@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
-import { ApiError } from '../api/erros'
 import { listarSolicitacoes } from '../api/recursos/solicitacoes'
 import { Casca } from '../componentes/layout/casca'
 import { itemAtivo, navegacaoDoPerfil } from '../componentes/layout/navegacao'
@@ -65,11 +64,10 @@ export default function AreaGestao() {
         try {
           await encerrar('saida')
           navegar('/login', { replace: true })
-        } catch (e) {
-          // A API não confirmou a saída: o cookie segue válido, então a sessão também (RW-09).
-          setFalhaAoSair(
-            e instanceof ApiError && e.code === 'CSRF_INVALIDO' ? e.mensagem : 'Não foi possível sair. Tente de novo.',
-          )
+        } catch {
+          // A API não confirmou a saída (rede, 5xx): o cookie segue válido, então a sessão também
+          // (RW-09). CSRF_INVALIDO não chega aqui: a API expira os cookies junto com o 403.
+          setFalhaAoSair('Não foi possível sair. Tente de novo.')
         }
       }}
     >

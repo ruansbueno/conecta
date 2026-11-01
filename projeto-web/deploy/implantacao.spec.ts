@@ -114,6 +114,12 @@ test('os cookies vêm com o prefixo __Host- e Secure, Path=/ e sem Domain (cabe�
   }
 })
 
+test('redirecionamento da própria API (barra no fim) fica sob /api, na mesma origem', async ({ request }) => {
+  const r = await request.get('/api/turmas/minhas/', { maxRedirects: 0 })
+  expect(r.status()).toBe(307)
+  expect(r.headers()['location']).toBe('/api/turmas/minhas')
+})
+
 test('a documentação da API não fica exposta pela plataforma', async ({ request }) => {
   for (const caminho of ['/api/docs', '/api/redoc', '/api/openapi.json']) {
     expect((await request.get(caminho)).status(), caminho).toBe(404)

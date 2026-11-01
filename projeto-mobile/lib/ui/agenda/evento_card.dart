@@ -38,8 +38,9 @@ class EventoCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Acompanha a fonte do sistema: a data não quebra em "3 / 0" (RM-36).
                   SizedBox(
-                    width: 44,
+                    width: MediaQuery.textScalerOf(context).scale(44),
                     child: mostrarData
                         ? Column(
                             children: [

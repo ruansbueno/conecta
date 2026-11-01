@@ -300,4 +300,126 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('horários a 200%: grade, botão da turma e folha de turmas sem estouro', (
+    tester,
+  ) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosVazioJson);
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([
+        turmaMapa('SI-3A', nome: 'Sistemas para Internet 3A', papel: 'aluno'),
+        turmaMapa('SI-3B', nome: 'Sistemas para Internet 3B', papel: 'aluno'),
+      ]),
+    );
+    app.api.responder(
+      'GET /turmas/turma-SI-3A/horarios',
+      paginaJson([
+        aulaMapa('a1', turmaId: 'turma-SI-3A', disciplina: 'Interface Humano-Computador'),
+      ]),
+    );
+
+    await app.abrir(tester);
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Horários')),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    // Nada quebra no meio da palavra: a sigla do dia e o rótulo da aba ficam numa linha só.
+    final barra = find.byKey(const Key('barra-abas'));
+    final perfil = tester.getSize(find.descendant(of: barra, matching: find.text('Perfil'))).height;
+    final horarios = tester.getSize(find.descendant(of: barra, matching: find.text('Horários')));
+    expect(horarios.height, perfil);
+
+    await tester.tap(find.byKey(const Key('trocar-turma')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('sigla do dia a 200% numa linha só', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosVazioJson);
+    app.api.responder('GET /turmas/minhas', paginaJson([turmaMapa('SI-3A', papel: 'aluno')]));
+    app.api.responder(
+      'GET /turmas/turma-SI-3A/horarios',
+      paginaJson([
+        aulaMapa('a1', turmaId: 'turma-SI-3A', disciplina: 'BD'),
+        aulaMapa('a2', turmaId: 'turma-SI-3A', diaSemana: 3, disciplina: 'Redes'),
+      ]),
+    );
+
+    await app.abrir(tester);
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Horários')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.getSize(find.text('QUA')).height, tester.getSize(find.text('SEG')).height);
+    expect(
+      tester.getSize(find.text('QUA')).height,
+      lessThan(tester.getSize(find.text('BD')).height * 1.5),
+    );
+  });
+
+  testWidgets('folha de tipos da agenda a 200% sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosVazioJson);
+    app.api.responder('GET /eventos', paginaJson([]));
+
+    await app.abrir(tester);
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Agenda')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Filtrar por tipo'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('data do cartão a 200% numa linha só; mês sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosVazioJson);
+    final hoje = DateTime.now();
+    app.api.responder(
+      'GET /eventos',
+      paginaJson([
+        eventoMapa(
+          'e1',
+          titulo: 'X',
+          inicio: DateTime(hoje.year, hoje.month, hoje.day - 1, 8),
+          fim: DateTime(hoje.year, hoje.month, hoje.day + 1, 18),
+        ),
+        eventoMapa('e2', titulo: 'Y', inicio: DateTime(2030, 10, 30, 10)),
+      ]),
+    );
+
+    await app.abrir(tester);
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Agenda')),
+    );
+    await tester.pumpAndSettle();
+    // "30" e "X" têm a mesma altura de linha: a data não quebrou em "3 / 0".
+    expect(
+      tester.getSize(find.text('30')).height,
+      lessThan(tester.getSize(find.text('Y')).height * 1.6),
+    );
+
+    // A coluna de horário da lista do dia é conferida no aparelho: a fonte de teste (Ahem)
+    // desenha cada letra como um quadrado do tamanho da fonte, e "o dia todo" não cabe em
+    // largura nenhuma razoável. Aqui, só que a visão de mês abre sem estouro.
+    await tester.ensureVisible(find.text('Mês'));
+    await tester.tap(find.text('Mês'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }

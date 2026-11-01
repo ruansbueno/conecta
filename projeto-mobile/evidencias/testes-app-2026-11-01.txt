@@ -1,0 +1,32 @@
+# Verificações da F2 do aplicativo — 01/11/2026 16:21
+
+## flutter analyze
+No issues found! (ran in 2.1s)
+
+## flutter test
+00:14 +344: All tests passed!
+
+## flutter test integration_test -d emulator-5554
+00:00 +0: integration_test/offline_test.dart: sem rede, as três abas abrem com o conteúdo guardado e a data
+00:08 +1: integration_test/offline_test.dart: sem rede, a agenda, o mês corrente, o detalhe e a grade abrem do que foi guardado
+00:36 +2: integration_test/agenda_test.dart: Próximos, Provas e o detalhe
+00:42 +3: integration_test/agenda_test.dart: mês: o evento de vários dias aparece em cada dia
+00:48 +4: integration_test/agenda_test.dart: evento excluído na API: 404 volta à agenda com a mensagem
+01:11 +5: integration_test/token_seguro_test.dart: o token fica só no armazenamento seguro
+01:41 +6: integration_test/avisos_test.dart: primeira carga mostra os avisos com o token do usuário
+01:45 +7: integration_test/avisos_test.dart: rolar até o fim carrega a segunda página
+01:54 +8: integration_test/avisos_test.dart: puxar para baixo recarrega do servidor
+01:58 +9: integration_test/avisos_test.dart: sem rede, reabre com o conteúdo guardado e a faixa com a data
+02:19 +10: integration_test/erro_desconhecido_test.dart: code desconhecido: mensagem genérica na tela e registro no log
+02:42 +11: integration_test/sessao_test.dart: abertura com token válido vai direto para a casca
+02:44 +12: integration_test/sessao_test.dart: abertura com token inválido volta ao login e apaga a sessão
+02:45 +13: integration_test/sessao_test.dart: login de verdade grava o token no cofre do aparelho
+02:47 +14: integration_test/sessao_test.dart: 401 no meio da navegação encerra a sessão e volta ao login
+02:49 +15: integration_test/sessao_test.dart: sair limpa token e cache; reabrir leva ao login
+03:11 +16: integration_test/horarios_test.dart: aluno com duas turmas troca a turma e vê a grade dela
+03:17 +17: integration_test/horarios_test.dart: vínculo removido na API: mensagem e volta à turma que restou
+03:39 +18: integration_test/solicitacao_fluxo_test.dart: solicitar → ver pendente → cancelar → a turma volta a disponíveis
+03:47 +19: integration_test/solicitacao_fluxo_test.dart: solicitar duas vezes a mesma turma: o segundo pedido abre Minhas solicitações
+04:13 +20: integration_test/perfil_atualizado_test.dart: abrir a aba Perfil traz o perfil novo e ajusta as outras abas
+04:19 +21: integration_test/perfil_atualizado_test.dart: voltar do segundo plano também reavalia o perfil
+04:23 +22: All tests passed!

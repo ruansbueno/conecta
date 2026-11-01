@@ -38,7 +38,7 @@ acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | ✅ Completa (8 de 8 fases) |
-| **F2** | Agenda (lista e mês), evento, horários | Agenda pronta (fases 9 e 10, [#28](https://github.com/ruansbueno/conecta/pull/28)); faltam os horários e o polimento (fases 11 e 12) — [`plan-f2.md`](specs/001-app-conecta/plan-f2.md), [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md) |
+| **F2** | Agenda (lista e mês), evento, horários | ✅ Completa (fases 9 a 12): agenda [#28](https://github.com/ruansbueno/conecta/pull/28), horários e polimento [#29](https://github.com/ruansbueno/conecta/pull/29) — [`plan-f2.md`](specs/001-app-conecta/plan-f2.md), [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md) |
 
 ## Stack
 
@@ -65,8 +65,10 @@ Atualizado em 01/11/2026.
 |---|---|---|
 | 9. Fundação da F2 | Modelos de evento e aula, repositórios da E3, cache da agenda e da grade por turma, `EVENTO_NAO_ENCONTRADO` | ✅ [#28](https://github.com/ruansbueno/conecta/pull/28) |
 | 10. US6a — Agenda | Aba Agenda: Próximos e Provas com filtro de tipo (m-10), mês de domingo a sábado com marcadores (m-10b), detalhe do evento (m-11), sem rede com o que estava guardado | ✅ [#28](https://github.com/ruansbueno/conecta/pull/28) |
+| 11. US6b — Horários | Aba Horários: grade da turma por dia (m-12), troca de turma com a escolha lembrada, mensagens próprias quando o vínculo some, grade guardada por turma | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
+| 12. Polimento da F2 | Sem rede na agenda e na grade, fonte a 200% conferida no aparelho, leitor de tela, comparação com o design | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 
-**Testes**: 328 de unidade e de widget (`flutter test`), mais 19 de integração no aparelho com servidor falso
+**Testes**: 344 de unidade e de widget (`flutter test`), mais 22 de integração no aparelho com servidor falso
 em `integration_test/`.
 
 ## Como rodar
@@ -84,5 +86,5 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-A F1 do aplicativo está fechada e a agenda da F2 está pronta. Faltam os horários e o polimento
-(fases 11 e 12 de [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md)). A integração real com o Moodle é da API (o app não muda, RM-40).
+O aplicativo está completo nas fases F1 e F2. A integração real com o Moodle é da API (o app não
+muda, RM-40).

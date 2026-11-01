@@ -7,7 +7,7 @@ from fastapi import Request
 from src.api.errors import CsrfInvalido
 from src.core.config import get_settings
 
-CSRF_COOKIE = "conecta_csrf"
+CSRF_COOKIE = "__Host-conecta_csrf"
 CSRF_HEADER = "X-CSRF-Token"
 METODOS_DE_ESCRITA = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps.csrf import CSRF_COOKIE, gerar_csrf, verificar_csrf
-from src.api.errors import NaoAutenticado
+from src.api.errors import CsrfInvalido, NaoAutenticado
 from src.core.config import Settings, get_settings
 from src.core.security import (
     SESSION_COOKIE,
@@ -49,16 +50,18 @@ async def login(
     )
 
 
-@router.delete("/sessao", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/sessao", status_code=status.HTTP_204_NO_CONTENT, response_model=None)
 async def encerrar_sessao(
     request: Request,
     response: Response,
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-) -> None:
+) -> Response | None:
     """Encerra a sessão web sem exigir usuário ativo nem token válido (RF-33).
 
     O cookie é HttpOnly: só a API consegue apagá-lo. Um usuário desativado num computador
-    compartilhado precisa conseguir sair. O CSRF continua exigido, contra logout forçado.
+    compartilhado precisa conseguir sair. Sem CSRF válido a resposta é 403, mas os cookies são
+    expirados mesmo assim (decisão de 01/11/2026): sair nunca deixa a sessão no navegador, e um
+    site de fora só conseguiria deslogar a pessoa.
     """
     if credentials is not None:
         # Com Bearer não há o que invalidar: o app descarta o token localmente.
@@ -69,6 +72,17 @@ async def encerrar_sessao(
         return
     if SESSION_COOKIE not in request.cookies:
         raise NaoAutenticado()
-    verificar_csrf(request, request.cookies[SESSION_COOKIE])
+    try:
+        verificar_csrf(request, request.cookies[SESSION_COOKIE])
+    except CsrfInvalido as erro:
+        # Uma exceção descartaria os cabeçalhos de `response`: o 403 sai com a expiração junto.
+        recusa = JSONResponse({"detail": erro.detail, "code": erro.code}, status_code=403)
+        _expirar_cookies(recusa)
+        return recusa
+    _expirar_cookies(response)
+    return None
+
+
+def _expirar_cookies(response: Response) -> None:
     response.delete_cookie(SESSION_COOKIE, httponly=True, **_ATRIBUTOS_COOKIE)
     response.delete_cookie(CSRF_COOKIE, **_ATRIBUTOS_COOKIE)

@@ -210,7 +210,7 @@ def _cookies(usuario_id):
 
 async def test_leitura_so_com_cookie_de_sessao_funciona_sem_csrf(mini_client, db):
     usuario = await _criar_usuario(db)
-    mini_client.cookies.update({"conecta_sessao": create_access_token(usuario.id, "aluno")})
+    mini_client.cookies.update({"__Host-conecta_sessao": create_access_token(usuario.id, "aluno")})
 
     r = await mini_client.get("/protegida")
 
@@ -225,7 +225,7 @@ async def test_escrita_por_cookie_exige_csrf(mini_client, db, metodo):
     sem = await mini_client.request(metodo, "/protegida")
     errado = await mini_client.request(metodo, "/protegida", headers={"X-CSRF-Token": "x"})
     certo = await mini_client.request(
-        metodo, "/protegida", headers={"X-CSRF-Token": mini_client.cookies["conecta_csrf"]}
+        metodo, "/protegida", headers={"X-CSRF-Token": mini_client.cookies["__Host-conecta_csrf"]}
     )
 
     assert (sem.status_code, sem.json()["code"]) == (403, "CSRF_INVALIDO")
@@ -239,7 +239,10 @@ async def test_escrita_por_cookie_com_csrf_de_outra_sessao_e_403(mini_client, db
     usuario = await _criar_usuario(db)
     plantado = gerar_csrf(create_access_token(uuid.uuid4(), "aluno"))
     mini_client.cookies.update(
-        {"conecta_sessao": create_access_token(usuario.id, "aluno"), "conecta_csrf": plantado}
+        {
+            "__Host-conecta_sessao": create_access_token(usuario.id, "aluno"),
+            "__Host-conecta_csrf": plantado,
+        }
     )
 
     r = await mini_client.request(metodo, "/protegida", headers={"X-CSRF-Token": plantado})
@@ -249,7 +252,7 @@ async def test_escrita_por_cookie_com_csrf_de_outra_sessao_e_403(mini_client, db
 
 async def test_escrita_por_cookie_sem_cookie_csrf_e_403(mini_client, db):
     usuario = await _criar_usuario(db)
-    mini_client.cookies.update({"conecta_sessao": create_access_token(usuario.id, "aluno")})
+    mini_client.cookies.update({"__Host-conecta_sessao": create_access_token(usuario.id, "aluno")})
 
     r = await mini_client.post("/protegida", headers={"X-CSRF-Token": ""})
 
@@ -266,7 +269,7 @@ async def test_bearer_tem_precedencia_sobre_o_cookie(mini_client, db):
 
 
 async def test_cookie_de_sessao_invalido_e_401(mini_client):
-    mini_client.cookies.update({"conecta_sessao": "lixo"})
+    mini_client.cookies.update({"__Host-conecta_sessao": "lixo"})
 
     r = await mini_client.get("/protegida")
 

@@ -14,7 +14,8 @@ from src.db.session import get_session
 from src.models.usuario import Usuario
 
 ALGORITHM = "HS256"
-SESSION_COOKIE = "conecta_sessao"
+# __Host-: só com Secure, Path=/ e sem Domain; nenhum subdomínio consegue gravá-lo (01/11/2026).
+SESSION_COOKIE = "__Host-conecta_sessao"
 
 
 class TokenInvalido(Exception):

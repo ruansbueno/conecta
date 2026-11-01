@@ -8,6 +8,7 @@ import {
   formularioDaAula,
   montarGrade,
   NOME_DIA,
+  noDia,
   textoDoConflito,
   validarAula,
 } from '../../src/lib/grade'
@@ -133,5 +134,6 @@ describe('formulário da aula (D-F2-9)', () => {
   it('nomes dos dias de segunda (1) a domingo (7)', () => {
     expect(NOME_DIA[1]).toBe('Segunda')
     expect(NOME_DIA[7]).toBe('Domingo')
+    expect([noDia(1), noDia(6), noDia(7)]).toEqual(['na segunda', 'no sábado', 'no domingo'])
   })
 })

@@ -1,7 +1,7 @@
 // T13 (design w-13, plan-f2 D-F2-8): grade semanal da turma em tabela. Cartão com aula abre a
 // edição; célula vazia abre a nova aula já com o dia e o início da linha.
 import type { Aula } from '../../api/schemas'
-import { NOME_DIA, type Grade } from '../../lib/grade'
+import { NOME_DIA, noDia, type Grade } from '../../lib/grade'
 
 interface Props {
   turma: string
@@ -46,7 +46,7 @@ export function GradeSemanal({ turma, grade, onEditar, onNova }: Props) {
                     {aulas.length === 0 ? (
                       <button
                         type="button"
-                        aria-label={`Adicionar aula na ${NOME_DIA[d].toLowerCase()} às ${linha.inicio}`}
+                        aria-label={`Adicionar aula ${noDia(d)} às ${linha.inicio}`}
                         onClick={() => onNova(d, linha.inicio)}
                         className="group flex h-[88px] w-full items-center justify-center rounded-lg border border-dashed border-linha text-tenue hover:border-azul-100 hover:bg-azul-superficie"
                       >

@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import NovoAviso from '../../src/paginas/avisos/novo'
 import { pagina, turma } from '../fixtures'
 import { abrirEm, apiAgenda } from './apoio-agenda'
-import { abrirGrade, apiHorarios, BD, CAMINHO, ID } from './apoio-horarios'
+import { abrirGrade, apiHorarios, BD, CAMINHO, ID, TURMA } from './apoio-horarios'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -19,6 +19,13 @@ describe('avisar a turma (T13, RW-36, plan-f2 D-F2-11)', () => {
     const cartao = screen.getByRole('region', { name: 'Mudou alguma aula?' })
     expect(cartao).toHaveTextContent(/não gera aviso automático/i)
     expect(within(cartao).getByRole('link', { name: 'Criar aviso para a SI-3A' })).toHaveAttribute('href', `/avisos/novo?turma=${ID}`)
+  })
+
+  it('turma inativa: sem o link para o aviso, que não aceitaria a turma como destino', async () => {
+    apiHorarios({ [`GET /gestao/turmas/${ID}`]: { status: 200, corpo: { ...TURMA, ativa: false } } })
+    await abrirGrade()
+    expect(screen.getByText('Turma inativa não recebe avisos: reative a turma para avisá-la.')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /criar aviso/i })).not.toBeInTheDocument()
   })
 
   it('a mensagem depois de remover também oferece o aviso da turma', async () => {

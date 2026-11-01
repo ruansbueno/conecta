@@ -16,6 +16,9 @@ export const NOME_DIA: Record<number, string> = {
 
 const UTEIS = [1, 2, 3, 4, 5]
 
+/** "na segunda", "no sábado". */
+export const noDia = (d: number) => `${d >= 6 ? 'no' : 'na'} ${NOME_DIA[d].toLowerCase()}`
+
 export interface LinhaDaGrade {
   inicio: string
   /** Aulas por dia, pela hora de fim; dia sem aula tem lista vazia. */

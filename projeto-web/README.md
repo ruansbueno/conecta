@@ -82,7 +82,7 @@ Atualizado em 01/11/2026.
 | 13. US7b — Horários | Escolha da turma, grade semanal (w-13), modal de aula, conflitos como atenção, docentes da grade, "avisar a turma" levando ao aviso com a turma como destino | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 | 14. Polimento da F2 | E2E da agenda e dos horários, axe e teclado nas telas novas, validação visual contra a API real, rastreabilidade e mensagens | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 
-**Testes**: 380 de unidade e componente (Vitest), 54 de ponta a ponta (Playwright) e 8 da
+**Testes**: 385 de unidade e componente (Vitest), 54 de ponta a ponta (Playwright) e 8 da
 implantação (`deploy/verificar.sh`), além da validação visual de cada tela contra a API local real
 ([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md)).
 

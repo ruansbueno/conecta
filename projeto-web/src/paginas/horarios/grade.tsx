@@ -72,6 +72,8 @@ export default function GradeHorarios() {
   const [enviando, setEnviando] = useState(false)
   const [removendo, setRemovendo] = useState(false)
   const [resultado, setResultado] = useState<ResultadoDaGrade>()
+  /** Falha ao atualizar a grade depois de uma mudança: ao lado do resultado, sem apagar os conflitos. */
+  const [erroDaGrade, setErroDaGrade] = useState<string>()
 
   const carregar = useCallback(async () => {
     // Id que não é UUID nunca existiu: a API real responderia 422, e "tentar de novo" não resolveria.
@@ -94,10 +96,11 @@ export default function GradeHorarios() {
 
   /** Depois de uma mudança: só a grade, sem esqueleto. */
   const recarregarAulas = useCallback(async () => {
+    setErroDaGrade(undefined)
     try {
       setAulas((await gradeDaTurma(id)).items)
     } catch (e) {
-      setResultado({ tipo: 'erro', texto: `A grade não pôde ser atualizada: ${mensagemDe(e)}` })
+      setErroDaGrade(`A grade não pôde ser atualizada: ${mensagemDe(e)}`)
     }
   }, [id])
 
@@ -124,9 +127,15 @@ export default function GradeHorarios() {
     setAlerta(undefined)
     setInformacao(undefined)
     setEdicao(nova)
-    if (docentes.estado === 'erro') void carregarDocentes()
+    if (docentes.estado === 'erro') {
+      setDocentes({ estado: 'carregando' })
+      void carregarDocentes()
+    }
   }
-  const fechar = () => setEdicao(null)
+  // Durante o envio a modal não fecha: a resposta não pode cair em outra aula aberta depois.
+  const fechar = () => {
+    if (!enviando) setEdicao(null)
+  }
 
   /** Falha comum a salvar e remover; devolve se a modal deve fechar. */
   async function falhou(e: unknown): Promise<boolean> {
@@ -252,6 +261,11 @@ export default function GradeHorarios() {
       )}
 
       <ResultadoDaAula resultado={resultado} turma={t} />
+      {erroDaGrade && (
+        <p role="alert" className="mt-3 rounded-xl border border-perigo-borda bg-perigo-fundo px-4 py-3 text-[13.5px] text-perigo">
+          {erroDaGrade}
+        </p>
+      )}
 
       <div className="mt-5">
         {aulas.length === 0 ? (
@@ -282,9 +296,13 @@ export default function GradeHorarios() {
             <p className="text-[13.5px] leading-relaxed text-apagado">
               Ajuste a grade aqui e avise a turma pelo módulo de avisos — a mudança de horário não gera aviso automático.
             </p>
-            <Link to={linkAvisarTurma(t.id)} className="botao-secundario mt-4">
-              Criar aviso para a {t.codigo}
-            </Link>
+            {t.ativa ? (
+              <Link to={linkAvisarTurma(t.id)} className="botao-secundario mt-4">
+                Criar aviso para a {t.codigo}
+              </Link>
+            ) : (
+              <p className="mt-3 text-[13px] text-apagado">Turma inativa não recebe avisos: reative a turma para avisá-la.</p>
+            )}
           </div>
         </section>
       </div>

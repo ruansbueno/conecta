@@ -76,4 +76,12 @@ describe('grade semanal (T13, w-13, plan-f2 D-F2-8)', () => {
     await userEvent.click(repetir)
     await waitFor(() => expect(screen.getByText('Nenhuma aula nesta grade')).toBeInTheDocument())
   })
+
+  it('sábado com aula entra na grade, com "no sábado" na célula vazia', async () => {
+    const { BD: bd } = await import('./apoio-horarios')
+    apiHorarios({ [`GET ${CAMINHO}`]: { status: 200, corpo: pagina([bd, { ...bd, id: 'c9d80000-0000-4000-8000-0000000000aa', dia_semana: 6, inicio: '21:00', fim: '22:00' }]) } })
+    const tabela = await abrirGrade()
+    expect(within(tabela).getAllByRole('columnheader').map((c) => c.textContent)).toContain('Sábado')
+    expect(within(tabela).getByRole('button', { name: 'Adicionar aula no sábado às 19:10' })).toBeInTheDocument()
+  })
 })

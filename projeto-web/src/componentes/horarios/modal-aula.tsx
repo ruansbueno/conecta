@@ -43,10 +43,13 @@ export function ModalAula(props: Props) {
 
   const opcoes =
     docenteAtual && !docentes.some((d) => d.id === docenteAtual.id) ? [...docentes, docenteAtual] : docentes
+  // Docente que saiu da lista (perdeu o perfil, recarregada depois de um 409): o que se vê
+  // ("Sem docente") é o que vai, para não reenviar o mesmo id recusado.
+  const docenteId = opcoes.some((d) => d.id === f.docenteId) ? f.docenteId : ''
 
   const enviar = (e: FormEvent) => {
     e.preventDefault()
-    onEnviar(f)
+    if (!enviando) onEnviar({ ...f, docenteId })
   }
   const atributos = (c: CampoAula) => ({
     id: id(c),
@@ -72,7 +75,12 @@ export function ModalAula(props: Props) {
       rodape={
         <>
           {onRemover && (
-            <button type="button" onClick={onRemover} disabled={enviando} className="botao-perigo">
+            <button
+              type="button"
+              onClick={() => !enviando && onRemover()}
+              aria-disabled={enviando}
+              className="botao-perigo aria-disabled:opacity-60"
+            >
               Remover aula
             </button>
           )}
@@ -80,7 +88,14 @@ export function ModalAula(props: Props) {
           <button type="button" onClick={onFechar} className="botao-secundario">
             Cancelar
           </button>
-          <button type="submit" form="form-aula" disabled={enviando} aria-busy={enviando} className="botao-primario">
+          {/* aria-disabled, não disabled: o foco que volta da confirmação não cai num botão desabilitado. */}
+          <button
+            type="submit"
+            form="form-aula"
+            aria-disabled={enviando}
+            aria-busy={enviando}
+            className="botao-primario aria-disabled:opacity-60"
+          >
             Salvar aula
           </button>
         </>
@@ -132,7 +147,7 @@ export function ModalAula(props: Props) {
         </div>
         <div>
           {rotulo('docenteId', 'Docente')}
-          <select {...atributos('docenteId')} className="campo" value={f.docenteId} onChange={(e) => mudar({ docenteId: e.target.value })}>
+          <select {...atributos('docenteId')} className="campo" value={docenteId} onChange={(e) => mudar({ docenteId: e.target.value })}>
             <option value="">Sem docente</option>
             {opcoes.map((d) => (
               <option key={d.id} value={d.id}>

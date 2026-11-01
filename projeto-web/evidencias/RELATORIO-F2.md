@@ -9,7 +9,7 @@ A saída completa de cada verificação está em [`testes-web-2026-11-01.txt`](t
 | Verificação | Como | Resultado |
 |---|---|---|
 | Tipos e estilo | `npm run typecheck`, `npx eslint .` | sem erros |
-| Unidade e componente | `npx vitest run` | 380 testes em 47 arquivos, todos passam |
+| Unidade e componente | `npx vitest run` | 385 testes em 47 arquivos, todos passam |
 | Ponta a ponta | `npx playwright test`, contra o servidor falso que segue o contrato da E3 | 54 testes, todos passam (rodados duas vezes seguidas) |
 | Mensagens de erro | `tests/unit/mensagens-spec.test.ts` contra a tabela da seção 6 da spec (agora com `HORARIO_NAO_ENCONTRADO`) | spec e web iguais |
 | Acessibilidade (T098) | `e2e/acessibilidade.spec.ts`: axe (WCAG 2.1 A e AA) na agenda, no mês, no editor com erros, no histórico do evento, na escolha da turma, na grade, na modal de aula e na grade com a mensagem de resultado | nenhuma violação |
@@ -24,6 +24,12 @@ A saída completa de cada verificação está em [`testes-web-2026-11-01.txt`](t
   novembro, 2 eventos: …".
 - **Cartão de aula:** pelo mesmo motivo, o nome do cartão é o texto que se vê (disciplina, horas,
   local e docente); o dia vem do cabeçalho da coluna e "Abre a edição da aula." fica na descrição.
+- **Revisão independente:** Esc numa confirmação aberta sobre a modal de aula fechava as duas e
+  perdia o digitado (agora só o modal de cima responde a Esc e a Tab); um docente recusado (409)
+  continuava no formulário sem aparecer, e o reenvio repetia o erro (agora a escolha volta a "Sem
+  docente"); botões da modal com `aria-disabled` durante o envio, para o foco não cair no corpo da
+  página; a modal não fecha enquanto envia; falha ao atualizar a grade não apaga os conflitos;
+  turma inativa sem o link para o aviso; "no sábado", "no domingo".
 - **Título da barra superior:** na grade de uma turma (`/turmas/:id/horarios`) mostrava "Turmas";
   passou a seguir a mesma regra da barra lateral, que marca "Horários".
 

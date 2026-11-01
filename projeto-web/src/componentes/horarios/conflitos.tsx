@@ -12,7 +12,7 @@ export interface ResultadoDaGrade {
 
 interface Props {
   resultado?: ResultadoDaGrade
-  turma: { id: string; codigo: string }
+  turma: { id: string; codigo: string; ativa: boolean }
 }
 
 const CORES = {
@@ -45,7 +45,8 @@ export function ResultadoDaAula({ resultado, turma }: Props) {
           ))}
         </ul>
       )}
-      {tipo !== 'erro' && (
+      {/* Turma inativa não é destino de aviso: o link levaria a um editor sem a turma. */}
+      {tipo !== 'erro' && turma.ativa && (
         <p className="mt-1.5 text-navy-suave">
           A mudança não avisa ninguém sozinha.{' '}
           <Link to={linkAvisarTurma(turma.id)} className="font-semibold text-azul underline-offset-2 hover:underline">

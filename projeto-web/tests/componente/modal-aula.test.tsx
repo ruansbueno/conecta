@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { erro, pagina } from '../fixtures'
-import { abrirGrade, apiHorarios, BD, CAMINHO, HELENA, RICARDO } from './apoio-horarios'
+import { abrirGrade, apiHorarios, BD, CAMINHO, HELENA, ID, RICARDO, TURMA } from './apoio-horarios'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -167,5 +167,66 @@ describe('modal de aula (T13, plan-f2 D-F2-9)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Esta aula não está mais na grade.')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     await waitFor(() => expect(chamadas.filter((c) => c.chave === `GET ${CAMINHO}`).length).toBe(antes + 1))
+  })
+
+  it('Esc na confirmação de remover fecha só ela: a edição continua com o digitado e o foco volta ao botão', async () => {
+    apiHorarios()
+    const tabela = await abrirGrade()
+    await userEvent.click(within(tabela).getByRole('button', { name: /banco de dados ii/i }))
+    const modal = screen.getByRole('dialog', { name: 'Editar aula' })
+    await userEvent.type(within(modal).getByLabelText('Disciplina'), ' — turma B')
+    await userEvent.click(within(modal).getByRole('button', { name: 'Remover aula' }))
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Editar aula' })).toBeInTheDocument()
+    expect(within(modal).getByLabelText('Disciplina')).toHaveValue('Banco de Dados II — turma B')
+    expect(within(modal).getByRole('button', { name: 'Remover aula' })).toHaveFocus()
+  })
+
+  it('docente recusado sai da escolha: a modal mostra e envia "Sem docente" na tentativa seguinte', async () => {
+    let docentesOk = true
+    const chamadas = apiHorarios({
+      [`POST ${CAMINHO}`]: (_q, corpo) =>
+        (corpo as { docente_id?: string }).docente_id
+          ? { status: 409, corpo: erro('PERFIL_INCOMPATIVEL') }
+          : { status: 201, corpo: { horario: BD, conflitos: [] } },
+      'GET /gestao/usuarios': () => {
+        const r = { status: 200, corpo: pagina(docentesOk ? [{ ...HELENA, username: 'h', perfil: 'docente', ativo: true, ultimo_login_em: null }, { ...RICARDO, username: 'r', perfil: 'docente', ativo: true, ultimo_login_em: null }] : []) }
+        return r
+      },
+    })
+    await abrirGrade()
+    await userEvent.click(screen.getByRole('button', { name: 'Nova aula' }))
+    const modal = screen.getByRole('dialog')
+    await userEvent.type(within(modal).getByLabelText('Início'), '19:10')
+    await userEvent.type(within(modal).getByLabelText('Fim'), '20:00')
+    await userEvent.type(within(modal).getByLabelText('Disciplina'), 'Redes')
+    await userEvent.selectOptions(within(modal).getByLabelText('Docente'), RICARDO.id)
+    docentesOk = false
+    await userEvent.click(within(modal).getByRole('button', { name: 'Salvar aula' }))
+    await within(modal).findByText('Esta pessoa não tem mais o perfil docente. Escolha outra.')
+    await waitFor(() => expect(within(modal).getByLabelText('Docente')).toHaveValue(''))
+    await userEvent.click(within(modal).getByRole('button', { name: 'Salvar aula' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const posts = chamadas.filter((c) => c.chave === `POST ${CAMINHO}`)
+    expect(posts.map((c) => (c.corpo as { docente_id?: string }).docente_id)).toEqual([RICARDO.id, undefined])
+  })
+
+  it('turma que deixou de existir ao salvar: fecha a modal e a página vira o aviso sem repetir', async () => {
+    let existe = true
+    apiHorarios({
+      [`GET /gestao/turmas/${ID}`]: () => (existe ? { status: 200, corpo: TURMA } : { status: 404, corpo: erro('TURMA_NAO_ENCONTRADA') }),
+      [`PATCH ${CAMINHO}/${BD.id}`]: () => {
+        existe = false
+        return { status: 404, corpo: erro('TURMA_NAO_ENCONTRADA') }
+      },
+    })
+    const tabela = await abrirGrade()
+    await userEvent.click(within(tabela).getByRole('button', { name: /banco de dados ii/i }))
+    await userEvent.type(within(screen.getByRole('dialog')).getByLabelText('Disciplina'), ' 2')
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Salvar aula' }))
+    expect(await screen.findByRole('link', { name: 'Escolher outra turma' })).toHaveAttribute('href', '/horarios')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })

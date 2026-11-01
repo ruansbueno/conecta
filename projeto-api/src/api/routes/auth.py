@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, Request, Response, status
-from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps.csrf import CSRF_COOKIE, gerar_csrf, verificar_csrf
-from src.api.errors import CsrfInvalido, NaoAutenticado
+from src.api.errors import CsrfInvalido, NaoAutenticado, resposta_de_erro
 from src.core.config import Settings, get_settings
 from src.core.security import (
     SESSION_COOKIE,
@@ -76,7 +75,7 @@ async def encerrar_sessao(
         verificar_csrf(request, request.cookies[SESSION_COOKIE])
     except CsrfInvalido as erro:
         # Uma exceção descartaria os cabeçalhos de `response`: o 403 sai com a expiração junto.
-        recusa = JSONResponse({"detail": erro.detail, "code": erro.code}, status_code=403)
+        recusa = resposta_de_erro(erro)
         _expirar_cookies(recusa)
         return recusa
     _expirar_cookies(response)

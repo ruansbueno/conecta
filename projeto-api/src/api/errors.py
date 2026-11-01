@@ -186,11 +186,16 @@ def _campo(loc: tuple) -> str:
     return ".".join(partes)
 
 
-async def _domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
+def resposta_de_erro(exc: DomainError) -> JSONResponse:
+    """A resposta padrão de um erro de negócio, para quem precisa devolvê-la sem levantar."""
     corpo = {"detail": exc.detail, "code": exc.code}
     if isinstance(exc, ErroDeValidacao):
         corpo["errors"] = exc.errors
     return JSONResponse(corpo, status_code=exc.status_code)
+
+
+async def _domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
+    return resposta_de_erro(exc)
 
 
 async def _validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:

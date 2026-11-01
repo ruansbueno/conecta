@@ -116,6 +116,17 @@ void main() {
     expect(find.textContaining('Sem conexão'), findsOneWidget);
   });
 
+  testWidgets('erro do servidor: segue com o evento da lista, sem dizer que falta rede', (
+    tester,
+  ) async {
+    app.api.responder('GET /eventos/e3', '{"detail": "x", "code": "ERRO_INTERNO"}', 500);
+
+    await abrirDetalhe(tester, Evento.fromJson(palestra));
+
+    expect(find.text('Carreira em infraestrutura em nuvem'), findsOneWidget);
+    expect(find.textContaining('Sem conexão'), findsNothing);
+  });
+
   testWidgets('aberto só com o id: esqueleto até a resposta', (tester) async {
     final resposta = Completer<http.Response>();
     app.api.rotasAssincronas['GET /eventos/e3'] = (_) => resposta.future;

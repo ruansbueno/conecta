@@ -25,7 +25,9 @@ List<TipoEvento> marcadoresDoDia(List<Evento> eventos, DateTime dia) =>
 /// um evento de vários dias; "o dia todo" nos dias do meio.
 String rotuloNoDia(Evento e, DateTime dia) {
   if (mesmoDia(e.inicio.toLocal(), dia)) return _hora(e.inicio);
-  if (mesmoDia(ultimoInstante(e), dia)) return 'até ${_hora(e.fim!)}';
+  final fim = e.fim!.toLocal();
+  final terminaAMeiaNoite = fim.hour == 0 && fim.minute == 0;
+  if (mesmoDia(ultimoInstante(e), dia) && !terminaAMeiaNoite) return 'até ${_hora(fim)}';
   return 'o dia todo';
 }
 

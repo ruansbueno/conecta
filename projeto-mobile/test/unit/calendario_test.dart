@@ -32,6 +32,20 @@ void main() {
       expect(diasDaGrade(const Mes(2026, 11)).last, DateTime(2026, 12, 5));
     });
 
+    // Passos de calendário, não de 24 h: num fuso com horário de verão (rode com
+    // TZ=Europe/Berlin), somar dias atravessaria a mudança de hora e deslocaria a grade.
+    test('toda grade, de 2026 a 2030: dias à meia-noite local, semanas de domingo a sábado', () {
+      for (var ano = 2026; ano <= 2030; ano++) {
+        for (var mes = 1; mes <= 12; mes++) {
+          final dias = diasDaGrade(Mes(ano, mes));
+          expect(dias.length % 7, 0, reason: '$ano-$mes');
+          expect(dias.first.weekday, DateTime.sunday, reason: '$ano-$mes');
+          expect(dias.every((d) => d.hour == 0 && d.minute == 0), isTrue, reason: '$ano-$mes');
+          expect(dias.contains(DateTime(ano, mes)), isTrue);
+        }
+      }
+    });
+
     test('janela da grade: do primeiro dia ao dia seguinte ao último, meia-noite local', () {
       final janela = janelaDaGrade(const Mes(2026, 11));
       expect(janela.de, DateTime(2026, 11, 1));
@@ -80,6 +94,9 @@ void main() {
       expect(rotuloNoDia(semana, DateTime(2026, 10, 31)), 'o dia todo');
       expect(rotuloNoDia(semana, DateTime(2026, 11, 2)), 'até 18:00');
       expect(rotuloNoDia(prova, DateTime(2026, 11, 2)), '19:10');
+      // Terminar à meia-noite: o último dia é o anterior, e nele o evento dura o dia todo.
+      final ateMeiaNoite = ev('z', DateTime(2026, 9, 2, 19), fim: DateTime(2026, 9, 5));
+      expect(rotuloNoDia(ateMeiaNoite, DateTime(2026, 9, 4)), 'o dia todo');
     });
   });
 

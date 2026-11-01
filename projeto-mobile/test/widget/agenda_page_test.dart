@@ -130,15 +130,33 @@ void main() {
     expect(pedidosDeEventos().last['tipo'], 'banca');
     expect(find.text('Agenda · Banca'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Filtrar por tipo'));
+    await tester.tap(find.byTooltip('Filtrar por tipo (Banca)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Todos os tipos'));
     await tester.pumpAndSettle();
     expect(pedidosDeEventos().last.containsKey('tipo'), isFalse);
-    expect(find.text('Agenda'), findsWidgets);
+    expect(find.text('Agenda · Banca'), findsNothing);
+    expect(find.byTooltip('Filtrar por tipo'), findsOneWidget);
   });
 
-  testWidgets('vazio e erro', (tester) async {
+  testWidgets('o filtro ativo é dito ao leitor de tela; em Provas, o título não o mostra', (
+    tester,
+  ) async {
+    app.api.responder('GET /eventos', paginaJson([palestra]));
+
+    await abrirAgenda(tester);
+    await tester.tap(find.byTooltip('Filtrar por tipo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Banca'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Filtrar por tipo (Banca)'), findsOneWidget);
+
+    await tester.tap(find.text('Provas'));
+    await tester.pumpAndSettle();
+    expect(find.text('Agenda · Banca'), findsNothing);
+  });
+
+  testWidgets('vazio de Próximos e de Provas', (tester) async {
     app.api.responder('GET /eventos', paginaJson([]));
     await abrirAgenda(tester);
     expect(find.text('Nenhum evento por vir'), findsOneWidget);

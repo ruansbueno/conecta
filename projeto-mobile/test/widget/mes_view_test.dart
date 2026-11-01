@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:conecta/main.dart';
@@ -6,6 +7,9 @@ import 'package:conecta/ui/agenda/calendario.dart';
 import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+
+import '../apoio.dart';
 
 import '../fixtures/fabrica.dart';
 import '../fixtures/fixtures.dart';
@@ -140,14 +144,60 @@ void main() {
     expect(find.text('Mostrando 3 de 130 atividades deste mês.'), findsOneWidget);
   });
 
-  testWidgets('o tipo filtrado vale também no mês', (tester) async {
-    app.api.responder('GET /eventos', paginaJson([]));
+  testWidgets('o tipo filtrado vale também no mês, que continua no mesmo mês e dia', (
+    tester,
+  ) async {
+    app.api.responder('GET /eventos', paginaJson(eventos));
     await abrirMes(tester);
+    await tester.tap(find.byTooltip('Próximo mês'));
+    await tester.pumpAndSettle();
+    await tester.tap(dia(16, seguinte));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byTooltip('Filtrar por tipo'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Prova'));
+    // "Prova" também é o tipo de uma atividade do dia, atrás da folha.
+    await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text('Prova')));
     await tester.pumpAndSettle();
+
     expect(pedidosDoMes().last['tipo'], 'prova');
+    expect(pedidosDoMes().last['de'], janelaDaGrade(seguinte).de.toUtc().toIso8601String());
+    expect(find.text(seguinte.nome), findsOneWidget);
+    expect(find.text(tituloDoDia(noSeguinte(16))), findsOneWidget);
+  });
+
+  testWidgets('trocar de mês depressa: a resposta atrasada do mês anterior é descartada', (
+    tester,
+  ) async {
+    final atrasada = Completer<http.Response>();
+    app.api.rotasAssincronas['GET /eventos'] = (r) {
+      final de = DateTime.parse(r.url.queryParameters['de'] ?? '1970-01-01T00:00:00Z');
+      // O mês de hoje responde tarde, com um evento que não pode aparecer no mês seguinte.
+      if (r.url.queryParameters.containsKey('de') && de == janelaDaGrade(atual).de.toUtc()) {
+        return atrasada.future;
+      }
+      return Future.value(respostaJson(paginaJson([])));
+    };
+
+    await abrirMes(tester);
+    await tester.tap(find.byTooltip('Próximo mês'));
+    await tester.pumpAndSettle();
+    atrasada.complete(
+      respostaJson(
+        paginaJson([
+          eventoMapa(
+            'x',
+            titulo: 'Do mês errado',
+            inicio: DateTime(seguinte.ano, seguinte.mes, 1, 10),
+          ),
+        ]),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(seguinte.nome), findsOneWidget);
+    expect(find.text('Do mês errado'), findsNothing);
+    expect(find.text('Nenhuma atividade neste dia'), findsOneWidget);
   });
 
   testWidgets('sem rede: o mês corrente guardado, com a faixa', (tester) async {

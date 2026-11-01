@@ -47,10 +47,12 @@ class Mes {
 
 /// Semanas inteiras, de domingo a sábado, cobrindo o mês (design m-10b).
 List<DateTime> diasDaGrade(Mes m) {
+  // Aritmética de calendário (dia 1 - n), nunca `Duration(days:)`: num fuso com horário de
+  // verão, 24 h a menos atravessariam a mudança de hora e deslocariam a grade inteira.
   final primeiro = DateTime(m.ano, m.mes);
-  final inicio = primeiro.subtract(Duration(days: primeiro.weekday % 7));
   final ultimo = DateTime(m.ano, m.mes + 1, 0);
-  final fim = ultimo.add(Duration(days: 6 - ultimo.weekday % 7));
+  final inicio = DateTime(m.ano, m.mes, 1 - primeiro.weekday % 7);
+  final fim = DateTime(m.ano, m.mes + 1, 6 - ultimo.weekday % 7);
   return [for (var d = inicio; !d.isAfter(fim); d = DateTime(d.year, d.month, d.day + 1)) d];
 }
 

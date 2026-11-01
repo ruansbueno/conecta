@@ -178,9 +178,10 @@ class _Dia extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Mínimo de 36 px, não fixo: o número cresce com a fonte do sistema (RM-36).
               Container(
-                width: 36,
-                height: 36,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                padding: const EdgeInsets.all(4),
                 alignment: Alignment.center,
                 decoration: escolhido
                     ? const BoxDecoration(color: Cores.navy, shape: BoxShape.circle)

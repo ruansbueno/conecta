@@ -1,4 +1,6 @@
 // RM-36: as telas acomodam a fonte do sistema a 200% sem perder conteúdo.
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -262,5 +264,40 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Tentar de novo').hitTestable(), findsOneWidget);
     expect(find.text('Reunião de pais e alunos'), findsOneWidget);
+  });
+
+  testWidgets('agenda a 200%: Próximos, Mês e detalhe sem estouro', (tester) async {
+    await telaPequenaComFonteDobrada(tester);
+    final app = AppFalso();
+    await app.preparar();
+    app.api.responder('GET /avisos', avisosVazioJson);
+    final hoje = DateTime.now();
+    final evento = eventoMapa(
+      'e1',
+      titulo: 'Defesas de TCC II com banca aberta ao público',
+      tipo: 'banca',
+      inicio: DateTime(hoje.year, hoje.month, hoje.day, 23, 50),
+      fim: DateTime(hoje.year, hoje.month, hoje.day + 2, 18),
+      local: 'Auditório do câmpus',
+    );
+    app.api.responder('GET /eventos', paginaJson([evento]));
+    app.api.responder('GET /eventos/e1', jsonEncode(evento));
+
+    await app.abrir(tester);
+    await tester.tap(
+      find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Agenda')),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Mês'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Próximos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Defesas de TCC II com banca aberta ao público'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

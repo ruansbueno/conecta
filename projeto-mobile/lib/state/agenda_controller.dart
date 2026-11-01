@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/evento.dart';
+import '../models/mes.dart';
 import '../models/pagina.dart';
 import '../repositories/eventos_repository.dart';
 import 'lista_paginada.dart';
@@ -48,8 +49,16 @@ class AgendaController extends ChangeNotifier {
       _provas ??= EventosController(_repo, usuarioId: usuarioId, tipo: TipoEvento.prova)
         ..carregar();
 
-  MesController get mes =>
-      _mes ??= MesController(_repo, usuarioId: usuarioId, tipo: _tipo)..carregar();
+  /// Mês e dia abertos antes de uma troca de filtro, para o mês recriado continuar neles.
+  (Mes, DateTime)? _posicaoDoMes;
+
+  MesController get mes => _mes ??= MesController(
+    _repo,
+    usuarioId: usuarioId,
+    tipo: _tipo,
+    mesInicial: _posicaoDoMes?.$1,
+    diaInicial: _posicaoDoMes?.$2,
+  )..carregar();
 
   void alternar(VisaoAgenda visao) {
     if (visao == _visao) return;
@@ -62,16 +71,12 @@ class AgendaController extends ChangeNotifier {
     _tipo = tipo;
     _proximos?.dispose();
     _proximos = null;
+    // Recriados só quando abertos de novo: sem pedidos para uma visão fora da tela.
     final anterior = _mes;
     if (anterior != null) {
-      _mes = MesController(
-        _repo,
-        usuarioId: usuarioId,
-        tipo: tipo,
-        mesInicial: anterior.mes,
-        diaInicial: anterior.diaEscolhido,
-      )..carregar();
+      _posicaoDoMes = (anterior.mes, anterior.diaEscolhido);
       anterior.dispose();
+      _mes = null;
     }
     notifyListeners();
   }

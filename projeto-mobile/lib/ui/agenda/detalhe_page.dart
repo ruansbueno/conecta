@@ -65,8 +65,10 @@ class _EventoDetalhePageState extends State<EventoDetalhePage> {
         Navigator.of(context).pop(true);
         return;
       }
-      // Com o evento da lista na tela, segue com ele; sem nada, o estado de erro.
-      setState(() => _evento == null ? _falha = falha : _semRede = true);
+      // Com o evento da lista na tela, segue com ele (a faixa só quando falta rede); sem nada,
+      // o estado de erro.
+      final semRede = falha.code == ApiFailure.semRede || falha.code == ApiFailure.timeout;
+      setState(() => _evento == null ? _falha = falha : _semRede = semRede);
     }
   }
 

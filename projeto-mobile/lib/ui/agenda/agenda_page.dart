@@ -45,14 +45,17 @@ class _Agenda extends StatelessWidget {
     final controller = context.watch<AgendaController>();
     final tipo = controller.tipo;
     final emProvas = controller.visao == VisaoAgenda.provas;
+    // Em Provas o filtro não vale: o título não o mostra.
+    final tipoNaTela = emProvas ? null : tipo;
     return Scaffold(
       appBar: AppBar(
-        title: Text(tipo == null ? 'Agenda' : 'Agenda · ${tipo.rotulo}'),
+        title: Text(tipoNaTela == null ? 'Agenda' : 'Agenda · ${tipoNaTela.rotulo}'),
         toolbarHeight: 60,
         titleSpacing: 20,
         actions: [
           IconButton(
-            tooltip: 'Filtrar por tipo',
+            // O destaque do ícone é só cor: o tipo escolhido vai também no nome do botão.
+            tooltip: tipo == null ? 'Filtrar por tipo' : 'Filtrar por tipo (${tipo.rotulo})',
             icon: const Icon(Icons.filter_list),
             color: tipo == null ? Cores.navy : Cores.azul,
             // Provas já é um filtro de tipo (D-AF2-2).

@@ -6,13 +6,15 @@ import '../../models/usuario.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../agenda/agenda_page.dart';
 import '../avisos/lista_page.dart';
 import '../perfil/perfil_page.dart';
 import '../turmas/minhas_page.dart';
 
-/// Abas da F1. Agenda e Horários (F2) entram quando a fase for liberada (spec §3).
+/// Abas da spec §3. Horários (F2) entra com a grade (tasks-f2 T083).
 enum Aba {
   avisos('Avisos', Icons.campaign_outlined, Icons.campaign),
+  agenda('Agenda', Icons.calendar_today_outlined, Icons.calendar_today),
   turmas('Turmas', Icons.school_outlined, Icons.school),
   perfil('Perfil', Icons.person_outline, Icons.person);
 
@@ -72,6 +74,7 @@ class _CascaAbasState extends State<CascaAbas> with WidgetsBindingObserver {
 
   Widget _tela(Aba aba) => switch (aba) {
     Aba.avisos => const AvisosListaPage(),
+    Aba.agenda => const AgendaPage(),
     Aba.turmas => const MinhasTurmasPage(),
     Aba.perfil => const PerfilPage(),
   };
@@ -148,6 +151,8 @@ class _ItemAba extends StatelessWidget {
       button: true,
       selected: ativa,
       label: aba.rotulo,
+      // Com os filhos excluídos, o toque do InkWell não chega ao leitor de tela: a ação fica aqui.
+      onTap: onTap,
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

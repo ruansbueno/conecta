@@ -6,7 +6,6 @@ import '../../models/aviso.dart';
 import '../../repositories/avisos_repository.dart';
 import '../../state/avisos_controller.dart';
 import '../../state/session_controller.dart';
-import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../casca/casca_abas.dart';
 import '../comum/esqueleto_lista.dart';
@@ -14,6 +13,7 @@ import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
 import '../comum/faixa_informativa.dart';
+import '../comum/pilula.dart';
 import '../turmas/minhas_page.dart';
 import 'aviso_card.dart';
 
@@ -145,67 +145,19 @@ class _Alternancia extends StatelessWidget {
   final ValueChanged<SituacaoAviso> onMudar;
 
   @override
-  // Rolagem horizontal: com fonte a 200% as pílulas não cabem lado a lado (RM-36).
-  Widget build(BuildContext context) => SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-    child: Row(
-      children: [
-        _Pilula(
-          'Ativos',
-          ativa: atual == SituacaoAviso.ativo,
-          onTap: () => onMudar(SituacaoAviso.ativo),
-        ),
-        const SizedBox(width: 8),
-        _Pilula(
-          'Arquivados',
-          ativa: atual == SituacaoAviso.arquivado,
-          onTap: () => onMudar(SituacaoAviso.arquivado),
-        ),
-      ],
-    ),
-  );
-}
-
-class _Pilula extends StatelessWidget {
-  const _Pilula(this.texto, {required this.ativa, required this.onTap});
-
-  final String texto;
-  final bool ativa;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: ativa,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      // Alturas mínimas, não fixas: a pílula cresce com a fonte do sistema.
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48),
-        child: Center(
-          widthFactor: 1,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 32),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: ativa ? Cores.navy : Cores.branco,
-              border: ativa ? null : Border.all(color: Cores.linha),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              texto,
-              style: Tipografia.segmento.copyWith(
-                color: ativa ? Cores.branco : Cores.apagado,
-                fontWeight: ativa ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
+  Widget build(BuildContext context) => LinhaDePilulas(
+    children: [
+      Pilula(
+        'Ativos',
+        ativa: atual == SituacaoAviso.ativo,
+        onTap: () => onMudar(SituacaoAviso.ativo),
       ),
-    ),
+      Pilula(
+        'Arquivados',
+        ativa: atual == SituacaoAviso.arquivado,
+        onTap: () => onMudar(SituacaoAviso.arquivado),
+      ),
+    ],
   );
 }
 

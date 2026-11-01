@@ -38,7 +38,7 @@ acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | ✅ Completa (8 de 8 fases) |
-| **F2** | Agenda (lista e mês), evento, horários | Planejada: [`plan-f2.md`](specs/001-app-conecta/plan-f2.md) e [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md) (T067–T088); a E3 já está na API |
+| **F2** | Agenda (lista e mês), evento, horários | Agenda pronta (fases 9 e 10, [#28](https://github.com/ruansbueno/conecta/pull/28)); faltam os horários e o polimento (fases 11 e 12) — [`plan-f2.md`](specs/001-app-conecta/plan-f2.md), [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md) |
 
 ## Stack
 
@@ -47,7 +47,7 @@ Flutter · `provider` (estado) · `Navigator` com rotas nomeadas · `http` com c
 
 ## Andamento
 
-Atualizado em 28/10/2026.
+Atualizado em 01/11/2026.
 
 | Fase da F1 | Conteúdo | Situação |
 |---|---|---|
@@ -61,7 +61,12 @@ Atualizado em 28/10/2026.
 | — Pontos menores | Achados menores das revisões das fases 4 a 7 (respostas fora de ordem, recargas repetidas, faixa de dados guardados, telas empilhadas quando o perfil muda) | ✅ [#17](https://github.com/ruansbueno/conecta/pull/17) |
 | 8. Polimento e evidências | Mensagens conferidas contra a spec, acessibilidade e fonte a 200% em todas as telas, uso sem rede, log de falhas, token só no armazenamento seguro, comparação com o design | ✅ [#18](https://github.com/ruansbueno/conecta/pull/18) |
 
-**Testes**: 273 de unidade e de widget (`flutter test`), mais 16 de integração no aparelho com servidor falso
+| Fase da F2 | Conteúdo | Situação |
+|---|---|---|
+| 9. Fundação da F2 | Modelos de evento e aula, repositórios da E3, cache da agenda e da grade por turma, `EVENTO_NAO_ENCONTRADO` | ✅ [#28](https://github.com/ruansbueno/conecta/pull/28) |
+| 10. US6a — Agenda | Aba Agenda: Próximos e Provas com filtro de tipo (m-10), mês de domingo a sábado com marcadores (m-10b), detalhe do evento (m-11), sem rede com o que estava guardado | ✅ [#28](https://github.com/ruansbueno/conecta/pull/28) |
+
+**Testes**: 328 de unidade e de widget (`flutter test`), mais 19 de integração no aparelho com servidor falso
 em `integration_test/`.
 
 ## Como rodar
@@ -79,6 +84,5 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-A F1 do aplicativo está fechada e a F2 está planejada. A implementação vem em duas entregas: a
-agenda (fases 9 e 10 de [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md)) e, depois, os horários
-com o polimento (fases 11 e 12). A integração real com o Moodle é da API (o app não muda, RM-40).
+A F1 do aplicativo está fechada e a agenda da F2 está pronta. Faltam os horários e o polimento
+(fases 11 e 12 de [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md)). A integração real com o Moodle é da API (o app não muda, RM-40).

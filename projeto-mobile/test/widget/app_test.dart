@@ -2,6 +2,7 @@ import 'package:conecta/app.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/services/cofre_sessao.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -51,18 +52,38 @@ void main() {
     expect(find.widgetWithText(AppBar, 'Avisos'), findsOneWidget);
   });
 
-  testWidgets('barra com Avisos, Turmas e Perfil; Agenda e Horários ocultas (F2)', (tester) async {
+  testWidgets('barra com Avisos, Agenda, Turmas e Perfil; Horários entra com a grade (T083)', (
+    tester,
+  ) async {
     await guardarSessao();
     api.responder('GET /me', meJson);
 
     await abrir(tester);
 
     final barra = find.byKey(const Key('barra-abas'));
-    for (final aba in ['Avisos', 'Turmas', 'Perfil']) {
-      expect(find.descendant(of: barra, matching: find.text(aba)), findsOneWidget);
-    }
-    expect(find.text('Agenda'), findsNothing);
+    final rotulos = [
+      for (final t in tester.widgetList<Text>(
+        find.descendant(of: barra, matching: find.byType(Text)),
+      ))
+        t.data,
+    ];
+    expect(rotulos, ['Avisos', 'Agenda', 'Turmas', 'Perfil']);
     expect(find.text('Horários'), findsNothing);
+  });
+
+  testWidgets('cada aba expõe a ação de toque ao leitor de tela', (tester) async {
+    await guardarSessao();
+    api.responder('GET /me', meJson);
+    final semantica = tester.ensureSemantics();
+
+    await abrir(tester);
+
+    final barra = find.byKey(const Key('barra-abas'));
+    for (final aba in ['Avisos', 'Agenda', 'Turmas', 'Perfil']) {
+      final no = tester.getSemantics(find.descendant(of: barra, matching: find.text(aba)));
+      expect(no.getSemanticsData().hasAction(SemanticsAction.tap), isTrue, reason: aba);
+    }
+    semantica.dispose();
   });
 
   testWidgets('login válido leva à casca', (tester) async {

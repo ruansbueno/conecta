@@ -66,7 +66,7 @@ que `GET /turmas/minhas` devolve.
   - O ícone de filtro no topo abre uma folha com os tipos: Todos, Palestra, Banca, Reunião,
     Formatura, Prova, Data importante e Outro.
   - O tipo escolhido vale para Próximos e Mês; no chip Provas, a folha fica desabilitada.
-  - Com filtro ativo, o ícone fica destacado e o título ganha o tipo ("Agenda · Bancas").
+  - Com filtro ativo, o ícone fica destacado e o título ganha o tipo ("Agenda · Banca"); em Provas, o título não o mostra, e o nome do botão diz o tipo escolhido.
 
 - **D-AF2-3 — Cartão do evento na lista.** Como na m-10:
   - **Coluna da data:** dia e mês, só no primeiro evento de cada dia. Os seguintes do mesmo dia

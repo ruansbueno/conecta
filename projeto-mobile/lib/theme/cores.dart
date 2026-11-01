@@ -43,3 +43,11 @@ abstract final class CoresDestino {
   static const desconhecidoPonto = Cores.tenue;
   static const desconhecidoFundo = Cores.linhaSuave;
 }
+
+/// Cores por tipo de evento (plan-f2 D-AF2-10): prova em âmbar, data importante em navy, os demais
+/// em azul. O texto usa a cor cheia; a barra lateral do cartão, a mesma cor clareada.
+abstract final class CoresEvento {
+  static const prova = Cores.alerta;
+  static const dataImportante = Cores.navySuave;
+  static const demais = Cores.azul;
+}

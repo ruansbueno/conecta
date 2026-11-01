@@ -38,7 +38,7 @@ acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | **F1** | Login e sessão, avisos, turmas, solicitações, perfil, cache local | ✅ Completa (8 de 8 fases) |
-| **F2** | Agenda (lista e mês), evento, horários | Especificada; aguarda a implementação da E3 na API (`002-agenda-horarios`) |
+| **F2** | Agenda (lista e mês), evento, horários | Planejada: [`plan-f2.md`](specs/001-app-conecta/plan-f2.md) e [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md) (T067–T088); a E3 já está na API |
 
 ## Stack
 
@@ -79,5 +79,6 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-A F1 do aplicativo está fechada. O projeto segue com a integração real com o Moodle (na API; o app
-não muda, RM-40) e, depois, a agenda e os horários (E3), que trazem as telas m-10 a m-12 da F2.
+A F1 do aplicativo está fechada e a F2 está planejada. A implementação vem em duas entregas: a
+agenda (fases 9 e 10 de [`tasks-f2.md`](specs/001-app-conecta/tasks-f2.md)) e, depois, os horários
+com o polimento (fases 11 e 12). A integração real com o Moodle é da API (o app não muda, RM-40).

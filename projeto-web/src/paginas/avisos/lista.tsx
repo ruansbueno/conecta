@@ -65,7 +65,7 @@ export default function ListaAvisos() {
   const offset = (pagina - 1) * POR_PAGINA
 
   const [termo, setTermo] = useTextoNaUrl('q', q, filtrar)
-  const { carga, recarregar } = useCargaPaginada(
+  const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([situacao, q, autor, turma]),
     () =>
       listarAvisos({
@@ -125,7 +125,7 @@ export default function ListaAvisos() {
             {a.situacao === 'excluido'
               ? ' · mantido para auditoria'
               : a.editadoEm
-                ? ` · editado ${dataNumerica(a.editadoEm)}`
+                ? ` · editado ${dataNumerica(a.editadoEm, agora)}`
                 : ''}
           </p>
         </>
@@ -150,12 +150,12 @@ export default function ListaAvisos() {
         </ul>
       ),
     },
-    { chave: 'publicacao', titulo: 'Publicação', celula: (a) => <span className="whitespace-nowrap">{dataNumerica(a.publicarEm ?? a.publicadoEm)}</span>,
+    { chave: 'publicacao', titulo: 'Publicação', celula: (a) => <span className="whitespace-nowrap">{dataNumerica(a.publicarEm ?? a.publicadoEm, agora)}</span>,
     },
     {
       chave: 'situacao',
       titulo: 'Situação',
-      celula: (a) => <SeloSituacao situacao={estaAgendado(a) ? 'agendado' : a.situacao} />,
+      celula: (a) => <SeloSituacao situacao={estaAgendado(a, agora) ? 'agendado' : a.situacao} />,
     },
     {
       chave: 'acoes',

@@ -13,7 +13,7 @@ import { dataRelativa } from '../../lib/datas'
 import { edicaoDoEvento, formularioDoEvento, formularioEventoVazio, validarEvento, type ErrosEvento, type FormularioEvento } from '../../lib/formulario-evento'
 import { apagarRascunho, lerRascunhoEvento, type ChaveRascunhoEvento } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
-import { mensagemDe, type Carga } from '../comum'
+import { mensagemDe, useSairDoEditor, type Carga } from '../comum'
 import { idDaUrl } from '../lista-na-url'
 import { formularioDoRascunho, soTurmasDoDocente, useRascunhoDoEvento, useTurmasDestino } from './comum'
 
@@ -24,6 +24,7 @@ export default function EditarEvento() {
   const chave: ChaveRascunhoEvento = `rascunho:evento:${id}`
   const { usuario } = useSessao()
   const navegar = useNavigate()
+  const sairDoEditor = useSairDoEditor(`/eventos/${id}`)
   const turmas = useTurmasDestino()
   const [evento, setEvento] = useState<Carga<EventoAgenda>>({ estado: 'carregando' })
   const [digitado, setFormulario] = useState<FormularioEvento | null>(null)
@@ -170,7 +171,7 @@ export default function EditarEvento() {
           destrutiva
           onConfirmar={() => {
             apagarRascunho(chave)
-            navegar(`/eventos/${atual.id}`)
+            sairDoEditor()
           }}
           onCancelar={() => setDescartando(false)}
         />

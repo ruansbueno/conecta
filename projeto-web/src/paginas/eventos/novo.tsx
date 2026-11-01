@@ -12,7 +12,7 @@ import { dataRelativa } from '../../lib/datas'
 import { formularioEventoVazio, novoEvento, validarEvento, type ErrosEvento, type FormularioEvento } from '../../lib/formulario-evento'
 import { apagarRascunho, lerRascunhoEvento } from '../../lib/rascunho'
 import { useSessao } from '../../sessao/contexto'
-import { mensagemDe } from '../comum'
+import { mensagemDe, useSairDoEditor } from '../comum'
 import { formularioDoRascunho, soTurmasDoDocente, useRascunhoDoEvento, useTurmasDestino } from './comum'
 
 const CHAVE = 'rascunho:evento:novo'
@@ -26,6 +26,7 @@ function inicial(): { formulario: FormularioEvento; recuperadoEm: Date | null } 
 export default function NovoEvento() {
   const { usuario } = useSessao()
   const navegar = useNavigate()
+  const sairDoEditor = useSairDoEditor('/eventos')
   const { carga, recarregar } = useTurmasDestino()
   const [comeco] = useState(inicial)
   const [digitado, setFormulario] = useState(comeco.formulario)
@@ -95,7 +96,7 @@ export default function NovoEvento() {
           destrutiva
           onConfirmar={() => {
             apagarRascunho(CHAVE)
-            navegar('/eventos')
+            sairDoEditor()
           }}
           onCancelar={() => setDescartando(false)}
         />

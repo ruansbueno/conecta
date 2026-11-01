@@ -148,7 +148,7 @@ function LinhaAviso({ a, agora, autor = true }: { a: AvisoGestao; agora: Date; a
           {autor && `${a.autor.nome} · `}
           {/* Agendado ainda não foi ao ar: a data é futura e não cabe em "há tanto tempo". */}
           {estaAgendado(a, agora) && a.publicarEm
-            ? `vai ao ar em ${dataNumerica(a.publicarEm)}`
+            ? `vai ao ar em ${dataNumerica(a.publicarEm, agora)}`
             : dataRelativa(a.publicarEm ?? a.publicadoEm, agora)}
         </p>
       </div>

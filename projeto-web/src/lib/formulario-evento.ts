@@ -47,6 +47,13 @@ const esquema = z.object({
     .max(LIMITE_DESTINOS, `Um evento pode ter até ${LIMITE_DESTINOS} destinos.`),
 })
 
+const doisDigitos = (n: number) => String(n).padStart(2, '0')
+/** Date → "AAAA-MM-DDTHH:MM" na hora local, como o campo datetime-local espera. */
+const paraCampo = (d: Date) =>
+  `${String(d.getFullYear()).padStart(4, '0')}-${doisDigitos(d.getMonth() + 1)}-${doisDigitos(d.getDate())}T${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`
+
+const HORA_INEXISTENTE = 'Este horário não existe neste fuso por causa do horário de verão. Escolha outro.'
+
 const quando = (v: string) => (v ? new Date(v) : null)
 
 export function validarEvento(f: FormularioEvento): ErrosEvento {
@@ -57,7 +64,12 @@ export function validarEvento(f: FormularioEvento): ErrosEvento {
   }
   // O campo datetime-local entrega vazio quando falta a data ou a hora; o editor guarda "incompleto".
   for (const c of ['inicio', 'fim'] as const) {
-    if (f[c] && Number.isNaN(new Date(f[c]).getTime())) erros[c] = 'Complete a data e a hora.'
+    if (!f[c]) continue
+    const d = new Date(f[c])
+    if (Number.isNaN(d.getTime())) erros[c] = 'Complete a data e a hora.'
+    // Hora pulada quando o relógio adianta (horário de verão do fuso do navegador): o navegador a
+    // troca por outra em silêncio, e a volta para o campo não dá o que foi digitado.
+    else if (paraCampo(d) !== f[c].slice(0, 16)) erros[c] = HORA_INEXISTENTE
   }
   const inicio = quando(f.inicio)
   const fim = quando(f.fim)
@@ -76,11 +88,6 @@ export function novoEvento(f: FormularioEvento): NovoEvento {
     destinos: f.destinos,
   }
 }
-
-const doisDigitos = (n: number) => String(n).padStart(2, '0')
-/** Date → "AAAA-MM-DDTHH:MM" na hora local, como o campo datetime-local espera. */
-const paraCampo = (d: Date) =>
-  `${d.getFullYear()}-${doisDigitos(d.getMonth() + 1)}-${doisDigitos(d.getDate())}T${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`
 
 export const escolhidoDoDestino = (d: Destino): DestinoEscolhido => ({
   tipo: d.tipo,

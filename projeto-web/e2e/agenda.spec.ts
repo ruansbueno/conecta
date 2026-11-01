@@ -105,3 +105,40 @@ test('docente cria só para as turmas em que leciona e vê só os seus eventos',
   // O que a coordenação criou não aparece para o docente.
   await expect(cartao(page, 'Palestra: carreira em TI')).toHaveCount(0)
 })
+
+test('descartar a edição volta para onde se estava, sem repetir o endereço no histórico do navegador', async ({ page }) => {
+  await entrar(page, 'coord.teste')
+  await estaNaGestao(page)
+  await page.getByRole('link', { name: 'Agenda', exact: true }).click()
+  await page.getByRole('link', { name: 'Palestra: carreira em TI', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Palestra: carreira em TI' })).toBeVisible()
+  const detalhe = page.url()
+
+  await page.getByRole('link', { name: 'Editar', exact: true }).click()
+  await page.getByLabel('Local').fill('Outro lugar')
+  await page.getByRole('button', { name: 'Descartar' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Descartar' }).click()
+  await expect(page).toHaveURL(detalhe)
+
+  // Voltar sai do detalhe para a agenda: nem o editor descartado nem o mesmo detalhe de novo.
+  await page.goBack()
+  await expect(page).toHaveURL(/\/eventos$/)
+})
+
+test.describe('fuso com horário de verão', () => {
+  test.use({ timezoneId: 'America/New_York' })
+
+  test('hora que não existe no fuso é recusada no campo, sem virar outra hora', async ({ page }) => {
+    await entrar(page, 'coord.teste')
+    await estaNaGestao(page)
+    await page.goto('/eventos/novo')
+    await page.getByLabel('Título').fill('Evento na madrugada da mudança')
+    await page.getByLabel('Tipo').selectOption('outro')
+    // 14/03/2027: em Nova York o relógio pula de 02:00 para 03:00.
+    await page.getByLabel('Início').fill('2027-03-14T02:30')
+    await page.getByRole('button', { name: 'Criar evento' }).click()
+    await expect(page.getByText('Este horário não existe neste fuso por causa do horário de verão. Escolha outro.')).toBeVisible()
+    await expect(page.getByLabel('Início')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page).toHaveURL(/\/eventos\/novo$/)
+  })
+})

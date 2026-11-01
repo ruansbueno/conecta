@@ -1,5 +1,5 @@
 // Peças compartilhadas pelas páginas da gestão.
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import { ApiError } from '../api/erros'
@@ -21,4 +21,18 @@ export function useMensagemTrazida(): string | undefined {
     if (location.state) navegar({ search: location.search }, { replace: true, state: null })
   }, [location.state, location.search, navegar])
   return mensagem
+}
+
+/**
+ * Saída do editor ao descartar: volta para onde a pessoa estava (detalhe ou lista), em vez de abrir
+ * de novo esse endereço por cima — o histórico do navegador ficaria com ele repetido e o editor
+ * descartado no meio. Sem página anterior da aplicação (link aberto direto), substitui o editor.
+ */
+export function useSairDoEditor(destino: string) {
+  const { key } = useLocation()
+  const navegar = useNavigate()
+  return useCallback(() => {
+    if (key !== 'default') navegar(-1)
+    else navegar(destino, { replace: true })
+  }, [key, destino, navegar])
 }

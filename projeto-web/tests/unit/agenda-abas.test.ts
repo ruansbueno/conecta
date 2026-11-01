@@ -92,4 +92,19 @@ describe('faixa de horário do cartão (D-F2-6)', () => {
   it('termina à meia-noite do dia seguinte: conta como o mesmo dia', () => {
     expect(faixaDoEvento({ tipo: 'outro', inicio: local(2026, 9, 2, 20), fim: local(2026, 9, 3) })).toBe('20:00 – 00:00')
   })
+
+  it('vira a noite e dura menos de um dia: datas e horas, para não perder as horas', () => {
+    expect(faixaDoEvento({ tipo: 'outro', inicio: local(2026, 9, 2, 22), fim: local(2026, 9, 3, 2) })).toBe(
+      '02/09 22:00 – 03/09 02:00',
+    )
+  })
+
+  it('na virada do ano, as duas datas levam o ano', () => {
+    expect(faixaDoEvento({ tipo: 'outro', inicio: local(2026, 12, 30, 8), fim: local(2027, 1, 2, 18) })).toBe(
+      'de 30/12/2026 a 02/01/2027',
+    )
+    expect(faixaDoEvento({ tipo: 'outro', inicio: local(2026, 12, 31, 22), fim: local(2027, 1, 1, 2) })).toBe(
+      '31/12/2026 22:00 – 01/01/2027 02:00',
+    )
+  })
 })

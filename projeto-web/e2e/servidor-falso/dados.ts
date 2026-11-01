@@ -265,7 +265,13 @@ export function estadoInicial() {
       }
       if ('titulo' in alteracoes) aviso.titulo = corpo.titulo
       if ('conteudo' in alteracoes) aviso.conteudo = corpo.conteudo
-      if ('publicar_em' in alteracoes) aviso.publicar_em = corpo.publicar_em
+      if ('publicar_em' in alteracoes) {
+        // Como a API: null publica já e grava a hora da publicação (não cai na data de criação);
+        // publicado_em acompanha, inclusive no reagendamento.
+        aviso.publicar_em = corpo.publicar_em ?? new Date().toISOString()
+        aviso.publicado_em = aviso.publicar_em
+        alteracoes.publicar_em.para = aviso.publicar_em
+      }
       aviso.versao_atual += 1
       aviso.editado_em = new Date().toISOString()
       registrar(aviso, u, 'editado', aviso.versao_atual, alteracoes)

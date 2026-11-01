@@ -169,7 +169,10 @@ separadas e nenhuma dependência nova entrou além das cinco previstas.
 Nenhum desvio aos princípios. Dependências de produção: `provider`, `http`,
 `flutter_secure_storage`, `shared_preferences`, `intl` — cada uma justificada em `research.md`.
 
-## Fase F2 (planejada, não implementada)
+## Fase F2
+
+Planejada em [plan-f2.md](./plan-f2.md), com tarefas em [tasks-f2.md](./tasks-f2.md) (01/11/2026).
+Previsão original:
 
 Entra quando a spec E3 da API for publicada. Previsão de impacto: três endpoints novos, modelos
 `Evento` e `HorarioDeTurma`, dois controllers, quatro telas (lista, mês, detalhe, grade) e duas

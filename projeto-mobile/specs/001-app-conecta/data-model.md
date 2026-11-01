@@ -218,21 +218,41 @@ Representa uma entrada do cache local.
 
 ---
 
-## Modelos da fase F2 (planejados)
+## Modelos da fase F2
 
-Definidos aqui para orientar o desenho, **sem implementação** até a spec E3 da API.
+Decisões em [`plan-f2.md`](./plan-f2.md).
 
 ### Evento
 
-`id`, `titulo`, `descricao`, `tipo` (`palestra`, `banca`, `reuniao`, `formatura`, `prova`,
-`data_importante`, `outro`, `desconhecido`), `inicio`, `fim`, `local`, `destinos`.
+`id`, `titulo`, `descricao?`, `tipo` (`palestra`, `banca`, `reuniao`, `formatura`, `prova`,
+`data_importante`, `outro`; qualquer outro valor vira `desconhecido`), `inicio` (UTC), `fim?`
+(UTC), `local?`, `autor` (`id`, `nome`), `editadoEm?`, `destinos` (o `Destino` da F1).
 
-Apresentação: cor da marca por tipo — prova em âmbar, prazo em navy, demais em azul; agrupamento
-por dia na lista; marcador por dia na visão de mês, com no máximo três pontos por dia.
+Apresentação:
 
-### HorarioDeTurma
+- **Cor por tipo:** prova em âmbar, data importante em navy, os demais em azul. Vale na barra do
+  cartão, no rótulo e nos pontos do mês.
+- **Faixa de horas:**
+  - "19:10 – 20:50" quando há fim;
+  - "até 23:59" para data importante sem fim;
+  - só o início para os outros tipos sem fim;
+  - "de 02/09 a 04/09" para vários dias.
+- **Na lista:** agrupado por dia.
+- **No mês:** marcador em cada dia que o evento toca, no máximo três pontos por dia.
 
-`turmaId`, `diaDaSemana` (1 a 7), `inicio`, `fim`, `disciplina`, `local`, `docenteNome`.
+### Aula (horário de turma)
 
-Apresentação: grade semanal ordenada por dia e hora; dias sem aula aparecem vazios; o seletor de
-turma vem de `GET /turmas/minhas`.
+`id`, `turmaId`, `diaSemana` (1 = segunda … 7 = domingo), `inicio` e `fim` (`HH:MM`, hora local,
+sem conversão), `disciplina`, `local?`, `docente?` (`id`, `nome`).
+
+Apresentação:
+
+- grade agrupada por dia da semana, só os dias com aula, em ordem de início;
+- cada linha com disciplina, "início–fim · local" e docente;
+- seletor de turma a partir de `GET /turmas/minhas`.
+
+### Recursos de cache acrescentados
+
+`agenda_proximos_p1`, `agenda_mes` (mês corrente, com o mês na própria entrada) e
+`horarios:{turmaId}`. Mesmo formato de `ConteudoGuardado`; o logout remove todos pelo prefixo do
+usuário.

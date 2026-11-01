@@ -196,17 +196,33 @@ motivo_recusa }`, `total`…
 
 ---
 
-## Fase F2 — chamadas previstas
+## Fase F2 — agenda e horários
 
-Bloqueadas até a especificação E3 da API. Registradas para que o desenho das telas já as
-contemple.
+Contrato da API: `projeto-api/specs/002-agenda-horarios/contracts/api.md` §1–3 (E3). Decisões em
+[`plan-f2.md`](../plan-f2.md).
 
-| Chamada | Tela | Observação |
+### 10. `GET /eventos`
+
+| Tela | Parâmetros | Cache |
 |---|---|---|
-| `GET /eventos?de=&ate=&incluir_encerrados=true` | T10 lista, T11 mês | O filtro por intervalo foi confirmado na spec E3 (RF-38): a visão de mês pede exatamente o mês exibido, com os encerrados, e a lista de próximos chama sem `de`/`ate` |
-| `GET /eventos/{id}` | T12 | Mesmo padrão de 404 dos avisos |
-| `GET /turmas/{turma_id}/horarios` | T13 | Turma escolhida entre as de `GET /turmas/minhas` |
+| T10 Próximos | `limit=20`, `offset` (rolagem infinita); `tipo` quando filtrado | primeira página sem filtro |
+| T10 Provas | `tipo=prova`, `limit=20`, `offset` | não |
+| T11 Mês | `de`/`ate` = janela da grade (domingo a sábado, em UTC), `incluir_encerrados=true`, `limit=100`; `tipo` quando filtrado | mês corrente sem filtro |
 
-**Pendência resolvida em 13/10/2026**: a spec E3 (`projeto-api/specs/002-agenda-horarios`)
-confirmou `de`, `ate` e `incluir_encerrados` em `GET /eventos` (RF-38), que é o que a visão de mês
-precisava. Resta apenas a implementação da E3 para desbloquear a fase F2.
+Sem `incluir_encerrados`, a API omitiria os eventos já terminados, e os dias passados do mês viriam
+vazios. Acima de 100 eventos na janela, o app avisa que o mês está incompleto.
+
+**Erros tratados**: 401 e 403 `USUARIO_INATIVO` (sessão, como na F1); 422 não ocorre com os
+parâmetros que o app monta, e se ocorrer cai na mensagem genérica com registro do `code`.
+
+### 11. `GET /eventos/{evento_id}`
+
+Tela T12. Abre com o item da lista e revalida. **Erros**: 404 `EVENTO_NAO_ENCONTRADO` →
+`voltaLista` (mensagem, volta à agenda e recarrega).
+
+### 12. `GET /turmas/{turma_id}/horarios`
+
+Tela T13. `limit=100`, sem paginação. Turma escolhida entre as de `GET /turmas/minhas`. Cache por
+turma. **Erros**: 403 `SEM_PERMISSAO` → "Você não está mais nesta turma."; 404
+`TURMA_NAO_ENCONTRADA` → "Esta turma não está mais disponível."; nos dois, recarrega as turmas e
+esquece a turma lembrada (plan-f2 D-AF2-7).

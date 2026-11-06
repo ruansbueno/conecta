@@ -4,7 +4,7 @@ import pytest
 
 from src.models.usuario import Usuario
 from src.providers.auth.factory import get_auth_provider
-from src.providers.auth.mock_moodle import MockMoodleAuthProvider
+from src.providers.auth.mock import MockAuthProvider
 
 MASSA = {
     "adm": "Administração",
@@ -44,7 +44,7 @@ class Ator:
 
 @pytest.fixture
 async def atores(app, client, db):
-    app.dependency_overrides[get_auth_provider] = lambda: MockMoodleAuthProvider(MASSA)
+    app.dependency_overrides[get_auth_provider] = lambda: MockAuthProvider(MASSA)
     db.add(Usuario(username="adm", nome=MASSA["adm"], perfil="administrador"))
     await db.commit()
 

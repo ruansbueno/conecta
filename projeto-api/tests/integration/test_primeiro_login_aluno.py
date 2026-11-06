@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from src.models.usuario import Usuario
 from src.providers.auth.factory import get_auth_provider
-from src.providers.auth.mock_moodle import MockMoodleAuthProvider
+from src.providers.auth.mock import MockAuthProvider
 from tests.helpers import login
 
 pytestmark = pytest.mark.mock_auth
@@ -39,8 +39,8 @@ async def test_novo_login_atualiza_nome_e_ultimo_login_mas_nao_o_perfil(
         await s.commit()
     antes = await _buscar(session_factory, "aluno.teste")
 
-    app.dependency_overrides[get_auth_provider] = lambda: MockMoodleAuthProvider(
-        {"aluno.teste": "Nome Novo no Moodle"}
+    app.dependency_overrides[get_auth_provider] = lambda: MockAuthProvider(
+        {"aluno.teste": "Nome Novo no IFSul"}
     )
     r = await login(client)
 
@@ -48,7 +48,7 @@ async def test_novo_login_atualiza_nome_e_ultimo_login_mas_nao_o_perfil(
     assert r.json()["usuario"]["perfil"] == "docente"
     assert depois.id == antes.id
     assert depois.perfil == "docente"
-    assert depois.nome == "Nome Novo no Moodle"
+    assert depois.nome == "Nome Novo no IFSul"
     assert depois.ultimo_login_em > antes.ultimo_login_em
     assert depois.atualizado_em > antes.atualizado_em
 

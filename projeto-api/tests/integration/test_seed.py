@@ -9,7 +9,7 @@ from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
-from src.providers.auth.mock_moodle import USUARIOS_TESTE
+from src.providers.auth.mock import USUARIOS_DO_SEED
 from tests.helpers import entrar, login
 
 pytestmark = pytest.mark.mock_auth
@@ -23,7 +23,7 @@ async def test_seed_cria_todos_os_usuarios_do_mock_com_seus_perfis(db):
     await seed(db)
 
     perfis = await _perfis(db)
-    assert set(perfis) == set(USUARIOS_TESTE)
+    assert set(perfis) == set(USUARIOS_DO_SEED)
     assert perfis["admin.conecta"] == "administrador"
     assert perfis["admin.teste"] == "administrador"
     assert perfis["coord.teste"] == "coordenacao"

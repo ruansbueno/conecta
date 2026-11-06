@@ -11,6 +11,7 @@ dependencies = [
     "asyncpg>=0.29",
     "pydantic-settings>=2.4",
     "pyjwt>=2.9",
+    "httpx>=0.28.1",
 ]
 
 [dependency-groups]
@@ -46,12 +47,12 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Cookie", 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-# Grupos mock_auth × moodle_real no relatório e skip do real sem MOODLE_URL (spec.md §9.1).
+# Grupos mock_auth × ifsul_real no relatório e skip do real sem conta de teste (spec.md §9.1).
 addopts = "-p tests.relatorio_grupos"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
 markers = [
-    "mock_auth: depende do provedor de autenticação simulado (MockMoodleAuthProvider)",
-    "moodle_real: integração real com o Moodle; ignorado sem MOODLE_URL configurado",
+    "mock_auth: depende do provedor de autenticação simulado (MockAuthProvider)",
+    "ifsul_real: API de autenticação real do IFSul; ignorado sem IFSUL_TEST_USERNAME configurado",
 ]

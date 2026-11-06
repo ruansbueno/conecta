@@ -1,0 +1,16 @@
+# Roteiro integrado contra a API real — web (cookie + CSRF assinado) e app (Bearer)
+# commit: 5dc2fb4 | banco conecta_dev com o seed | AUTH_PROVIDER=mock
+# Comando: .venv/bin/python -m scripts.roteiro_integrado
+
+Roteiro integrado — 2026-11-01 18:39 -0300 — API http://localhost:8000
+[OK ] 1 web: publicar sem o cabeçalho CSRF — 403 CSRF_INVALIDO
+[OK ] 2 web: coordenação publica aviso para 3A e 3B — 201
+[OK ] 3 app: aluno de 3A e 3B vê o aviso uma única vez — 1 ocorrência(s)
+[OK ] 4 app: aluno só da 3C não vê; consulta pelo id dá 404 — 404
+[OK ] 5 edição na web aparece no app; 2 versões e histórico — versões=2, histórico=['editado', 'criado']
+[OK ] 6 web cria evento para a 3B; app: só quem tem vínculo vê na agenda — 201; 3B=True, 3C=False
+[OK ] 7 web cria horário com sala ocupada: grava e informa o conflito — 201; conflitos=['sala']
+[OK ] 8 app: aluno da 3B vê a aula na grade; aluno de fora não acessa — fora=403
+[OK ] 9 arquivado sai da lista ativa e vai aos arquivados; excluído dá 404 no app — 404
+
+Resultado: 9 de 9 etapas aprovadas

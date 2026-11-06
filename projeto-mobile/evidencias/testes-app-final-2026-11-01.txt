@@ -1,0 +1,40 @@
+# Verificações do aplicativo — versão final (F1 e F2, após o fechamento) — 01/11/2026 18:33
+# commit: 5dc2fb4 | Flutter 3.41.4 • channel stable • https://github.com/flutter/flutter.git
+
+## flutter analyze
+No issues found! (ran in 2.0s)
+
+## flutter test (unidade e widget)
+00:15 +354: All tests passed!
+
+## flutter test integration_test -d emulator-5554 (Android 16, emulador; servidor falso no contrato da API)
+01:22 +6: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/token_seguro_test.dart: (tearDownAll)
+01:22 +6: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart
+01:42 +6: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart: primeira carga mostra os avisos com o token do usuário
+01:45 +7: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart: rolar até o fim carrega a segunda página
+01:55 +8: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart: puxar para baixo recarrega do servidor
+01:59 +9: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart: sem rede, reabre com o conteúdo guardado e a faixa com a data
+02:01 +10: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart: (tearDownAll)
+02:02 +10: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/erro_desconhecido_test.dart
+02:22 +10: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/erro_desconhecido_test.dart: code desconhecido: mensagem genérica na tela e registro no log
+02:26 +11: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/erro_desconhecido_test.dart: (tearDownAll)
+02:26 +11: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart
+02:46 +11: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: abertura com token válido vai direto para a casca
+02:48 +12: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: abertura com token inválido volta ao login e apaga a sessão
+02:49 +13: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: login de verdade grava o token no cofre do aparelho
+02:51 +14: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: 401 no meio da navegação encerra a sessão e volta ao login
+02:53 +15: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: sair limpa token e cache; reabrir leva ao login
+02:57 +16: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart: (tearDownAll)
+02:58 +16: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/horarios_test.dart
+03:18 +16: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/horarios_test.dart: aluno com duas turmas troca a turma e vê a grade dela
+03:24 +17: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/horarios_test.dart: vínculo removido na API: mensagem e volta à turma que restou
+03:26 +18: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/horarios_test.dart: (tearDownAll)
+03:27 +18: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/solicitacao_fluxo_test.dart
+03:47 +18: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: solicitar → ver pendente → cancelar → a turma volta a disponíveis
+03:56 +19: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: solicitar duas vezes a mesma turma: o segundo pedido abre Minhas solicitações
+04:01 +20: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: (tearDownAll)
+04:02 +20: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/perfil_atualizado_test.dart
+04:23 +20: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/perfil_atualizado_test.dart: abrir a aba Perfil traz o perfil novo e ajusta as outras abas
+04:30 +21: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/perfil_atualizado_test.dart: voltar do segundo plano também reavalia o perfil
+04:32 +22: /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/perfil_atualizado_test.dart: (tearDownAll)
+04:33 +22: All tests passed!

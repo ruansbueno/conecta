@@ -150,6 +150,18 @@ achados corrigidos com teste antes do merge.
 | **Fechamento** | Cookies com prefixo `__Host-`; sair sempre expira a sessão; nginx sem a documentação da API exposta e com redirecionamentos (HTTP→HTTPS e os da API) que ficam na mesma origem; Descartar no editor nunca sai da aplicação; pontos menores das revisões corrigidos na web e no app | API 891, web 397 (Vitest) + 57 (Playwright) + 11 da implantação, app 354 + 22 de integração | [#30](https://github.com/ruansbueno/conecta/pull/30) |
 | **Login pelo IFSul** | API de autenticação do IFSul no lugar do Moodle; servidores que entram pela primeira vez viram pedido de acesso, aprovado pela administração ou pela coordenação na web (aba Aguardando acesso); primeiro administrador por script; roteiro de validação real (casos sem conta já validados contra a API do IFSul) | API 985, web 414 (Vitest) + 61 (Playwright), app 357 | [#31](https://github.com/ruansbueno/conecta/pull/31) |
 
+**Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
+web → API → app contra a API real): no fechamento, em 01/11/2026
+([API](projeto-api/evidencias/testes-final-2026-11-01.txt),
+[web](projeto-web/evidencias/testes-web-final-2026-11-01.txt),
+[app](projeto-mobile/evidencias/testes-app-final-2026-11-01.txt),
+[roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-01.txt)), e depois do login pelo IFSul,
+em 06/11/2026 ([API](projeto-api/evidencias/testes-final-2026-11-06.txt),
+[web](projeto-web/evidencias/testes-web-final-2026-11-06.txt),
+[app](projeto-mobile/evidencias/testes-app-final-2026-11-06.txt),
+[roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-06.txt)). O roteiro é
+`projeto-api/scripts/roteiro_integrado.py`.
+
 O fluxo **web → API → app** fecha para avisos, eventos e horários: o que a coordenação ou um
 docente publica na web aparece no aplicativo para exatamente quem está nos destinos.
 

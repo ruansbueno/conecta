@@ -166,17 +166,18 @@ async def _usuarios(session: AsyncSession) -> None:
             situacao_acesso="liberado" if perfil is not None else "pendente",
             tipo_institucional=tipo,
         )
-        stmt = stmt.on_conflict_do_update(
-            index_elements=[Usuario.username],
-            set_={
-                Usuario.nome: stmt.excluded[coluna(Usuario.nome)],
-                Usuario.perfil: stmt.excluded[coluna(Usuario.perfil)],
-                Usuario.situacao_acesso: stmt.excluded[coluna(Usuario.situacao_acesso)],
-                Usuario.tipo_institucional: stmt.excluded[coluna(Usuario.tipo_institucional)],
-                Usuario.ativo: True,
-                Usuario.atualizado_em: func.now(),
-            },
-        )
+        atualizar = {
+            Usuario.nome: stmt.excluded[coluna(Usuario.nome)],
+            Usuario.tipo_institucional: stmt.excluded[coluna(Usuario.tipo_institucional)],
+            Usuario.ativo: True,
+            Usuario.atualizado_em: func.now(),
+        }
+        if perfil is not None:
+            # Restaura o perfil dos usuários liberados. Um pedido de acesso já decidido
+            # (servidor.aguardando liberado ou recusado) não é reaberto pelo seed.
+            atualizar[Usuario.perfil] = stmt.excluded[coluna(Usuario.perfil)]
+            atualizar[Usuario.situacao_acesso] = stmt.excluded[coluna(Usuario.situacao_acesso)]
+        stmt = stmt.on_conflict_do_update(index_elements=[Usuario.username], set_=atualizar)
         await session.execute(stmt)
 
 

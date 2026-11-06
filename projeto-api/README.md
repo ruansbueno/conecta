@@ -32,7 +32,9 @@ uv run uvicorn src.main:app --reload  # http://localhost:8000/docs
 
 O seed cria usuários fictícios para os quatro perfis, todos com a senha `senha-teste`:
 `admin.conecta`, `admin.teste`, `coord.teste`, `docente.teste`, `aluno.teste`, `aluno2.teste`,
-`aluno3.teste` e `aluno.sem.turma`. Também cria as turmas A, B, C (3º semestre) e D (5º),
+`aluno3.teste` e `aluno.sem.turma`, além de `servidor.aguardando`, um pedido de acesso pendente
+para a gestão liberar ou recusar (rodar o seed de novo não reabre esse pedido depois de decidido).
+Também cria as turmas A, B, C (3º semestre) e D (5º),
 vínculos, solicitações e avisos de exemplo, eventos da agenda e a grade das turmas 3A, 3B e 5A
 (com um conflito de sala de propósito). Pode ser executado de novo sem duplicar nada.
 

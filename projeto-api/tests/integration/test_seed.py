@@ -1,5 +1,7 @@
 """Seed de desenvolvimento: usuários do mock com os quatro perfis (RF-03)."""
 
+from datetime import UTC, datetime
+
 import pytest
 from sqlalchemy import func, select
 
@@ -42,6 +44,26 @@ async def test_seed_e_idempotente_e_restaura_os_perfis(db):
     await seed(db)
 
     assert await _perfis(db) == PERFIS_TESTE
+
+
+@pytest.mark.parametrize("decisao", ["liberado", "recusado"])
+async def test_seed_de_novo_nao_reabre_o_pedido_de_acesso_ja_decidido(db, decisao):
+    await seed(db)
+    servidor = await db.scalar(select(Usuario).where(Usuario.username == "servidor.aguardando"))
+    admin_id = await db.scalar(select(Usuario.id).where(Usuario.username == "admin.conecta"))
+    servidor.situacao_acesso = decisao
+    servidor.perfil = "docente" if decisao == "liberado" else None
+    servidor.acesso_decidido_em = datetime.now(UTC)
+    servidor.acesso_decidido_por_id = admin_id
+    await db.commit()
+
+    await seed(db)
+
+    db.expire_all()
+    servidor = await db.scalar(select(Usuario).where(Usuario.username == "servidor.aguardando"))
+    assert servidor.situacao_acesso == decisao
+    assert servidor.perfil == ("docente" if decisao == "liberado" else None)
+    assert servidor.acesso_decidido_por_id == admin_id
 
 
 async def test_login_apos_o_seed_usa_o_perfil_semeado(client, db):

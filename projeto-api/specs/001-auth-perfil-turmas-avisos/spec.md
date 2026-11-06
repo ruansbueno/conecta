@@ -210,7 +210,11 @@ em edições, os campos alterados (valor anterior e novo). Eventos nunca são al
   `CREDENCIAIS_INVALIDAS` ou 400 `DADOS_INVALIDOS`/`JSON_INVALIDO`. Só 200 com `sucesso` e
   `autenticado` verdadeiros autentica; 401 e 400 `DADOS_INVALIDOS` são credenciais inválidas;
   qualquer outra resposta, ou falha de rede (5 s para conectar, 15 s no total da operação), é falha
-  do provedor.
+  do provedor. Se a conexão nem chega a abrir (recusada ou acima de 5 s), o CONECTA tenta **uma**
+  vez mais, dentro dos mesmos 15 s: sem conexão a senha não foi enviada. Falha depois do envio
+  (leitura lenta, conexão caída) não é repetida. No roteiro real de 06/11/2026, a 1ª conexão
+  estourou os 5 s e a seguinte abriu em 30 ms; sem a nova tentativa, o aluno com a senha certa
+  recebeu o 401 genérico.
 - O login devolvido pela API do IFSul é gravado em minúsculas, para que a mesma pessoa não vire duas
   contas pela caixa do que digitou.
 - O token de acesso (JWT) vale **24 h** e contém o identificador e o perfil do usuário.
@@ -484,7 +488,7 @@ grupos separadamente — **aprovação com mock não é tratada como validação
 |---|---|---|---|
 | RF-01, RF-02, RF-03 | O3 | E1 | contrato `test_auth_login`; unitário `test_auth_provider` (contrato do provedor, mock e real), `test_ifsul_provider`, `test_config` |
 | RF-04, RF-05, RF-07 | O3, O4 | E1 | contrato `test_auth_login`, `test_me`; unitário `test_security` (expiração, assinatura); integração `test_usuario_inativo` |
-| RF-06 | O3 | E1 | integração `test_login_provider_indisponivel` |
+| RF-06 | O3 | E1 | integração `test_login_provider_indisponivel`; unitário `test_ifsul_provider` (nova tentativa de conexão) |
 | RF-08, RF-10 | O4 | E1 | integração `test_primeiro_login_aluno`, `test_acesso_institucional`; contrato `test_permissoes_matriz` |
 | RF-50, RF-51 | O3, O4 | emenda v2.3 | integração `test_acesso_institucional`, `test_definir_administrador`; contrato `test_gestao_acessos`, `test_gestao_acesso` |
 | RF-52 | O3 | emenda v2.3 | unitário `test_config`, `test_ifsul_provider`; integração `test_seguranca_senha`; roteiro real `scripts/roteiro_ifsul.py` |
@@ -541,16 +545,27 @@ Registrar data, ambiente e evidência de cada execução.
   servidor falso em `test_login_provider_indisponivel`), não contra a API real fora do ar.
 - [x] Nenhuma senha aparece em log, resposta, URL ou banco (`test_seguranca_senha`,
   `test_ifsul_provider`).
-- [ ] Conta válida de aluno: 200 e usuário criado com perfil `aluno` (roteiro, caso 1).
+- [x] Conta válida de aluno: 200 e usuário criado com perfil `aluno` (06/11/2026, roteiro caso 1;
+  no banco: liberado, tipo `aluno`, login em minúsculas). Na 1ª rodada a conexão com o IFSul
+  estourou os 5 s e o caso deu 401 genérico; daí a nova tentativa de conexão (seção 2.1). A 2ª
+  rodada conectou de primeira.
 - [ ] Conta administrativa: 1º acesso 403 `ACESSO_PENDENTE`; depois de aprovada, 200 com o perfil
-  concedido (roteiro, caso 2).
-- [ ] Senha incorreta de uma conta real: 401 genérico (roteiro, caso 3).
-- [ ] Criação e encerramento da sessão (roteiro, caso 8) e permissões do usuário autenticado
-  (roteiro, caso 9).
-- [ ] Nome e e-mail sincronizados a cada login; perfil **não** é alterado pelo login.
+  concedido (roteiro, caso 2). **Pendente:** não havia conta administrativa disponível em
+  06/11/2026.
+- [x] Senha incorreta de uma conta real: 401 genérico, e a API do IFSul, consultada direto, recusa
+  a credencial (06/11/2026, roteiro caso 3).
+- [x] Criação e encerramento da sessão (06/11/2026, roteiro caso 8) e permissões do aluno
+  autenticado (caso 9: gestão 403, turmas disponíveis 200). A parte do caso 9 sobre o
+  administrativo pendente depende do caso 2.
+- [ ] Nome e e-mail sincronizados a cada login; perfil **não** é alterado pelo login. Com a conta
+  real, nome e e-mail vieram do IFSul no 1º login e o perfil `aluno` se manteve no 2º; a troca
+  de perfil seguida de novo login só está coberta pelo teste de integração
+  `test_novo_login_atualiza_nome_e_ultimo_login_mas_nao_o_perfil`.
 - [ ] Em produção, `IFSUL_AUTH_URL` com HTTPS (RF-52); a URL atual da doc usa HTTP.
 
-Evidências: [`evidencias/roteiro-ifsul-2026-11-06-sem-contas.md`](../../evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)
+Evidências: [`evidencias/roteiro-ifsul-2026-11-06.md`](../../evidencias/roteiro-ifsul-2026-11-06.md)
+(conta de aluno real: casos 1, 3 a 6, 8 e 9 corretos; caso 7 simulado; caso 2 sem conta) e
+[`evidencias/roteiro-ifsul-2026-11-06-sem-contas.md`](../../evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)
 (casos 4 a 6 contra a API real; caso 7 simulado). O roteiro completo (9 casos) foi conferido contra
 o CONECTA com o provedor simulado, para que a mecânica dos casos com conta não falhe na execução
 real.

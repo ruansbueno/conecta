@@ -32,7 +32,9 @@ uv run uvicorn src.main:app --reload  # http://localhost:8000/docs
 
 O seed cria usuários fictícios para os quatro perfis, todos com a senha `senha-teste`:
 `admin.conecta`, `admin.teste`, `coord.teste`, `docente.teste`, `aluno.teste`, `aluno2.teste`,
-`aluno3.teste` e `aluno.sem.turma`. Também cria as turmas A, B, C (3º semestre) e D (5º),
+`aluno3.teste` e `aluno.sem.turma`, além de `servidor.aguardando`, um pedido de acesso pendente
+para a gestão liberar ou recusar (rodar o seed de novo não reabre esse pedido depois de decidido).
+Também cria as turmas A, B, C (3º semestre) e D (5º),
 vínculos, solicitações e avisos de exemplo, eventos da agenda e a grade das turmas 3A, 3B e 5A
 (com um conflito de sala de propósito). Pode ser executado de novo sem duplicar nada.
 
@@ -113,18 +115,19 @@ CONECTA.
   docente ou coordenação. Pode ser recusado (403 `ACESSO_RECUSADO`). Na web: Usuários → Aguardando
   acesso; na API: `/gestao/acessos`.
 - **Primeiro administrador**, no servidor: `uv run python -m scripts.definir_administrador <login>`.
-- **Validação com contas reais**: `uv run python -m scripts.roteiro_ifsul --conecta <url>` executa
-  os 9 testes do item 10 da doc do IFSul e grava o relatório esperado × obtido, sem senha (passo a
-  passo no [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md)).
+- **Validação com contas reais**: `uv run python -m scripts.roteiro_ifsul --conecta <url>
+  --ifsul <url>` executa os 9 testes do item 10 da doc do IFSul e grava o relatório esperado ×
+  obtido, sem senha (passo a passo no [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md)).
 
 Até a emenda v2.3, a integração real era prevista "com o Moodle"; o serviço da instituição é a API
 de autenticação do IFSul, e o provedor simulado passou a se chamar `MockAuthProvider`.
 
 ## Pendente
 
-- **Validação com contas reais** (T072): rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e
-  uma administrativa e marcar o checklist da `spec.md` §9.4 (data-limite 13/11/2026). Os casos 4 a
-  6 já passaram contra a API real em 06/11/2026; o 7 (API fora do ar) é simulado com um endereço
-  local sem serviço ([relatório](evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
+- **Validação com conta administrativa real** (T072): em 06/11/2026 o roteiro rodou com uma conta
+  real de aluno, com 8 de 8 casos executados corretos
+  ([relatório](evidencias/roteiro-ifsul-2026-11-06.md)); o 7 (API fora do ar) é simulado. Falta o
+  caso 2: rodar `scripts/roteiro_ifsul.py` com uma conta administrativa, aprovar o pedido de
+  acesso e rodar de novo, e marcar o item no checklist da `spec.md` §9.4 (data-limite 13/11/2026).
 - **HTTPS**: a URL atual da API do IFSul usa HTTP; em produção, `IFSUL_AUTH_URL` precisa ser HTTPS
   (a API recusa `http://` sem `IFSUL_AUTH_PERMITIR_HTTP=true`).

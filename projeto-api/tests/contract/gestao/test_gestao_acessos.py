@@ -188,6 +188,21 @@ async def test_aprovar_quem_nao_existe_e_404(client, admin):
     assert r.json()["code"] == "USUARIO_NAO_ENCONTRADO"
 
 
+async def test_ordem_das_verificacoes_ao_aprovar(client, db, admin):
+    """Perfil (422) é conferido antes de procurar a pessoa (404) e da situação do pedido (409);
+    o perfil de quem chama (403) vem antes de tudo. O servidor falso da web segue esta ordem."""
+    docente = await criar_usuario(db, username="docente.a", perfil="docente")
+    ja = await criar_usuario(db, username="ja.liberado", perfil="docente")
+
+    async def aprovar(quem, alvo_id, corpo):
+        url = f"/gestao/acessos/{alvo_id}/aprovar"
+        return (await client.post(url, headers=bearer(quem), json=corpo)).status_code
+
+    assert await aprovar(admin, uuid.uuid4(), {"perfil": "reitor"}) == 422
+    assert await aprovar(admin, ja.id, {"perfil": "reitor"}) == 422
+    assert await aprovar(docente, uuid.uuid4(), {"perfil": "reitor"}) == 403
+
+
 async def test_aprovado_entra_no_proximo_login_com_o_perfil(client, db, app, admin):
     from src.providers.auth.factory import get_auth_provider
     from src.providers.auth.mock import MockAuthProvider

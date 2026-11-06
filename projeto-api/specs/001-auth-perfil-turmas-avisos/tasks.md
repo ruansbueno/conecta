@@ -231,6 +231,10 @@ serviço/seed → turma em "minhas turmas".
     pedido de acesso de servidores, `/gestao/acessos`, `scripts/definir_administrador.py` e
     `scripts/roteiro_ifsul.py` implementados e testados; casos 4 a 7 do roteiro validados contra a
     API real. Falta rodar o roteiro com uma conta de aluno e uma administrativa.
+  - 06/11/2026: roteiro com uma conta real de aluno, 8 de 8 casos executados corretos
+    (`evidencias/roteiro-ifsul-2026-11-06.md`); nova tentativa de conexão no provedor depois de um
+    estouro dos 5 s na 1ª rodada. **Falta só o caso 2** (conta administrativa) e o HTTPS em
+    produção.
 
 ---
 

@@ -89,3 +89,15 @@ async def test_log_diz_o_motivo_da_falha_do_provedor(app, client, caplog):
 
     assert "FalhaDoProvedor" in caplog.text
     assert "HTTP 503" in caplog.text
+
+
+async def test_log_da_conexao_que_falha_duas_vezes_diz_falha_do_provedor(app, client, caplog):
+    import logging
+
+    app.dependency_overrides[get_auth_provider] = lambda: _api_do_ifsul(_fora_do_ar)
+    caplog.set_level(logging.ERROR)
+
+    r = await login(client)
+
+    assert r.status_code == 401
+    assert "FalhaDoProvedor: comunicação: ConnectError" in caplog.text

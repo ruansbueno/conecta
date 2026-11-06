@@ -149,6 +149,7 @@ achados corrigidos com teste antes do merge.
 | **Aplicativo — F2, horários** | Aba Horários com troca de turma, sem rede, fonte a 200% conferida no aparelho, [evidências](projeto-mobile/evidencias/RELATORIO-F2.md) | 348 testes (unidade e widget) + 22 de integração | [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | **Fechamento** | Cookies com prefixo `__Host-`; sair sempre expira a sessão; nginx sem a documentação da API exposta e com redirecionamentos (HTTP→HTTPS e os da API) que ficam na mesma origem; Descartar no editor nunca sai da aplicação; pontos menores das revisões corrigidos na web e no app | API 891, web 397 (Vitest) + 57 (Playwright) + 11 da implantação, app 354 + 22 de integração | [#30](https://github.com/ruansbueno/conecta/pull/30) |
 | **Login pelo IFSul** | API de autenticação do IFSul no lugar do Moodle; servidores que entram pela primeira vez viram pedido de acesso, aprovado pela administração ou pela coordenação na web (aba Aguardando acesso); primeiro administrador por script; roteiro de validação real (casos sem conta já validados contra a API do IFSul) | API 985, web 414 (Vitest) + 61 (Playwright), app 357 | [#31](https://github.com/ruansbueno/conecta/pull/31) |
+| **Login pelo IFSul — conta real** | Roteiro com uma conta real de aluno contra a API do IFSul (8 de 8 casos executados corretos); nova tentativa quando a conexão com o IFSul nem abre; seed que não reabre pedido decidido; servidor falso da web na ordem de verificação da API | API 995, web 414 (Vitest) + 62 (Playwright) | [#33](https://github.com/ruansbueno/conecta/pull/33) |
 
 **Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
 web → API → app contra a API real): no fechamento, em 01/11/2026
@@ -172,12 +173,14 @@ autenticação do IFSul** (Active Directory), não o Moodle como se previa:
 - **Pronto:** `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); servidores que entram pela primeira vez
   viram pedido de acesso, que a administração ou a coordenação aprova na web (Usuários → Aguardando
   acesso); o primeiro administrador é definido por `scripts/definir_administrador.py`.
-- **Validado contra a API real (06/11/2026):** usuário inexistente (o CONECTA responde 401 e a
-  API do IFSul, consultada direto, recusa a credencial) e pedido sem usuário ou sem senha. A API
-  fora do ar foi simulada com um endereço local sem serviço
-  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
-- **Falta:** rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e uma administrativa (os casos
-  1, 2, 3, 8 e 9 do item 10 da doc do IFSul) — passo a passo no
+- **Validado contra a API real (06/11/2026), com uma conta real de aluno:** login do aluno,
+  senha incorreta, usuário inexistente, pedido sem usuário ou sem senha, criação e encerramento
+  da sessão e permissões do aluno — 8 de 8 casos executados corretos
+  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md)). A API fora do ar foi
+  simulada com um endereço local sem serviço. Na 1ª rodada a conexão com o IFSul estourou os 5 s;
+  o provedor passou a tentar de novo uma vez quando a conexão nem abre.
+- **Falta:** o caso 2 (conta administrativa: pedido de acesso, aprovação e novo login) — passo a
+  passo no
   [README da API](projeto-api/README.md#login-pela-api-de-autenticação-do-ifsul-emenda-v23).
 
 ### Limitações conhecidas

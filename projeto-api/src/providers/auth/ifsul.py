@@ -30,6 +30,10 @@ class FalhaDoProvedor(RuntimeError):
     """
 
 
+class _ConexaoNaoAbriu(FalhaDoProvedor):
+    """A conexão com a API do IFSul não chegou a abrir: o pedido (com a senha) não foi enviado."""
+
+
 class IfsulAuthProvider:
     def __init__(
         self,
@@ -61,7 +65,16 @@ class IfsulAuthProvider:
     async def _enviar(self, username: str, password: str) -> httpx.Response:
         try:
             with anyio.fail_after(self.limite_total):
-                return await self._post(username, password)
+                try:
+                    return await self._post(username, password)
+                except _ConexaoNaoAbriu:
+                    # Uma nova tentativa, dentro do mesmo limite total: sem conexão aberta, a senha
+                    # não chegou a ser enviada (roteiro real de 06/11/2026: a 1ª conexão estourou
+                    # os 5 s e a seguinte abriu em 30 ms).
+                    try:
+                        return await self._post(username, password)
+                    except _ConexaoNaoAbriu as erro:
+                        raise FalhaDoProvedor(str(erro)) from None
         except TimeoutError:
             raise FalhaDoProvedor(f"tempo esgotado ({self.limite_total:g} s)") from None
 
@@ -75,6 +88,8 @@ class IfsulAuthProvider:
                     json={"usuario": username, "senha": password},
                     headers={"Accept": "application/json"},
                 )
+        except (httpx.ConnectError, httpx.ConnectTimeout) as erro:
+            raise _ConexaoNaoAbriu(f"comunicação: {type(erro).__name__}") from None
         except httpx.HTTPError as erro:
             # `from None` esconde a exceção original (ela guarda o pedido, com a senha no corpo) do
             # traceback; quem trata a FalhaDoProvedor nunca deve registrar o `__context__`.

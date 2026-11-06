@@ -254,30 +254,29 @@ void main() {
     expect(find.text('Tentar de novo'), findsOneWidget);
   });
 
-  testWidgets(
-    'trocar de turma: a grade da turma anterior, que chega depois, é descartada',
-    (tester) async {
-      final atrasada = Completer<http.Response>();
-      app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));
-      app.api.rotasAssincronas['GET /turmas/turma-SI-3A/horarios'] = (_) => atrasada.future;
-      app.api.responder(
-        'GET /turmas/turma-SI-3B/horarios',
-        paginaJson([aulaMapa('b1', turmaId: 'turma-SI-3B', disciplina: 'Algoritmos')]),
-      );
+  testWidgets('trocar de turma: a grade da turma anterior, que chega depois, é descartada', (
+    tester,
+  ) async {
+    final atrasada = Completer<http.Response>();
+    app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));
+    app.api.rotasAssincronas['GET /turmas/turma-SI-3A/horarios'] = (_) => atrasada.future;
+    app.api.responder(
+      'GET /turmas/turma-SI-3B/horarios',
+      paginaJson([aulaMapa('b1', turmaId: 'turma-SI-3B', disciplina: 'Algoritmos')]),
+    );
 
-      await abrirHorarios(tester);
-      await tester.tap(find.byKey(const Key('trocar-turma')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('SI-3B — Sistemas para Internet 3B'));
-      await tester.pumpAndSettle();
-      atrasada.complete(respostaJson(paginaJson(gradeA)));
-      await tester.pumpAndSettle();
+    await abrirHorarios(tester);
+    await tester.tap(find.byKey(const Key('trocar-turma')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('SI-3B — Sistemas para Internet 3B'));
+    await tester.pumpAndSettle();
+    atrasada.complete(respostaJson(paginaJson(gradeA)));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Turma SI-3B'), findsOneWidget);
-      expect(find.text('Algoritmos'), findsOneWidget);
-      expect(find.text('Banco de Dados II'), findsNothing);
-    },
-  );
+    expect(find.text('Turma SI-3B'), findsOneWidget);
+    expect(find.text('Algoritmos'), findsOneWidget);
+    expect(find.text('Banco de Dados II'), findsNothing);
+  });
 
   testWidgets('o botão da turma diz ao leitor de tela que troca a turma', (tester) async {
     app.api.responder('GET /turmas/minhas', paginaJson([si3a, si3b]));

@@ -79,3 +79,35 @@ test('coordenação só oferece docente ou coordenação', async ({ page }) => {
   await expect(dialogo.getByRole('radio')).toHaveCount(2)
   await expect(dialogo.getByRole('radio', { name: 'Administrador' })).toHaveCount(0)
 })
+
+test('ordem das verificações ao aprovar é a da API: 403 de perfil, depois 422, depois 404/409', async () => {
+  // Espelha test_ordem_das_verificacoes_ao_aprovar do contrato da API (projeto-api).
+  const API = 'http://localhost:8787'
+  const token = async (username: string) => {
+    const r = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password: 'senha-teste' }),
+    })
+    return ((await r.json()) as { access_token: string }).access_token
+  }
+  const admin = await token('admin.teste')
+  const docente = await token('docente.teste')
+  const usuarios = await fetch(`${API}/gestao/usuarios`, { headers: { Authorization: `Bearer ${admin}` } })
+  const liberado = ((await usuarios.json()) as { items: { id: string }[] }).items[0].id
+  const aprovar = async (quem: string, alvo: string, corpo: object) =>
+    (
+      await fetch(`${API}/gestao/acessos/${alvo}/aprovar`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${quem}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo),
+      })
+    ).status
+  const inexistente = '00000000-0000-4000-8000-0000000000ff'
+
+  expect(await aprovar(admin, inexistente, { perfil: 'reitor' })).toBe(422)
+  expect(await aprovar(admin, liberado, { perfil: 'reitor' })).toBe(422)
+  expect(await aprovar(docente, inexistente, { perfil: 'reitor' })).toBe(403)
+  expect(await aprovar(admin, inexistente, { perfil: 'docente' })).toBe(404)
+  expect(await aprovar(admin, liberado, { perfil: 'docente' })).toBe(409)
+})

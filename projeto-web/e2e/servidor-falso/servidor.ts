@@ -491,19 +491,21 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   const decisaoAcesso = caminho.match(/^\/gestao\/acessos\/([^/]+)\/(aprovar|recusar)$/)
   if (metodo === 'POST' && decisaoAcesso) {
     if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    // Como a API: o corpo (422) é validado antes de procurar a pessoa (404) e da situação (409).
+    const aprovando = decisaoAcesso[2] === 'aprovar'
+    const perfil = aprovando ? (((await corpoJson(req)) as { perfil?: string } | null)?.perfil ?? '') : ''
+    if (aprovando && !['administrador', 'coordenacao', 'docente', 'aluno'].includes(perfil)) {
+      return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'perfil', mensagem: 'perfil inválido' }])
+    }
     const alvo = estado.usuarios.find((u) => u.id === decisaoAcesso[1])
     if (!alvo) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
     const decidido = { decidido_em: new Date().toISOString(), decidido_por: { id: usuario.id, nome: usuario.nome } }
-    if (decisaoAcesso[2] === 'recusar') {
+    if (!aprovando) {
       if (alvo.acesso?.situacao !== 'pendente') return erro(res, 409, 'ACESSO_JA_DECIDIDO')
       alvo.acesso = { ...alvo.acesso, situacao: 'recusado', ...decidido }
       return json(res, 200, acessoSaida(alvo))
     }
     if (!alvo.acesso) return erro(res, 409, 'ACESSO_JA_DECIDIDO')
-    const { perfil } = ((await corpoJson(req)) ?? {}) as { perfil?: string }
-    if (!perfil || !['administrador', 'coordenacao', 'docente', 'aluno'].includes(perfil)) {
-      return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'perfil', mensagem: 'perfil inválido' }])
-    }
     const admin = usuario.perfil === 'administrador'
     if (!admin && (alvo.acesso.situacao === 'recusado' || !['docente', 'coordenacao'].includes(perfil))) {
       return erro(res, 403, 'SEM_PERMISSAO')

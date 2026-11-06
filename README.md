@@ -160,12 +160,14 @@ autenticação do IFSul** (Active Directory), não o Moodle como se previa:
 - **Pronto:** `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); servidores que entram pela primeira vez
   viram pedido de acesso, que a administração ou a coordenação aprova na web (Usuários → Aguardando
   acesso); o primeiro administrador é definido por `scripts/definir_administrador.py`.
-- **Validado contra a API real (06/11/2026):** usuário inexistente (o CONECTA responde 401 e a
-  API do IFSul, consultada direto, recusa a credencial) e pedido sem usuário ou sem senha. A API
-  fora do ar foi simulada com um endereço local sem serviço
-  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
-- **Falta:** rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e uma administrativa (os casos
-  1, 2, 3, 8 e 9 do item 10 da doc do IFSul) — passo a passo no
+- **Validado contra a API real (06/11/2026), com uma conta real de aluno:** login do aluno,
+  senha incorreta, usuário inexistente, pedido sem usuário ou sem senha, criação e encerramento
+  da sessão e permissões do aluno — 8 de 8 casos executados corretos
+  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md)). A API fora do ar foi
+  simulada com um endereço local sem serviço. Na 1ª rodada a conexão com o IFSul estourou os 5 s;
+  o provedor passou a tentar de novo uma vez quando a conexão nem abre.
+- **Falta:** o caso 2 (conta administrativa: pedido de acesso, aprovação e novo login) — passo a
+  passo no
   [README da API](projeto-api/README.md#login-pela-api-de-autenticação-do-ifsul-emenda-v23).
 
 ### Limitações conhecidas

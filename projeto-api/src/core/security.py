@@ -8,7 +8,13 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.deps.csrf import verificar_csrf
-from src.api.errors import NaoAutenticado, SemPermissao, UsuarioInativo
+from src.api.errors import (
+    AcessoPendente,
+    AcessoRecusado,
+    NaoAutenticado,
+    SemPermissao,
+    UsuarioInativo,
+)
 from src.core.config import get_settings
 from src.db.session import get_session
 from src.models.usuario import Usuario
@@ -72,6 +78,11 @@ async def get_current_user(
         raise NaoAutenticado("Token inválido ou expirado")
     if not usuario.ativo:
         raise UsuarioInativo()
+    # O login nunca emite token a quem não está liberado; um token antigo também não fura a regra.
+    if usuario.situacao_acesso == "pendente":
+        raise AcessoPendente()
+    if usuario.situacao_acesso == "recusado":
+        raise AcessoRecusado()
     if via == "cookie":
         verificar_csrf(request, token)
     request.state.auth_via = via

@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime, time, timedelta
 from http.cookies import SimpleCookie
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 from src.api.deps.csrf import gerar_csrf
 from src.core.security import create_access_token
@@ -81,12 +81,27 @@ async def criar_solicitacao(db, turma, aluno_id, status="pendente", **campos):
 
 
 async def entrar(client, db, username="aluno.teste", perfil=None):
-    """Login pelo mock; opcionalmente fixa o perfil no banco. Devolve (headers Bearer, id)."""
+    """Login pelo mock; com `perfil`, a pessoa já existe liberada com ele (como faria a gestão).
+
+    Sem isso, o 1º login de um servidor do mock viraria pedido de acesso, sem sessão
+    (emenda v2.3). Devolve (headers Bearer, id).
+    """
+    if perfil is not None:
+        from src.providers.auth.mock import USUARIOS_TESTE
+
+        existente = await db.scalar(select(Usuario).where(Usuario.username == username))
+        if existente is None:
+            nome = USUARIOS_TESTE.get(username, (username,))[0]
+            db.add(Usuario(username=username, nome=nome, perfil=perfil))
+        else:
+            await db.execute(
+                update(Usuario)
+                .where(Usuario.id == existente.id)
+                .values(perfil=perfil, situacao_acesso="liberado")
+            )
+        await db.commit()
     body = (await login(client, username)).json()
     usuario_id = uuid.UUID(body["usuario"]["id"])
-    if perfil is not None:
-        await db.execute(update(Usuario).where(Usuario.id == usuario_id).values(perfil=perfil))
-        await db.commit()
     return {"Authorization": f"Bearer {body['access_token']}"}, usuario_id
 
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.errors import CredenciaisInvalidas, UsuarioInativo
+from src.api.errors import AcessoPendente, AcessoRecusado, CredenciaisInvalidas, UsuarioInativo
 from src.core.security import create_access_token
 from src.models.usuario import Usuario
 from src.providers.auth.base import AuthProvider
@@ -36,6 +36,12 @@ async def login(
     if existente is not None and not existente.ativo:
         raise UsuarioInativo()
 
-    usuario = await repo.upsert_from_provider(autenticado.username, autenticado.nome)
+    usuario = await repo.upsert_from_provider(autenticado)
+    # Grava antes de recusar: o pedido de acesso (e o nome e o e-mail atualizados) ficam
+    # registrados para a administração ou a coordenação decidir (RF-08, emenda v2.3).
     await session.commit()
+    if usuario.situacao_acesso == "pendente":
+        raise AcessoPendente()
+    if usuario.situacao_acesso == "recusado":
+        raise AcessoRecusado()
     return Sessao(create_access_token(usuario.id, usuario.perfil), usuario)

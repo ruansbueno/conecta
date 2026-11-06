@@ -56,7 +56,8 @@ async def vincular(
 ) -> tuple[VinculoTurma, Usuario]:
     await _turma(session, turma_id)
     usuario = await session.get(Usuario, usuario_id)
-    if usuario is None:
+    # Quem aguarda acesso não tem perfil nem pode ter vínculo (emenda v2.3).
+    if usuario is None or usuario.situacao_acesso != "liberado":
         raise UsuarioNaoEncontrado()
     if papel_do_perfil(usuario.perfil) != papel:
         raise PerfilIncompativel(

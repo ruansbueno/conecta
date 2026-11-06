@@ -17,14 +17,15 @@ async def _buscar(session_factory, username) -> Usuario | None:
 
 
 async def test_primeiro_login_cria_usuario_aluno(client, session_factory):
-    assert await _buscar(session_factory, "docente.teste") is None
+    # Tipo institucional aluno; o 1º login de servidor está em test_acesso_institucional.
+    assert await _buscar(session_factory, "aluno.teste") is None
 
-    r = await login(client, "docente.teste")
+    r = await login(client, "aluno.teste")
 
     assert r.status_code == 200
-    usuario = await _buscar(session_factory, "docente.teste")
+    usuario = await _buscar(session_factory, "aluno.teste")
     assert usuario.perfil == "aluno"  # o provedor nunca define o perfil
-    assert usuario.nome == "Docente de Teste"
+    assert usuario.nome == "Aluno de Teste"
     assert usuario.ativo is True
     assert usuario.ultimo_login_em is not None
 

@@ -5,8 +5,9 @@ from src.providers.auth.base import AuthenticatedUser, TipoInstitucional
 SENHA_TESTE = "senha-teste"
 
 # Usuários fictícios de desenvolvimento: login → (nome, tipo institucional, como a API do IFSul
-# informa). Os perfis dos que já existem são aplicados pelo seed no banco (RF-03); os que o seed
-# não cria (`servidor.novo`, `aluno.novo`) mostram o primeiro login de cada tipo.
+# informa). Os perfis dos que já existem são aplicados pelo seed no banco (RF-03);
+# `servidor.aguardando` entra no seed como pedido de acesso pendente; os que o seed não cria
+# (`servidor.novo`, `aluno.novo`) mostram o primeiro login de cada tipo.
 USUARIOS_TESTE: dict[str, tuple[str, TipoInstitucional]] = {
     "admin.conecta": ("Administrador de Implantação", "administrativo"),
     "admin.teste": ("Administrador de Teste", "administrativo"),
@@ -16,6 +17,7 @@ USUARIOS_TESTE: dict[str, tuple[str, TipoInstitucional]] = {
     "aluno2.teste": ("Aluno Dois de Teste", "aluno"),
     "aluno3.teste": ("Aluno Três de Teste", "aluno"),
     "aluno.sem.turma": ("Aluno Sem Turma", "aluno"),
+    "servidor.aguardando": ("Servidor Aguardando de Teste", "administrativo"),
     "servidor.novo": ("Servidor Novo de Teste", "administrativo"),
     "aluno.novo": ("Aluno Novo de Teste", "aluno"),
 }

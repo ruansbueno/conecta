@@ -29,7 +29,7 @@ from src.providers.auth.mock import USUARIOS_TESTE
 from src.schemas.gestao.eventos import EventoCreate, EventoPatch
 from src.services import eventos_gestao_service
 
-PERFIS_TESTE: dict[str, str] = {
+PERFIS_TESTE: dict[str, str | None] = {
     "admin.conecta": "administrador",  # administrador de implantação
     "admin.teste": "administrador",
     "coord.teste": "coordenacao",
@@ -38,6 +38,7 @@ PERFIS_TESTE: dict[str, str] = {
     "aluno2.teste": "aluno",
     "aluno3.teste": "aluno",
     "aluno.sem.turma": "aluno",
+    "servidor.aguardando": None,  # pedido de acesso pendente (emenda v2.3), para a gestão ver
 }
 
 
@@ -157,14 +158,21 @@ async def seed(session: AsyncSession) -> None:
 
 async def _usuarios(session: AsyncSession) -> None:
     for username, perfil in PERFIS_TESTE.items():
+        nome, tipo = USUARIOS_TESTE[username]
         stmt = insert(Usuario).values(
-            username=username, nome=USUARIOS_TESTE[username][0], perfil=perfil
+            username=username,
+            nome=nome,
+            perfil=perfil,
+            situacao_acesso="liberado" if perfil is not None else "pendente",
+            tipo_institucional=tipo,
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=[Usuario.username],
             set_={
                 Usuario.nome: stmt.excluded[coluna(Usuario.nome)],
                 Usuario.perfil: stmt.excluded[coluna(Usuario.perfil)],
+                Usuario.situacao_acesso: stmt.excluded[coluna(Usuario.situacao_acesso)],
+                Usuario.tipo_institucional: stmt.excluded[coluna(Usuario.tipo_institucional)],
                 Usuario.ativo: True,
                 Usuario.atualizado_em: func.now(),
             },

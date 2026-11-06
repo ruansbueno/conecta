@@ -28,8 +28,9 @@ async def test_seed_cria_todos_os_usuarios_do_mock_com_seus_perfis(db):
     assert perfis["admin.teste"] == "administrador"
     assert perfis["coord.teste"] == "coordenacao"
     assert perfis["docente.teste"] == "docente"
+    assert perfis["servidor.aguardando"] is None  # pedido de acesso pendente
     assert perfis["aluno.teste"] == "aluno"
-    assert set(perfis.values()) == {"administrador", "coordenacao", "docente", "aluno"}
+    assert set(perfis.values()) == {"administrador", "coordenacao", "docente", "aluno", None}
 
 
 async def test_seed_e_idempotente_e_restaura_os_perfis(db):

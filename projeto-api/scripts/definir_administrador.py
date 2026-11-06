@@ -2,7 +2,9 @@
 
 O `admin.conecta` do seed é fictício e não existe no Active Directory do IFSul. Rodado no servidor,
 este script cria (ou promove) a pessoa com aquele login institucional como administradora; ela
-entra normalmente e, daí em diante, libera os demais pela gestão.
+entra normalmente e, daí em diante, libera os demais pela gestão. Quem já existe é promovido e
+reativado; um pedido de acesso pendente ou recusado é liberado sem registrar decisor (a decisão é
+de quem roda o script no servidor).
 
 Uso: `python -m scripts.definir_administrador <login.institucional>`
 """

@@ -7,6 +7,7 @@ from src.api.errors import AcessoPendente, AcessoRecusado, CredenciaisInvalidas,
 from src.core.security import create_access_token
 from src.models.usuario import Usuario
 from src.providers.auth.base import AuthProvider
+from src.providers.auth.ifsul import FalhaDoProvedor
 from src.repositories.usuario_repository import UsuarioRepository
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,9 @@ async def login(
     except Exception as exc:
         # Indisponibilidade do provedor não é revelada ao cliente (RF-06). Só o tipo vai ao log:
         # a mensagem de um erro HTTP pode trazer a URL com a senha (Princípio II).
-        logger.error("Falha no provedor de autenticação: %s", type(exc).__name__)
+        # A mensagem de FalhaDoProvedor é segura por construção (status ou tipo, nunca o corpo).
+        motivo = f": {exc}" if isinstance(exc, FalhaDoProvedor) else ""
+        logger.error("Falha no provedor de autenticação: %s%s", type(exc).__name__, motivo)
         raise CredenciaisInvalidas() from None
     if autenticado is None:
         raise CredenciaisInvalidas()

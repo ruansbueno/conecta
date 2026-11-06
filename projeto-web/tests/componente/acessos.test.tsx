@@ -221,6 +221,20 @@ describe('aguardando acesso (RW-50, RW-51)', () => {
     expect(chamadas.filter((c) => c.chave === 'GET /gestao/acessos').length).toBeGreaterThanOrEqual(2)
   })
 
+  it('recusar um pedido que outra pessoa já decidiu: aviso informativo, não erro', async () => {
+    api({
+      'GET /gestao/acessos': { status: 200, corpo: pagina(PENDENTES) },
+      'POST /gestao/acessos/a2/recusar': { status: 409, corpo: erro('ACESSO_JA_DECIDIDO') },
+    })
+    abrir()
+
+    await userEvent.click(within(await linha(/Beltrana Técnica/)).getByRole('button', { name: /Recusar/ }))
+    const confirmacao = await screen.findByRole('alertdialog')
+    await userEvent.click(within(confirmacao).getByRole('button', { name: 'Recusar acesso' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Este pedido de acesso já foi decidido.')
+  })
+
   it('sem pedidos: estado vazio que explica de onde eles vêm', async () => {
     api({ 'GET /gestao/acessos': { status: 200, corpo: pagina([]) } })
     abrir()

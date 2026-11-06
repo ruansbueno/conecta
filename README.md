@@ -15,7 +15,7 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 > - **plataforma web:** avisos com auditoria, turmas e vínculos, solicitações, usuários e perfis, painel, agenda e grade de horários;
 > - **aplicativo:** avisos, turmas, inscrição, perfil, agenda e horários, inclusive sem rede.
 >
-> O fluxo web → API → app está testado, a acessibilidade AA foi verificada e há evidências com capturas. O login pela **API de autenticação do IFSul** está implementado e passou contra a API real nos casos sem conta; **falta só validá-lo com uma conta de aluno e uma administrativa** (prazo: 13/11/2026). Veja [Andamento](#andamento) e [Limitações conhecidas](#limitações-conhecidas).
+> O fluxo web → API → app está testado, a acessibilidade AA foi verificada e há evidências com capturas. O login pela **API de autenticação do IFSul** está implementado e passou contra a API real nos casos que não exigem conta; **falta só validá-lo com uma conta de aluno e uma administrativa** (prazo: 13/11/2026). Veja [Andamento](#andamento) e [Limitações conhecidas](#limitações-conhecidas).
 
 ## Estrutura do repositório
 
@@ -159,8 +159,10 @@ autenticação do IFSul** (Active Directory), não o Moodle como se previa:
 - **Pronto:** `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); servidores que entram pela primeira vez
   viram pedido de acesso, que a administração ou a coordenação aprova na web (Usuários → Aguardando
   acesso); o primeiro administrador é definido por `scripts/definir_administrador.py`.
-- **Validado contra a API real (06/11/2026):** usuário inexistente, pedido sem usuário ou sem senha
-  e API fora do ar ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
+- **Validado contra a API real (06/11/2026):** usuário inexistente (o CONECTA responde 401 e a
+  API do IFSul, consultada direto, recusa a credencial) e pedido sem usuário ou sem senha. A API
+  fora do ar foi simulada com um endereço local sem serviço
+  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
 - **Falta:** rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e uma administrativa (os casos
   1, 2, 3, 8 e 9 do item 10 da doc do IFSul) — passo a passo no
   [README da API](projeto-api/README.md#login-pela-api-de-autenticação-do-ifsul-emenda-v23).

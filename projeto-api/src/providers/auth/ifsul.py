@@ -11,13 +11,16 @@ Contrato observado (doc e sondagem de 06/11/2026), sempre `POST` com JSON `{usua
 
 from typing import Any
 
+import anyio
 import httpx
 
 from src.providers.auth.base import AuthenticatedUser, TipoInstitucional
 
 _TIPOS: tuple[TipoInstitucional, ...] = ("aluno", "administrativo")
-# Tempos do exemplo da doc (CURLOPT_CONNECTTIMEOUT 5, CURLOPT_TIMEOUT 15).
+# Tempos do exemplo da doc (CURLOPT_CONNECTTIMEOUT 5, CURLOPT_TIMEOUT 15). O do httpx vale por
+# etapa (cada leitura); o limite total cobre a operação inteira, como o CURLOPT_TIMEOUT.
 TIMEOUT = httpx.Timeout(15.0, connect=5.0)
+LIMITE_TOTAL = 15.0
 
 
 class FalhaDoProvedor(RuntimeError):
@@ -34,9 +37,11 @@ class IfsulAuthProvider:
         *,
         transport: httpx.AsyncBaseTransport | None = None,
         timeout: httpx.Timeout = TIMEOUT,
+        limite_total: float = LIMITE_TOTAL,
     ):
         self.url = url
         self.timeout = timeout
+        self.limite_total = limite_total
         self._transport = transport
 
     async def authenticate(self, username: str, password: str) -> AuthenticatedUser | None:
@@ -55,6 +60,13 @@ class IfsulAuthProvider:
 
     async def _enviar(self, username: str, password: str) -> httpx.Response:
         try:
+            with anyio.fail_after(self.limite_total):
+                return await self._post(username, password)
+        except TimeoutError:
+            raise FalhaDoProvedor(f"tempo esgotado ({self.limite_total:g} s)") from None
+
+    async def _post(self, username: str, password: str) -> httpx.Response:
+        try:
             async with httpx.AsyncClient(
                 transport=self._transport, timeout=self.timeout, follow_redirects=False
             ) as cliente:
@@ -64,7 +76,8 @@ class IfsulAuthProvider:
                     headers={"Accept": "application/json"},
                 )
         except httpx.HTTPError as erro:
-            # `from None`: a exceção original guarda o pedido, com a senha no corpo.
+            # `from None` esconde a exceção original (ela guarda o pedido, com a senha no corpo) do
+            # traceback; quem trata a FalhaDoProvedor nunca deve registrar o `__context__`.
             raise FalhaDoProvedor(f"comunicação: {type(erro).__name__}") from None
 
 

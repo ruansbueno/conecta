@@ -75,3 +75,17 @@ def test_mock_e_escolhido_pela_configuracao():
     )
 
     assert isinstance(provider_from_settings(settings), MockAuthProvider)
+
+
+async def test_log_diz_o_motivo_da_falha_do_provedor(app, client, caplog):
+    import logging
+
+    app.dependency_overrides[get_auth_provider] = lambda: _api_do_ifsul(
+        lambda r: httpx.Response(503, text="Service Unavailable")
+    )
+    caplog.set_level(logging.ERROR)
+
+    await login(client)
+
+    assert "FalhaDoProvedor" in caplog.text
+    assert "HTTP 503" in caplog.text

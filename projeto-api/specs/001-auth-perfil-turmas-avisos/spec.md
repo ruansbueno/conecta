@@ -209,7 +209,8 @@ em edições, os campos alterados (valor anterior e novo). Eventos nunca são al
 - A API do IFSul recebe `POST` JSON `{usuario, senha}` e responde 200 com os dados do usuário, 401
   `CREDENCIAIS_INVALIDAS` ou 400 `DADOS_INVALIDOS`/`JSON_INVALIDO`. Só 200 com `sucesso` e
   `autenticado` verdadeiros autentica; 401 e 400 `DADOS_INVALIDOS` são credenciais inválidas;
-  qualquer outra resposta, ou falha de rede (5 s para conectar, 15 s no total), é falha do provedor.
+  qualquer outra resposta, ou falha de rede (5 s para conectar, 15 s no total da operação), é falha
+  do provedor.
 - O login devolvido pela API do IFSul é gravado em minúsculas, para que a mesma pessoa não vire duas
   contas pela caixa do que digitou.
 - O token de acesso (JWT) vale **24 h** e contém o identificador e o perfil do usuário.
@@ -530,11 +531,14 @@ Registrar data, ambiente e evidência de cada execução.
 
 - [x] `AUTH_PROVIDER=ifsul` e `IFSUL_AUTH_URL` configurados sem outra mudança de código ou rotas
   (06/11/2026, CONECTA local contra a API real do IFSul, por HTTP liberado para teste).
-- [x] Usuário inexistente: 401 genérico `CREDENCIAIS_INVALIDAS` (roteiro, caso 4).
+- [x] Usuário inexistente: o CONECTA responde 401 genérico `CREDENCIAIS_INVALIDAS`, e a API do
+  IFSul, consultada direto, recusa a credencial — sem isso, um 401 não distinguiria a API fora do
+  ar (roteiro, caso 4).
 - [x] Requisição sem usuário ou sem senha: o CONECTA responde 422 sem chamar o IFSul; a API do
   IFSul responde 400 `DADOS_INVALIDOS` (roteiro, casos 5 e 6).
 - [x] API do IFSul indisponível ou fora do contrato: falha do provedor; o CONECTA responde o mesmo
-  401 genérico, sem detalhes internos (roteiro, caso 7; `test_login_provider_indisponivel`).
+  401 genérico, sem detalhes internos. **Simulado** (endereço local sem serviço, roteiro caso 7;
+  servidor falso em `test_login_provider_indisponivel`), não contra a API real fora do ar.
 - [x] Nenhuma senha aparece em log, resposta, URL ou banco (`test_seguranca_senha`,
   `test_ifsul_provider`).
 - [ ] Conta válida de aluno: 200 e usuário criado com perfil `aluno` (roteiro, caso 1).
@@ -547,4 +551,6 @@ Registrar data, ambiente e evidência de cada execução.
 - [ ] Em produção, `IFSUL_AUTH_URL` com HTTPS (RF-52); a URL atual da doc usa HTTP.
 
 Evidências: [`evidencias/roteiro-ifsul-2026-11-06-sem-contas.md`](../../evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)
-(casos 4 a 7).
+(casos 4 a 6 contra a API real; caso 7 simulado). O roteiro completo (9 casos) foi conferido contra
+o CONECTA com o provedor simulado, para que a mecânica dos casos com conta não falhe na execução
+real.

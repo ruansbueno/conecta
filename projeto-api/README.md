@@ -123,8 +123,8 @@ de autenticação do IFSul, e o provedor simulado passou a se chamar `MockAuthPr
 ## Pendente
 
 - **Validação com contas reais** (T072): rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e
-  uma administrativa e marcar o checklist da `spec.md` §9.4 (data-limite 13/11/2026). Os casos sem
-  conta já passaram contra a API real em 06/11/2026
-  ([relatório](evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
+  uma administrativa e marcar o checklist da `spec.md` §9.4 (data-limite 13/11/2026). Os casos 4 a
+  6 já passaram contra a API real em 06/11/2026; o 7 (API fora do ar) é simulado com um endereço
+  local sem serviço ([relatório](evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
 - **HTTPS**: a URL atual da API do IFSul usa HTTP; em produção, `IFSUL_AUTH_URL` precisa ser HTTPS
   (a API recusa `http://` sem `IFSUL_AUTH_PERMITIR_HTTP=true`).

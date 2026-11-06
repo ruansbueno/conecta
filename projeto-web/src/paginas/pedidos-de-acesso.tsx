@@ -60,7 +60,12 @@ export function PedidosDeAcesso({ administracao }: Props) {
       await recusarAcesso(a.id)
       depoisDe(`Pedido de acesso de ${a.nome} recusado.`)
     } catch (e) {
-      depoisDe(e instanceof ApiError ? e.mensagem : 'Não foi possível concluir agora. Tente de novo em instantes.', true)
+      // Outra pessoa decidiu antes (409): informação, como no aprovar; o resto é falha.
+      const jaDecidido = e instanceof ApiError && e.code === 'ACESSO_JA_DECIDIDO'
+      depoisDe(
+        e instanceof ApiError ? e.mensagem : 'Não foi possível concluir agora. Tente de novo em instantes.',
+        !jaDecidido,
+      )
     }
   }
 

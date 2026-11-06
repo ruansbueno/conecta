@@ -60,6 +60,26 @@ def mascarar(login: str) -> str:
     return ".".join(parte(p) for p in login.split("."))
 
 
+def _code(r: httpx.Response) -> str | None:
+    try:
+        corpo = r.json()
+    except ValueError:
+        return None
+    return corpo.get("code") if isinstance(corpo, dict) else None
+
+
+def _cookies_da_sessao(login: httpx.Response) -> dict[str, str]:
+    """Os cookies `__Host-` que o login emitiu, para encerrar a sessão como a web faz.
+
+    O cliente HTTP não os reenvia sozinho por `http://` (são `Secure`): o roteiro os repassa.
+    """
+    cookies = {}
+    for cabecalho in login.headers.get_list("set-cookie"):
+        nome, _, resto = cabecalho.partition("=")
+        cookies[nome.strip()] = resto.split(";", 1)[0]
+    return cookies
+
+
 def _resumo(r: httpx.Response) -> str:
     try:
         corpo = r.json()
@@ -92,11 +112,8 @@ def _caso(
         return caso
     try:
         caso.obtido, caso.correto = executar()
-    except httpx.HTTPError as erro:
-        caso.obtido, caso.correto = (
-            f"falha de comunicação com o CONECTA: {type(erro).__name__}",
-            False,
-        )
+    except Exception as erro:  # noqa: BLE001 — um caso que quebra não pode derrubar o relatório
+        caso.obtido, caso.correto = f"falha ao executar o caso: {type(erro).__name__}", False
     return caso
 
 
@@ -122,17 +139,33 @@ def executar(
 
     def caso2():
         r = _login(conecta, servidor.login, servidor.senha)
-        code = r.json().get("code") if r.status_code != 200 else None
+        code = _code(r) if r.status_code != 200 else None
         # 1º acesso: pedido pendente; já liberado pela gestão: entra com o perfil concedido.
         return _resumo(r), r.status_code == 200 or code == "ACESSO_PENDENTE"
 
+    def recusado_pelo_ifsul(usuario: str, senha: str) -> tuple[str, bool]:
+        # Com o RF-06, provedor fora do ar também vira 401 no CONECTA: só a resposta direta da API
+        # do IFSul prova que ela foi consultada e recusou a credencial.
+        provedor = IfsulAuthProvider(ifsul_url, transport=ifsul_transport)
+        try:
+            recusou = anyio.run(provedor.authenticate, usuario, senha) is None
+        except FalhaDoProvedor as erro:
+            return f"API do IFSul direto: sem resposta válida ({erro})", False
+        if not recusou:
+            return "API do IFSul direto: credencial aceita", False
+        return "API do IFSul direto: credencial recusada", True
+
     def caso3():
         r = _login(conecta, aluno.login, SENHA_ERRADA)
-        return _resumo(r), r.status_code == 401 and r.json().get("code") == "CREDENCIAIS_INVALIDAS"
+        direto, recusou = recusado_pelo_ifsul(aluno.login, SENHA_ERRADA)
+        ok = r.status_code == 401 and _code(r) == "CREDENCIAIS_INVALIDAS" and recusou
+        return f"CONECTA: {_resumo(r)}; {direto}", ok
 
     def caso4():
         r = _login(conecta, USUARIO_INEXISTENTE, SENHA_ERRADA)
-        return _resumo(r), r.status_code == 401 and r.json().get("code") == "CREDENCIAIS_INVALIDAS"
+        direto, recusou = recusado_pelo_ifsul(USUARIO_INEXISTENTE, SENHA_ERRADA)
+        ok = r.status_code == 401 and _code(r) == "CREDENCIAIS_INVALIDAS" and recusou
+        return f"CONECTA: {_resumo(r)}; {direto}", ok
 
     def caso5():
         r = _login(conecta, None, SENHA_ERRADA)
@@ -164,8 +197,16 @@ def executar(
             return f"login: {_resumo(r)}", False
         token = r.json()["access_token"]
         me = conecta.get("/me", headers={"Authorization": f"Bearer {token}"})
-        cookies = r.headers.get_list("set-cookie")
-        encerrar = conecta.delete("/auth/sessao")
+        cookies = _cookies_da_sessao(r)
+        csrf = next((v for k, v in cookies.items() if k.endswith("conecta_csrf")), "")
+        # Como a web: os cookies da sessão e o CSRF repetido no cabeçalho (RF-33).
+        encerrar = conecta.delete(
+            "/auth/sessao",
+            headers={
+                "Cookie": "; ".join(f"{k}={v}" for k, v in cookies.items()),
+                "X-CSRF-Token": csrf,
+            },
+        )
         expirou = any("Max-Age=0" in c for c in encerrar.headers.get_list("set-cookie"))
         obtido = (
             f"sessão criada: token emitido, GET /me HTTP {me.status_code}, "
@@ -225,7 +266,7 @@ def executar(
         ),
         _caso(
             7,
-            "API do IFSul indisponível",
+            "API do IFSul indisponível (simulada: endereço local sem serviço)",
             "falha do provedor; o CONECTA responde 401 genérico, sem detalhes (RF-06)",
             True,
             caso7,

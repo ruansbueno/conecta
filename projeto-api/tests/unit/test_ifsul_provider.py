@@ -4,6 +4,7 @@ Conecta com a API de autenticação do IFSUL", 2026) e as respostas obtidas na s
 Sem rede: um transporte HTTP falso responde como a API real.
 """
 
+import asyncio
 import json
 import logging
 
@@ -187,3 +188,19 @@ async def test_a_senha_nunca_aparece_na_falha_nem_no_log(caplog):
     assert SENHA not in repr(erro.value)
     assert erro.value.__cause__ is None
     assert SENHA not in caplog.text
+
+
+async def test_limite_total_vale_para_a_operacao_inteira():
+    # Um servidor que responde aos poucos não segura o login além do limite total.
+    async def devagar(request):
+        await asyncio.sleep(0.3)
+        return _sucesso()
+
+    p = IfsulAuthProvider(URL, transport=httpx.MockTransport(devagar), limite_total=0.05)
+
+    with pytest.raises(FalhaDoProvedor, match="tempo"):
+        await p.authenticate("f", SENHA)
+
+
+async def test_limite_total_padrao_e_o_da_doc():
+    assert IfsulAuthProvider(URL).limite_total == 15

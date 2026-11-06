@@ -166,6 +166,73 @@ async def test_indisponibilidade_e_falha_do_provedor(erro):
         await p.authenticate("f", SENHA)
 
 
+def _falha_e_depois(erros, resposta):
+    """Falha com cada erro de `erros`, na ordem, e depois responde `resposta`."""
+    restantes = list(erros)
+
+    def responder(request):
+        if restantes:
+            raise restantes.pop(0)
+        return resposta
+
+    return responder
+
+
+@pytest.mark.parametrize(
+    "erro", [httpx.ConnectError("conexão recusada"), httpx.ConnectTimeout("demorou")]
+)
+async def test_conexao_que_nao_abre_e_tentada_de_novo_uma_vez(erro):
+    # Roteiro real de 06/11/2026: a 1ª conexão estourou os 5 s e a seguinte abriu em 30 ms.
+    # Sem conexão aberta a senha não foi enviada, então tentar de novo é seguro.
+    p, pedidos = provedor(_falha_e_depois([erro], _sucesso()))
+
+    usuario = await p.authenticate("fulano.silva", SENHA)
+
+    assert usuario is not None and usuario.username == "fulano.silva"
+    assert len(pedidos) == 2
+
+
+async def test_conexao_que_falha_duas_vezes_e_falha_do_provedor():
+    erros = [httpx.ConnectTimeout("demorou"), httpx.ConnectError("conexão recusada")]
+    p, pedidos = provedor(_falha_e_depois(erros, _sucesso()))
+
+    with pytest.raises(FalhaDoProvedor, match="ConnectError"):
+        await p.authenticate("f", SENHA)
+
+    assert len(pedidos) == 2
+
+
+@pytest.mark.parametrize(
+    "erro", [httpx.ReadTimeout("demorou"), httpx.RemoteProtocolError("conexão caiu")]
+)
+async def test_falha_depois_do_envio_nao_e_tentada_de_novo(erro):
+    # A senha já pode ter chegado ao IFSul: não repete o pedido.
+    p, pedidos = provedor(_falha_e_depois([erro], _sucesso()))
+
+    with pytest.raises(FalhaDoProvedor):
+        await p.authenticate("f", SENHA)
+
+    assert len(pedidos) == 1
+
+
+async def test_limite_total_cobre_tambem_a_nova_tentativa():
+    pedidos = []
+
+    async def responder(request):
+        pedidos.append(request)
+        if len(pedidos) == 1:
+            raise httpx.ConnectTimeout("demorou")
+        await asyncio.sleep(0.3)
+        return _sucesso()
+
+    p = IfsulAuthProvider(URL, transport=httpx.MockTransport(responder), limite_total=0.05)
+
+    with pytest.raises(FalhaDoProvedor, match="tempo"):
+        await p.authenticate("f", SENHA)
+
+    assert len(pedidos) == 2
+
+
 async def test_tempos_limite_seguem_a_doc():
     p = IfsulAuthProvider(URL)
 

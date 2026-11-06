@@ -134,8 +134,12 @@ separa os grupos `mock_auth` e `ifsul_real`.
 
    ```bash
    uv run python -m scripts.roteiro_ifsul --conecta http://localhost:8001 \
+     --ifsul http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes \
      --saida evidencias/roteiro-ifsul-$(date +%F).md
    ```
+
+   O `--ifsul` é a mesma URL do `IFSUL_AUTH_URL`: o roteiro consulta a API do IFSul direto nos
+   casos 3 a 6. Pode ser omitido no mesmo terminal em que a variável foi exportada.
 
    Sem contas (`--sem-contas`), executa só os casos 4 a 7.
 4. O 1º login da conta administrativa vira pedido de acesso: aprove-o pela web (Usuários →

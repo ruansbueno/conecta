@@ -115,9 +115,9 @@ CONECTA.
   docente ou coordenação. Pode ser recusado (403 `ACESSO_RECUSADO`). Na web: Usuários → Aguardando
   acesso; na API: `/gestao/acessos`.
 - **Primeiro administrador**, no servidor: `uv run python -m scripts.definir_administrador <login>`.
-- **Validação com contas reais**: `uv run python -m scripts.roteiro_ifsul --conecta <url>` executa
-  os 9 testes do item 10 da doc do IFSul e grava o relatório esperado × obtido, sem senha (passo a
-  passo no [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md)).
+- **Validação com contas reais**: `uv run python -m scripts.roteiro_ifsul --conecta <url>
+  --ifsul <url>` executa os 9 testes do item 10 da doc do IFSul e grava o relatório esperado ×
+  obtido, sem senha (passo a passo no [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md)).
 
 Até a emenda v2.3, a integração real era prevista "com o Moodle"; o serviço da instituição é a API
 de autenticação do IFSul, e o provedor simulado passou a se chamar `MockAuthProvider`.

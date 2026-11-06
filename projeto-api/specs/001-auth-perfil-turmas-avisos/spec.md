@@ -210,7 +210,11 @@ em edições, os campos alterados (valor anterior e novo). Eventos nunca são al
   `CREDENCIAIS_INVALIDAS` ou 400 `DADOS_INVALIDOS`/`JSON_INVALIDO`. Só 200 com `sucesso` e
   `autenticado` verdadeiros autentica; 401 e 400 `DADOS_INVALIDOS` são credenciais inválidas;
   qualquer outra resposta, ou falha de rede (5 s para conectar, 15 s no total da operação), é falha
-  do provedor.
+  do provedor. Se a conexão nem chega a abrir (recusada ou acima de 5 s), o CONECTA tenta **uma**
+  vez mais, dentro dos mesmos 15 s: sem conexão a senha não foi enviada. Falha depois do envio
+  (leitura lenta, conexão caída) não é repetida. No roteiro real de 06/11/2026, a 1ª conexão
+  estourou os 5 s e a seguinte abriu em 30 ms; sem a nova tentativa, o aluno com a senha certa
+  recebeu o 401 genérico.
 - O login devolvido pela API do IFSul é gravado em minúsculas, para que a mesma pessoa não vire duas
   contas pela caixa do que digitou.
 - O token de acesso (JWT) vale **24 h** e contém o identificador e o perfil do usuário.
@@ -484,7 +488,7 @@ grupos separadamente — **aprovação com mock não é tratada como validação
 |---|---|---|---|
 | RF-01, RF-02, RF-03 | O3 | E1 | contrato `test_auth_login`; unitário `test_auth_provider` (contrato do provedor, mock e real), `test_ifsul_provider`, `test_config` |
 | RF-04, RF-05, RF-07 | O3, O4 | E1 | contrato `test_auth_login`, `test_me`; unitário `test_security` (expiração, assinatura); integração `test_usuario_inativo` |
-| RF-06 | O3 | E1 | integração `test_login_provider_indisponivel` |
+| RF-06 | O3 | E1 | integração `test_login_provider_indisponivel`; unitário `test_ifsul_provider` (nova tentativa de conexão) |
 | RF-08, RF-10 | O4 | E1 | integração `test_primeiro_login_aluno`, `test_acesso_institucional`; contrato `test_permissoes_matriz` |
 | RF-50, RF-51 | O3, O4 | emenda v2.3 | integração `test_acesso_institucional`, `test_definir_administrador`; contrato `test_gestao_acessos`, `test_gestao_acesso` |
 | RF-52 | O3 | emenda v2.3 | unitário `test_config`, `test_ifsul_provider`; integração `test_seguranca_senha`; roteiro real `scripts/roteiro_ifsul.py` |

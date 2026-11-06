@@ -2,13 +2,14 @@
 
 **Feature Branch**: `001-auth-perfil-turmas-avisos`
 
-**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13 | **Emenda (v2.2)**: 2026-10-31
+**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13 | **Emenda (v2.2)**: 2026-10-31 | **Emenda (v2.3)**: 2026-11-06
 
 **Status**: Draft v2 — revisada a partir do parecer do orientador sobre a v1
 
 **Input**: API REST que serve o aplicativo mobile e a plataforma web do CONECTA. A validação de
-credenciais vem de uma API externa (Moodle) ainda não acessível; o sistema fica pronto para plugar
-a integração real e opera, por enquanto, com um provedor de autenticação simulado (mock).
+credenciais vem de uma API externa — a **API de autenticação do IFSul**, que consulta o Active
+Directory da instituição (emenda v2.3; até então prevista como "Moodle") — e, em desenvolvimento e
+nos testes, de um provedor de autenticação simulado (mock).
 
 > **O que mudou em relação à v1**: (1) escopo ligado aos objetivos específicos do TCC e dividido
 > em três entregas; (2) perfis padronizados (administrador, coordenação, docente, aluno) com
@@ -31,6 +32,20 @@ a integração real e opera, por enquanto, com um provedor de autenticação sim
 > vinculado à sessão. O RF-33 passa a exigi-la, com uma chave própria (`CSRF_SECRET`). O
 > aplicativo não muda (usa `Bearer`), e a plataforma web também não: continua repetindo o cookie
 > no cabeçalho.
+
+> **Emenda v2.3 (2026-11-06)** — a integração real deixa de ser "com o Moodle" e passa a ser com a
+> **API de autenticação do IFSul** (documento "Orientações para integração do Conecta com a API de
+> autenticação do IFSUL"), que consulta o Active Directory e devolve login, nome, e-mail e o **tipo
+> institucional** (`aluno` ou `administrativo`). A doc frisa: administrativo **não** é
+> administrador; a autorização continua sendo do CONECTA. Decisões: (1) o provedor real é o
+> `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); (2) no 1º login, aluno entra como `aluno`, e quem
+> não é aluno vira um **pedido de acesso**, sem perfil e sem sessão, até a administração ou a
+> coordenação aprovar definindo o perfil (ou recusar); (3) a coordenação concede só `docente` e
+> `coordenacao`, e só a pedidos pendentes; (4) o primeiro administrador é definido por um script
+> no servidor, porque o `admin.conecta` do seed não existe no AD; (5) a API do IFSul só é usada por
+> HTTPS, salvo liberação explícita para teste (a doc avisa que a atual usa HTTP). Requisitos
+> alterados: RF-02, RF-03, RF-08; novos: RF-50 a RF-52. Códigos novos: `ACESSO_PENDENTE`,
+> `ACESSO_RECUSADO`, `ACESSO_JA_DECIDIDO`.
 
 ## 1. Escopo e Entregas
 
@@ -68,9 +83,10 @@ na seção 9. Nenhuma funcionalidade da E2/E3 é implementada durante a E1.
 
 ### 2.1 Perfis
 
-O reconhecimento do usuário no login (Moodle ou mock) **apenas identifica** a pessoa (username e
-nome). **O que a pessoa pode fazer dentro do CONECTA é decidido pelo próprio CONECTA**, por meio
-do perfil armazenado localmente.
+O reconhecimento do usuário no login (API de autenticação do IFSul ou mock) **apenas identifica**
+a pessoa (login, nome, e-mail e tipo institucional). **O que a pessoa pode fazer dentro do CONECTA
+é decidido pelo próprio CONECTA**, por meio do perfil armazenado localmente. O tipo institucional
+só decide, no 1º login, se a pessoa entra como aluno ou pede acesso (seção 2.2).
 
 | Perfil (valor na API) | Quem é | Vínculo com turmas |
 |---|---|---|
@@ -84,10 +100,21 @@ O antigo perfil "Servidor" deixa de existir: um servidor com função de gestão
 
 ### 2.2 Como o perfil é atribuído
 
-- No primeiro login de um username, o CONECTA cria o usuário com perfil **`aluno`** (padrão de menor
-  privilégio). O perfil **nunca** é lido do provedor de autenticação.
-- Somente o **administrador** altera o perfil de um usuário (e o ativa/desativa) — via plataforma web (E2).
-- O **primeiro administrador** é criado por seed/migração de implantação.
+- No primeiro login de um username, o CONECTA cria o usuário conforme o **tipo institucional**
+  informado pelo provedor (emenda v2.3):
+  - `aluno` → perfil **`aluno`** (padrão de menor privilégio), com acesso imediato;
+  - `administrativo`, ou tipo ausente ou desconhecido → **pedido de acesso**: o usuário é registrado
+    sem perfil, o login responde 403 `ACESSO_PENDENTE` e nenhuma sessão é criada. A administração ou
+    a coordenação aprova definindo o perfil, ou recusa (o login passa a responder 403
+    `ACESSO_RECUSADO`).
+- O perfil **nunca** é lido do provedor de autenticação, e o tipo institucional não muda o perfil de
+  quem já existe.
+- Somente o **administrador** altera o perfil de um usuário liberado (e o ativa/desativa) — via
+  plataforma web (E2). Pedidos de acesso são decididos à parte (`/gestao/acessos`): a administração
+  concede qualquer perfil e libera depois um pedido recusado; a coordenação concede `docente` ou
+  `coordenacao`, só a pedidos pendentes.
+- O **primeiro administrador** é criado por seed (provedor simulado) ou, com a API do IFSul, pelo
+  script `scripts/definir_administrador.py <login>` executado no servidor.
 - Na E1 (sem plataforma web), perfis de teste são definidos por seed.
 - O perfil é reavaliado pelo banco **a cada requisição** protegida: mudar o perfil ou desativar
   um usuário tem efeito imediato, sem esperar o token de 24 h expirar.
@@ -99,6 +126,7 @@ O antigo perfil "Servidor" deixa de existir: um servidor com função de gestão
 | Consultar o próprio perfil, turmas e avisos | Sim | Sim | Sim | Sim |
 | Solicitar inscrição em turma / cancelar solicitação | Não | Não | Não | Sim |
 | Atribuir perfil e ativar/desativar usuários | Sim | Não | Não | Não |
+| Aprovar pedido de acesso de servidor (definindo o perfil) ou recusá-lo | Sim (qualquer perfil; também libera recusados) | Sim (`docente` ou `coordenacao`; só pendentes) | Não | Não |
 | Listar usuários | Sim | Sim | Não | Não |
 | Criar, editar e desativar turmas | Sim | Sim | Não | Não |
 | Vincular/desvincular docentes e alunos a turmas | Sim | Sim | Não | Não |
@@ -176,7 +204,15 @@ em edições, os campos alterados (valor anterior e novo). Eventos nunca são al
 ### 3.6 Autenticação e provedor
 
 - O provedor de credenciais é uma interface (`AuthProvider`) com duas implementações: **mock**
-  (usuários de teste) e **Moodle** (real, futura). Retorna somente identidade (username e nome).
+  (usuários de teste) e **API de autenticação do IFSul** (real). Retorna somente identidade: login,
+  nome, e-mail (quando houver) e tipo institucional — nunca o perfil.
+- A API do IFSul recebe `POST` JSON `{usuario, senha}` e responde 200 com os dados do usuário, 401
+  `CREDENCIAIS_INVALIDAS` ou 400 `DADOS_INVALIDOS`/`JSON_INVALIDO`. Só 200 com `sucesso` e
+  `autenticado` verdadeiros autentica; 401 e 400 `DADOS_INVALIDOS` são credenciais inválidas;
+  qualquer outra resposta, ou falha de rede (5 s para conectar, 15 s no total da operação), é falha
+  do provedor.
+- O login devolvido pela API do IFSul é gravado em minúsculas, para que a mesma pessoa não vire duas
+  contas pela caixa do que digitou.
 - O token de acesso (JWT) vale **24 h** e contém o identificador e o perfil do usuário.
 - Falha ou indisponibilidade do provedor = falha de autenticação genérica (sem detalhes internos).
 - Usuário desativado não consegue acessar (login retorna 403 com credenciais corretas; token em
@@ -195,14 +231,20 @@ inclusive com o provedor externo indisponível.
 
 1. **Given** credenciais válidas no provedor (real ou mock), **When** o usuário faz login, **Then**
    recebe token (24 h) e seus dados com o perfil armazenado no CONECTA.
-2. **Given** é o primeiro login desse username, **When** o login é bem-sucedido, **Then** o usuário
-   é criado com perfil `aluno`.
+2. **Given** é o primeiro login desse username e o provedor informa o tipo `aluno`, **When** o login
+   é bem-sucedido, **Then** o usuário é criado com perfil `aluno`.
 3. **Given** senha incorreta, **When** tenta acessar, **Then** acesso negado com mensagem genérica,
    sem revelar se o usuário existe.
 4. **Given** o provedor externo indisponível, **When** tenta acessar, **Then** a resposta é a mesma
    de credenciais inválidas.
 5. **Given** token expirado, ausente ou inválido, **When** acessa recurso protegido, **Then** recebe 401.
 6. **Given** usuário desativado, **When** faz login ou usa um token anterior, **Then** recebe 403.
+7. **Given** é o primeiro login e o provedor informa o tipo `administrativo` (ou nenhum tipo),
+   **When** o login é bem-sucedido no provedor, **Then** o CONECTA registra um pedido de acesso sem
+   perfil, responde 403 `ACESSO_PENDENTE` e não cria sessão.
+8. **Given** um pedido de acesso pendente, **When** a administração ou a coordenação aprova com um
+   perfil permitido a ela, **Then** o próximo login entra com esse perfil; **When** recusa,
+   **Then** o login responde 403 `ACESSO_RECUSADO`.
 
 ---
 
@@ -307,17 +349,20 @@ Entrega indicada entre colchetes.
 
 **Autenticação e sessão**
 - **RF-01 [E1]**: O sistema MUST autenticar usuário por username e senha através do provedor de credenciais configurado.
-- **RF-02 [E1]**: O provedor MUST ser desacoplável (mock ↔ Moodle) por configuração, sem alterar rotas, regras ou contratos.
-- **RF-03 [E1]**: Enquanto o Moodle não estiver disponível, o sistema MUST operar com usuários de teste do provedor mock, cobrindo os quatro perfis.
+- **RF-02 [E1]**: O provedor MUST ser desacoplável (mock ↔ API de autenticação do IFSul) por configuração (`AUTH_PROVIDER`), sem alterar rotas, regras ou contratos.
+- **RF-03 [E1]**: Em desenvolvimento e nos testes, o sistema MUST operar com usuários de teste do provedor mock, cobrindo os quatro perfis e os dois tipos institucionais.
 - **RF-04 [E1]**: O acesso concedido MUST ter validade de 24 h; perfil e situação (ativo/inativo) MUST ser reavaliados no banco a cada requisição protegida.
 - **RF-05 [E1]**: O sistema MUST negar recursos protegidos sem credencial válida (401) e sem permissão (403), com `code` padronizado.
 - **RF-06 [E1]**: Falha ou indisponibilidade do provedor MUST resultar em falha de autenticação genérica.
 - **RF-07 [E1]**: Usuário desativado MUST ter acesso negado (403 `USUARIO_INATIVO`).
 
 **Perfis e permissões**
-- **RF-08 [E1]**: Existem exatamente quatro perfis: `administrador`, `coordenacao`, `docente`, `aluno`. O primeiro login cria o usuário como `aluno`; o perfil nunca vem do provedor.
+- **RF-08 [E1, emenda v2.3]**: Existem exatamente quatro perfis: `administrador`, `coordenacao`, `docente`, `aluno`. O primeiro login de quem o provedor informa como aluno cria o usuário como `aluno`; o de qualquer outro tipo cria um pedido de acesso (RF-50). O perfil nunca vem do provedor.
 - **RF-09 [E2]**: Somente o administrador MUST poder alterar perfil e ativar/desativar usuários.
 - **RF-10 [E1/E2]**: Toda ação MUST respeitar a matriz de permissões da seção 2.3.
+- **RF-50 [emenda v2.3]**: O primeiro login de quem não é aluno MUST registrar um pedido de acesso, sem perfil, e responder 403 `ACESSO_PENDENTE` sem criar sessão; tentativas seguintes atualizam nome e e-mail e respondem o mesmo até a decisão. Recusado, o login MUST responder 403 `ACESSO_RECUSADO`. Quem não está liberado MUST ficar fora da lista de usuários, dos vínculos e das sessões (um token antigo também é recusado).
+- **RF-51 [emenda v2.3]**: Administração e coordenação MUST poder listar os pedidos (pendentes ou recusados) e decidi-los: a administração aprova com qualquer perfil, inclusive um pedido recusado; a coordenação aprova só pedidos pendentes e só com `docente` ou `coordenacao`; ambas recusam pedidos pendentes. Uma decisão sobre pedido já decidido MUST responder 409 `ACESSO_JA_DECIDIDO`. A decisão registra quem decidiu e quando.
+- **RF-52 [emenda v2.3]**: A comunicação com a API de autenticação do IFSul MUST usar HTTPS; uma URL `http://` só é aceita com liberação explícita de teste (`IFSUL_AUTH_PERMITIR_HTTP=true`). A senha MUST ir só no corpo do `POST`, nunca na URL, em log ou no banco.
 - **RF-11 [E1]**: O usuário autenticado MUST poder consultar seus próprios dados (nome, perfil, turmas e papel em cada uma).
 
 **Turmas e vínculos**
@@ -377,7 +422,8 @@ Entrega indicada entre colchetes.
 - **Destino do aviso**: tipo e referência (turma ou semestre).
 - **Versão do aviso**: cópia completa do conteúdo e dos destinos em cada edição.
 - **Evento do aviso**: registro imutável de cada operação.
-- **Provedor de credenciais**: componente que identifica o usuário (mock ou Moodle).
+- **Provedor de credenciais**: componente que identifica o usuário (mock ou API de autenticação do IFSul).
+- **Pedido de acesso** (emenda v2.3): usuário ainda sem perfil, registrado no 1º login de quem não é aluno; situação `pendente` ou `recusado` até a decisão, `liberado` depois.
 
 ## 6. Success Criteria *(mandatory)*
 
@@ -385,7 +431,7 @@ Entrega indicada entre colchetes.
 - **SC-002**: 100% das tentativas sem sessão válida são negadas; 100% das ações fora da matriz de permissões retornam 403.
 - **SC-003**: Após aprovação, a turma aparece em "minhas turmas" sem nova ação do aluno.
 - **SC-004**: 100% dos avisos exibidos correspondem às regras de destino, agendamento e situação; zero vazamento a quem não é alcançado por nenhum destino.
-- **SC-005**: Trocar mock por Moodle não exige mudanças no app nem nos módulos de perfil, turmas e avisos.
+- **SC-005**: Trocar o mock pela API de autenticação do IFSul não exige mudanças no app nem nos módulos de turmas e avisos (só a configuração e, no login dos clientes, as mensagens dos novos códigos de acesso).
 - **SC-006**: Toda edição, arquivamento e exclusão de aviso gera exatamente um evento no histórico, com autor e data.
 - **SC-007**: O cenário de ponta a ponta da seção 9.3 passa integralmente.
 
@@ -397,14 +443,15 @@ Entrega indicada entre colchetes.
 - Não há notificação push nesta especificação (possibilidade futura prevista na arquitetura).
 - Não há registro de leitura de aviso (quem leu) nesta especificação.
 - Provas e datas importantes (previstas na arquitetura) serão tratadas como tipos de evento na E3.
-- A integração real com o Moodle é validada à parte (seção 9.4) assim que houver acesso, com
-  data-limite de 13/11/2026; até lá, todos os testes de autenticação usam o provedor mock e são
-  identificados como tal.
+- A integração real com a API de autenticação do IFSul é validada à parte (seção 9.4), com contas
+  institucionais reais; os testes automatizados usam o provedor mock ou um servidor falso que segue
+  a doc da API e são identificados como tal.
 - A plataforma web e a API são servidas no mesmo domínio, com a API sob um caminho reservado
   (`/api`) por proxy reverso — condição do cookie `SameSite=Strict` de RF-32, confirmada com a
   infraestrutura do IFSul em 13/10/2026.
 - O primeiro administrador criado por seed é um usuário fictício de implantação (`admin.conecta`);
-  os dados de demonstração são inteiramente fictícios.
+  os dados de demonstração são inteiramente fictícios. Com a API do IFSul, o primeiro
+  administrador é uma pessoa real definida por `scripts/definir_administrador.py`.
 
 ## 8. Visão Geral da Entrega 3 (agenda e horários)
 
@@ -424,20 +471,23 @@ Não detalhada neste documento; será especificada antes de sua implementação.
 | Contrato | Cada endpoint: status, campos, validações, erros | Mock |
 | Integração | Fluxos com banco de teste dedicado | Mock |
 | Ponta a ponta (E2E de API) | Fluxo completo publicar → receber | Mock |
-| **Integração real com Moodle** | Valida o `MoodleAuthProvider` | **Real — somente quando houver acesso** |
+| Provedor do IFSul | `IfsulAuthProvider` contra um transporte HTTP falso que reproduz a doc e as respostas observadas | Falso (sem rede) |
+| **Integração real com a API do IFSul** | Valida o `IfsulAuthProvider` com contas reais (`scripts/roteiro_ifsul.py`) | **Real — conta institucional** |
 
 Testes que dependem do provedor simulado levam o marcador `mock_auth`; os da integração real,
-`moodle_real` (ignorados automaticamente sem credenciais). O relatório de testes lista os dois
+`ifsul_real` (ignorados automaticamente sem `IFSUL_TEST_USERNAME`). O relatório de testes lista os dois
 grupos separadamente — **aprovação com mock não é tratada como validação da integração real**.
 
 ### 9.2 Matriz de rastreabilidade
 
 | Requisito | Objetivo TCC | Entrega | Testes (tipo — arquivo) |
 |---|---|---|---|
-| RF-01, RF-02, RF-03 | O3 | E1 | contrato `test_auth_login`; unitário `test_auth_provider` (contrato do provedor, mock) |
+| RF-01, RF-02, RF-03 | O3 | E1 | contrato `test_auth_login`; unitário `test_auth_provider` (contrato do provedor, mock e real), `test_ifsul_provider`, `test_config` |
 | RF-04, RF-05, RF-07 | O3, O4 | E1 | contrato `test_auth_login`, `test_me`; unitário `test_security` (expiração, assinatura); integração `test_usuario_inativo` |
 | RF-06 | O3 | E1 | integração `test_login_provider_indisponivel` |
-| RF-08, RF-10 | O4 | E1 | integração `test_primeiro_login_aluno`; contrato `test_permissoes_matriz` |
+| RF-08, RF-10 | O4 | E1 | integração `test_primeiro_login_aluno`, `test_acesso_institucional`; contrato `test_permissoes_matriz` |
+| RF-50, RF-51 | O3, O4 | emenda v2.3 | integração `test_acesso_institucional`, `test_definir_administrador`; contrato `test_gestao_acessos`, `test_gestao_acesso` |
+| RF-52 | O3 | emenda v2.3 | unitário `test_config`, `test_ifsul_provider`; integração `test_seguranca_senha`; roteiro real `scripts/roteiro_ifsul.py` |
 | RF-09 | O1, O4 | E2 | contrato `test_gestao_usuarios`; integração `test_perfil_efeito_imediato` |
 | RF-11 | O2 | E1 | contrato `test_me` |
 | RF-12, RF-13, RF-14, RF-15, RF-16 | O2, O12 | E1 | contrato `test_turmas_disponiveis`, `test_solicitacoes`, `test_turmas_minhas`; integração `test_solicitacao_duplicada` |
@@ -468,19 +518,39 @@ Todos autenticados via provedor mock.
 7. `d1` tenta publicar com destino `todos` → **403 DESTINO_NAO_PERMITIDO**; para a turma A → **201**.
 8. `a5` solicita inscrição na turma A → `pendente`; `d1` aprova → `a5` passa a ver os avisos da turma A.
 
-### 9.4 Checklist de validação da integração real (Moodle)
+### 9.4 Checklist de validação da integração real (API de autenticação do IFSul)
 
-**Data-limite: 13/11/2026.** O acesso à API do Moodle foi solicitado à instituição; se não houver
-acesso até essa data, o trabalho é concluído e defendido com o provedor simulado, e a integração
-real passa a constar como trabalho futuro. O `MoodleAuthProvider` fica implementado e testado
-contra o contrato do provedor, à espera apenas das credenciais.
+**Data-limite: 13/11/2026.** A API foi disponibilizada pelo IFSul com o documento "Orientações para
+integração do Conecta com a API de autenticação do IFSUL". O `IfsulAuthProvider` está implementado
+e testado contra um servidor falso que segue a doc e as respostas observadas numa sondagem sem
+credenciais (06/11/2026). Os casos que exigem conta institucional são executados por
+`scripts/roteiro_ifsul.py`, que pede as senhas sem eco e grava em `evidencias/` um relatório com
+esperado × obtido, sem senha e com o login mascarado (item 10 da doc).
 
-Executar quando houver acesso à API do Moodle; registrar data, ambiente e evidência.
+Registrar data, ambiente e evidência de cada execução.
 
-- [ ] `AUTH_PROVIDER=moodle` configurado sem outra mudança de código/rotas.
-- [ ] Login com usuário real válido retorna 200 e cria usuário com perfil `aluno`.
-- [ ] Login com senha inválida retorna 401 genérico.
-- [ ] Moodle indisponível/timeout retorna o mesmo 401 genérico, sem detalhes internos.
-- [ ] Nome do usuário é sincronizado a cada login; perfil **não** é alterado pelo login.
-- [ ] Nenhuma senha aparece em log, resposta ou banco.
-- [ ] A suíte `mock_auth` continua passando com o provedor real (exceto o que depende de usuários de teste).
+- [x] `AUTH_PROVIDER=ifsul` e `IFSUL_AUTH_URL` configurados sem outra mudança de código ou rotas
+  (06/11/2026, CONECTA local contra a API real do IFSul, por HTTP liberado para teste).
+- [x] Usuário inexistente: o CONECTA responde 401 genérico `CREDENCIAIS_INVALIDAS`, e a API do
+  IFSul, consultada direto, recusa a credencial — sem isso, um 401 não distinguiria a API fora do
+  ar (roteiro, caso 4).
+- [x] Requisição sem usuário ou sem senha: o CONECTA responde 422 sem chamar o IFSul; a API do
+  IFSul responde 400 `DADOS_INVALIDOS` (roteiro, casos 5 e 6).
+- [x] API do IFSul indisponível ou fora do contrato: falha do provedor; o CONECTA responde o mesmo
+  401 genérico, sem detalhes internos. **Simulado** (endereço local sem serviço, roteiro caso 7;
+  servidor falso em `test_login_provider_indisponivel`), não contra a API real fora do ar.
+- [x] Nenhuma senha aparece em log, resposta, URL ou banco (`test_seguranca_senha`,
+  `test_ifsul_provider`).
+- [ ] Conta válida de aluno: 200 e usuário criado com perfil `aluno` (roteiro, caso 1).
+- [ ] Conta administrativa: 1º acesso 403 `ACESSO_PENDENTE`; depois de aprovada, 200 com o perfil
+  concedido (roteiro, caso 2).
+- [ ] Senha incorreta de uma conta real: 401 genérico (roteiro, caso 3).
+- [ ] Criação e encerramento da sessão (roteiro, caso 8) e permissões do usuário autenticado
+  (roteiro, caso 9).
+- [ ] Nome e e-mail sincronizados a cada login; perfil **não** é alterado pelo login.
+- [ ] Em produção, `IFSUL_AUTH_URL` com HTTPS (RF-52); a URL atual da doc usa HTTP.
+
+Evidências: [`evidencias/roteiro-ifsul-2026-11-06-sem-contas.md`](../../evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)
+(casos 4 a 6 contra a API real; caso 7 simulado). O roteiro completo (9 casos) foi conferido contra
+o CONECTA com o provedor simulado, para que a mecânica dos casos com conta não falhe na execução
+real.

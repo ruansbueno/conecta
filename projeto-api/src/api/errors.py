@@ -33,6 +33,21 @@ class UsuarioInativo(DomainError):
         super().__init__(403, "USUARIO_INATIVO", "Usuário desativado")
 
 
+class AcessoPendente(DomainError):
+    def __init__(self):
+        super().__init__(403, "ACESSO_PENDENTE", "Acesso aguardando liberação")
+
+
+class AcessoRecusado(DomainError):
+    def __init__(self):
+        super().__init__(403, "ACESSO_RECUSADO", "Acesso não liberado")
+
+
+class AcessoJaDecidido(DomainError):
+    def __init__(self):
+        super().__init__(409, "ACESSO_JA_DECIDIDO", "Este pedido de acesso já foi decidido")
+
+
 class SemPermissao(DomainError):
     def __init__(self, detail: str = "Sem permissão para esta ação"):
         super().__init__(403, "SEM_PERMISSAO", detail)

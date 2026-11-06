@@ -20,7 +20,7 @@ async def listar(
 async def obter(
     session: AsyncSession, usuario_id: uuid.UUID
 ) -> tuple[Usuario, list[tuple[Turma, str]]]:
-    usuario = await UsuarioRepository(session).get_by_id(usuario_id)
+    usuario = await UsuarioRepository(session).get_liberado(usuario_id)
     if usuario is None:
         raise UsuarioNaoEncontrado()
     return usuario, await TurmaRepository(session).list_todas_do_usuario(usuario_id)
@@ -37,7 +37,8 @@ async def alterar(
     repo = UsuarioRepository(session)
     admins_ativos = await repo.administradores_ativos_para_update()
     alvo = await repo.get_for_update(usuario_id)
-    if alvo is None:
+    # Quem aguarda acesso é decidido em /gestao/acessos, não aqui.
+    if alvo is None or alvo.situacao_acesso != "liberado":
         raise UsuarioNaoEncontrado()
 
     novo_perfil = perfil if perfil is not None else alvo.perfil

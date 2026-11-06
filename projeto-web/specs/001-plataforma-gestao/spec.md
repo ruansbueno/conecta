@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-plataforma-gestao`
 
-**Created**: 2026-10-13
+**Created**: 2026-10-13 | **Emenda (acesso institucional)**: 2026-11-06
 
 **Status**: Draft
 
@@ -11,6 +11,13 @@ Consome exclusivamente a API REST descrita em
 `projeto-api/specs/001-auth-perfil-turmas-avisos/contracts/api.md` (seções 10 a 15, `/gestao/*`,
 além de login e perfil). As telas estão desenhadas em `design/web/` e os tokens visuais em
 `design/README.md`.
+
+> **Emenda de 06/11/2026 — acesso institucional** (acompanha a emenda v2.3 da spec da API): o
+> login passa a ser validado pela API de autenticação do IFSul, que informa se a pessoa é aluno ou
+> servidor (administrativo). Alunos entram como aluno; servidores que entram pela primeira vez
+> viram **pedidos de acesso**, sem sessão, até a administração ou a coordenação decidir. A
+> plataforma ganha a aba "Aguardando acesso" em Usuários, com contador na barra lateral (RW-50,
+> RW-51), e as mensagens de login de `ACESSO_PENDENTE` e `ACESSO_RECUSADO`.
 
 **Referências**
 
@@ -245,6 +252,14 @@ aplicativo ou na API, que só os alcançados o recebem.
    administrador ativo, **Then** a API recusa e a interface explica o motivo.
 6. **Given** um usuário desativado, **When** a situação é salva, **Then** a lista o mostra como
    inativo e ele perde o acesso imediatamente.
+7. **Given** um servidor que entrou pela primeira vez (emenda de 06/11/2026), **When** a
+   administração ou a coordenação abre Usuários → Aguardando acesso, **Then** vê o pedido com nome,
+   login, e-mail institucional e quando pediu, e pode liberar escolhendo o perfil ou recusar com
+   confirmação.
+8. **Given** a coordenação, **When** libera um pedido, **Then** só pode escolher docente ou
+   coordenação; pedidos recusados ela só consulta — quem os libera é a administração.
+9. **Given** um servidor aguardando, **When** tenta entrar, **Then** o login explica que o acesso
+   aguarda liberação da coordenação ou da administração, sem abrir a gestão.
 
 ---
 
@@ -299,7 +314,8 @@ Fase entre colchetes. A coluna de rastreabilidade liga cada requisito ao da API.
 - **RW-04 [F1]**: Ao receber `401`, a plataforma MUST remover o cookie e levar ao login com aviso
   de sessão expirada, preservando o destino pretendido (RF-05).
 - **RW-05 [F1]**: Ao receber `403 USUARIO_INATIVO`, MUST encerrar a sessão com mensagem própria
-  (RF-07).
+  (RF-07). O mesmo vale para `403 ACESSO_PENDENTE` e `403 ACESSO_RECUSADO` (RF-50), cada um com a
+  sua mensagem.
 - **RW-06 [F1]**: Usuário de perfil `aluno` MUST ver a tela de sem permissão com orientação para
   usar o aplicativo, e a sessão MUST ser encerrada (RF-10).
 - **RW-07 [F1]**: Rota acessada sem sessão MUST levar ao login e, após autenticar, seguir para a
@@ -373,6 +389,14 @@ Fase entre colchetes. A coluna de rastreabilidade liga cada requisito ao da API.
   ativar/desativar por `PATCH /gestao/usuarios/{id}`, explicando que a mudança é imediata (RF-09).
 - **RW-33 [F1]**: A plataforma MUST apresentar, no seletor de perfil, o que cada perfil pode
   fazer, conforme a matriz de permissões da API.
+- **RW-50 [emenda 06/11]**: Para administração e coordenação, Usuários MUST ter a aba "Aguardando
+  acesso" com os pedidos de `GET /gestao/acessos` (pendentes e recusados), mostrando nome, login,
+  e-mail institucional e quando a pessoa pediu, e a barra lateral MUST mostrar quantos pedidos
+  pendentes há (RF-50, RF-51).
+- **RW-51 [emenda 06/11]**: Liberar um pedido MUST pedir o perfil, com o que cada um pode fazer: a
+  administração escolhe entre os quatro e também libera recusados; a coordenação, entre docente e
+  coordenação, só pendentes. Recusar MUST pedir confirmação explicando a consequência. Um `409
+  ACESSO_JA_DECIDIDO` fecha o modal, avisa e recarrega a lista (RF-51).
 
 ### Agenda e horários (F2)
 
@@ -444,6 +468,7 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 | T09 Solicitações | `GET /gestao/solicitacoes`, `POST …/aprovar`, `POST …/recusar` | C, V, E, 403, 404, 409 `SOLICITACAO_NAO_PENDENTE`, 409 `JA_VINCULADO` | Motivo opcional na recusa |
 | T10 Usuários | `GET /gestao/usuarios`, `GET /gestao/usuarios/{id}` | C, V, E, 401, 403 | Coordenação só lê |
 | T11 Alterar perfil | `PATCH /gestao/usuarios/{id}` | C, E, 403, 404, 409 `PERFIL_INCOMPATIVEL`, 422 | 422 cobre autodesativação e último administrador |
+| T10a Aguardando acesso | `GET /gestao/acessos?situacao=`, `POST …/{id}/aprovar`, `POST …/{id}/recusar` | C, V, E, 403, 404, 409 `ACESSO_JA_DECIDIDO`, 422 | Aba de T10 (emenda 06/11); administração e coordenação; perfis permitidos por quem decide |
 | T16 Sem permissão | — | — | Resposta do servidor a `403`; não expõe dados |
 | T12 Agenda (F2) | `GET /gestao/eventos` (com `quando`, `de`/`ate`, `tipo`, `q`), `POST`, `PATCH`, `POST …/arquivar`, `POST …/desarquivar`, `DELETE`, `GET …/versoes`, `GET …/historico` (E3) | C, V, E, 401, 403, 404 `EVENTO_NAO_ENCONTRADO`, 409 `EVENTO_NAO_EDITAVEL`, 409 `EVENTO_SITUACAO_INVALIDA`, 422 | Docente vê e gere só os eventos que criou |
 | T13 Horários (F2) | `GET /gestao/turmas/{id}/horarios`, `POST`, `PATCH …/{horario_id}`, `DELETE …/{horario_id}`, `GET /gestao/usuarios?perfil=docente` (E3) | C, V, E, 401, 403, 404 `TURMA_NAO_ENCONTRADA`, 404 `HORARIO_NAO_ENCONTRADO`, 404 `USUARIO_NAO_ENCONTRADO`, 409 `PERFIL_INCOMPATIVEL`, 422 | Só administração e coordenação; conflitos vêm no 201/200 e não impedem salvar |
@@ -454,6 +479,9 @@ Estados: **C** carregando · **V** vazio · **E** erro · **401** sessão encerr
 |---|---|---|
 | `CREDENCIAIS_INVALIDAS` | Usuário ou senha incorretos. | Permanece no login |
 | `USUARIO_INATIVO` | Este acesso está desativado. Procure a administração. | Encerra a sessão |
+| `ACESSO_PENDENTE` | Seu acesso está aguardando liberação da coordenação ou da administração. | Encerra a sessão (no login, permanece) |
+| `ACESSO_RECUSADO` | Seu acesso não foi liberado. Procure a coordenação do curso. | Encerra a sessão (no login, permanece) |
+| `ACESSO_JA_DECIDIDO` | Este pedido de acesso já foi decidido. | Fecha o modal e recarrega a lista |
 | `NAO_AUTENTICADO` | Sua sessão expirou. Entre de novo. | Encerra a sessão, guarda o destino |
 | `SEM_PERMISSAO` | Esta área não está disponível para o seu perfil. | Tela de sem permissão |
 | `DESTINO_NAO_PERMITIDO` | Você só pode publicar para as turmas em que leciona. | Recarrega as turmas, mantém o texto |
@@ -547,8 +575,9 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 - Uso em desktop, a partir de 1280 px; não há projeto para telefone.
 - A plataforma é um build estático: não há servidor de aplicação próprio, e portanto não há lugar
   para segredo em tempo de execução.
-- O provedor de autenticação é o mesmo da API (mock hoje, Moodle depois) e é indiferente para a
-  plataforma.
+- O provedor de autenticação é o mesmo da API (mock em desenvolvimento; API de autenticação do
+  IFSul em produção, emenda de 06/11/2026) e é indiferente para a plataforma, exceto pelas
+  mensagens de `ACESSO_PENDENTE` e `ACESSO_RECUSADO`.
 
 ## 10. Clarifications
 
@@ -592,6 +621,7 @@ aplicativo — é o que faz web e mobile parecerem o mesmo produto.
 | RW-23 a RW-27 | RF-18, RF-19 | T07, T08 | unidade `turmas-recurso.test`, `formulario-turma.test`; componente `lista-turmas.test`, `turma-form.test`, `detalhe-turma.test`, `turma-corridas.test`; e2e `turmas-vinculos.spec` |
 | RW-28 a RW-30 | RF-17 | T09 | unidade `solicitacoes-recurso.test`; componente `solicitacoes.test`; e2e `solicitacoes.spec` |
 | RW-31 a RW-33 | RF-09 | T10, T11 | unidade `usuarios-recurso.test`; componente `usuarios.test`, `perfil-modal.test`; e2e `usuarios.spec` |
+| RW-50, RW-51 (e RW-05) | RF-50, RF-51 (emenda v2.3) | T01, T10a | unidade `acessos-recurso.test`; componente `acessos.test`, `login.test`; e2e `acessos.spec` |
 | — painel | RF-30 | T02, T14 | componente `painel.test`; e2e `painel.spec`, `fluxo-completo.spec` |
 | RW-34 | RF-35 a RF-42 (E3) | T12 | unidade `agenda-abas.test`, `formulario-evento.test`, `eventos-recurso.test`; componente `agenda-lista.test`, `calendario-mes.test`, `editor-evento.test`, `historico-evento.test`; e2e `agenda.spec` |
 | RW-35, RW-36, RW-46 | RF-43 a RF-47 (E3) | T13 | unidade `grade.test`, `horarios-recurso.test`; componente `grade-semanal.test`, `modal-aula.test`, `conflitos.test`, `escolher-turma.test`, `avisar-turma.test`, `detalhe-turma.test`; e2e `horarios.spec` |

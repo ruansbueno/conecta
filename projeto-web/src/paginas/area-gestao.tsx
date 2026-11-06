@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
+import { listarAcessos } from '../api/recursos/acessos'
 import { listarSolicitacoes } from '../api/recursos/solicitacoes'
 import { Casca } from '../componentes/layout/casca'
 import { itemAtivo, navegacaoDoPerfil } from '../componentes/layout/navegacao'
@@ -52,13 +53,26 @@ export default function AreaGestao() {
       valido = false
     }
   }, [pathname, pode, versaoPendentes])
+  // Pedidos de acesso de servidores esperando a gestão, ao lado de Usuários (emenda v2.3).
+  const [acessos, setAcessos] = useState(0)
+  const decideAcessos = usuario?.perfil === 'administrador' || usuario?.perfil === 'coordenacao'
+  useEffect(() => {
+    if (!decideAcessos) return
+    let valido = true
+    listarAcessos({ situacao: 'pendente', limit: 1 })
+      .then((p) => valido && setAcessos(p.total))
+      .catch(() => undefined)
+    return () => {
+      valido = false
+    }
+  }, [pathname, decideAcessos, versaoPendentes])
   if (!usuario) return null
   const secao = tituloDaSecao(usuario.perfil, pathname)
   return (
     <Casca
       usuario={usuario}
       secao={secao}
-      contadores={{ '/solicitacoes': pode ? pendentes : 0 }}
+      contadores={{ '/solicitacoes': pode ? pendentes : 0, '/usuarios': decideAcessos ? acessos : 0 }}
       onSair={async () => {
         setFalhaAoSair(undefined)
         try {

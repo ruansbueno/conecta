@@ -54,7 +54,8 @@ especificados e disponíveis. A navegação já prevê as abas de F2; até lá e
   turmas; aprovar solicitações; administrar usuários e perfis.
 - Notificações push (previstas na arquitetura como possibilidade futura).
 - Registro de leitura de aviso ("quem leu").
-- Recuperação de senha e cadastro: a identidade vem do provedor externo (Moodle/mock).
+- Recuperação de senha e cadastro: a identidade vem do provedor externo (API de autenticação do
+  IFSul ou mock).
 - Tablet, modo paisagem e tema escuro.
 
 ## 2. Usuários do Aplicativo
@@ -356,8 +357,11 @@ Fase indicada entre colchetes. A coluna de rastreabilidade liga cada requisito a
   toda falha de API, para apoiar as evidências de teste.
 - **RM-39 [F1]**: Nenhuma regra de visibilidade, permissão ou elegibilidade MUST ser reimplementada
   no app (Princípio I).
-- **RM-40 [F1]**: Trocar o provedor de autenticação da API (mock → Moodle) MUST NOT exigir qualquer
-  alteração no app (SC-005 da API).
+- **RM-40 [F1]**: Trocar o provedor de autenticação da API (mock → API de autenticação do IFSul)
+  MUST NOT exigir alteração no app além das mensagens dos códigos de acesso (SC-005 da API).
+- **RM-41 [emenda 06/11/2026]**: Ao receber `403 ACESSO_PENDENTE` ou `403 ACESSO_RECUSADO` no
+  login (servidor que entrou pela primeira vez pela API do IFSul, emenda v2.3 da API), o app MUST
+  permanecer no login com a mensagem própria de cada código, sem criar sessão.
 
 ### Key Entities
 
@@ -380,7 +384,7 @@ Estados: **C** carregando · **V** vazio · **E** erro de rede/servidor · **401
 
 | Tela | Endpoint(s) | Estados tratados | Observações |
 |---|---|---|---|
-| T01 Login | `POST /auth/login` | C, E, 401 `CREDENCIAIS_INVALIDAS`, 403 `USUARIO_INATIVO`, 422 | Erro exibido acima do botão; senha limpa a cada falha |
+| T01 Login | `POST /auth/login` | C, E, 401 `CREDENCIAIS_INVALIDAS`, 403 `USUARIO_INATIVO`, 403 `ACESSO_PENDENTE`, 403 `ACESSO_RECUSADO`, 422 | Erro exibido acima do botão; senha limpa a cada falha |
 | T02 Avisos ativos | `GET /avisos?situacao=ativo&limit=20&offset=` | C, V, E, 401 | Puxar para recarregar; rolagem infinita; usa cache quando offline |
 | T03 Aviso detalhe | `GET /avisos/{id}` | C, E, 401, 404 | 404 → "não está mais disponível" e volta à lista |
 | T04 Avisos arquivados | `GET /avisos?situacao=arquivado` | C, V, E, 401 | Mesma lista, outro filtro |
@@ -400,6 +404,8 @@ Estados: **C** carregando · **V** vazio · **E** erro de rede/servidor · **401
 |---|---|---|
 | `CREDENCIAIS_INVALIDAS` | Usuário ou senha incorretos. | Permanece no login |
 | `USUARIO_INATIVO` | Seu acesso está desativado. Procure a coordenação. | Encerra a sessão |
+| `ACESSO_PENDENTE` | Seu acesso está aguardando liberação da coordenação ou da administração. | Encerra a sessão (no login, permanece) |
+| `ACESSO_RECUSADO` | Seu acesso não foi liberado. Procure a coordenação do curso. | Encerra a sessão (no login, permanece) |
 | `NAO_AUTENTICADO` | Sua sessão expirou. Entre de novo. | Encerra a sessão |
 | `SEM_PERMISSAO` | Esta ação não está disponível para o seu perfil. | Permanece na tela |
 | `TURMA_INDISPONIVEL` | Esta turma não está mais aceitando inscrições. | Recarrega disponíveis |
@@ -496,6 +502,7 @@ Origem única: `design/README.md` e as telas em `design/mobile/`.
 | Requisito do app | Requisito da API | Tela | Teste |
 |---|---|---|---|
 | RM-01 a RM-07 | RF-01, RF-04, RF-05, RF-07 | T01 | unidade `session_controller_test`, `auth_repository_test`, `cofre_sessao_test`, `api_client_test`; widget `login_test`, `app_test`; integração `sessao_test` |
+| RM-41 | RF-50 (emenda v2.3) | T01 | unidade `api_failure_test`, `mensagens_spec_test`; widget `login_test` |
 | RM-08 a RM-10 | RF-11 | T14 | unidade `session_controller_test`; widget `perfil_test`; integração `perfil_atualizado_test`, `sessao_test` |
 | RM-11 a RM-17 | RF-20 a RF-23, RF-25 | T02–T05 | unidade `avisos_repository_test`, `avisos_controller_test`; widget `avisos_lista_test`, `aviso_detalhe_test`; integração `avisos_test` |
 | RM-18 a RM-23 | RF-12 a RF-16 | T06–T09 | unidade `turmas_repository_test`, `turmas_controller_test`, `solicitacoes_repository_test`, `solicitacoes_controller_test`; widget `turmas_test`, `solicitacoes_test`; integração `solicitacao_fluxo_test` |

@@ -269,8 +269,7 @@ class _AvisoSenha extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            'Suas credenciais são validadas pelo Moodle do IFSul. O CONECTA não armazena '
-            'sua senha.',
+            'Use o login e a senha institucionais do IFSul. O CONECTA não armazena sua senha.',
             style: Tipografia.apoio.copyWith(fontSize: 12.5, color: Cores.navySuave),
           ),
         ),

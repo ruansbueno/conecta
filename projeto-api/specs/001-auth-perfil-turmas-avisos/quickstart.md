@@ -1,8 +1,9 @@
 # Quickstart: Autenticação, Perfis, Turmas e Avisos (Entrega 1)
 
 Guia para validar a Entrega 1 de ponta a ponta em desenvolvimento, usando o Postgres local via
-Docker e o `MockMoodleAuthProvider`. **Tudo o que for validado aqui usa usuários simulados** — não
-substitui a validação da integração real com o Moodle (`spec.md` §9.4).
+Docker e o provedor simulado (`MockAuthProvider`). **Tudo o que for validado aqui usa usuários
+simulados** — não substitui a validação da integração real com a API de autenticação do IFSul
+(`spec.md` §9.4 e a seção "Integração real" abaixo).
 
 ## Pré-requisitos
 
@@ -29,8 +30,9 @@ cp .env.example .env
 # A API não sobe com os valores de exemplo do .env.example.
 ```
 
-`AUTH_PROVIDER=mock` seleciona o `MockMoodleAuthProvider`. Para o Moodle real: `AUTH_PROVIDER=moodle`
-e as variáveis `MOODLE_*` — nenhuma outra configuração muda (ver `research.md`).
+`AUTH_PROVIDER=mock` seleciona o provedor simulado. Para a API real do IFSul: `AUTH_PROVIDER=ifsul`
+e `IFSUL_AUTH_URL` (HTTPS; `http://` só com `IFSUL_AUTH_PERMITIR_HTTP=true`, para teste) — nenhuma
+outra configuração muda.
 
 ## 3. Aplicar migrações e seed
 
@@ -110,14 +112,33 @@ automatizado em `tests/e2e/test_fluxo_publicar_receber.py`.
 
 ```bash
 pytest tests/contract tests/integration tests/unit                 # mock_auth + demais
-pytest -m "not moodle_real"                                         # explícito: sem integração real
-pytest -m moodle_real                                               # só quando houver acesso ao Moodle
+pytest -m "not ifsul_real"                                          # explícito: sem integração real
+IFSUL_AUTH_URL=… IFSUL_TEST_USERNAME=… IFSUL_TEST_PASSWORD=… pytest -m ifsul_real  # conta real
 ```
 Testes de integração usam banco de teste dedicado (ver `plan.md`, seção Testing). O relatório
-separa os grupos `mock_auth` e `moodle_real`.
+separa os grupos `mock_auth` e `ifsul_real`.
 
-## Troca futura para o Moodle real
+## Integração real com a API de autenticação do IFSul (emenda v2.3)
 
-Quando houver acesso à API do Moodle: implementar `MoodleAuthProvider`
-(`src/providers/auth/moodle.py`), configurar `MOODLE_*`, definir `AUTH_PROVIDER=moodle` e executar
-o checklist de `spec.md` §9.4. Nenhuma rota, service ou contrato muda.
+1. Suba a API com o provedor real (em produção, `IFSUL_AUTH_URL` com HTTPS):
+
+   ```bash
+   export IFSUL_AUTH_URL=http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes
+   AUTH_PROVIDER=ifsul IFSUL_AUTH_PERMITIR_HTTP=true uv run uvicorn src.main:app --port 8001
+   ```
+
+2. Defina o primeiro administrador pelo login institucional (o `admin.conecta` do seed não existe
+   no AD): `uv run python -m scripts.definir_administrador <login>`.
+3. Rode o roteiro do item 10 da doc do IFSul; ele pede as contas de aluno e administrativa (senha
+   sem eco) e grava o relatório esperado × obtido, sem senha:
+
+   ```bash
+   uv run python -m scripts.roteiro_ifsul --conecta http://localhost:8001 \
+     --saida evidencias/roteiro-ifsul-$(date +%F).md
+   ```
+
+   Sem contas (`--sem-contas`), executa só os casos 4 a 7.
+4. O 1º login da conta administrativa vira pedido de acesso: aprove-o pela web (Usuários →
+   Aguardando acesso) ou por `POST /gestao/acessos/{id}/aprovar`, e rode o roteiro de novo para o
+   caso 2 entrar com o perfil concedido.
+5. Marque o checklist de `spec.md` §9.4 com a data e o relatório.

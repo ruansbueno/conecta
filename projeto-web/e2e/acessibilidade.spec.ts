@@ -137,6 +137,19 @@ test('administração: usuários e alterar perfil', async ({ page }) => {
   await page.getByRole('button', { name: 'Alterar perfil de Ricardo Lemos' }).click()
   await expect(page.getByRole('radiogroup', { name: 'Perfil de acesso' })).toBeVisible()
   await auditar(page, 'alterar perfil')
+  await page.keyboard.press('Escape')
+
+  // Pedidos de acesso (emenda de 06/11/2026): a aba, o modal de liberar e a confirmação de recusa.
+  await page.goto('/usuarios?aba=aguardando')
+  await expect(page.getByRole('table', { name: /Pedidos de acesso/ })).toBeVisible()
+  await auditar(page, 'aguardando acesso')
+  await page.getByRole('button', { name: /^Aprovar o acesso/ }).click()
+  await expect(page.getByRole('dialog', { name: 'Liberar acesso' })).toBeVisible()
+  await auditar(page, 'liberar acesso')
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: /^Recusar o acesso/ }).click()
+  await expect(page.getByRole('alertdialog')).toBeVisible()
+  await auditar(page, 'recusar acesso')
 })
 
 test('docente: painel, listas, editor restrito e sem permissão', async ({ page }) => {

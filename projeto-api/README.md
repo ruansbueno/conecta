@@ -47,7 +47,7 @@ e da grade estão no [`quickstart.md` da E3](specs/002-agenda-horarios/quickstar
 
 ```bash
 uv run pytest                      # suíte completa (exige o Postgres do compose de pé)
-uv run pytest -m "not moodle_real" # explicitamente sem a integração real
+uv run pytest -m "not ifsul_real"  # explicitamente sem a integração real
 uv run ruff check . && uv run ruff format --check .
 ```
 
@@ -57,8 +57,8 @@ de ponta a ponta da `spec.md` §9.3 (publicar pela gestão e receber no aplicati
 (agenda e grade montadas pela gestão e consultadas pelos clientes).
 
 **Mock × real.** Testes que dependem do provedor simulado levam `@pytest.mark.mock_auth`; os da
-integração real com o Moodle, `@pytest.mark.moodle_real`, e só rodam com `MOODLE_URL`
-configurado. Ao final de cada execução o relatório lista os grupos separadamente — aprovação com
+integração real com a API de autenticação do IFSul, `@pytest.mark.ifsul_real`, e só rodam com uma
+conta institucional configurada (`IFSUL_TEST_USERNAME`, `IFSUL_TEST_PASSWORD`, `IFSUL_AUTH_URL`). Ao final de cada execução o relatório lista os grupos separadamente — aprovação com
 o mock **não** é validação da integração real (`spec.md` §9.1). Evidências arquivadas em
 [`evidencias/`](evidencias/).
 
@@ -67,7 +67,9 @@ o mock **não** é validação da integração real (`spec.md` §9.1). Evidênci
 | Variável | Uso |
 |---|---|
 | `DATABASE_URL` | Conexão PostgreSQL (`postgresql+asyncpg://…`); única diferença entre ambientes |
-| `AUTH_PROVIDER` | `mock` (usuários de teste) ou `moodle` (integração real) |
+| `AUTH_PROVIDER` | `mock` (usuários de teste) ou `ifsul` (API de autenticação do IFSul) |
+| `IFSUL_AUTH_URL` | Endereço da API de autenticação do IFSul (obrigatório com `AUTH_PROVIDER=ifsul`) |
+| `IFSUL_AUTH_PERMITIR_HTTP` | `true` só para teste: aceita `IFSUL_AUTH_URL` com `http://` (a senha iria em claro) |
 | `JWT_SECRET` | Segredo de assinatura do token; longo e aleatório por ambiente |
 | `CSRF_SECRET` | Chave do HMAC que prende o token CSRF à sessão web; outra, diferente da `JWT_SECRET` |
 | `JWT_EXPIRES_SECONDS` | Validade do token e dos cookies (padrão 86400 = 24 h) |
@@ -81,9 +83,9 @@ domínio da API sob `/api`, como previsto na `spec.md`.
 ## Estrutura
 
 `src/api` (rotas, erros, CSRF) → `src/services` (regras) → `src/repositories` (persistência) →
-`src/models` (SQLAlchemy). A integração externa fica isolada em `src/providers/auth`: trocar o
-mock pelo Moodle é implementar `MoodleAuthProvider` e definir `AUTH_PROVIDER=moodle`, sem tocar
-em rotas, serviços ou contratos. Migrações em `alembic/`, scripts de desenvolvimento em
+`src/models` (SQLAlchemy). A integração externa fica isolada em `src/providers/auth`: o
+`IfsulAuthProvider` fala com a API de autenticação do IFSul, e trocar o mock por ele é só definir
+`AUTH_PROVIDER=ifsul` e `IFSUL_AUTH_URL`, sem tocar em rotas, serviços ou contratos. Migrações em `alembic/`, scripts de desenvolvimento em
 `scripts/`.
 
 ## Auditoria dos avisos
@@ -99,7 +101,30 @@ não roda no banco migrado, nem o contrário. Para implantar: parar a API, rodar
 `alembic upgrade head` e subir o código novo. Para voltar o código, rode antes
 `alembic downgrade 9e05f46bf9bf`.
 
+## Login pela API de autenticação do IFSul (emenda v2.3)
+
+A API de autenticação do IFSul consulta o Active Directory e devolve login, nome, e-mail e o tipo
+institucional (`aluno` ou `administrativo`). Ela só autentica: a sessão e as permissões são do
+CONECTA.
+
+- **Aluno** entra como `aluno` no 1º login.
+- **Servidor** (tipo administrativo, ou sem tipo) vira um **pedido de acesso**, sem perfil e sem
+  sessão (403 `ACESSO_PENDENTE`). A administração aprova com qualquer perfil; a coordenação, com
+  docente ou coordenação. Pode ser recusado (403 `ACESSO_RECUSADO`). Na web: Usuários → Aguardando
+  acesso; na API: `/gestao/acessos`.
+- **Primeiro administrador**, no servidor: `uv run python -m scripts.definir_administrador <login>`.
+- **Validação com contas reais**: `uv run python -m scripts.roteiro_ifsul --conecta <url>` executa
+  os 9 testes do item 10 da doc do IFSul e grava o relatório esperado × obtido, sem senha (passo a
+  passo no [`quickstart.md`](specs/001-auth-perfil-turmas-avisos/quickstart.md)).
+
+Até a emenda v2.3, a integração real era prevista "com o Moodle"; o serviço da instituição é a API
+de autenticação do IFSul, e o provedor simulado passou a se chamar `MockAuthProvider`.
+
 ## Pendente
 
-- **Integração real com o Moodle** (T072): implementar `MoodleAuthProvider` e preencher o
-  checklist da `spec.md` §9.4 quando houver acesso à API da instituição (data-limite 13/11/2026).
+- **Validação com contas reais** (T072): rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e
+  uma administrativa e marcar o checklist da `spec.md` §9.4 (data-limite 13/11/2026). Os casos 4 a
+  6 já passaram contra a API real em 06/11/2026; o 7 (API fora do ar) é simulado com um endereço
+  local sem serviço ([relatório](evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
+- **HTTPS**: a URL atual da API do IFSul usa HTTP; em produção, `IFSUL_AUTH_URL` precisa ser HTTPS
+  (a API recusa `http://` sem `IFSUL_AUTH_PERMITIR_HTTP=true`).

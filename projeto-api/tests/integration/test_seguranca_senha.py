@@ -15,7 +15,7 @@ class _ProvedorQueVazaNaMensagem:
     async def authenticate(self, username, password):
         # Como um cliente HTTP faria ao falhar numa URL com a senha na query string.
         raise ConnectionError(
-            f"GET https://moodle.ifsul/login/token.php?username={username}&password={password}"
+            f"GET https://autenticacao.ifsul/api?usuario={username}&senha={password}"
         )
 
 
@@ -39,7 +39,7 @@ async def test_erro_de_validacao_nao_ecoa_a_senha(client):
 
 @pytest.mark.mock_auth
 async def test_login_nao_persiste_a_senha_em_nenhuma_coluna(client, db):
-    from src.providers.auth.mock_moodle import SENHA_TESTE
+    from src.providers.auth.mock import SENHA_TESTE
 
     await login(client)
 
@@ -49,7 +49,7 @@ async def test_login_nao_persiste_a_senha_em_nenhuma_coluna(client, db):
 
 @pytest.mark.mock_auth
 async def test_resposta_do_login_nao_contem_a_senha(client):
-    from src.providers.auth.mock_moodle import SENHA_TESTE
+    from src.providers.auth.mock import SENHA_TESTE
 
     r = await login(client)
 

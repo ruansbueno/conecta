@@ -1,9 +1,9 @@
 """Dados fictícios de desenvolvimento: `python -m scripts.seed_dev_data`.
 
-Cria (ou restaura) os usuários de teste do MockMoodleAuthProvider com seus perfis, as turmas
-A, B, C (3º semestre) e D (5º), vínculos e solicitações de exemplo, avisos e, na E3, eventos da
-agenda e a grade de horários. Na E1 o perfil só muda por
-aqui; na E2, pelo administrador (RF-08). Pode ser executado várias vezes.
+Cria (ou restaura) os usuários de teste do provedor simulado (MockAuthProvider) com seus
+perfis, as turmas A, B, C (3º semestre) e D (5º), vínculos e solicitações de exemplo, avisos e,
+na E3, eventos da agenda e a grade de horários. Na E1 o perfil só muda por aqui; na E2, pelo
+administrador (RF-08). Pode ser executado várias vezes.
 """
 
 import asyncio
@@ -25,11 +25,11 @@ from src.models.solicitacao_inscricao import SolicitacaoInscricao
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
-from src.providers.auth.mock_moodle import USUARIOS_TESTE
+from src.providers.auth.mock import USUARIOS_TESTE
 from src.schemas.gestao.eventos import EventoCreate, EventoPatch
 from src.services import eventos_gestao_service
 
-PERFIS_TESTE: dict[str, str] = {
+PERFIS_TESTE: dict[str, str | None] = {
     "admin.conecta": "administrador",  # administrador de implantação
     "admin.teste": "administrador",
     "coord.teste": "coordenacao",
@@ -38,6 +38,7 @@ PERFIS_TESTE: dict[str, str] = {
     "aluno2.teste": "aluno",
     "aluno3.teste": "aluno",
     "aluno.sem.turma": "aluno",
+    "servidor.aguardando": None,  # pedido de acesso pendente (emenda v2.3), para a gestão ver
 }
 
 
@@ -157,14 +158,21 @@ async def seed(session: AsyncSession) -> None:
 
 async def _usuarios(session: AsyncSession) -> None:
     for username, perfil in PERFIS_TESTE.items():
+        nome, tipo = USUARIOS_TESTE[username]
         stmt = insert(Usuario).values(
-            username=username, nome=USUARIOS_TESTE[username], perfil=perfil
+            username=username,
+            nome=nome,
+            perfil=perfil,
+            situacao_acesso="liberado" if perfil is not None else "pendente",
+            tipo_institucional=tipo,
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=[Usuario.username],
             set_={
                 Usuario.nome: stmt.excluded[coluna(Usuario.nome)],
                 Usuario.perfil: stmt.excluded[coluna(Usuario.perfil)],
+                Usuario.situacao_acesso: stmt.excluded[coluna(Usuario.situacao_acesso)],
+                Usuario.tipo_institucional: stmt.excluded[coluna(Usuario.tipo_institucional)],
                 Usuario.ativo: True,
                 Usuario.atualizado_em: func.now(),
             },

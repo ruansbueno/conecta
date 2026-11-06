@@ -4,7 +4,9 @@ import pytest
 from pydantic import ValidationError
 
 from src.core.config import Settings
-from src.providers.auth.factory import ProvedorIndisponivel, provider_from_settings
+from src.providers.auth.factory import provider_from_settings
+from src.providers.auth.ifsul import IfsulAuthProvider
+from src.providers.auth.mock import MockAuthProvider
 
 URL = "postgresql+asyncpg://x"
 SEGREDO_OK = "s" * 32
@@ -50,23 +52,66 @@ def test_csrf_secret_igual_a_jwt_secret_e_rejeitada():
         Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=SEGREDO_OK)
 
 
-def test_moodle_selecionado_enquanto_o_provedor_e_stub_falha_com_mensagem_clara():
-    settings = Settings(
-        DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=CSRF_OK, AUTH_PROVIDER="moodle"
+URL_IFSUL_HTTPS = "https://autenticacao.ifsul.edu.br/api/v1/autenticacoes"
+URL_IFSUL_HTTP = "http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes"
+
+
+def _settings(**extra):
+    return Settings(DATABASE_URL=URL, JWT_SECRET=SEGREDO_OK, CSRF_SECRET=CSRF_OK, **extra)
+
+
+def test_ifsul_exige_a_url_da_api_de_autenticacao():
+    with pytest.raises(ValidationError, match="IFSUL_AUTH_URL"):
+        _settings(AUTH_PROVIDER="ifsul")
+
+
+def test_ifsul_com_https_e_aceito_e_vira_o_provedor_real():
+    settings = _settings(AUTH_PROVIDER="ifsul", IFSUL_AUTH_URL=URL_IFSUL_HTTPS)
+
+    provider = provider_from_settings(settings)
+
+    assert isinstance(provider, IfsulAuthProvider)
+    assert provider.url == URL_IFSUL_HTTPS
+
+
+def test_ifsul_com_http_e_recusado_sem_liberacao_explicita():
+    # A senha institucional viajaria em claro (doc do IFSul, item 9).
+    with pytest.raises(ValidationError, match="IFSUL_AUTH_PERMITIR_HTTP"):
+        _settings(AUTH_PROVIDER="ifsul", IFSUL_AUTH_URL=URL_IFSUL_HTTP)
+
+
+def test_ifsul_com_http_liberado_explicitamente_e_aceito():
+    settings = _settings(
+        AUTH_PROVIDER="ifsul", IFSUL_AUTH_URL=URL_IFSUL_HTTP, IFSUL_AUTH_PERMITIR_HTTP=True
     )
 
-    with pytest.raises(ProvedorIndisponivel, match="AUTH_PROVIDER=mock"):
-        provider_from_settings(settings)
+    assert isinstance(provider_from_settings(settings), IfsulAuthProvider)
 
 
-async def test_api_nao_sobe_com_provedor_indisponivel(monkeypatch):
+@pytest.mark.parametrize("url", ["ftp://ifsul/x", "200.19.1.19/api", "https://"])
+def test_ifsul_com_url_sem_esquema_http_ou_sem_host_e_recusado(url):
+    with pytest.raises(ValidationError, match="IFSUL_AUTH_URL"):
+        _settings(AUTH_PROVIDER="ifsul", IFSUL_AUTH_URL=url, IFSUL_AUTH_PERMITIR_HTTP=True)
+
+
+def test_provedor_padrao_e_o_simulado():
+    assert isinstance(provider_from_settings(_settings()), MockAuthProvider)
+
+
+def test_moodle_nao_e_mais_um_provedor_valido():
+    with pytest.raises(ValidationError, match="AUTH_PROVIDER"):
+        _settings(AUTH_PROVIDER="moodle")
+
+
+async def test_api_nao_sobe_com_ifsul_mal_configurado(monkeypatch):
     from src.core.config import get_settings
     from src.main import app
 
-    monkeypatch.setenv("AUTH_PROVIDER", "moodle")
+    monkeypatch.setenv("AUTH_PROVIDER", "ifsul")
+    monkeypatch.delenv("IFSUL_AUTH_URL", raising=False)
     get_settings.cache_clear()
     try:
-        with pytest.raises(ProvedorIndisponivel):
+        with pytest.raises(ValidationError, match="IFSUL_AUTH_URL"):
             async with app.router.lifespan_context(app):
                 pass
     finally:

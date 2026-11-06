@@ -26,6 +26,15 @@ const _mapa = <String, (String, EfeitoFalha)>{
     'Seu acesso está desativado. Procure a coordenação.',
     EfeitoFalha.encerraSessao,
   ),
+  // Emenda v2.3 da API: o 1º login de um servidor espera a gestão definir o perfil.
+  'ACESSO_PENDENTE': (
+    'Seu acesso está aguardando liberação da coordenação ou da administração.',
+    EfeitoFalha.encerraSessao,
+  ),
+  'ACESSO_RECUSADO': (
+    'Seu acesso não foi liberado. Procure a coordenação do curso.',
+    EfeitoFalha.encerraSessao,
+  ),
   'NAO_AUTENTICADO': ('Sua sessão expirou. Entre de novo.', EfeitoFalha.encerraSessao),
   'SEM_PERMISSAO': ('Esta ação não está disponível para o seu perfil.', EfeitoFalha.permanece),
   'TURMA_INDISPONIVEL': ('Esta turma não está mais aceitando inscrições.', EfeitoFalha.recarrega),

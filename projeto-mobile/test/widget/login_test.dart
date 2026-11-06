@@ -106,6 +106,44 @@ void main() {
     expect(senhaDigitada(tester), isEmpty);
   });
 
+  testWidgets('servidor aguardando liberação: aviso próprio, sem entrar (emenda v2.3 da API)', (
+    tester,
+  ) async {
+    await abrir(tester);
+    api.responder(
+      'POST /auth/login',
+      '{"detail": "Acesso aguardando liberação", "code": "ACESSO_PENDENTE"}',
+      403,
+    );
+
+    await entrar(tester);
+
+    expect(
+      find.text('Seu acesso está aguardando liberação da coordenação ou da administração.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('barra-abas')), findsNothing);
+  });
+
+  testWidgets('acesso recusado: aviso próprio', (tester) async {
+    await abrir(tester);
+    api.responder('POST /auth/login', '{"detail": "x", "code": "ACESSO_RECUSADO"}', 403);
+
+    await entrar(tester);
+
+    expect(
+      find.text('Seu acesso não foi liberado. Procure a coordenação do curso.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('o rodapé fala das credenciais institucionais do IFSul', (tester) async {
+    await abrir(tester);
+
+    expect(find.textContaining('login e a senha institucionais do IFSul'), findsOneWidget);
+    expect(find.textContaining('Moodle'), findsNothing);
+  });
+
   testWidgets('sem rede: mensagem com repetir, que reenvia sem redigitar', (tester) async {
     await abrir(tester);
     api.falharRede('POST /auth/login');

@@ -10,7 +10,7 @@ from src.providers.auth.factory import provider_from_settings
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # Configuração inválida (segredo fraco, provedor indisponível) impede a API de subir.
+    # Configuração inválida (segredo fraco, provedor mal configurado) impede a API de subir.
     provider_from_settings(get_settings())
     yield
 

@@ -54,22 +54,30 @@ Detalhes em `projeto-api/specs/001-auth-perfil-turmas-avisos/spec.md`.
 
 # 2. Autenticação e Autorização
 
-A autenticação utiliza a integração com a **API do Moodle** para validar as credenciais dos usuários.
+A autenticação utiliza a **API de autenticação do IFSul**, que consulta o Active Directory da
+instituição para validar as credenciais (até 06/11/2026 o projeto previa o Moodle para isso; o
+serviço disponibilizado pela instituição é esta API).
 
-## 2.1 Fluxo de autenticação
+### Fluxo de autenticação
 
-1. O usuário acessa a tela de login pela Web ou pelo aplicativo Mobile.
-2. O usuário informa:
-   - Username
-   - Senha
-3. A aplicação envia as credenciais para a API Backend.
-4. O Backend realiza a validação das credenciais através da API do Moodle.
-5. A API Moodle consulta os dados de login do usuário.
-6. Caso o usuário seja válido, o Moodle apenas **identifica** a pessoa (username e nome); o Backend carrega o perfil e a situação (ativo/inativo) do usuário no próprio CONECTA e gera o token de acesso.
+1. O usuário acessa o aplicativo ou a plataforma web.
+2. Informa login e senha institucionais.
+3. As credenciais são enviadas para a API Backend.
+4. O Backend envia as credenciais à API de autenticação do IFSul (`POST` JSON, só por HTTPS em
+   produção).
+5. A API do IFSul consulta o Active Directory.
+6. Se as credenciais forem válidas, a API do IFSul apenas **identifica** a pessoa (login, nome,
+   e-mail e tipo institucional: aluno ou administrativo); o Backend carrega o perfil e a situação do
+   usuário no próprio CONECTA e gera o token de acesso.
 
-> Reconhecer o usuário no login é diferente de decidir o que ele pode fazer: **o perfil é atribuído pelo CONECTA**, nunca pelo Moodle. No primeiro login o usuário é criado como `aluno`; somente o administrador altera perfis.
+> Reconhecer o usuário no login é diferente de decidir o que ele pode fazer: **o perfil é atribuído
+> pelo CONECTA**, nunca pelo provedor. No primeiro login, um aluno é criado como `aluno`; um
+> servidor (tipo administrativo) vira um **pedido de acesso**, sem sessão, até a administração ou a
+> coordenação aprovar definindo o perfil. Somente o administrador altera perfis depois.
 
-> Enquanto a API do Moodle não está acessível, a validação é feita por um **provedor de autenticação simulado** (mock), trocável por configuração. Testes com usuários simulados são identificados como tais e não substituem a validação da integração real.
+> Em desenvolvimento e nos testes, a validação é feita por um **provedor de autenticação simulado**
+> (mock), trocável por configuração. Testes com usuários simulados são identificados como tais e
+> não substituem a validação da integração real.
 
 ## 2.2 Geração do Token
 
@@ -113,9 +121,9 @@ API Backend
    │
    │ Validação
    ▼
-API Moodle
+API de autenticação do IFSul
    │
-   │ Usuário identificado (username + nome)
+   │ Usuário identificado (login, nome, e-mail, tipo institucional)
    ▼
 Banco CONECTA
    │
@@ -186,7 +194,7 @@ O sistema trabalha com quatro perfis:
 
 ### Atribuição
 
-- O login (Moodle ou provedor simulado) apenas identifica o usuário.
+- O login (API de autenticação do IFSul ou provedor simulado) apenas identifica o usuário.
 - No primeiro login o usuário é criado como **Aluno**.
 - **Somente o administrador** altera perfis e ativa/desativa usuários.
 
@@ -371,7 +379,7 @@ A arquitetura técnica é organizada em camadas.
 ┌──────────────────────┐   ┌──────────────────────┐
 │     PostgreSQL       │   │    Serviços Externos │
 │                      │   │                      │
-│  Banco de Dados      │   │  • API Moodle        │
+│  Banco de Dados      │   │  • API IFSul (AD)    │
 │  Relacional          │   │  • Serviço de E-mail │
 │                      │   │  • Notificações Push*│
 └──────────────────────┘   └──────────────────────┘
@@ -396,11 +404,11 @@ APP / WEB
    ▼
 API BACKEND
    │
-   │ 3. Consulta API Moodle
+   │ 3. Consulta a API de autenticação do IFSul
    ▼
-API MOODLE
+API DE AUTENTICAÇÃO DO IFSUL (Active Directory)
    │
-   │ 4. Retorna usuário identificado (username + nome)
+   │ 4. Retorna usuário identificado (login, nome, e-mail e tipo: aluno ou administrativo)
    ▼
 API BACKEND
    │
@@ -465,7 +473,7 @@ USUÁRIO
        │ Validação
        ▼
 ┌─────────────┐
-│ Moodle API  │
+│ API IFSul   │
 └──────┬──────┘
        │
        │ Usuário identificado
@@ -529,7 +537,7 @@ USUÁRIO
 | Banco de Dados | PostgreSQL |
 | Autenticação | OAuth2 + JWT |
 | Comunicação | API REST / JSON |
-| Integração externa | API Moodle |
+| Integração externa | API de autenticação do IFSul (Active Directory) |
 | Infraestrutura | Infraestrutura própria do IFSul |
 
 ---
@@ -547,7 +555,7 @@ A arquitetura utiliza mecanismos de segurança para proteger a autenticação, c
 ## 9.2 Proteção de credenciais
 
 - Armazenamento seguro das credenciais
-- Senhas do Moodle não devem ser armazenadas diretamente pelo CONECTA
+- Senhas institucionais não são armazenadas nem registradas em log pelo CONECTA
 
 ## 9.3 Comunicação
 
@@ -627,7 +635,7 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
                     │                                   │
                     ▼                                   ▼
            ┌──────────────────┐                ┌──────────────────┐
-           │    PostgreSQL    │                │   Moodle API     │
+           │    PostgreSQL    │                │   API IFSul (AD) │
            │                  │                │                  │
            │ Banco relacional │                │ Autenticação     │
            │                  │                │ de usuários      │
@@ -645,7 +653,7 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
 | **API Gateway** | Roteamento, segurança e controle de requisições |
 | **Backend** | Regras de negócio, autenticação, autorização e processamento |
 | **PostgreSQL** | Persistência dos dados da aplicação |
-| **Moodle API** | Validação das credenciais e identificação dos usuários (o perfil é do CONECTA) |
+| **API de autenticação do IFSul** | Validação das credenciais no Active Directory e identificação dos usuários (o perfil é do CONECTA) |
 | **Serviços externos** | E-mail e notificações, quando implementados |
 
 ---
@@ -660,8 +668,8 @@ A arquitetura do CONECTA busca:
 - **Escalabilidade:** possibilidade de expansão dos serviços sem alteração significativa das interfaces clientes.
 - **Manutenibilidade:** regras de negócio centralizadas no Backend.
 - **Reutilização:** Web e Mobile compartilham os mesmos serviços e APIs.
-- **Integração:** comunicação com o Moodle e outros serviços externos através de APIs.
-- **Controle de acesso:** recursos disponibilizados conforme perfil, permissões e vínculo com turmas; o perfil é atribuído pelo CONECTA, não pelo Moodle.
+- **Integração:** comunicação com a API de autenticação do IFSul e outros serviços externos através de APIs.
+- **Controle de acesso:** recursos disponibilizados conforme perfil, permissões e vínculo com turmas; o perfil é atribuído pelo CONECTA, não pelo provedor de autenticação.
 
 ---
 
@@ -669,7 +677,7 @@ A arquitetura do CONECTA busca:
 
 O **CONECTA** utiliza uma arquitetura baseada em **cliente-servidor**, na qual as aplicações Web e Mobile funcionam como clientes de uma **API REST desenvolvida em FastAPI**.
 
-A API centraliza as regras de negócio e realiza a comunicação com o **PostgreSQL**, responsável pela persistência dos dados, e com a **API do Moodle**, responsável pela validação das credenciais dos usuários.
+A API centraliza as regras de negócio e realiza a comunicação com o **PostgreSQL**, responsável pela persistência dos dados, e com a **API de autenticação do IFSul**, responsável pela validação das credenciais dos usuários.
 
 A autenticação utiliza **OAuth2 + JWT**, com tokens válidos por 24 horas; as permissões decorrem do perfil (administrador, coordenação, docente ou aluno), mantido pelo CONECTA e reavaliado a cada requisição.
 

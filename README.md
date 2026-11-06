@@ -15,13 +15,13 @@ turmas específicas — e cada pessoa vê exatamente o que a alcança.
 > - **plataforma web:** avisos com auditoria, turmas e vínculos, solicitações, usuários e perfis, painel, agenda e grade de horários;
 > - **aplicativo:** avisos, turmas, inscrição, perfil, agenda e horários, inclusive sem rede.
 >
-> O fluxo web → API → app está testado, a acessibilidade AA foi verificada e há evidências com capturas. **Falta só a integração real com o Moodle**, que depende de acesso à API do IFSul (prazo: 13/11/2026). Veja [Andamento](#andamento) e [Limitações conhecidas](#limitações-conhecidas).
+> O fluxo web → API → app está testado, a acessibilidade AA foi verificada e há evidências com capturas. O login pela **API de autenticação do IFSul** está implementado e passou contra a API real nos casos que não exigem conta; **falta só validá-lo com uma conta de aluno e uma administrativa** (prazo: 13/11/2026). Veja [Andamento](#andamento) e [Limitações conhecidas](#limitações-conhecidas).
 
 ## Estrutura do repositório
 
 | Pasta | Conteúdo | Situação |
 |---|---|---|
-| [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1, E2 e E3 implementadas (falta só o Moodle real) |
+| [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1, E2 e E3 implementadas; login pela API de autenticação do IFSul (falta validar com contas reais) |
 | [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, planos, tarefas, o código e as evidências | F1 e F2 completas (88 de 88 tarefas) |
 | [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, planos, tarefas, o código, as evidências e a implantação | F1 e F2 completas (100 de 100 tarefas) |
 | [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
@@ -43,7 +43,7 @@ Documentos de apoio do TCC (especificação em PDF, decisões de projeto e apres
            └──────────────┬──────────────┘
                           ▼
               ┌───────────────────────┐        ┌──────────────┐
-              │   API (FastAPI)       │───────▶│  Moodle      │
+              │   API (FastAPI)       │───────▶│  API IFSul   │
               │   regras de negócio,  │  auten-│  (valida     │
               │   autenticação,       │  ticação  credenciais)│
               │   autorização         │        └──────────────┘
@@ -58,9 +58,11 @@ Documentos de apoio do TCC (especificação em PDF, decisões de projeto e apres
 
 1. **Toda regra vive na API.** Web e mobile apenas apresentam o que ela devolve. Nenhum cliente
    decide quem pode ver ou fazer o quê.
-2. **O Moodle só identifica, não autoriza.** A validação de credenciais fica atrás de uma
-   interface (`AuthProvider`) com implementação simulada enquanto o acesso real não existe; o
-   perfil de cada pessoa é atribuído e mantido pelo próprio CONECTA.
+2. **O provedor só identifica, não autoriza.** A validação de credenciais é feita pela API de
+   autenticação do IFSul (Active Directory), atrás de uma interface (`AuthProvider`) com
+   implementação simulada para desenvolvimento e testes; o perfil de cada pessoa é atribuído e
+   mantido pelo próprio CONECTA. Servidores que entram pela primeira vez pedem acesso, e a gestão
+   aprova definindo o perfil.
 3. **Aviso tem N destinos.** Um comunicado para três turmas é um aviso com três destinos, visto
    uma única vez por quem pertence a mais de uma delas.
 4. **Nada se perde.** Editar um aviso cria uma versão nova; arquivar e excluir são operações
@@ -108,7 +110,7 @@ As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py`
 
 | Entrega | Conteúdo | Situação |
 |---|---|---|
-| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | ✅ (falta só o Moodle real) |
+| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | ✅ (falta validar o login com contas reais) |
 | **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | ✅ |
 | **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | ✅ Na API, na web e no aplicativo |
 
@@ -121,7 +123,7 @@ achados corrigidos com teste antes do merge.
 
 | Parte | O que funciona | Testes | PR |
 |---|---|---|---|
-| **API — E1** | Login (Moodle simulado), sessão de 24 h, perfil, turmas, solicitação de inscrição e as 9 rotas do aplicativo | pytest | [#1](https://github.com/ruansbueno/conecta/pull/1) |
+| **API — E1** | Login (provedor simulado), sessão de 24 h, perfil, turmas, solicitação de inscrição e as 9 rotas do aplicativo | pytest | [#1](https://github.com/ruansbueno/conecta/pull/1) |
 | **API — E2** | Rotas de gestão (`/gestao/*`): usuários e perfis, turmas, vínculos, decisão de solicitações, avisos com destinos, versões e histórico imutáveis; teste de ponta a ponta da spec §9.3 | 583 testes (E1 + E2) | [#3](https://github.com/ruansbueno/conecta/pull/3) |
 | **Aplicativo — marco de avisos** | Login, sessão segura, aba Avisos (ativos e arquivados, detalhe, cache para abrir sem rede) | 151 testes (unidade e widget) + integração com servidor falso | [#2](https://github.com/ruansbueno/conecta/pull/2) |
 | **Aplicativo — fase 5** | Aba Turmas: minhas turmas com o papel em cada uma, estado vazio por perfil, turmas disponíveis para o aluno e as solicitações recentes; cache para abrir sem rede | 188 testes (unidade e widget) | [#14](https://github.com/ruansbueno/conecta/pull/14) |
@@ -146,21 +148,31 @@ achados corrigidos com teste antes do merge.
 | **Aplicativo — F2, agenda** | Aba Agenda: Próximos e Provas com filtro de tipo, mês de domingo a sábado com marcadores, detalhe do evento, sem rede | 328 testes (unidade e widget) + 19 de integração | [#28](https://github.com/ruansbueno/conecta/pull/28) |
 | **Aplicativo — F2, horários** | Aba Horários com troca de turma, sem rede, fonte a 200% conferida no aparelho, [evidências](projeto-mobile/evidencias/RELATORIO-F2.md) | 348 testes (unidade e widget) + 22 de integração | [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | **Fechamento** | Cookies com prefixo `__Host-`; sair sempre expira a sessão; nginx sem a documentação da API exposta e com redirecionamentos (HTTP→HTTPS e os da API) que ficam na mesma origem; Descartar no editor nunca sai da aplicação; pontos menores das revisões corrigidos na web e no app | API 891, web 397 (Vitest) + 57 (Playwright) + 11 da implantação, app 354 + 22 de integração | [#30](https://github.com/ruansbueno/conecta/pull/30) |
+| **Login pelo IFSul** | API de autenticação do IFSul no lugar do Moodle; servidores que entram pela primeira vez viram pedido de acesso, aprovado pela administração ou pela coordenação na web (aba Aguardando acesso); primeiro administrador por script; roteiro de validação real (casos sem conta já validados contra a API do IFSul) | API 985, web 414 (Vitest) + 61 (Playwright), app 357 | [#31](https://github.com/ruansbueno/conecta/pull/31) |
 
 O fluxo **web → API → app** fecha para avisos, eventos e horários: o que a coordenação ou um
 docente publica na web aparece no aplicativo para exatamente quem está nos destinos.
 
 ### Falta
 
-**Integração real com o Moodle**: é a única tarefa aberta (API, T072).
-- **Hoje:** tudo funciona com o provedor simulado, atrás da interface `AuthProvider`.
-- **O que muda:** a implementação real troca só o provedor. Web e aplicativo não mudam.
-- **Quando:** a integração só pode ser validada quando houver acesso à API da instituição.
-- **Testes:** os da integração real são identificados à parte, para que aprovação com simulação nunca seja confundida com validação real.
+**Validação do login com contas reais** (API, T072). O serviço da instituição é a **API de
+autenticação do IFSul** (Active Directory), não o Moodle como se previa:
+- **Pronto:** `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); servidores que entram pela primeira vez
+  viram pedido de acesso, que a administração ou a coordenação aprova na web (Usuários → Aguardando
+  acesso); o primeiro administrador é definido por `scripts/definir_administrador.py`.
+- **Validado contra a API real (06/11/2026):** usuário inexistente (o CONECTA responde 401 e a
+  API do IFSul, consultada direto, recusa a credencial) e pedido sem usuário ou sem senha. A API
+  fora do ar foi simulada com um endereço local sem serviço
+  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06-sem-contas.md)).
+- **Falta:** rodar `scripts/roteiro_ifsul.py` com uma conta de aluno e uma administrativa (os casos
+  1, 2, 3, 8 e 9 do item 10 da doc do IFSul) — passo a passo no
+  [README da API](projeto-api/README.md#login-pela-api-de-autenticação-do-ifsul-emenda-v23).
 
 ### Limitações conhecidas
 
-- **Moodle:** o login usa o provedor simulado até a integração real (acima).
+- **API do IFSul por HTTP:** a URL atual da instituição não tem HTTPS, e a senha institucional
+  viajaria em claro. A API do CONECTA só a aceita com `IFSUL_AUTH_PERMITIR_HTTP=true`, para teste;
+  em produção, `IFSUL_AUTH_URL` precisa ser HTTPS.
 - **Horários no aplicativo:** lista só a primeira página das turmas da pessoa (20), o bastante para aluno e docente do curso.
 - **Diferenças deliberadas em relação ao design:** onde a API não tem o dado, a interface não o mostra. Exemplos: o turno da turma, o tipo de aula, "Grade atualizada por" e o subtítulo do local do evento. Cada diferença está nos relatórios de evidências:
   - [web F1](projeto-web/evidencias/RELATORIO.md) e [web F2](projeto-web/evidencias/RELATORIO-F2.md);
@@ -181,8 +193,9 @@ Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
 5. ✅ Aplicativo — fase F1 completa.
 6. ✅ E3 — agenda e horários, na API e nos dois clientes.
 
-A integração real com o Moodle tem data-limite de **13/11/2026**; depois dela, o trabalho é
-concluído com o provedor simulado e a integração real passa a trabalho futuro.
+A validação do login com contas reais tem data-limite de **13/11/2026**; sem ela, o trabalho é
+concluído com o que já foi validado contra a API do IFSul, e os casos com conta passam a trabalho
+futuro.
 
 ## Como trabalhar neste repositório
 

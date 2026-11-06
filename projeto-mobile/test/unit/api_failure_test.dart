@@ -12,6 +12,16 @@ void main() {
       'Seu acesso está desativado. Procure a coordenação.',
     );
     expect(falha('USUARIO_INATIVO', 403).efeito, EfeitoFalha.encerraSessao);
+    expect(
+      falha('ACESSO_PENDENTE', 403).mensagem,
+      'Seu acesso está aguardando liberação da coordenação ou da administração.',
+    );
+    expect(falha('ACESSO_PENDENTE', 403).efeito, EfeitoFalha.encerraSessao);
+    expect(
+      falha('ACESSO_RECUSADO', 403).mensagem,
+      'Seu acesso não foi liberado. Procure a coordenação do curso.',
+    );
+    expect(falha('ACESSO_RECUSADO', 403).efeito, EfeitoFalha.encerraSessao);
     expect(falha('NAO_AUTENTICADO', 401).mensagem, 'Sua sessão expirou. Entre de novo.');
     expect(falha('NAO_AUTENTICADO', 401).efeito, EfeitoFalha.encerraSessao);
     expect(falha('AVISO_NAO_ENCONTRADO', 404).mensagem, 'Este aviso não está mais disponível.');

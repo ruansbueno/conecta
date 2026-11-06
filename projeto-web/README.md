@@ -112,8 +112,10 @@ O roteiro completo de verificação está em
 
 ## Próximo passo
 
-A web está completa nas fases F1 e F2, assim como o aplicativo. Falta só a integração real com o
-Moodle, que é da API (a web não muda).
+A web está completa nas fases F1 e F2, assim como o aplicativo. Com o login pela API de
+autenticação do IFSul (06/11/2026), servidores que entram pela primeira vez viram pedidos de
+acesso: administração e coordenação decidem em Usuários → Aguardando acesso, com contador na barra
+lateral (RW-50, RW-51). Falta só validar o login com contas reais, o que é da API.
 
 Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado,
 o endereço da API e, se o HTTPS público não usar a porta 443, a porta do redirecionamento de HTTP

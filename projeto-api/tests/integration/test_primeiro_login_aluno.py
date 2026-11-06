@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from src.models.usuario import Usuario
 from src.providers.auth.factory import get_auth_provider
-from src.providers.auth.mock_moodle import MockMoodleAuthProvider
+from src.providers.auth.mock import MockAuthProvider
 from tests.helpers import login
 
 pytestmark = pytest.mark.mock_auth
@@ -17,14 +17,15 @@ async def _buscar(session_factory, username) -> Usuario | None:
 
 
 async def test_primeiro_login_cria_usuario_aluno(client, session_factory):
-    assert await _buscar(session_factory, "docente.teste") is None
+    # Tipo institucional aluno; o 1º login de servidor está em test_acesso_institucional.
+    assert await _buscar(session_factory, "aluno.teste") is None
 
-    r = await login(client, "docente.teste")
+    r = await login(client, "aluno.teste")
 
     assert r.status_code == 200
-    usuario = await _buscar(session_factory, "docente.teste")
+    usuario = await _buscar(session_factory, "aluno.teste")
     assert usuario.perfil == "aluno"  # o provedor nunca define o perfil
-    assert usuario.nome == "Docente de Teste"
+    assert usuario.nome == "Aluno de Teste"
     assert usuario.ativo is True
     assert usuario.ultimo_login_em is not None
 
@@ -39,8 +40,8 @@ async def test_novo_login_atualiza_nome_e_ultimo_login_mas_nao_o_perfil(
         await s.commit()
     antes = await _buscar(session_factory, "aluno.teste")
 
-    app.dependency_overrides[get_auth_provider] = lambda: MockMoodleAuthProvider(
-        {"aluno.teste": "Nome Novo no Moodle"}
+    app.dependency_overrides[get_auth_provider] = lambda: MockAuthProvider(
+        {"aluno.teste": "Nome Novo no IFSul"}
     )
     r = await login(client)
 
@@ -48,7 +49,7 @@ async def test_novo_login_atualiza_nome_e_ultimo_login_mas_nao_o_perfil(
     assert r.json()["usuario"]["perfil"] == "docente"
     assert depois.id == antes.id
     assert depois.perfil == "docente"
-    assert depois.nome == "Nome Novo no Moodle"
+    assert depois.nome == "Nome Novo no IFSul"
     assert depois.ultimo_login_em > antes.ultimo_login_em
     assert depois.atualizado_em > antes.atualizado_em
 

@@ -86,5 +86,5 @@ O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.m
 
 ## Próximo passo
 
-O aplicativo está completo nas fases F1 e F2. A integração real com o Moodle é da API (o app não
-muda, RM-40).
+O aplicativo está completo nas fases F1 e F2. Com o login pela API de autenticação do IFSul
+(06/11/2026), o app só ganhou as mensagens de acesso pendente e recusado (RM-41); o resto é da API.

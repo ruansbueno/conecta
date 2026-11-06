@@ -45,6 +45,8 @@ O app deve decidir comportamento por `code`, nunca pelo texto de `detail`.
 | 401 | `NAO_AUTENTICADO` | Token ausente, inválido ou expirado |
 | 401 | `CREDENCIAIS_INVALIDAS` | Login falhou (inclui provedor indisponível) |
 | 403 | `USUARIO_INATIVO` | Usuário desativado |
+| 403 | `ACESSO_PENDENTE` | Pedido de acesso de servidor aguardando decisão (emenda v2.3) |
+| 403 | `ACESSO_RECUSADO` | Pedido de acesso recusado (emenda v2.3) |
 | 403 | `SEM_PERMISSAO` | Perfil/vínculo não autoriza a ação |
 | 403 | `CSRF_INVALIDO` | Escrita autenticada por cookie sem `X-CSRF-Token` válido |
 | 403 | `DESTINO_NAO_PERMITIDO` | Docente usando destino fora das suas turmas |
@@ -61,6 +63,7 @@ O app deve decidir comportamento por `code`, nunca pelo texto de `detail`.
 | 409 | `CODIGO_TURMA_DUPLICADO` | |
 | 409 | `AVISO_NAO_EDITAVEL` | Aviso arquivado ou excluído |
 | 409 | `AVISO_SITUACAO_INVALIDA` | Arquivar o já arquivado / desarquivar o não arquivado |
+| 409 | `ACESSO_JA_DECIDIDO` | Aprovar quem já está liberado, ou recusar o que não está pendente |
 | 422 | `VALIDATION_ERROR` | Corpo ou parâmetros inválidos |
 | 404 | `NAO_ENCONTRADO` | Rota inexistente |
 | 405 | `METODO_NAO_PERMITIDO` | Método HTTP não suportado pela rota |
@@ -81,7 +84,8 @@ Listas aceitam `limit` (1–100, padrão 20) e `offset` (≥ 0, padrão 0) e res
 
 ## 1. POST /auth/login
 
-Autentica via `AuthProvider` configurado (mock ou Moodle) e emite o token (24 h).
+Autentica via `AuthProvider` configurado (mock ou API de autenticação do IFSul, `AUTH_PROVIDER`)
+e emite o token (24 h).
 
 **Auth**: não exige.
 
@@ -121,17 +125,26 @@ O cookie de sessão é `HttpOnly` — inacessível ao JavaScript. O de CSRF é l
 não autentica nada sozinho, só é devolvido em `X-CSRF-Token` nas escritas. A assinatura o prende a
 este cookie de sessão: não serve para outra sessão, e não dá para fabricar um sem a `CSRF_SECRET`.
 
-**Efeitos**: 1º login cria o usuário com `perfil = aluno`; logins seguintes atualizam apenas `nome`
-e `ultimo_login_em`.
+**Efeitos** (emenda v2.3): o 1º login de quem o provedor informa como **aluno** cria o usuário com
+`perfil = aluno`; o de qualquer outro tipo institucional (ou sem tipo) cria um **pedido de acesso**
+sem perfil e responde 403 `ACESSO_PENDENTE`, sem token nem cookies. Logins seguintes atualizam
+apenas `nome`, `email`, o tipo institucional e `ultimo_login_em` — nunca o perfil nem a situação
+do acesso.
 
 **Erros**
 | Status | code | Observação |
 |---|---|---|
 | 401 | `CREDENCIAIS_INVALIDAS` | Senha errada, usuário inexistente **ou** provedor indisponível — mesma resposta, sem detalhes internos |
-| 403 | `USUARIO_INATIVO` | Credenciais corretas, usuário desativado |
-| 422 | `VALIDATION_ERROR` | Campo ausente/vazio |
+| 403 | `USUARIO_INATIVO` | Credenciais corretas, usuário desativado (tem precedência) |
+| 403 | `ACESSO_PENDENTE` | Credenciais corretas, pedido de acesso aguardando a gestão (sem sessão) |
+| 403 | `ACESSO_RECUSADO` | Credenciais corretas, pedido de acesso recusado (sem sessão) |
+| 422 | `VALIDATION_ERROR` | Campo ausente/vazio (o provedor nem é consultado) |
 
-**Maps to**: RF-01 a RF-08, RF-32, RF-33; User Story 1.
+```json
+{ "detail": "Acesso aguardando liberação", "code": "ACESSO_PENDENTE" }
+```
+
+**Maps to**: RF-01 a RF-08, RF-32, RF-33, RF-50; User Story 1.
 
 ---
 
@@ -389,7 +402,60 @@ Mesmo formato do item, mais `turmas` (como em `/me`). 404 `USUARIO_NAO_ENCONTRAD
 **Erros**: 403 `SEM_PERMISSAO`; 404 `USUARIO_NAO_ENCONTRADO`; 409 `PERFIL_INCOMPATIVEL` (usuário possui vínculos incompatíveis com o novo perfil); 422.
 Um administrador não pode desativar a si próprio nem rebaixar o último administrador ativo (422 `VALIDATION_ERROR`).
 
+Só usuários com acesso liberado aparecem aqui; pedidos de acesso (pendentes e recusados) ficam em
+`/gestao/acessos` e dão 404 nas rotas desta seção.
+
 **Maps to**: RF-09.
+
+## 10a. Pedidos de acesso (emenda v2.3)
+
+Servidores (tipo institucional `administrativo`, ou sem tipo) que entraram pela primeira vez e
+aguardam a gestão. Não têm perfil até a decisão.
+
+### GET /gestao/acessos
+**Auth**: administrador, coordenação. **Query**: `situacao` (`pendente`, padrão, ou `recusado`),
+`limit`, `offset`. Mais antigos primeiro.
+
+**200**
+```json
+{
+  "items": [
+    { "id": "5d0e...", "username": "fulano.servidor", "nome": "Fulano Servidor",
+      "email": "fulano@ifsul.edu.br", "tipo_institucional": "administrativo",
+      "situacao": "pendente", "solicitado_em": "2026-11-06T13:00:00Z",
+      "decidido_em": null, "decidido_por": null }
+  ],
+  "total": 1, "limit": 20, "offset": 0
+}
+```
+
+### POST /gestao/acessos/{usuario_id}/aprovar
+**Auth**: administrador, coordenação.
+
+**Request**
+```json
+{ "perfil": "docente" }
+```
+| Quem decide | Perfis que pode conceder | Pedidos |
+|---|---|---|
+| Administrador | `administrador`, `coordenacao`, `docente`, `aluno` | pendentes e recusados |
+| Coordenação | `docente`, `coordenacao` | só pendentes |
+
+**200**: o pedido decidido, com `situacao: "liberado"`, `perfil`, `decidido_em` e
+`decidido_por: {id, nome}`. O próximo login da pessoa entra com o perfil concedido.
+
+**Erros**: 403 `SEM_PERMISSAO` (perfil ou pedido fora do alcance da coordenação); 404
+`USUARIO_NAO_ENCONTRADO`; 409 `ACESSO_JA_DECIDIDO` (já liberado); 422 (`perfil` ausente ou inválido).
+
+### POST /gestao/acessos/{usuario_id}/recusar
+**Auth**: administrador, coordenação. Sem corpo.
+
+**200**: o pedido com `situacao: "recusado"` e quem decidiu. O login passa a responder 403
+`ACESSO_RECUSADO`; a administração ainda pode aprová-lo depois.
+
+**Erros**: 404 `USUARIO_NAO_ENCONTRADO`; 409 `ACESSO_JA_DECIDIDO` (não está pendente).
+
+**Maps to**: RF-50, RF-51.
 
 ## 11. Turmas
 

@@ -1,5 +1,10 @@
 # Phase 0 Research: Autenticação, Perfis, Turmas e Avisos (Entregas 1 e 2)
 
+> **Nota (06/11/2026, emenda v2.3 da spec):** onde este documento fala em integração "com o
+> Moodle", o serviço real acabou sendo a **API de autenticação do IFSul** (Active Directory). O
+> texto abaixo é o registro das decisões da época; o estado atual está na `spec.md` (emenda v2.3),
+> em `contracts/api.md` e no `quickstart.md`.
+
 Nenhum marcador `NEEDS CLARIFICATION` restou no Technical Context do plano — as decisões
 estratégicas (provedor de auth mock/real, escopo mobile-only, banco remoto/local) já haviam
 sido fechadas com o usuário antes do planejamento. Este documento registra as decisões técnicas

@@ -46,6 +46,12 @@ provider MUST ocorrer apenas por configuração/injeção de dependência, sem a
 regras de autorização ou contratos de resposta ao cliente. Nenhuma senha de usuário é
 armazenada pelo CONECTA, mock ou real.
 
+*Emenda 2.1.0 (2026-11-06):* o serviço real é a **API de autenticação do IFSul** (Active
+Directory), não o Moodle; as implementações passam a ser `MockAuthProvider` e `IfsulAuthProvider`.
+O provedor também informa e-mail e o tipo institucional (`aluno` ou `administrativo`). O tipo só
+decide, no primeiro login, se a pessoa entra como aluno ou vira um pedido de acesso que a gestão
+aprova definindo o perfil — o perfil continua nunca vindo do provedor.
+
 ### III. Segurança por Padrão
 Autenticação via OAuth2 + JWT, com token de validade de 24 horas contendo as
 permissões/roles do usuário. Toda requisição a recurso protegido MUST validar assinatura,
@@ -120,4 +126,4 @@ Toda spec, plano e revisão de código MUST verificar conformidade com os princ�
 especialmente II (desacoplamento do Moodle) e III (segurança). Complexidade adicional em um
 plano MUST ser justificada explicitamente contra o Princípio VI.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-30
+**Version**: 2.1.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-11-06

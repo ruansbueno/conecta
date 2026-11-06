@@ -22,14 +22,19 @@ Pessoa identificada no sistema; criada no primeiro login bem-sucedido, ou anteci
 | id | UUID (PK) | Gerado pelo CONECTA |
 | username | string, único | Vem do provedor de credenciais |
 | nome | string | Sincronizado do provedor a cada login |
-| perfil | enum (`administrador`, `coordenacao`, `docente`, `aluno`) | Padrão `aluno`; **nunca** sobrescrito pelo login; só o administrador altera (E2) ou seed |
+| perfil | enum (`administrador`, `coordenacao`, `docente`, `aluno`), **nulo** só em pedido de acesso | 1º login de aluno: `aluno`; de outro tipo: nulo até a decisão (emenda v2.3); **nunca** sobrescrito pelo login; só o administrador altera (E2), a gestão de acessos ou seed |
+| situacao_acesso | enum (`liberado`, `pendente`, `recusado`), padrão `liberado` | Emenda v2.3: `pendente` e `recusado` não entram (403) nem aparecem na gestão de usuários; **perfil não nulo ⇔ `liberado`** (restrição no banco) |
+| tipo_institucional | string, nulo (`aluno`, `administrativo`) | Do provedor (API do IFSul), atualizado a cada login; informativo depois do 1º login |
+| email | string, nulo | Do provedor, atualizado a cada login |
+| acesso_decidido_em | timestamp, nulo | Quando o pedido de acesso foi aprovado ou recusado |
+| acesso_decidido_por_id | UUID (FK Usuario), nulo | Quem decidiu (`SET NULL` se essa pessoa sair do banco) |
 | ativo | boolean, padrão `true` | `false` bloqueia login e uso de tokens existentes |
 | criado_em | timestamp | Primeiro login |
 | atualizado_em | timestamp | Última alteração de nome, perfil ou ativo |
 | ultimo_login_em | timestamp, nulo | |
 
-**Regras**: nenhuma senha é armazenada; `username` único; o upsert do login atualiza apenas `nome`
-e `ultimo_login_em`.
+**Regras**: nenhuma senha é armazenada; `username` único (gravado em minúsculas pelo provedor do
+IFSul); o upsert do login atualiza apenas `nome`, `email`, `tipo_institucional` e `ultimo_login_em`.
 
 ## Turma (E1)
 
@@ -179,7 +184,7 @@ projeto: toda tabela começa com `tb_`, e toda coluna tem um prefixo que diz o q
 |---|---|---|
 | `id_` | chave primária e estrangeira | `id_usuario`, `id_turma`, `id_usuario_decisor` |
 | `nm_` | nome ou título curto | `nm_usuario`, `nm_turma`, `nm_aviso` |
-| `cod_` | código ou identificador textual | `cod_usuario` (login do Moodle), `cod_turma`, `cod_periodo_letivo` |
+| `cod_` | código ou identificador textual | `cod_usuario` (login institucional do IFSul), `cod_turma`, `cod_periodo_letivo` |
 | `txt_` | texto longo ou estruturado | `txt_aviso`, `txt_motivo_recusa`, `txt_destinos`, `txt_alteracoes` |
 | `fl_` | sim/não | `fl_ativo`, `fl_ativa`, `fl_inscricoes_abertas` |
 | `dt_` | data e hora | `dt_cadastro`, `dt_publicacao`, `dt_ultimo_acesso` |
@@ -209,6 +214,11 @@ models e migrações.
 | `username` | `cod_usuario` |
 | `nome` | `nm_usuario` |
 | `perfil` | `tp_perfil` |
+| `situacao_acesso` | `st_acesso` |
+| `tipo_institucional` | `tp_institucional` |
+| `email` | `txt_email` |
+| `acesso_decidido_em` | `dt_decisao_acesso` |
+| `acesso_decidido_por_id` | `id_decisor_acesso` |
 | `ativo` | `fl_ativo` |
 | `criado_em` | `dt_cadastro` |
 | `atualizado_em` | `dt_atualizacao` |

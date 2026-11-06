@@ -227,6 +227,10 @@ serviço/seed → turma em "minhas turmas".
 - [x] T070 Executar a validação manual completa de `quickstart.md`
 - [x] T071 Revisão de segurança: nenhuma senha logada, serializada ou persistida (Princípio II); perfil nunca alterado pelo login
 - [ ] T072 Preencher o checklist de validação da integração real (`spec.md` §9.4) quando houver acesso ao Moodle (tarefa pendente de dependência externa; não bloqueia o fim da E1)
+  - 06/11/2026 (emenda v2.3): o serviço real é a API de autenticação do IFSul. `IfsulAuthProvider`,
+    pedido de acesso de servidores, `/gestao/acessos`, `scripts/definir_administrador.py` e
+    `scripts/roteiro_ifsul.py` implementados e testados; casos 4 a 7 do roteiro validados contra a
+    API real. Falta rodar o roteiro com uma conta de aluno e uma administrativa.
 
 ---
 
@@ -266,4 +270,4 @@ teste de ponta a ponta da `spec.md` §9.3) e, depois, para a E3.
 
 - Verificar que os testes falham antes de implementar.
 - Commit por tarefa ou grupo lógico.
-- A troca futura mock → Moodle é trabalho à parte: implementar o corpo do stub (T013) e usar `AUTH_PROVIDER=moodle`; validar com o checklist (T072).
+- A troca mock → provedor real foi feita na emenda v2.3 (API de autenticação do IFSul, `AUTH_PROVIDER=ifsul`); validar com o checklist (T072).

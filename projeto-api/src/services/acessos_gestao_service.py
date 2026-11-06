@@ -1,4 +1,4 @@
-"""Pedidos de acesso de servidores (RF-09a, emenda v2.3).
+"""Pedidos de acesso de servidores (RF-50, RF-51; emenda v2.3).
 
 O 1º login de quem a API do IFSul classifica como administrativo cria um pedido sem perfil. A
 administração aprova com qualquer perfil; a coordenação, só com docente ou coordenação, e só

@@ -1,5 +1,5 @@
-"""Contrato de /gestao/acessos (contracts/api.md §10a; RF-09a, emenda v2.3): pedidos de acesso de
-servidores (tipo institucional administrativo). Administração concede qualquer perfil;
+"""Contrato de /gestao/acessos (contracts/api.md §10a; RF-50, RF-51, emenda v2.3): pedidos de
+acesso de servidores (tipo institucional administrativo). Administração concede qualquer perfil;
 coordenação, só docente ou coordenação, e só a pedidos pendentes.
 """
 

@@ -1,5 +1,10 @@
 # Implementation Plan: Autenticação, Perfis, Turmas e Avisos (Entrega 1; E2 planejada)
 
+> **Nota (06/11/2026, emenda v2.3 da spec):** onde este documento fala em integração "com o
+> Moodle", o serviço real acabou sendo a **API de autenticação do IFSul** (Active Directory). O
+> texto abaixo é o registro das decisões da época; o estado atual está na `spec.md` (emenda v2.3),
+> em `contracts/api.md` e no `quickstart.md`.
+
 **Branch**: `001-auth-perfil-turmas-avisos` | **Date**: 2026-09-22 (revisado em 2026-09-30, v2) | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/001-auth-perfil-turmas-avisos/spec.md`

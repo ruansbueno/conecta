@@ -11,6 +11,14 @@ export interface UsuarioFalso {
   ativo: boolean
   turmas: string[] // em que leciona ou estuda
   ultimo_login_em?: string | null
+  /** Emenda v2.3 da API: pedido de acesso de servidor (sem perfil até a decisão). */
+  acesso?: {
+    situacao: 'pendente' | 'recusado'
+    email: string | null
+    solicitado_em: string
+    decidido_em?: string | null
+    decidido_por?: { id: string; nome: string } | null
+  }
 }
 
 export interface AvisoFalso {
@@ -109,6 +117,20 @@ export function estadoInicial() {
     { id: randomUUID(), username: 'aluno.teste', nome: 'Aluno de Teste', perfil: 'aluno', ativo: true, turmas: [a] },
     { id: randomUUID(), username: 'aluno2.teste', nome: 'Aluno Dois de Teste', perfil: 'aluno', ativo: true, turmas: [] },
     { id: randomUUID(), username: 'inativo.teste', nome: 'Inativo de Teste', perfil: 'docente', ativo: false, turmas: [] },
+    // Como o seed da API (servidor.aguardando): 1º login de servidor pela API do IFSul.
+    {
+      id: randomUUID(),
+      username: 'servidor.aguardando',
+      nome: 'Servidor Aguardando de Teste',
+      perfil: '',
+      ativo: true,
+      turmas: [],
+      acesso: {
+        situacao: 'pendente',
+        email: 'servidor.aguardando@ifsul.edu.br',
+        solicitado_em: new Date(Date.now() - 3 * 3600_000).toISOString(),
+      },
+    },
   ]
   const avisos: AvisoFalso[] = []
   const auditoria = new Map<string, Auditoria>()

@@ -1,7 +1,7 @@
 // Guarda das rotas de gestão (RW-07, RW-12): sem sessão vai ao login guardando o destino; aluno
 // vê sem permissão e tem a sessão encerrada (RW-06); perfil fora da lista vê sem permissão.
 import { useEffect } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router'
+import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router'
 
 import { Esqueleto } from '../componentes/comum/esqueleto'
 import { EstadoErro } from '../componentes/comum/estado-erro'
@@ -11,6 +11,9 @@ import { useSessao } from './contexto'
 export function ExigirSessao({ perfis }: { perfis?: readonly Perfil[] }) {
   const { estado, encerrar, recarregar } = useSessao()
   const local = useLocation()
+  // Guarda aninhada (perfis) dentro da área de gestão: repassa o contexto dela às páginas, senão
+  // elas perdem `atualizarPendentes` e os contadores da barra lateral ficam desatualizados.
+  const contexto = useOutletContext()
   const aluno = estado.tipo === 'autenticado' && estado.usuario.perfil === 'aluno'
 
   useEffect(() => {
@@ -47,6 +50,6 @@ export function ExigirSessao({ perfis }: { perfis?: readonly Perfil[] }) {
       if (perfis && !perfis.includes(estado.usuario.perfil as Perfil)) {
         return <Navigate to="/sem-permissao" replace />
       }
-      return <Outlet />
+      return <Outlet context={contexto} />
   }
 }

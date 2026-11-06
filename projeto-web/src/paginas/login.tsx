@@ -117,7 +117,7 @@ export default function Login() {
 
           <p className="mt-6 flex items-center gap-2.5 rounded-xl bg-fundo px-4 py-3.5 text-[12.5px] leading-normal text-navy-suave">
             <Icone nome="escudo" tamanho={18} className="shrink-0" />
-            Credenciais validadas pelo Moodle do IFSul. A sessão expira em 24 h.
+            Use o login e a senha institucionais do IFSul. A sessão expira em 24 h.
           </p>
         </form>
       </main>

@@ -103,6 +103,29 @@ export const usuarioGestaoSchema = usuarioBase
   .transform(({ ultimo_login_em, ...u }) => ({ ...u, ultimoLoginEm: ultimo_login_em }))
 export type UsuarioGestao = z.infer<typeof usuarioGestaoSchema>
 
+/** Pedido de acesso de um servidor (GET /gestao/acessos; emenda v2.3 da API). */
+export const acessoSchema = z
+  .object({
+    id: z.string(),
+    username: z.string(),
+    nome: z.string(),
+    email: z.string().nullable(),
+    tipo_institucional: z.string().nullable(),
+    situacao: z.enum(['pendente', 'recusado', 'liberado']),
+    perfil: z.string().nullable().optional(),
+    solicitado_em: data,
+    decidido_em: dataOuNulo,
+    decidido_por: z.object({ id: z.string(), nome: z.string() }).nullable(),
+  })
+  .transform(({ tipo_institucional, solicitado_em, decidido_em, decidido_por, ...a }) => ({
+    ...a,
+    tipoInstitucional: tipo_institucional,
+    solicitadoEm: solicitado_em,
+    decididoEm: decidido_em,
+    decididoPor: decidido_por,
+  }))
+export type Acesso = z.infer<typeof acessoSchema>
+
 /** Usuário com as turmas a que está vinculado (GET /gestao/usuarios/{id}). */
 export const usuarioDetalheSchema = usuarioBase
   .extend({ ativo: z.boolean(), ultimo_login_em: dataOuNulo, turmas: z.array(turmaDoUsuarioSchema) })

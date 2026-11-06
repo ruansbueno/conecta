@@ -165,7 +165,8 @@ test('recusar com motivo, só com o teclado', async ({ page }) => {
 
 test('alterar perfil: setas no grupo de rádios e salvar, só com o teclado', async ({ page }) => {
   await entrarComTeclado(page, 'admin.teste')
-  await tabAte(page, page.getByRole('link', { name: 'Usuários', exact: true }))
+  // "Usuários" ou "Usuários 1 pendente": há um pedido de acesso aguardando na massa.
+  await tabAte(page, page.getByRole('link', { name: /^Usuários/ }))
   await page.keyboard.press('Enter')
   await tabAte(page, page.getByRole('button', { name: 'Alterar perfil de Marina Duarte' }), 80)
   await page.keyboard.press('Enter')

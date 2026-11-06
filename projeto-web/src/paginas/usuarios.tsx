@@ -1,5 +1,6 @@
 // T10/T11 (design w-10, w-11): pessoas por perfil e situação, com busca na URL (RW-31). Alterar
-// perfil e ativar/desativar só para a administração (RW-32); a coordenação só lê (RW-11).
+// perfil e ativar/desativar só para a administração (RW-32); a coordenação só lê (RW-11). A aba
+// "Aguardando acesso" decide os pedidos de servidores (emenda v2.3 da API; RW-50, RW-51).
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -17,9 +18,10 @@ import { AlterarPerfilModal } from '../componentes/usuarios/alterar-perfil-modal
 import { TabelaUsuarios } from '../componentes/usuarios/tabela'
 import { rotuloDoPerfil, type PerfilDeAcesso } from '../lib/perfis'
 import { useSessao } from '../sessao/contexto'
+import { PedidosDeAcesso } from './pedidos-de-acesso'
 import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from './lista-na-url'
 
-type Aba = 'todos' | 'administracao' | 'coordenacao' | 'docentes' | 'alunos' | 'inativos'
+type Aba = 'todos' | 'administracao' | 'coordenacao' | 'docentes' | 'alunos' | 'inativos' | 'aguardando'
 const ABAS: { id: Aba; rotulo: string; filtro: Pick<FiltrosUsuarios, 'perfil' | 'ativo'>; vazio: string }[] = [
   { id: 'todos', rotulo: 'Todos', filtro: {}, vazio: 'Nenhuma pessoa' },
   { id: 'administracao', rotulo: 'Administração', filtro: { perfil: 'administrador' }, vazio: 'Ninguém na administração' },
@@ -27,6 +29,7 @@ const ABAS: { id: Aba; rotulo: string; filtro: Pick<FiltrosUsuarios, 'perfil' | 
   { id: 'docentes', rotulo: 'Docentes', filtro: { perfil: 'docente' }, vazio: 'Nenhum docente' },
   { id: 'alunos', rotulo: 'Alunos', filtro: { perfil: 'aluno' }, vazio: 'Nenhum aluno' },
   { id: 'inativos', rotulo: 'Inativos', filtro: { ativo: false }, vazio: 'Nenhuma pessoa inativa' },
+  { id: 'aguardando', rotulo: 'Aguardando acesso', filtro: {}, vazio: '' },
 ]
 const POR_PAGINA = 20
 const LIMITE_BUSCA = 100
@@ -46,7 +49,10 @@ export default function Usuarios() {
 
   const { carga, recarregar, carregadaEm: agora } = useCargaPaginada(
     JSON.stringify([aba.id, q]),
-    () => listarUsuarios({ ...aba.filtro, q: q || undefined, limit: POR_PAGINA, offset }),
+    () =>
+      aba.id === 'aguardando'
+        ? Promise.resolve({ items: [], total: 0, limit: POR_PAGINA, offset: 0 })
+        : listarUsuarios({ ...aba.filtro, q: q || undefined, limit: POR_PAGINA, offset }),
     { offset, porPagina: POR_PAGINA, filtrar },
   )
   const [mensagem, setMensagem] = useMensagemDaLista()
@@ -99,7 +105,8 @@ export default function Usuarios() {
       <header>
         <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Usuários</h1>
         <p className="mt-1.5 text-[14px] text-apagado">
-          Todo usuário entra como aluno no primeiro acesso. Só a administração muda o perfil ou desativa alguém.
+          Alunos entram como aluno no primeiro acesso; servidores aguardam a liberação da coordenação ou da
+          administração. Só a administração muda o perfil ou desativa alguém.
         </p>
       </header>
 
@@ -113,12 +120,14 @@ export default function Usuarios() {
           atual={aba.id}
           onMudar={(a) => {
             setMensagem(undefined)
-            filtrar({ aba: a === 'todos' ? '' : a })
+            filtrar({ aba: a === 'todos' ? '' : a, situacao: '' })
           }}
         />
-        <div className="w-[300px]">
-          <Busca rotulo="Buscar por nome ou usuário" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
-        </div>
+        {aba.id !== 'aguardando' && (
+          <div className="w-[300px]">
+            <Busca rotulo="Buscar por nome ou usuário" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
+          </div>
+        )}
       </div>
 
       <div
@@ -127,7 +136,9 @@ export default function Usuarios() {
         aria-labelledby={idDaAba(ID_ABAS, aba.id)}
         className="mt-5 rounded-xl border border-linha bg-branco"
       >
-        {carga.estado === 'carregando' || semPermissao ? (
+        {aba.id === 'aguardando' ? (
+          <PedidosDeAcesso administracao={administracao} />
+        ) : carga.estado === 'carregando' || semPermissao ? (
           <Esqueleto rotulo="Carregando os usuários" />
         ) : carga.estado === 'erro' ? (
           <EstadoErro mensagem={carga.mensagem} onRepetir={recarregar} />

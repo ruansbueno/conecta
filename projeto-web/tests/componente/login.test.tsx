@@ -120,6 +120,41 @@ describe('login (T01)', () => {
     expect(screen.getByRole('heading', { name: 'Acesso à gestão' })).toBeInTheDocument()
   })
 
+  it('servidor aguardando liberação vê o aviso próprio e permanece (emenda v2.3)', async () => {
+    api({
+      'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') },
+      'POST /auth/login': { status: 403, corpo: erro('ACESSO_PENDENTE') },
+    })
+    montar()
+
+    await entrar()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Seu acesso está aguardando liberação da coordenação ou da administração.',
+    )
+    expect(screen.getByRole('heading', { name: 'Acesso à gestão' })).toBeInTheDocument()
+  })
+
+  it('acesso recusado vê o aviso próprio', async () => {
+    api({
+      'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') },
+      'POST /auth/login': { status: 403, corpo: erro('ACESSO_RECUSADO') },
+    })
+    montar()
+
+    await entrar()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seu acesso não foi liberado. Procure a coordenação do curso.')
+  })
+
+  it('o rodapé diz que as credenciais são as institucionais do IFSul', async () => {
+    api({ 'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') } })
+    montar()
+
+    expect(await screen.findByText(/Use o login e a senha institucionais do IFSul/)).toBeInTheDocument()
+    expect(screen.queryByText(/Moodle/)).not.toBeInTheDocument()
+  })
+
   it('falha de rede mantém o que foi digitado', async () => {
     api({ 'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') }, 'POST /auth/login': 'sem-rede' })
     montar()

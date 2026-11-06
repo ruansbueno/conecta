@@ -28,6 +28,10 @@ const GENERICA = 'Não foi possível concluir agora. Tente de novo em instantes.
 const MAPA: Record<string, [string, Efeito]> = {
   CREDENCIAIS_INVALIDAS: ['Usuário ou senha incorretos.', 'permanece'],
   USUARIO_INATIVO: ['Este acesso está desativado. Procure a administração.', 'encerraSessao'],
+  // Emenda v2.3 da API: servidor que entrou pela primeira vez espera a gestão definir o perfil.
+  ACESSO_PENDENTE: ['Seu acesso está aguardando liberação da coordenação ou da administração.', 'encerraSessao'],
+  ACESSO_RECUSADO: ['Seu acesso não foi liberado. Procure a coordenação do curso.', 'encerraSessao'],
+  ACESSO_JA_DECIDIDO: ['Este pedido de acesso já foi decidido.', 'recarrega'],
   NAO_AUTENTICADO: ['Sua sessão expirou. Entre de novo.', 'encerraSessao'],
   CSRF_INVALIDO: ['Não foi possível confirmar a sessão. Recarregue a página e tente de novo.', 'permanece'],
   SEM_PERMISSAO: ['Esta área não está disponível para o seu perfil.', 'semPermissao'],

@@ -122,6 +122,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (!u || password !== 'senha-teste') return erro(res, 401, 'CREDENCIAIS_INVALIDAS')
     u.ultimo_login_em = new Date().toISOString()
     if (!u.ativo) return erro(res, 403, 'USUARIO_INATIVO')
+    if (u.acesso?.situacao === 'pendente') return erro(res, 403, 'ACESSO_PENDENTE')
+    if (u.acesso?.situacao === 'recusado') return erro(res, 403, 'ACESSO_RECUSADO')
     const token = `tok-${randomUUID()}`
     estado.sessoes.set(token, u.id)
     const atributos = 'Secure; SameSite=Strict; Path=/; Max-Age=86400'
@@ -433,7 +435,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (alvoId) {
     if (!gestao || (metodo === 'PATCH' && usuario.perfil !== 'administrador')) return erro(res, 403, 'SEM_PERMISSAO')
     const alvo = estado.usuarios.find((u) => u.id === alvoId)
-    if (!alvo) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
+    // Pedido de acesso não é usuário da gestão (contrato §10): 404, como na API.
+    if (!alvo || alvo.acesso) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
     if (metodo === 'GET') return json(res, 200, { ...usuarioGestao(alvo), turmas: estado.me(alvo).turmas })
     if (metodo === 'PATCH') {
       if (usuario.perfil !== 'administrador') return erro(res, 403, 'SEM_PERMISSAO')
@@ -466,12 +469,58 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     }
   }
 
+  // --- pedidos de acesso (contrato §10a; emenda v2.3) --------------------------------------
+  const acessoSaida = (u: (typeof estado.usuarios)[number]) => ({
+    id: u.id,
+    username: u.username,
+    nome: u.nome,
+    email: u.acesso?.email ?? null,
+    tipo_institucional: 'administrativo',
+    situacao: u.acesso?.situacao ?? 'liberado',
+    perfil: u.acesso ? null : u.perfil,
+    solicitado_em: u.acesso?.solicitado_em ?? new Date().toISOString(),
+    decidido_em: u.acesso?.decidido_em ?? null,
+    decidido_por: u.acesso?.decidido_por ?? null,
+  })
+  if (metodo === 'GET' && caminho === '/gestao/acessos') {
+    if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    const situacao = url.searchParams.get('situacao') ?? 'pendente'
+    const itens = estado.usuarios.filter((u) => u.acesso?.situacao === situacao).map(acessoSaida)
+    return json(res, 200, pagina(itens, url))
+  }
+  const decisaoAcesso = caminho.match(/^\/gestao\/acessos\/([^/]+)\/(aprovar|recusar)$/)
+  if (metodo === 'POST' && decisaoAcesso) {
+    if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
+    const alvo = estado.usuarios.find((u) => u.id === decisaoAcesso[1])
+    if (!alvo) return erro(res, 404, 'USUARIO_NAO_ENCONTRADO')
+    const decidido = { decidido_em: new Date().toISOString(), decidido_por: { id: usuario.id, nome: usuario.nome } }
+    if (decisaoAcesso[2] === 'recusar') {
+      if (alvo.acesso?.situacao !== 'pendente') return erro(res, 409, 'ACESSO_JA_DECIDIDO')
+      alvo.acesso = { ...alvo.acesso, situacao: 'recusado', ...decidido }
+      return json(res, 200, acessoSaida(alvo))
+    }
+    if (!alvo.acesso) return erro(res, 409, 'ACESSO_JA_DECIDIDO')
+    const { perfil } = ((await corpoJson(req)) ?? {}) as { perfil?: string }
+    if (!perfil || !['administrador', 'coordenacao', 'docente', 'aluno'].includes(perfil)) {
+      return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'perfil', mensagem: 'perfil inválido' }])
+    }
+    const admin = usuario.perfil === 'administrador'
+    if (!admin && (alvo.acesso.situacao === 'recusado' || !['docente', 'coordenacao'].includes(perfil))) {
+      return erro(res, 403, 'SEM_PERMISSAO')
+    }
+    const saida = { ...acessoSaida(alvo), situacao: 'liberado', perfil, ...decidido }
+    alvo.perfil = perfil
+    delete alvo.acesso
+    return json(res, 200, saida)
+  }
+
   if (metodo === 'GET' && caminho === '/gestao/usuarios') {
     if (!gestao) return erro(res, 403, 'SEM_PERMISSAO')
     const perfil = url.searchParams.get('perfil')
     const ativo = url.searchParams.get('ativo')
     const q = url.searchParams.get('q')?.toLowerCase()
     const itens = estado.usuarios
+      .filter((u) => !u.acesso) // pedidos de acesso ficam em /gestao/acessos
       .filter((u) => !perfil || u.perfil === perfil)
       .filter((u) => !ativo || String(u.ativo) === ativo)
       .filter((u) => !q || `${u.nome} ${u.username}`.toLowerCase().includes(q))

@@ -24,8 +24,8 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import (CondPageBreak, KeepTogether, PageBreak, Paragraph, Preformatted,
                                 SimpleDocTemplate, Spacer, Table, TableStyle)
 
-ROOT = Path(__file__).resolve().parent  # o PDF fica ao lado do .md
-DOCS = Path(__file__).resolve().parent
+DOCS = Path(__file__).resolve().parent  # os PDFs ficam ao lado dos .md
+ROOT = DOCS
 FONT_DIRS = [Path("/System/Library/Fonts/Supplemental"), Path("/Library/Fonts"),
              Path("/usr/share/fonts/truetype/msttcorefonts")]
 

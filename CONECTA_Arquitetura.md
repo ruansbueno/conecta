@@ -2,6 +2,10 @@
 
 > Sistema web e mobile para publicação e consulta de avisos, eventos e horários do curso, composto por uma plataforma Web de gerenciamento (administração, coordenação e docentes) e um aplicativo Mobile (todos os usuários).
 
+> Arquitetura de referência, escrita antes das especificações (setembro de 2026) e revista em
+> novembro. Onde divergir do que foi implementado, valem as especificações de cada componente
+> (`projeto-*/specs/`) e o código.
+
 ---
 
 # 1. Visão Geral
@@ -94,13 +98,15 @@ A resposta enviada ao cliente contém:
 - Perfil
 - Dados do usuário
 
-O token recebido pelo cliente é utilizado nas requisições seguintes como **Bearer Token**.
+O aplicativo envia o token nas requisições seguintes como **Bearer Token**. A plataforma web não
+vê o token: a API o entrega num cookie `__Host-conecta_sessao` (`HttpOnly`, `Secure`,
+`SameSite=Strict`), e cada escrita leva o cabeçalho `X-CSRF-Token`, assinado e preso à sessão.
 
 ## 2.3 Validação das requisições
 
 A cada requisição protegida:
 
-1. O cliente envia o Bearer Token.
+1. O cliente envia o token (Bearer no aplicativo, cookie de sessão na web).
 2. A API Backend verifica a assinatura do token.
 3. Verifica a validade e expiração do token.
 4. Carrega o perfil e a situação (ativo/inativo) do usuário.
@@ -135,7 +141,7 @@ Geração do JWT
    ▼
 Cliente
    │
-   │ Bearer Token
+   │ Token (Bearer no app, cookie na web)
    ▼
 API Backend
    │
@@ -353,11 +359,11 @@ A arquitetura técnica é organizada em camadas.
                    │
                    ▼
 ┌──────────────────────────────────────┐
-│             API GATEWAY              │
+│        SERVIDOR WEB (nginx)          │
 │                                      │
-│  • Roteamento                        │
-│  • Rate Limiting                     │
-│  • Segurança                         │
+│  • HTTPS                             │
+│  • Arquivos da plataforma web        │
+│  • /api → API, na mesma origem       │
 └──────────────────┬───────────────────┘
                    │
                    ▼
@@ -369,9 +375,8 @@ A arquitetura técnica é organizada em camadas.
 │  • Usuários                          │
 │  • Turmas                            │
 │  • Avisos                            │
-│  • Eventos                           │
-│  • Provas                            │
-│  • Datas                             │
+│  • Eventos (inclui provas e datas)   │
+│  • Horários                          │
 │  • Notificações*                     │
 └───────────────┬───────────────┬──────┘
                 │               │
@@ -430,7 +435,7 @@ USUÁRIO
    ▼
 APP / WEB
    │
-   │ 8. Requisição + Bearer Token
+   │ 8. Requisição + token (Bearer ou cookie)
    ▼
 API BACKEND
    │
@@ -531,7 +536,7 @@ USUÁRIO
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend Web | React / Next.js |
+| Frontend Web | React + TypeScript, construído com Vite (build estático) |
 | Aplicativo Mobile | Flutter |
 | Backend | FastAPI (Python) |
 | Banco de Dados | PostgreSQL |
@@ -600,7 +605,7 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
                          ▼                           ▼
                 ┌────────────────┐         ┌────────────────┐
                 │  WEB           │         │  MOBILE        │
-                │ React / Next   │         │ Flutter        │
+                │ React + Vite   │         │ Flutter        │
                 │                │         │                │
                 │ Admin/Coord.   │         │ Todos usuários │
                 │ Docentes       │         │ autenticados   │
@@ -610,11 +615,11 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
                                      │
                                      ▼
                             ┌─────────────────┐
-                            │   API GATEWAY   │
-                            │                 │
-                            │ • Roteamento    │
-                            │ • Rate Limiting │
-                            │ • Segurança     │
+                            │  SERVIDOR WEB   │
+                            │     (nginx)     │
+                            │ • HTTPS         │
+                            │ • /api → API    │
+                            │ • Arquivos web  │
                             └────────┬────────┘
                                      │
                                      ▼
@@ -627,8 +632,7 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
                             │ • Turmas        │
                             │ • Avisos        │
                             │ • Eventos       │
-                            │ • Provas        │
-                            │ • Datas         │
+                            │ • Horários      │
                             └──────┬─────┬────┘
                                    │     │
                     ┌──────────────┘     └──────────────┐
@@ -650,7 +654,7 @@ Tokens inválidos ou expirados devem resultar em respostas HTTP apropriadas, com
 |---|---|
 | **Web** | Interface de gestão para administradores, coordenação e docentes |
 | **Mobile** | Interface de comunicação e consulta para usuários |
-| **API Gateway** | Roteamento, segurança e controle de requisições |
+| **Servidor web (nginx)** | HTTPS, arquivos estáticos da plataforma e encaminhamento de `/api` para a API, na mesma origem |
 | **Backend** | Regras de negócio, autenticação, autorização e processamento |
 | **PostgreSQL** | Persistência dos dados da aplicação |
 | **API de autenticação do IFSul** | Validação das credenciais no Active Directory e identificação dos usuários (o perfil é do CONECTA) |

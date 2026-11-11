@@ -34,7 +34,7 @@ O seed cria usuários fictícios para os quatro perfis, todos com a senha `senha
 `admin.conecta`, `admin.teste`, `coord.teste`, `docente.teste`, `aluno.teste`, `aluno2.teste`,
 `aluno3.teste` e `aluno.sem.turma`, além de `servidor.aguardando`, um pedido de acesso pendente
 para a gestão liberar ou recusar (rodar o seed de novo não reabre esse pedido depois de decidido).
-Também cria as turmas A, B, C (3º semestre) e D (5º),
+Também cria as turmas 3A, 3B e 3C (3º semestre) e 5A (5º),
 vínculos, solicitações e avisos de exemplo, eventos da agenda e a grade das turmas 3A, 3B e 5A
 (com um conflito de sala de propósito). Pode ser executado de novo sem duplicar nada.
 

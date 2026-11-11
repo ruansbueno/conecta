@@ -40,5 +40,5 @@
 ## Notes
 
 - Decisões assumidas na revisão que dependem de confirmação do orientador estão listadas no
-  documento de decisões (`docs/CONECTA_Decisoes_v2.md`, seção "Decisões complementares").
+  documento de decisões (`docs/historico/especificacao-v1-v2/CONECTA_Decisoes_v2.md` na raiz do repositório, seção "Decisões complementares").
 - Pendência de texto do TCC (Python/FastAPI e autenticação pelo Moodle): parágrafos sugeridos no documento de decisões.

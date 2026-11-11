@@ -21,7 +21,7 @@ evidências em [`evidencias/`](evidencias/) e a implantação estática de refer
 | `evidencias/` | Relatórios da F1 e da F2 (verificações, capturas de cada tela ao lado do design e as diferenças deliberadas) e os registros das execuções dos testes |
 | `deploy/` | `nginx.conf` de referência e `verificar.sh` (build → nginx em Docker com HTTPS → API local) |
 | `.specify/memory/constitution.md` | Princípios que governam a plataforma (cliente sem regra de negócio, token fora do navegador, dados no servidor, acessibilidade) |
-| `specs/001-plataforma-gestao/spec.md` | Especificação funcional: escopo em fases, 16 telas, 7 user stories, requisitos RW-01 a RW-44 |
+| `specs/001-plataforma-gestao/spec.md` | Especificação funcional: escopo em fases, 16 telas, 7 user stories, requisitos RW-01 a RW-51 |
 | `specs/001-plataforma-gestao/plan.md` | Plano técnico: stack, estrutura de pastas, fluxos de sessão, leitura e escrita |
 | `specs/001-plataforma-gestao/research.md` | Decisões técnicas com alternativas e motivos (D1 a D15) |
 | `specs/001-plataforma-gestao/data-model.md` | Tipos derivados do contrato e regras de apresentação |
@@ -29,6 +29,10 @@ evidências em [`evidencias/`](evidencias/) e a implantação estática de refer
 | `specs/001-plataforma-gestao/quickstart.md` | Como rodar contra a API local e o roteiro de verificação |
 | `specs/001-plataforma-gestao/tasks.md` | 77 tarefas da fase F1, agrupadas por user story |
 | `specs/001-plataforma-gestao/checklists/requirements.md` | Checklist de qualidade da spec |
+
+Siglas usadas nas specs e nas tabelas: **US** = história de usuário; **RW** = requisito da
+plataforma web; **w-xx** = tela desenhada em `design/web/`; **Txxx** = tarefa do `tasks.md`;
+**Dn** = decisão técnica do `research.md`.
 
 ## Relação com os outros projetos
 
@@ -60,7 +64,6 @@ mesma origem, e proteção CSRF em toda escrita.
 
 ## Andamento
 
-
 | Fase da F1 | Conteúdo | Situação |
 |---|---|---|
 | 1. Setup | Projeto Vite, dependências, regras de lint próprias (cores só no tema, armazenamento só no rascunho, componentes sem acesso direto à API) | ✅ [#4](https://github.com/ruansbueno/conecta/pull/4) |
@@ -81,6 +84,7 @@ mesma origem, e proteção CSRF em toda escrita.
 | 12. US7a — Agenda | Abas Próximos, Mês, Realizados e Arquivados (w-12), calendário do mês, editor de evento com rascunho, ações e histórico com versões | ✅ [#25](https://github.com/ruansbueno/conecta/pull/25) |
 | 13. US7b — Horários | Escolha da turma, grade semanal (w-13), modal de aula, conflitos como atenção, docentes da grade, "avisar a turma" levando ao aviso com a turma como destino | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 | 14. Polimento da F2 | E2E da agenda e dos horários, axe e teclado nas telas novas, validação visual contra a API real, rastreabilidade e mensagens | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
+| — Login pelo IFSul | Aba Aguardando acesso em Usuários, com contador na barra lateral (RW-50, RW-51), e as mensagens de acesso pendente e recusado no login | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 
 **Testes** (registro de 06/11/2026, [`testes-web-final-2026-11-06.txt`](evidencias/testes-web-final-2026-11-06.txt)):
 414 de unidade e componente (Vitest), 61 de ponta a ponta (Playwright) e 11 da implantação
@@ -93,7 +97,7 @@ API local real ([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md))
 Com a API no ar em `http://localhost:8000` (veja [`projeto-api/README.md`](../projeto-api/README.md)):
 
 ```bash
-npm install
+npm ci
 npm run dev          # http://localhost:5173 — /api é encaminhado para a API local
 ```
 

@@ -1,5 +1,12 @@
 <!--
 Sync Impact Report
+Version change: 2.1.0 → 2.1.1 (2026-11-11), PATCH: esclarecimentos sem mudança de princípio.
+  - I e "Tecnologia e Restrições": a plataforma web é React + Vite (build estático), não Next.js;
+    a autorização usa o perfil relido no banco a cada requisição (como já dizia o III), não o do token; o
+    provedor real é a API de autenticação do IFSul (emenda 2.1.0 estendida a esta seção).
+  Motivo: alinhar o texto ao que foi implementado antes da avaliação do TCC; specs e planos não
+  mudam.
+Version change: 2.0.0 → 2.1.0 (2026-11-06): emenda ao II (API de autenticação do IFSul).
 Version change: 1.0.0 → 2.0.0 (2026-09-30)
 Modified principles:
   - III. Segurança por Padrão — perfis passam a ser administrador, coordenação, docente e aluno;
@@ -34,6 +41,9 @@ Toda regra de negócio do sistema CONECTA reside na API Backend (FastAPI); os cl
 REST/JSON e não implementam lógica de negócio própria. Nenhum dado é persistido ou validado
 diretamente pelo cliente. Isso garante que Web e Mobile permaneçam consistentes e reutilizem
 os mesmos serviços, conforme a arquitetura de referência (`CONECTA_Arquitetura.md`).
+
+*Esclarecimento 2.1.1 (2026-11-11):* a plataforma web foi construída em React com Vite, como
+build estático (constituição da web, princípio IV), e não em Next.js.
 
 ### II. Autenticação Desacoplada do Moodle (NON-NEGOTIABLE)
 A validação de credenciais é abstraída por uma interface `AuthProvider`, nunca acoplada
@@ -95,6 +105,11 @@ identificada (ex: `AuthProvider` para desacoplar o Moodle) — YAGNI para o rest
 - Infraestrutura alvo: infraestrutura própria do IFSul (não gerenciada por este repositório).
 - Clientes: aplicativo Mobile (Flutter) na E1; Plataforma Web (React/Next.js) a partir da E2.
 
+*Esclarecimento 2.1.1 (2026-11-11):* o token carrega o identificador e, só como informação, o
+perfil; a autorização usa sempre o perfil e a situação relidos no banco a cada requisição
+protegida (princípio III); a integração externa de
+autenticação é a API de autenticação do IFSul (emenda 2.1.0); a Plataforma Web é React + Vite.
+
 ## Fluxo de Desenvolvimento (SDD)
 
 Este projeto segue Spec-Driven Development via Spec Kit:
@@ -126,4 +141,4 @@ Toda spec, plano e revisão de código MUST verificar conformidade com os princ�
 especialmente II (desacoplamento do Moodle) e III (segurança). Complexidade adicional em um
 plano MUST ser justificada explicitamente contra o Princípio VI.
 
-**Version**: 2.1.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-11-06
+**Version**: 2.1.1 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-11-11

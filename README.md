@@ -12,7 +12,7 @@ só.
 | Componente | Pasta | Para quem |
 |---|---|---|
 | **API REST** (FastAPI + PostgreSQL) | [`projeto-api/`](projeto-api/) | Os dois clientes. Concentra **todas** as regras: identificação, permissões, visibilidade e histórico |
-| **Plataforma web** (React + Vite) | [`projeto-web/`](projeto-web/) | Administração, coordenação e docentes publicam e gerenciam avisos, eventos, horários, turmas, vínculos, solicitações e usuários |
+| **Plataforma web** (React + Vite) | [`projeto-web/`](projeto-web/) | Administração, coordenação e docentes, cada perfil dentro das suas permissões, publicam e gerenciam avisos, eventos, horários, turmas, vínculos, solicitações e usuários |
 | **Aplicativo** (Flutter, Android) | [`projeto-mobile/`](projeto-mobile/) | Todos os perfis consultam avisos, agenda, horários e turmas, inclusive sem rede; o aluno solicita inscrição em turmas |
 
 ## Guia rápido para a avaliação
@@ -20,6 +20,8 @@ só.
 1. **Entender as regras:** a matriz de permissões e as regras de negócio estão na
    [especificação da API](projeto-api/specs/001-auth-perfil-turmas-avisos/spec.md) (seções 2 e 3)
    e, para a agenda e os horários, na [especificação da E3](projeto-api/specs/002-agenda-horarios/spec.md).
+   O trabalho foi dividido em três entregas: E1 (aplicativo: login, turmas e avisos), E2 (gestão
+   pela plataforma web) e E3 (agenda e horários).
 2. **Ver onde cada regra está no código:** tabela [Onde ler o código](#onde-ler-o-código), abaixo.
 3. **Conferir os testes:** os registros citados no Apêndice B do TCC estão em
    [Evidências dos testes](#evidências-dos-testes), cada um com a data e o commit em que rodou.
@@ -30,19 +32,19 @@ só.
 
 | O que | Onde |
 |---|---|
-| Quem recebe um aviso ou evento: a regra de alcance, única para os dois | [`projeto-api/src/repositories/alcance.py`](projeto-api/src/repositories/alcance.py) |
+| Quem recebe um aviso ou evento: uma só regra de alcance para os dois | [`projeto-api/src/repositories/alcance.py`](projeto-api/src/repositories/alcance.py) |
 | Aviso agendado só aparece a partir da data de publicação | [`projeto-api/src/repositories/aviso_repository.py`](projeto-api/src/repositories/aviso_repository.py) |
 | Docente só publica para as turmas em que leciona | [`projeto-api/src/services/destinos.py`](projeto-api/src/services/destinos.py) e [`permissoes.py`](projeto-api/src/services/permissoes.py) |
-| Publicar, editar, arquivar e excluir com versão e registro na mesma transação | [`projeto-api/src/services/avisos_gestao_service.py`](projeto-api/src/services/avisos_gestao_service.py) |
-| O banco recusa alterar ou apagar versões e histórico (*trigger*) | [`projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py`](projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py) |
-| Conflito de sala e de docente na grade: informado, sem impedir | [`projeto-api/src/services/conflitos.py`](projeto-api/src/services/conflitos.py) |
-| Sessão: token relido no banco a cada requisição (perfil e situação) | [`projeto-api/src/core/security.py`](projeto-api/src/core/security.py) |
+| Publicar e editar geram uma versão; toda operação (inclusive arquivar e excluir) grava um registro no histórico, na mesma transação | [`projeto-api/src/services/avisos_gestao_service.py`](projeto-api/src/services/avisos_gestao_service.py) |
+| O banco recusa alterar ou apagar versões e histórico (*trigger*) | Avisos: [`20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py`](projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py); eventos: [`20261031_321cb139e662_cria_evento_e_horario.py`](projeto-api/alembic/versions/20261031_321cb139e662_cria_evento_e_horario.py) (em `projeto-api/alembic/versions/`) |
+| Conflito de sala e de docente na grade: informado, sem impedir | Regra em [`projeto-api/src/services/conflitos.py`](projeto-api/src/services/conflitos.py); gravação com os conflitos na resposta em [`horarios_service.py`](projeto-api/src/services/horarios_service.py) |
+| Sessão: token validado e usuário (perfil e situação) relido no banco a cada requisição | [`projeto-api/src/core/security.py`](projeto-api/src/core/security.py) |
 | CSRF assinado e preso à sessão da web | [`projeto-api/src/api/deps/csrf.py`](projeto-api/src/api/deps/csrf.py) |
 | Erros com código estável (`{detail, code}`) | [`projeto-api/src/api/errors.py`](projeto-api/src/api/errors.py) |
 | Identificação pela API de autenticação do IFSul, atrás de uma interface | [`projeto-api/src/providers/auth/`](projeto-api/src/providers/auth/) (`base.py`, `ifsul.py`, `mock.py`) |
 | Web: cliente HTTP (cookie de sessão e cabeçalho CSRF) | [`projeto-web/src/api/cliente.ts`](projeto-web/src/api/cliente.ts) |
 | Web: seletor de destinos dos avisos e eventos | [`projeto-web/src/componentes/comum/seletor-destinos.tsx`](projeto-web/src/componentes/comum/seletor-destinos.tsx) |
-| Web: servidor publicado (HTTPS, `/api` na mesma origem, cabeçalhos de segurança) | [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf) |
+| Web: configuração de referência do servidor nginx (HTTPS, `/api` na mesma origem, cabeçalhos de segurança) | [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf) |
 | App: cliente HTTP, token no armazenamento seguro e cache para abrir sem rede | [`projeto-mobile/lib/services/`](projeto-mobile/lib/services/) |
 | App: listas paginadas (resposta antiga não sobrescreve a nova) | [`projeto-mobile/lib/state/lista_paginada.dart`](projeto-mobile/lib/state/lista_paginada.dart) |
 | Fluxo de ponta a ponta da especificação (publicar na gestão e receber no app) | [`projeto-api/tests/e2e/test_fluxo_publicar_receber.py`](projeto-api/tests/e2e/test_fluxo_publicar_receber.py) |
@@ -146,6 +148,7 @@ Todos com a senha `senha-teste`. Os dados são fictícios.
 | `aluno3.teste` | aluno (3C; pedido recusado na 3B) | O motivo da recusa |
 | `aluno.sem.turma` | aluno, sem turma | Os estados vazios |
 | `servidor.aguardando` | — | Um pedido de acesso pendente, para a gestão aprovar ou recusar |
+| `aluno.novo`, `servidor.novo` | — (não estão no seed) | O primeiro login: aluno entra como aluno; servidor vira um pedido de acesso |
 
 ## Como rodar os testes
 
@@ -154,7 +157,7 @@ Todos com a senha `senha-teste`. Os dados são fictícios.
 | API | `cd projeto-api && uv run pytest` | Usa o banco `conecta_test`, criado pelo `docker compose`; os 3 testes da integração real com o IFSul são pulados sem uma conta institucional |
 | Web, unidade e componente | `cd projeto-web && npm test` | — |
 | Web, ponta a ponta | `npx playwright install chromium` e `npm run test:e2e` | Usa um servidor falso que segue o contrato da API; não precisa da API no ar |
-| Web, implantação | `deploy/verificar.sh` | Sobe o nginx em Docker, com HTTPS, contra a API local em `localhost:8000` |
+| Web, implantação | `deploy/verificar.sh` | Sobe o nginx em Docker, com HTTPS, contra a API local em `localhost:8000` (com o seed); usa o Chromium do Playwright |
 | App, unidade e widget | `cd projeto-mobile && flutter test` | — |
 | App, integração | `flutter test integration_test -d <id do emulador>` | Precisa de um emulador aberto; usa um servidor falso que segue o contrato da API |
 
@@ -163,8 +166,9 @@ Verificações de estilo: `uv run ruff check .` (API), `npm run lint` e `npm run
 
 ## Evidências dos testes
 
-Os registros abaixo são as saídas das execuções citadas no Apêndice B do TCC. Cada arquivo traz no
-cabeçalho a data, o commit e o comando executado.
+Os registros abaixo são as saídas das execuções citadas no Apêndice B do TCC. Cada arquivo traz a
+data, a versão do código (commit) e os comandos executados; o roteiro do IFSul rodou no commit
+`59f05d5`.
 
 | Execução | Registro |
 |---|---|
@@ -179,9 +183,16 @@ O roteiro integrado (`projeto-api/scripts/roteiro_integrado.py`) exercita a API 
 clientes, com as capturas das telas ao lado do design e as diferenças deliberadas, estão em
 `projeto-web/evidencias/` e `projeto-mobile/evidencias/` (`RELATORIO.md` e `RELATORIO-F2.md`).
 
-A `main` tem commits posteriores às execuções registradas (este guia, a organização da
-documentação e uma correção no aplicativo, com teste próprio). Para repetir uma execução exatamente
-como registrada, use o commit indicado no cabeçalho do registro (`git checkout <commit>`).
+Até 06/11/2026, a integração real prevista para o login era com o Moodle; por isso os registros
+anteriores a essa data citam `MOODLE_URL`, e os 3 testes pulados neles são os dessa integração. A
+partir de 06/11, os pulados são os da integração real com o IFSul.
+
+A `main` tem commits posteriores às execuções registradas: na API, a nova tentativa de conexão com
+o IFSul e um ajuste do seed (PR #33); nos clientes, o nome do curso e uma correção no aplicativo,
+cada um com teste; e esta documentação. Num clone limpo da `main`, em 11/11/2026, a API teve 995
+testes aprovados e 3 pulados, a web 414 de unidade e componente, e o aplicativo 358 de unidade e
+widget. Para repetir uma execução exatamente como registrada, use o commit indicado no registro
+(`git checkout <commit>`).
 
 ## Arquitetura em uma página
 
@@ -237,7 +248,7 @@ como registrada, use o commit indicado no cabeçalho do registro (`git checkout 
 - **Implantação:** verificada localmente (nginx em Docker, HTTPS com certificado autoassinado, 11
   testes). A instalação no IFSul depende da instituição; o que ajustar está no topo de
   [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf). A documentação interativa da
-  API é bloqueada pelo nginx, então a porta da API não deve ser publicada fora do servidor.
+  API só é bloqueada no nginx: a porta da API não deve ficar acessível fora do servidor.
 - **Aplicativo:** verificado só no Android. A aba Horários lista a primeira página das turmas da
   pessoa (20 turmas).
 - **Diferenças em relação ao design:** onde a API não tem o dado, a interface não o mostra (turno da
@@ -248,4 +259,5 @@ como registrada, use o commit indicado no cabeçalho do registro (`git checkout 
 
 ## Licença
 
-[MIT](LICENSE).
+Código sob a licença [MIT](LICENSE). As fontes Inter incluídas no projeto são distribuídas sob a
+SIL Open Font License 1.1 (`Inter-LICENSE.txt` ao lado de cada cópia).

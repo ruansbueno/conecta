@@ -123,7 +123,7 @@ separa os grupos `mock_auth` e `ifsul_real`.
 1. Suba a API com o provedor real (em produção, `IFSUL_AUTH_URL` com HTTPS):
 
    ```bash
-   export IFSUL_AUTH_URL=http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes
+   export IFSUL_AUTH_URL='<endereço informado pelo IFSul>'
    AUTH_PROVIDER=ifsul IFSUL_AUTH_PERMITIR_HTTP=true uv run uvicorn src.main:app --port 8001
    ```
 
@@ -134,7 +134,7 @@ separa os grupos `mock_auth` e `ifsul_real`.
 
    ```bash
    uv run python -m scripts.roteiro_ifsul --conecta http://localhost:8001 \
-     --ifsul http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes \
+     --ifsul "$IFSUL_AUTH_URL" \
      --saida evidencias/roteiro-ifsul-$(date +%F).md
    ```
 

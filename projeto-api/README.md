@@ -23,7 +23,7 @@ Pré-requisitos: Docker e [`uv`](https://docs.astral.sh/uv/) (instala o Python 3
 
 ```bash
 docker compose up -d --wait db        # Postgres local na porta 5433 (CONECTA_DB_PORT muda)
-cp .env.example .env                  # e troque JWT_SECRET e CSRF_SECRET (instruções no arquivo)
+cp .env.example .env                  # e troque JWT_SECRET e CSRF_SECRET (ver o README da raiz)
 uv sync
 uv run alembic upgrade head
 uv run python -m scripts.seed_dev_data
@@ -122,12 +122,12 @@ CONECTA.
 Até a emenda v2.3, a integração real era prevista "com o Moodle"; o serviço da instituição é a API
 de autenticação do IFSul, e o provedor simulado passou a se chamar `MockAuthProvider`.
 
-## Pendente
+## Limitações
 
-- **Validação com conta administrativa real** (T072): em 06/11/2026 o roteiro rodou com uma conta
-  real de aluno, com 8 de 8 casos executados corretos
-  ([relatório](evidencias/roteiro-ifsul-2026-11-06.md)); o 7 (API fora do ar) é simulado. Falta o
-  caso 2: rodar `scripts/roteiro_ifsul.py` com uma conta administrativa, aprovar o pedido de
-  acesso e rodar de novo, e marcar o item no checklist da `spec.md` §9.4 (data-limite 13/11/2026).
+- **Conta de servidor contra o serviço real:** em 06/11/2026 o roteiro rodou com uma conta real de
+  aluno, com 8 de 8 casos executados corretos ([relatório](evidencias/roteiro-ifsul-2026-11-06.md));
+  o 7 (API fora do ar) é simulado. O caso 2 (conta administrativa: pedido de acesso, aprovação e
+  novo login) não foi executado contra o serviço real; para executá-lo, rodar
+  `scripts/roteiro_ifsul.py` com uma conta administrativa, aprovar o pedido e rodar de novo.
 - **HTTPS**: a URL atual da API do IFSul usa HTTP; em produção, `IFSUL_AUTH_URL` precisa ser HTTPS
   (a API recusa `http://` sem `IFSUL_AUTH_PERMITIR_HTTP=true`).

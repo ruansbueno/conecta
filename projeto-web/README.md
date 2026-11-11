@@ -4,11 +4,12 @@ Plataforma web do CONECTA, em React, para administração, coordenação e docen
 auditar avisos, gerir turmas e vínculos, decidir solicitações de inscrição e administrar perfis
 de acesso. É aqui que a informação entra no sistema; o aplicativo mobile é quem a entrega.
 
-A F1 está completa (77 de 77 tarefas): entrar na plataforma, publicar avisos para o público certo,
+As fases F1 e F2 estão completas: entrar na plataforma, publicar avisos para o público certo,
 acompanhar e auditar tudo o que foi publicado, manter turmas e vínculos, decidir as solicitações de
-inscrição, administrar usuários e perfis e acompanhar tudo pelo painel — com acessibilidade AA
-verificada, uso só com teclado, as evidências em [`evidencias/`](evidencias/RELATORIO.md) e a
-implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento](#andamento).
+inscrição e os pedidos de acesso, administrar usuários e perfis, montar a agenda e a grade de
+horários e acompanhar tudo pelo painel — com acessibilidade AA verificada, uso só com teclado, as
+evidências em [`evidencias/`](evidencias/) e a implantação estática de referência em
+[`deploy/`](deploy/). Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -17,7 +18,7 @@ implantação estática de referência em [`deploy/`](deploy/). Veja [Andamento]
 | `src/` | Código: `api/` (cliente HTTP, esquemas `zod`, recursos por endpoint), `sessao/`, `componentes/`, `paginas/`, `lib/`, `estilos/` |
 | `tests/` | Testes de unidade e de componente (Vitest + Testing Library) |
 | `e2e/` | Testes de ponta a ponta (Playwright) e o servidor falso que imita o contrato da API |
-| `evidencias/` | Relatório da F1: verificações, capturas de cada tela ao lado do design e as diferenças deliberadas |
+| `evidencias/` | Relatórios da F1 e da F2 (verificações, capturas de cada tela ao lado do design e as diferenças deliberadas) e os registros das execuções dos testes |
 | `deploy/` | `nginx.conf` de referência e `verificar.sh` (build → nginx em Docker com HTTPS → API local) |
 | `.specify/memory/constitution.md` | Princípios que governam a plataforma (cliente sem regra de negócio, token fora do navegador, dados no servidor, acessibilidade) |
 | `specs/001-plataforma-gestao/spec.md` | Especificação funcional: escopo em fases, 16 telas, 7 user stories, requisitos RW-01 a RW-44 |
@@ -59,7 +60,6 @@ mesma origem, e proteção CSRF em toda escrita.
 
 ## Andamento
 
-Atualizado em 01/11/2026.
 
 | Fase da F1 | Conteúdo | Situação |
 |---|---|---|
@@ -82,9 +82,11 @@ Atualizado em 01/11/2026.
 | 13. US7b — Horários | Escolha da turma, grade semanal (w-13), modal de aula, conflitos como atenção, docentes da grade, "avisar a turma" levando ao aviso com a turma como destino | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 | 14. Polimento da F2 | E2E da agenda e dos horários, axe e teclado nas telas novas, validação visual contra a API real, rastreabilidade e mensagens | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 
-**Testes**: 385 de unidade e componente (Vitest), 54 de ponta a ponta (Playwright) e 8 da
-implantação (`deploy/verificar.sh`), além da validação visual de cada tela contra a API local real
-([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md)).
+**Testes** (registro de 06/11/2026, [`testes-web-final-2026-11-06.txt`](evidencias/testes-web-final-2026-11-06.txt)):
+414 de unidade e componente (Vitest), 61 de ponta a ponta (Playwright) e 11 da implantação
+(`deploy/verificar.sh`); o registro de 10/11, com cada teste pelo nome, tem 62 de ponta a ponta
+([`testes-web-por-teste-2026-11-10.txt`](evidencias/testes-web-por-teste-2026-11-10.txt)). Além disso, a validação visual de cada tela contra a
+API local real ([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md)).
 
 ## Como rodar
 
@@ -100,6 +102,7 @@ Entre com os usuários do seed da API (`coord.teste`, `docente.teste`, `admin.te
 
 ```bash
 npm run test         # unidade e componente (Vitest)
+npx playwright install chromium   # uma vez, para os testes de ponta a ponta
 npm run test:e2e     # ponta a ponta (Playwright), com o servidor falso — não precisa da API
 npm run lint
 npm run typecheck
@@ -110,14 +113,9 @@ deploy/verificar.sh  # build servido por nginx (Docker, HTTPS) com a API local e
 O roteiro completo de verificação está em
 [`quickstart.md`](specs/001-plataforma-gestao/quickstart.md).
 
-## Próximo passo
+## Instalação no IFSul
 
-A web está completa nas fases F1 e F2, assim como o aplicativo. Com o login pela API de
-autenticação do IFSul (06/11/2026), servidores que entram pela primeira vez viram pedidos de
-acesso: administração e coordenação decidem em Usuários → Aguardando acesso, com contador na barra
-lateral (RW-50, RW-51). Falta só validar o login com contas reais, o que é da API.
-
-Na instalação no IFSul, ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado,
-o endereço da API e, se o HTTPS público não usar a porta 443, a porta do redirecionamento de HTTP
-(`map` no topo do arquivo). A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob
-`/api` e HTTPS — está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).
+Ajustar em `deploy/nginx.conf` o `server_name`, os caminhos do certificado, o endereço da API e, se
+o HTTPS público não usar a porta 443, a porta do redirecionamento de HTTP (`map` no topo do
+arquivo). A premissa do modelo de sessão — plataforma e API no mesmo domínio, com a API sob `/api`
+e HTTPS — está confirmada com a infraestrutura do IFSul (ver o passo 0 do `quickstart.md`).

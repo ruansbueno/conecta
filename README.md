@@ -1,52 +1,205 @@
 # CONECTA
 
-Sistema de comunicação e gestão acadêmica para um curso superior do IFSul, desenvolvido como
-Trabalho de Conclusão de Curso. Reúne uma **plataforma web** de gestão (administração,
-coordenação e docentes) e um **aplicativo mobile** de consulta (todos os usuários), ambos
-atendidos por uma **API REST** única.
+Sistema web e mobile para publicação e consulta de avisos, eventos e horários do curso de Análise
+e Desenvolvimento de Sistemas do IFSul Câmpus Gravataí. Trabalho de Conclusão de Curso de Ruan
+Bueno.
 
-O problema que ele resolve: avisos, prazos, bancas e mudanças de horário hoje se espalham por
-murais, grupos de mensagem e e-mail, e nem sempre chegam a quem precisa. No CONECTA, cada aviso
-ou evento é publicado com um **público explícito** — todos, um semestre inteiro, os docentes ou
-turmas específicas — e cada pessoa vê exatamente o que a alcança.
+Avisos, prazos, bancas e mudanças de horário costumam se espalhar por murais, grupos de mensagem e
+e-mail. No CONECTA, cada aviso ou evento é publicado com um **público explícito** (todos, um
+semestre, os docentes ou turmas específicas), e cada pessoa vê exatamente o que a alcança, uma vez
+só.
 
-> **Estado final (01/11/2026)**: as fases F1 e F2 estão completas nos três projetos:
-> - **API:** entregas E1, E2 e E3;
-> - **plataforma web:** avisos com auditoria, turmas e vínculos, solicitações, usuários e perfis, painel, agenda e grade de horários;
-> - **aplicativo:** avisos, turmas, inscrição, perfil, agenda e horários, inclusive sem rede.
->
-> O fluxo web → API → app está testado, a acessibilidade AA foi verificada e há evidências com capturas. O login pela **API de autenticação do IFSul** está implementado e passou contra a API real nos casos que não exigem conta; **falta só validá-lo com uma conta de aluno e uma administrativa** (prazo: 13/11/2026). Veja [Andamento](#andamento) e [Limitações conhecidas](#limitações-conhecidas).
+| Componente | Pasta | Para quem |
+|---|---|---|
+| **API REST** (FastAPI + PostgreSQL) | [`projeto-api/`](projeto-api/) | Os dois clientes. Concentra **todas** as regras: identificação, permissões, visibilidade e histórico |
+| **Plataforma web** (React + Vite) | [`projeto-web/`](projeto-web/) | Administração, coordenação e docentes publicam e gerenciam avisos, eventos, horários, turmas, vínculos, solicitações e usuários |
+| **Aplicativo** (Flutter, Android) | [`projeto-mobile/`](projeto-mobile/) | Todos os perfis consultam avisos, agenda, horários e turmas, inclusive sem rede; o aluno solicita inscrição em turmas |
+
+## Guia rápido para a avaliação
+
+1. **Entender as regras:** a matriz de permissões e as regras de negócio estão na
+   [especificação da API](projeto-api/specs/001-auth-perfil-turmas-avisos/spec.md) (seções 2 e 3)
+   e, para a agenda e os horários, na [especificação da E3](projeto-api/specs/002-agenda-horarios/spec.md).
+2. **Ver onde cada regra está no código:** tabela [Onde ler o código](#onde-ler-o-código), abaixo.
+3. **Conferir os testes:** os registros citados no Apêndice B do TCC estão em
+   [Evidências dos testes](#evidências-dos-testes), cada um com a data e o commit em que rodou.
+4. **Executar o sistema:** [Como baixar e rodar](#como-baixar-e-rodar) e
+   [Como rodar os testes](#como-rodar-os-testes). O roteiro foi testado num clone limpo.
+
+## Onde ler o código
+
+| O que | Onde |
+|---|---|
+| Quem recebe um aviso ou evento: a regra de alcance, única para os dois | [`projeto-api/src/repositories/alcance.py`](projeto-api/src/repositories/alcance.py) |
+| Aviso agendado só aparece a partir da data de publicação | [`projeto-api/src/repositories/aviso_repository.py`](projeto-api/src/repositories/aviso_repository.py) |
+| Docente só publica para as turmas em que leciona | [`projeto-api/src/services/destinos.py`](projeto-api/src/services/destinos.py) e [`permissoes.py`](projeto-api/src/services/permissoes.py) |
+| Publicar, editar, arquivar e excluir com versão e registro na mesma transação | [`projeto-api/src/services/avisos_gestao_service.py`](projeto-api/src/services/avisos_gestao_service.py) |
+| O banco recusa alterar ou apagar versões e histórico (*trigger*) | [`projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py`](projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py) |
+| Conflito de sala e de docente na grade: informado, sem impedir | [`projeto-api/src/services/conflitos.py`](projeto-api/src/services/conflitos.py) |
+| Sessão: token relido no banco a cada requisição (perfil e situação) | [`projeto-api/src/core/security.py`](projeto-api/src/core/security.py) |
+| CSRF assinado e preso à sessão da web | [`projeto-api/src/api/deps/csrf.py`](projeto-api/src/api/deps/csrf.py) |
+| Erros com código estável (`{detail, code}`) | [`projeto-api/src/api/errors.py`](projeto-api/src/api/errors.py) |
+| Identificação pela API de autenticação do IFSul, atrás de uma interface | [`projeto-api/src/providers/auth/`](projeto-api/src/providers/auth/) (`base.py`, `ifsul.py`, `mock.py`) |
+| Web: cliente HTTP (cookie de sessão e cabeçalho CSRF) | [`projeto-web/src/api/cliente.ts`](projeto-web/src/api/cliente.ts) |
+| Web: seletor de destinos dos avisos e eventos | [`projeto-web/src/componentes/comum/seletor-destinos.tsx`](projeto-web/src/componentes/comum/seletor-destinos.tsx) |
+| Web: servidor publicado (HTTPS, `/api` na mesma origem, cabeçalhos de segurança) | [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf) |
+| App: cliente HTTP, token no armazenamento seguro e cache para abrir sem rede | [`projeto-mobile/lib/services/`](projeto-mobile/lib/services/) |
+| App: listas paginadas (resposta antiga não sobrescreve a nova) | [`projeto-mobile/lib/state/lista_paginada.dart`](projeto-mobile/lib/state/lista_paginada.dart) |
+| Fluxo de ponta a ponta da especificação (publicar na gestão e receber no app) | [`projeto-api/tests/e2e/test_fluxo_publicar_receber.py`](projeto-api/tests/e2e/test_fluxo_publicar_receber.py) |
+
+Cada componente segue camadas separadas. Na API: `src/api` (rotas) → `src/services` (regras) →
+`src/repositories` (consultas) → `src/models` (tabelas). Os princípios de cada componente estão na
+sua constituição (`projeto-*/.specify/memory/constitution.md`), e o planejamento de cada entrega,
+em `projeto-*/specs/` (especificação, plano e tarefas).
 
 ## Estrutura do repositório
 
-| Pasta | Conteúdo | Situação |
+| Caminho | Conteúdo |
+|---|---|
+| [`projeto-api/`](projeto-api/) | Código (`src/`), migrações (`alembic/`), testes (`tests/`), scripts (`scripts/`), especificações (`specs/`) e evidências (`evidencias/`) |
+| [`projeto-web/`](projeto-web/) | Código (`src/`), testes de unidade e componente (`tests/`), de ponta a ponta (`e2e/`), implantação (`deploy/`), especificações e evidências com capturas |
+| [`projeto-mobile/`](projeto-mobile/) | Código (`lib/`), testes de unidade e widget (`test/`), de integração (`integration_test/`), especificações e evidências com capturas |
+| [`design/`](design/) | As 30 telas desenhadas (14 do aplicativo, 16 da web), com a paleta e a tipografia |
+| [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: componentes, autenticação, módulos e regras |
+| [`docs/modelo-de-dados/`](docs/modelo-de-dados/) | Modelo de dados no SQL Power Architect |
+| [`docs/HISTORICO.md`](docs/HISTORICO.md) | Como o projeto foi construído: ordem das entregas e os pull requests |
+| [`docs/historico/`](docs/historico/) | Versões superadas da especificação (v1 e v2), guardadas como registro |
+
+## Como baixar e rodar
+
+### Pré-requisitos
+
+| Ferramenta | Para quê |
+|---|---|
+| Git | Baixar o repositório |
+| Docker | Banco PostgreSQL 16 local (e o nginx da verificação da implantação) |
+| [uv](https://docs.astral.sh/uv/) | API: instala o Python 3.12 e as dependências |
+| Node.js 24 e npm | Plataforma web |
+| Flutter 3.41 e Android SDK com um emulador | Aplicativo (verificado no Android 16) |
+
+### 1. Baixar
+
+```bash
+git clone https://github.com/ruansbueno/conecta.git
+cd conecta
+```
+
+### 2. API (porta 8000)
+
+```bash
+cd projeto-api
+docker compose up -d --wait db          # PostgreSQL na porta 5433
+cp .env.example .env
+uv run python - <<'PY'                  # gera os dois segredos locais no .env
+import re, secrets, pathlib
+p = pathlib.Path('.env'); s = p.read_text()
+for k in ('JWT_SECRET', 'CSRF_SECRET'):
+    s = re.sub(rf'^{k}=.*$', f'{k}={secrets.token_urlsafe(48)}', s, flags=re.M)
+p.write_text(s)
+PY
+uv run alembic upgrade head             # cria as tabelas
+uv run python -m scripts.seed_dev_data  # dados fictícios de demonstração
+uv run uvicorn src.main:app --reload    # http://localhost:8000/docs
+```
+
+A API se recusa a subir com os segredos de exemplo do `.env.example`; o trecho acima os troca. O
+login usa o provedor simulado (`AUTH_PROVIDER=mock`), com os usuários da tabela abaixo.
+
+### 3. Plataforma web (porta 5173)
+
+Em outro terminal, com a API no ar:
+
+```bash
+cd projeto-web
+npm ci
+npm run dev                             # http://localhost:5173
+```
+
+O servidor de desenvolvimento encaminha `/api` para a API em `localhost:8000`, reproduzindo a
+mesma origem de produção.
+
+### 4. Aplicativo
+
+Com a API no ar e um emulador Android aberto:
+
+```bash
+cd projeto-mobile
+flutter pub get
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
+`10.0.2.2` é o endereço com que o emulador enxerga o computador. Num celular Android ligado por
+USB, use `adb reverse tcp:8000 tcp:8000` e `--dart-define=API_BASE_URL=http://localhost:8000`: o
+aplicativo só aceita HTTP sem TLS para o emulador e para `localhost`.
+
+### Usuários de demonstração
+
+Todos com a senha `senha-teste`. Os dados são fictícios.
+
+| Usuário | Perfil | Para ver |
 |---|---|---|
-| [`projeto-api/`](projeto-api/) | API REST em FastAPI: regras de negócio, perfis e permissões, modelo de dados, contrato dos endpoints, código e testes | E1, E2 e E3 implementadas; login pela API de autenticação do IFSul (falta validar com contas reais) |
-| [`projeto-mobile/`](projeto-mobile/) | Aplicativo Flutter: especificação, planos, tarefas, o código e as evidências | F1 e F2 completas (88 de 88 tarefas) |
-| [`projeto-web/`](projeto-web/) | Plataforma web de gestão (React + Vite): especificação, planos, tarefas, o código, as evidências e a implantação | F1 e F2 completas (100 de 100 tarefas) |
-| [`design/`](design/) | 30 telas desenhadas — 14 do aplicativo e 16 da web — em PNG, geradas a partir de HTML/CSS | Concluído |
-| [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: camadas, módulos, fluxo de autenticação, tecnologias | Concluído |
+| `admin.teste` | administrador | Usuários, perfis, ativar e desativar; pedidos de acesso |
+| `coord.teste` | coordenação | Toda a gestão: avisos, agenda, horários, turmas, solicitações |
+| `docente.teste` | docente (turmas 3A e 5A) | Publicação restrita às próprias turmas; decisão de solicitações delas |
+| `aluno.teste` | aluno (3A; pedido pendente na 3B) | O aplicativo completo e uma solicitação pendente |
+| `aluno2.teste` | aluno (3A e 3B) | Aviso para as duas turmas aparece uma vez só |
+| `aluno3.teste` | aluno (3C; pedido recusado na 3B) | O motivo da recusa |
+| `aluno.sem.turma` | aluno, sem turma | Os estados vazios |
+| `servidor.aguardando` | — | Um pedido de acesso pendente, para a gestão aprovar ou recusar |
 
-Documentos de apoio do TCC (especificação em PDF, decisões de projeto e apresentação) estão em
-[`projeto-api/docs/`](projeto-api/docs/) e na raiz de `projeto-api/`.
+## Como rodar os testes
 
-## Como o sistema funciona
+| Componente | Comando | Observação |
+|---|---|---|
+| API | `cd projeto-api && uv run pytest` | Usa o banco `conecta_test`, criado pelo `docker compose`; os 3 testes da integração real com o IFSul são pulados sem uma conta institucional |
+| Web, unidade e componente | `cd projeto-web && npm test` | — |
+| Web, ponta a ponta | `npx playwright install chromium` e `npm run test:e2e` | Usa um servidor falso que segue o contrato da API; não precisa da API no ar |
+| Web, implantação | `deploy/verificar.sh` | Sobe o nginx em Docker, com HTTPS, contra a API local em `localhost:8000` |
+| App, unidade e widget | `cd projeto-mobile && flutter test` | — |
+| App, integração | `flutter test integration_test -d <id do emulador>` | Precisa de um emulador aberto; usa um servidor falso que segue o contrato da API |
+
+Verificações de estilo: `uv run ruff check .` (API), `npm run lint` e `npm run typecheck` (web),
+`flutter analyze` (app).
+
+## Evidências dos testes
+
+Os registros abaixo são as saídas das execuções citadas no Apêndice B do TCC. Cada arquivo traz no
+cabeçalho a data, o commit e o comando executado.
+
+| Execução | Registro |
+|---|---|
+| API, entregas E1, E2 e E3 (25/10, 26/10 e 31/10) | [`testes-e1-2026-10-25.txt`](projeto-api/evidencias/testes-e1-2026-10-25.txt), [`testes-e2-2026-10-26.txt`](projeto-api/evidencias/testes-e2-2026-10-26.txt), [`testes-e3-2026-10-31.txt`](projeto-api/evidencias/testes-e3-2026-10-31.txt) |
+| Fechamento (01/11): API, web, aplicativo e roteiro integrado | [API](projeto-api/evidencias/testes-final-2026-11-01.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-01.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-01.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-01.txt) |
+| Final (06/11): API, web (com a implantação), aplicativo (com a integração no emulador) e roteiro integrado | [API](projeto-api/evidencias/testes-final-2026-11-06.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-06.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-06.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-06.txt) |
+| Roteiro contra a API de autenticação do IFSul, com conta real de aluno (06/11) | [`roteiro-ifsul-2026-11-06.md`](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md) |
+| Web e aplicativo com cada teste pelo nome (10/11) | [web](projeto-web/evidencias/testes-web-por-teste-2026-11-10.txt), [app](projeto-mobile/evidencias/testes-app-por-teste-2026-11-10.txt) |
+
+O roteiro integrado (`projeto-api/scripts/roteiro_integrado.py`) exercita a API real como a web
+(cookie de sessão e CSRF) e como o aplicativo (token no cabeçalho). Os relatórios de cada fase dos
+clientes, com as capturas das telas ao lado do design e as diferenças deliberadas, estão em
+`projeto-web/evidencias/` e `projeto-mobile/evidencias/` (`RELATORIO.md` e `RELATORIO-F2.md`).
+
+A `main` tem commits posteriores às execuções registradas (este guia, a organização da
+documentação e uma correção no aplicativo, com teste próprio). Para repetir uma execução exatamente
+como registrada, use o commit indicado no cabeçalho do registro (`git checkout <commit>`).
+
+## Arquitetura em uma página
 
 ```
 ┌──────────────────────┐      ┌──────────────────────┐
-│  Plataforma Web      │      │  Aplicativo Mobile   │
-│  admin, coordenação, │      │  todos os usuários   │
-│  docentes            │      │                      │
-│  publica e gerencia  │      │  consulta e recebe   │
+│  Plataforma web      │      │  Aplicativo          │
+│  administração,      │      │  todos os perfis     │
+│  coordenação,        │      │                      │
+│  docentes            │      │  consulta            │
 └──────────┬───────────┘      └──────────┬───────────┘
-           │        REST / JSON          │
+   cookie + CSRF, /api             token no cabeçalho
            └──────────────┬──────────────┘
                           ▼
-              ┌───────────────────────┐        ┌──────────────┐
-              │   API (FastAPI)       │───────▶│  API IFSul   │
-              │   regras de negócio,  │  auten-│  (valida     │
-              │   autenticação,       │  ticação  credenciais)│
-              │   autorização         │        └──────────────┘
+              ┌───────────────────────┐        ┌──────────────────┐
+              │   API (FastAPI)       │───────▶│  API de          │
+              │   regras, permissões, │        │  autenticação    │
+              │   visibilidade,       │        │  do IFSul        │
+              │   histórico           │        └──────────────────┘
               └───────────┬───────────┘
                           ▼
                    ┌─────────────┐
@@ -54,179 +207,45 @@ Documentos de apoio do TCC (especificação em PDF, decisões de projeto e apres
                    └─────────────┘
 ```
 
-**Quatro decisões que organizam o sistema:**
+1. **Toda regra fica na API.** Web e aplicativo apresentam o que ela devolve; o bloqueio vale para
+   qualquer cliente.
+2. **O provedor só identifica.** A API de autenticação do IFSul confere usuário e senha; o perfil
+   de cada pessoa é atribuído e mantido pelo CONECTA. Aluno entra como aluno; servidor que entra pela
+   primeira vez vira um pedido de acesso, que a gestão aprova definindo o perfil.
+3. **Um aviso tem N destinos.** Um comunicado para três turmas é um aviso com três destinos, visto
+   uma vez por quem pertence a mais de uma delas. Os eventos da agenda seguem a mesma regra.
+4. **Nada se perde.** Editar cria uma versão nova; arquivar e excluir são lógicos; cada operação
+   gera um registro que o próprio banco impede de alterar.
 
-1. **Toda regra vive na API.** Web e mobile apenas apresentam o que ela devolve. Nenhum cliente
-   decide quem pode ver ou fazer o quê.
-2. **O provedor só identifica, não autoriza.** A validação de credenciais é feita pela API de
-   autenticação do IFSul (Active Directory), atrás de uma interface (`AuthProvider`) com
-   implementação simulada para desenvolvimento e testes; o perfil de cada pessoa é atribuído e
-   mantido pelo próprio CONECTA. Servidores que entram pela primeira vez pedem acesso, e a gestão
-   aprova definindo o perfil.
-3. **Aviso tem N destinos.** Um comunicado para três turmas é um aviso com três destinos, visto
-   uma única vez por quem pertence a mais de uma delas.
-4. **Nada se perde.** Editar um aviso cria uma versão nova; arquivar e excluir são operações
-   lógicas; cada operação gera um evento imutável de auditoria.
+| Camada | Tecnologia |
+|---|---|
+| API | Python 3.12, FastAPI, SQLAlchemy 2 (assíncrono), Alembic, PostgreSQL 16 |
+| Sessão | JWT de 24 h, relido no banco a cada requisição; na web, em cookie `__Host-` `HttpOnly`, `Secure` e `SameSite=Strict`, com CSRF assinado; no app, no armazenamento seguro do Android |
+| Web | React 19, TypeScript, Vite, Tailwind CSS, React Router, zod; build estático servido pelo nginx |
+| App | Flutter, provider, http, flutter_secure_storage, shared_preferences |
+| Testes | pytest e httpx; Vitest, Testing Library, Playwright e axe-core; flutter_test e integration_test |
+| Processo | Spec Kit (Spec-Driven Development): constituição → especificação → plano → tarefas → código |
 
-Os quatro perfis — `administrador`, `coordenacao`, `docente`, `aluno` — e o que cada um pode fazer
-estão na matriz de permissões da
-[especificação da API](projeto-api/specs/001-auth-perfil-turmas-avisos/spec.md).
+## Limitações conhecidas
 
-## Tecnologias
+- **Login pelo IFSul:** validado contra o serviço real com uma conta de aluno; o caso de conta de
+  servidor (pedido de acesso, aprovação e novo login) não foi executado contra o serviço real, só
+  nos testes com o provedor simulado.
+- **HTTPS do serviço do IFSul:** o endereço atual da API de autenticação da instituição usa HTTP.
+  A API do CONECTA só o aceita com `IFSUL_AUTH_PERMITIR_HTTP=true`, para teste; em produção, o
+  endereço precisa ser HTTPS.
+- **Implantação:** verificada localmente (nginx em Docker, HTTPS com certificado autoassinado, 11
+  testes). A instalação no IFSul depende da instituição; o que ajustar está no topo de
+  [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf). A documentação interativa da
+  API é bloqueada pelo nginx, então a porta da API não deve ser publicada fora do servidor.
+- **Aplicativo:** verificado só no Android. A aba Horários lista a primeira página das turmas da
+  pessoa (20 turmas).
+- **Diferenças em relação ao design:** onde a API não tem o dado, a interface não o mostra (turno da
+  turma, tipo de aula). Estão nos relatórios de evidências de cada fase.
+- **Avaliação:** os testes verificam regras e roteiros predefinidos, com dados fictícios; não houve
+  avaliação com usuários.
+- **Fora do escopo:** notificações push, registro de leitura, anexos e exceções pontuais na grade.
 
-| Camada | Tecnologia | Por quê |
-|---|---|---|
-| API | **Python 3.12 + FastAPI** | Tipagem e validação com Pydantic, documentação automática do contrato |
-| Banco | **PostgreSQL** | Relacional, com migrações versionadas (Alembic) |
-| ORM | **SQLAlchemy 2.0** (async) | Acesso assíncrono, alinhado ao FastAPI |
-| Autenticação | **OAuth2 + JWT** (24 h) | Perfil e situação reavaliados no banco a cada requisição |
-| Aplicativo | **Flutter / Dart** | Um código para Android e iOS |
-| Estado (app) | **provider** | Suficiente para o fluxo do app, com a menor curva de explicação |
-| Rede (app) | **http** com cliente próprio | Injeção de token e tratamento central de erro em pouco código |
-| Sessão (app) | **flutter_secure_storage** | Token no Keychain/Keystore, nunca em texto simples |
-| Cache (app) | **shared_preferences** | Abrir o app sem rede com a última resposta recebida |
-| Plataforma web | **React + TypeScript, construídos com Vite** | Build estático servido no mesmo domínio da API, sem servidor de aplicação próprio |
-| Estilo (web) | **Tailwind CSS** | Interface densa de tabelas e formulários, com os tokens do design |
-| Sessão (web) | **Cookie `httpOnly` emitido pela API** + CSRF assinado | O JavaScript nunca vê o token; toda escrita leva o cabeçalho `X-CSRF-Token`, cujo valor a API assina e prende à sessão |
-| Testes (web) | Vitest, Testing Library, Playwright | Unidade, componente e ponta a ponta com API falsa |
-| Testes (API) | pytest, httpx | Contrato, integração e ponta a ponta |
-| Testes (app) | flutter_test, integration_test | Unidade, widget e integração com servidor falso |
-| Processo | **Spec Kit (SDD)** | Constituição → spec → plano → tarefas, antes de qualquer código |
+## Licença
 
-## Design das telas
-
-As 30 telas estão em [`design/`](design/), com a paleta, a tipografia e a tabela que liga cada
-tela aos requisitos em [`design/README.md`](design/README.md).
-
-Identidade: branco com azul e navy, tipografia Inter sem serifa, superfícies de borda fina sem
-sombra. O elemento recorrente é o **chip de destino** — um ponto colorido por tipo (turma,
-semestre, docentes, todos) seguido do rótulo —, que torna visível, em qualquer lista, a regra de
-público que organiza o sistema.
-
-As telas são geradas a partir de HTML/CSS: `cd design/_src && python3 build.py` regera todas,
-`python3 build.py w-04` regera uma só.
-
-## Entregas planejadas
-
-| Entrega | Conteúdo | Situação |
-|---|---|---|
-| **E1 — API + aplicativo** | Autenticação, perfis, consulta de perfil, turmas, solicitação de inscrição, consulta de avisos | ✅ (falta validar o login com contas reais) |
-| **E2 — Plataforma web** | Gestão de usuários, turmas, vínculos, aprovações e ciclo de vida dos avisos; fluxo completo web → API → app | ✅ |
-| **E3 — Agenda e horários** | Eventos (palestras, bancas, provas, datas importantes) e horários das turmas | ✅ Na API, na web e no aplicativo |
-
-## Andamento
-
-Atualizado em 01/11/2026 (fechamento). Cada etapa entrou por pull request, com revisão independente e os
-achados corrigidos com teste antes do merge.
-
-### Pronto
-
-| Parte | O que funciona | Testes | PR |
-|---|---|---|---|
-| **API — E1** | Login (provedor simulado), sessão de 24 h, perfil, turmas, solicitação de inscrição e as 9 rotas do aplicativo | pytest | [#1](https://github.com/ruansbueno/conecta/pull/1) |
-| **API — E2** | Rotas de gestão (`/gestao/*`): usuários e perfis, turmas, vínculos, decisão de solicitações, avisos com destinos, versões e histórico imutáveis; teste de ponta a ponta da spec §9.3 | 583 testes (E1 + E2) | [#3](https://github.com/ruansbueno/conecta/pull/3) |
-| **Aplicativo — marco de avisos** | Login, sessão segura, aba Avisos (ativos e arquivados, detalhe, cache para abrir sem rede) | 151 testes (unidade e widget) + integração com servidor falso | [#2](https://github.com/ruansbueno/conecta/pull/2) |
-| **Aplicativo — fase 5** | Aba Turmas: minhas turmas com o papel em cada uma, estado vazio por perfil, turmas disponíveis para o aluno e as solicitações recentes; cache para abrir sem rede | 188 testes (unidade e widget) | [#14](https://github.com/ruansbueno/conecta/pull/14) |
-| **Aplicativo — fase 6** | Solicitar inscrição numa turma disponível, folha de confirmação, Minhas solicitações com os quatro status e o motivo da recusa, cancelar a pendente; Minhas turmas sempre atualizada | 226 testes (unidade e widget) + integração no emulador | [#15](https://github.com/ruansbueno/conecta/pull/15) |
-| **Aplicativo — fase 7** | Perfil com curso, período, vínculos e saída com confirmação; perfil reavaliado ao abrir a aba e ao voltar do segundo plano, ajustando as abas sem novo login | 236 testes (unidade e widget) + integração no emulador | [#16](https://github.com/ruansbueno/conecta/pull/16) |
-| **Aplicativo — pontos menores** | Os achados menores das revisões das fases 4 a 7: respostas fora de ordem, recargas repetidas, faixa de dados guardados, telas empilhadas quando o perfil muda | 252 testes (unidade e widget) + 13 de integração | [#17](https://github.com/ruansbueno/conecta/pull/17) |
-| **Aplicativo — fase 8** | Mensagens conferidas contra a spec, acessibilidade (regras do Flutter) e fonte a 200% em todas as telas, uso sem rede nas três abas, log local de toda falha de API, token só no armazenamento seguro, [evidências](projeto-mobile/evidencias/RELATORIO.md) com capturas ao lado do design | 273 testes (unidade e widget) + 16 de integração no emulador | [#18](https://github.com/ruansbueno/conecta/pull/18) |
-| **Web — fases 1 a 4** | Fundação (tema, sessão por cookie + CSRF, casca), login, publicação de avisos com seletor de destinos, restrição do docente, agendamento, prévia do cartão do app e rascunho local | Vitest + Playwright | [#4](https://github.com/ruansbueno/conecta/pull/4) |
-| **Web — fase 5** | Lista de avisos por situação com busca e filtros, histórico com texto antes/depois, versões, arquivar/desarquivar/excluir com confirmação | Vitest + Playwright | [#5](https://github.com/ruansbueno/conecta/pull/5) |
-| **Web — fase 6** | Turmas por situação com busca e filtros, criar/editar, abrir/fechar inscrições, desativar/reativar, vínculos com origem, vincular buscando a pessoa e desvincular com alerta | Vitest + Playwright | [#7](https://github.com/ruansbueno/conecta/pull/7) |
-| **Web — fase 7** | Fila de solicitações por status e turma, destaque para quem espera há mais de 3 dias, aprovar criando o vínculo, recusar com motivo, decisão com quem decidiu e quando | Vitest + Playwright | [#8](https://github.com/ruansbueno/conecta/pull/8) |
-| **Web — fase 8** | Usuários por perfil e situação, alterar perfil com a descrição de cada um (só administração), ativar e desativar, mudança valendo na navegação seguinte da pessoa | Vitest + Playwright | [#9](https://github.com/ruansbueno/conecta/pull/9) |
-| **Web — fase 9** | Painel da coordenação e do docente (números do `total` das listas, blocos que falham sozinhos), contador de solicitações na barra lateral e o e2e do fluxo completo web → API → app | Vitest + Playwright | [#10](https://github.com/ruansbueno/conecta/pull/10) |
-| **Web — pontos menores** | Os achados menores das revisões das fases 5 a 9: textos e datas, carregamento e mensagens das listas, foco e leitores de tela, comportamento das telas e um servidor falso mais fiel à API | 271 testes (Vitest) + 30 de ponta a ponta (Playwright) | [#11](https://github.com/ruansbueno/conecta/pull/11) |
-| **Web — fase 10** | Mensagens de erro conferidas contra a spec, axe (WCAG 2.1 AA) em todas as telas, uso só com teclado do login à exclusão de um aviso, nada digitado se perde sem rede, [evidências](projeto-web/evidencias/RELATORIO.md) com capturas ao lado do design e implantação estática com nginx verificada em Docker | 275 testes (Vitest) + 47 de ponta a ponta (Playwright) + 6 da implantação | [#13](https://github.com/ruansbueno/conecta/pull/13) |
-| **API — CSRF assinado** | Emenda v2.2 (RF-33): o token CSRF da web passa a ser assinado com chave própria (`CSRF_SECRET`) e preso à sessão; token de outra sessão, adulterado ou sem assinatura é recusado | 594 testes (API) + 8 da implantação contra a API real | [#19](https://github.com/ruansbueno/conecta/pull/19) |
-| **API — nomenclatura do banco** | Tabelas com `tb_` e colunas com prefixo (`id_`, `nm_`, `cod_`, `txt_`, `fl_`, `dt_`, `hr_`, `nr_`, `st_`, `tp_`), como no diagrama ER; só os nomes mudam, a API e os clientes ficam iguais | 599 testes (API) + 8 da implantação contra a API real | [#20](https://github.com/ruansbueno/conecta/pull/20) |
-| **API — E3, eventos** | Agenda: criar evento para o público certo (regra de alcance única, compartilhada com os avisos), consulta com intervalo e encerrados, gestão com versões e histórico imutáveis | 733 testes (API) | [#22](https://github.com/ruansbueno/conecta/pull/22) |
-| **API — E3, horários** | Grade semanal das turmas com conflitos de sala e de docente informados sem bloquear, consulta por vínculo, eventos de vários dias em cada dia que cobrem, matriz de permissões, ponta a ponta e seed da agenda: E3 completa na API | 886 testes (API) | [#23](https://github.com/ruansbueno/conecta/pull/23) |
-| **Web — F2, agenda** | Agenda com abas Próximos, Mês (calendário), Realizados e Arquivados, editor de evento com o seletor de destinos dos avisos, histórico e versões; `quando=proximos\|realizados` na API | 339 testes (Vitest) + 47 de ponta a ponta (Playwright) | [#25](https://github.com/ruansbueno/conecta/pull/25) |
-| **Web — F2, horários** | Grade semanal da turma, modal de aula, conflitos como atenção, "avisar a turma"; E2E, axe e teclado da F2, validação visual contra a API real | 385 testes (Vitest) + 54 de ponta a ponta | [#26](https://github.com/ruansbueno/conecta/pull/26) |
-| **Aplicativo — F2, agenda** | Aba Agenda: Próximos e Provas com filtro de tipo, mês de domingo a sábado com marcadores, detalhe do evento, sem rede | 328 testes (unidade e widget) + 19 de integração | [#28](https://github.com/ruansbueno/conecta/pull/28) |
-| **Aplicativo — F2, horários** | Aba Horários com troca de turma, sem rede, fonte a 200% conferida no aparelho, [evidências](projeto-mobile/evidencias/RELATORIO-F2.md) | 348 testes (unidade e widget) + 22 de integração | [#29](https://github.com/ruansbueno/conecta/pull/29) |
-| **Fechamento** | Cookies com prefixo `__Host-`; sair sempre expira a sessão; nginx sem a documentação da API exposta e com redirecionamentos (HTTP→HTTPS e os da API) que ficam na mesma origem; Descartar no editor nunca sai da aplicação; pontos menores das revisões corrigidos na web e no app | API 891, web 397 (Vitest) + 57 (Playwright) + 11 da implantação, app 354 + 22 de integração | [#30](https://github.com/ruansbueno/conecta/pull/30) |
-| **Login pelo IFSul** | API de autenticação do IFSul no lugar do Moodle; servidores que entram pela primeira vez viram pedido de acesso, aprovado pela administração ou pela coordenação na web (aba Aguardando acesso); primeiro administrador por script; roteiro de validação real (casos sem conta já validados contra a API do IFSul) | API 985, web 414 (Vitest) + 61 (Playwright), app 357 | [#31](https://github.com/ruansbueno/conecta/pull/31) |
-| **Login pelo IFSul — conta real** | Roteiro com uma conta real de aluno contra a API do IFSul (8 de 8 casos executados corretos); nova tentativa quando a conexão com o IFSul nem abre; seed que não reabre pedido decidido; servidor falso da web na ordem de verificação da API | API 995, web 414 (Vitest) + 62 (Playwright) | [#33](https://github.com/ruansbueno/conecta/pull/33) |
-
-**Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
-web → API → app contra a API real): no fechamento, em 01/11/2026
-([API](projeto-api/evidencias/testes-final-2026-11-01.txt),
-[web](projeto-web/evidencias/testes-web-final-2026-11-01.txt),
-[app](projeto-mobile/evidencias/testes-app-final-2026-11-01.txt),
-[roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-01.txt)), e depois do login pelo IFSul,
-em 06/11/2026 ([API](projeto-api/evidencias/testes-final-2026-11-06.txt),
-[web](projeto-web/evidencias/testes-web-final-2026-11-06.txt),
-[app](projeto-mobile/evidencias/testes-app-final-2026-11-06.txt),
-[roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-06.txt)). O roteiro é
-`projeto-api/scripts/roteiro_integrado.py`.
-
-O fluxo **web → API → app** fecha para avisos, eventos e horários: o que a coordenação ou um
-docente publica na web aparece no aplicativo para exatamente quem está nos destinos.
-
-### Falta
-
-**Validação do login com contas reais** (API, T072). O serviço da instituição é a **API de
-autenticação do IFSul** (Active Directory), não o Moodle como se previa:
-- **Pronto:** `IfsulAuthProvider` (`AUTH_PROVIDER=ifsul`); servidores que entram pela primeira vez
-  viram pedido de acesso, que a administração ou a coordenação aprova na web (Usuários → Aguardando
-  acesso); o primeiro administrador é definido por `scripts/definir_administrador.py`.
-- **Validado contra a API real (06/11/2026), com uma conta real de aluno:** login do aluno,
-  senha incorreta, usuário inexistente, pedido sem usuário ou sem senha, criação e encerramento
-  da sessão e permissões do aluno — 8 de 8 casos executados corretos
-  ([relatório](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md)). A API fora do ar foi
-  simulada com um endereço local sem serviço. Na 1ª rodada a conexão com o IFSul estourou os 5 s;
-  o provedor passou a tentar de novo uma vez quando a conexão nem abre.
-- **Falta:** o caso 2 (conta administrativa: pedido de acesso, aprovação e novo login) — passo a
-  passo no
-  [README da API](projeto-api/README.md#login-pela-api-de-autenticação-do-ifsul-emenda-v23).
-
-### Limitações conhecidas
-
-- **API do IFSul por HTTP:** a URL atual da instituição não tem HTTPS, e a senha institucional
-  viajaria em claro. A API do CONECTA só a aceita com `IFSUL_AUTH_PERMITIR_HTTP=true`, para teste;
-  em produção, `IFSUL_AUTH_URL` precisa ser HTTPS.
-- **Horários no aplicativo:** lista só a primeira página das turmas da pessoa (20), o bastante para aluno e docente do curso.
-- **Diferenças deliberadas em relação ao design:** onde a API não tem o dado, a interface não o mostra. Exemplos: o turno da turma, o tipo de aula, "Grade atualizada por" e o subtítulo do local do evento. Cada diferença está nos relatórios de evidências:
-  - [web F1](projeto-web/evidencias/RELATORIO.md) e [web F2](projeto-web/evidencias/RELATORIO-F2.md);
-  - [app F1](projeto-mobile/evidencias/RELATORIO.md) e [app F2](projeto-mobile/evidencias/RELATORIO-F2.md).
-- **Instalação no IFSul:** ajustar em `projeto-web/deploy/nginx.conf` o `server_name`, os certificados, o endereço da API e, se o HTTPS público não for a 443, a porta do redirecionamento. A documentação da API (`/docs`, `/redoc`, `/openapi.json`) fica bloqueada só no nginx: a porta da API não deve ser publicada fora do servidor.
-
-**Fora do escopo atual**: notificações push, registro de leitura de avisos, tema escuro e uso em
-tablet.
-
-## Ordem de execução
-
-Decidida em 13/10/2026, para que o fluxo completo seja demonstrável cedo:
-
-1. ✅ API — entrega E1 (autenticação, perfil, turmas, solicitações, avisos).
-2. ✅ Aplicativo — apenas os avisos, para ter algo utilizável em mãos.
-3. ✅ API — entrega E2 (endpoints de gestão).
-4. ✅ Plataforma web — fase F1, fechando o ciclo web → API → app.
-5. ✅ Aplicativo — fase F1 completa.
-6. ✅ E3 — agenda e horários, na API e nos dois clientes.
-
-A validação do login com contas reais tem data-limite de **13/11/2026**; sem ela, o trabalho é
-concluído com o que já foi validado contra a API do IFSul, e os casos com conta passam a trabalho
-futuro.
-
-## Como trabalhar neste repositório
-
-O projeto segue Spec-Driven Development: nenhuma funcionalidade é implementada sem spec e plano
-aprovados. Cada parte tem sua constituição — os princípios que prevalecem sobre decisões de
-implementação:
-
-- API: [`projeto-api/.specify/memory/constitution.md`](projeto-api/.specify/memory/constitution.md)
-- Aplicativo: [`projeto-mobile/.specify/memory/constitution.md`](projeto-mobile/.specify/memory/constitution.md)
-- Plataforma web: [`projeto-web/.specify/memory/constitution.md`](projeto-web/.specify/memory/constitution.md)
-
-Para rodar a API localmente, veja
-[`quickstart.md`](projeto-api/specs/001-auth-perfil-turmas-avisos/quickstart.md); para o
-aplicativo, [`quickstart.md`](projeto-mobile/specs/001-app-conecta/quickstart.md); para a
-plataforma web, [`quickstart.md`](projeto-web/specs/001-plataforma-gestao/quickstart.md).
-
-## Autor
-
-Ruan Bueno — Trabalho de Conclusão de Curso, IFSul.
+[MIT](LICENSE).

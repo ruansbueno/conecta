@@ -57,6 +57,7 @@ void main() {
     expect(find.text('Usuário'), findsOneWidget);
     expect(find.text('Senha'), findsOneWidget);
     expect(find.textContaining('O CONECTA não armazena sua senha'), findsOneWidget);
+    expect(find.textContaining('curso de Análise e Desenvolvimento de Sistemas'), findsOneWidget);
     expect(campo('seu.usuario'), findsOneWidget);
   });
 

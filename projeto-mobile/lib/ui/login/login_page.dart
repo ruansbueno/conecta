@@ -101,8 +101,8 @@ class _LoginPageState extends State<LoginPage> {
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 290),
                         child: const Text(
-                          'Avisos, agenda e turmas do curso de Tecnologia em Sistemas para '
-                          'Internet — IFSul.',
+                          'Avisos, agenda e turmas do curso de Análise e Desenvolvimento de '
+                          'Sistemas — IFSul.',
                           style: Tipografia.apoio,
                         ),
                       ),

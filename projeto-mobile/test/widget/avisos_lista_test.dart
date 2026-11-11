@@ -151,10 +151,16 @@ void main() {
     falhar = false;
     await tester.tap(find.text('Tentar de novo'));
     await tester.pumpAndSettle();
-    await tester.dragUntilVisible(find.text('Aviso número 25'), lista, const Offset(0, -600));
+    expect(find.text('Tentar de novo'), findsNothing, reason: 'o toque pediu a página de novo');
+    expect(
+      app.api.pedidos.where((p) => p.url.queryParameters['offset'] == '20'),
+      hasLength(2),
+      reason: 'a página que falhou foi pedida outra vez',
+    );
+    expect(find.text('Aviso número 21'), findsOneWidget);
 
+    await tester.dragUntilVisible(find.text('Aviso número 25'), lista, const Offset(0, -600));
     expect(find.text('Aviso número 25'), findsOneWidget);
-    expect(find.text('Tentar de novo'), findsNothing);
   });
 
   testWidgets('arquivados: alternância com explicação da lista', (tester) async {

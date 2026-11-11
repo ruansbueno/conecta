@@ -1,6 +1,6 @@
 # CONECTA — Arquitetura da Aplicação
 
-> Sistema híbrido de comunicação e gestão acadêmica, composto por uma plataforma Web de gerenciamento (administração, coordenação e docentes) e um aplicativo Mobile (todos os usuários).
+> Sistema web e mobile para publicação e consulta de avisos, eventos e horários do curso, composto por uma plataforma Web de gerenciamento (administração, coordenação e docentes) e um aplicativo Mobile (todos os usuários).
 
 ---
 

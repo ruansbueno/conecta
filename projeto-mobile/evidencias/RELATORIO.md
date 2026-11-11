@@ -1,5 +1,7 @@
 # Evidências do aplicativo — fase F1
 
+> **Registro da fase F1, feito em 29/10/2026.** Os números de testes abaixo são os daquela data. As execuções finais, citadas no Apêndice B do TCC, estão em [`testes-app-final-2026-11-06.txt`](testes-app-final-2026-11-06.txt) (suítes completas e integração no emulador) e [`testes-app-por-teste-2026-11-10.txt`](testes-app-por-teste-2026-11-10.txt) (cada teste pelo nome). As capturas também são as daquela fase.
+
 29/10/2026. Fecha a fase 8 de [`tasks.md`](../specs/001-app-conecta/tasks.md) (T059–T066).
 A saída completa de cada verificação está em [`testes-app-2026-10-29.txt`](testes-app-2026-10-29.txt).
 

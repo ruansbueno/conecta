@@ -1,5 +1,7 @@
 # Evidências da plataforma web — fase F2
 
+> **Registro da fase F2, feito em 01/11/2026.** Os números de testes abaixo são os daquela data. As execuções finais, citadas no Apêndice B do TCC, estão em [`testes-web-final-2026-11-06.txt`](testes-web-final-2026-11-06.txt) (suítes completas e implantação) e [`testes-web-por-teste-2026-11-10.txt`](testes-web-por-teste-2026-11-10.txt) (cada teste pelo nome). As capturas também são as daquela fase.
+
 01/11/2026. Fecha as fases 13 e 14 de [`tasks-f2.md`](../specs/001-plataforma-gestao/tasks-f2.md)
 (T090–T100). A agenda (fases 11 e 12) entrou no [#25](https://github.com/ruansbueno/conecta/pull/25).
 A saída completa de cada verificação está em [`testes-web-2026-11-01.txt`](testes-web-2026-11-01.txt).

@@ -1,5 +1,12 @@
 <!--
 Sync Impact Report
+Version change: 1.0.0 → 1.0.1 (2026-11-11)
+Modified principles:
+  - III. Sessão e Dados Sensíveis — esclarecimento (PATCH): preferências de interface que não
+    identificam a pessoa (o tema, spec 002-modo-noturno) ficam em preferências simples e não são
+    apagadas ao sair da conta, porque são do aparelho, não do usuário.
+Templates: nenhum alterado.
+
 Version: 1.0.0 (2026-10-13) — ratificação inicial da constituição do aplicativo mobile.
 Derivada de projeto-api/.specify/memory/constitution.md v2.0.0, que continua prevalecendo
 sobre regras de negócio; este documento governa apenas o cliente Flutter.
@@ -45,6 +52,8 @@ O token de acesso MUST ser guardado em armazenamento seguro do sistema operacion
 MUST NOT ser persistida em nenhuma hipótese, nem oferecida como "lembrar senha". Qualquer
 resposta `401` encerra a sessão local e leva ao login; `403 USUARIO_INATIVO` também encerra, com
 mensagem própria. Dados em cache local MUST ser apagados ao sair da conta.
+Preferências de interface que não identificam a pessoa — hoje, o tema claro ou escuro — MAY ficar
+em preferências simples e permanecem ao sair da conta.
 
 ### IV. Camadas Separadas e Testáveis
 
@@ -107,4 +116,4 @@ Política de versionamento:
 Toda spec, plano e revisão de código MUST verificar conformidade com os princípios acima,
 especialmente I (cliente sem regra de negócio) e III (sessão e dados sensíveis).
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-13 | **Last Amended**: 2026-10-13
+**Version**: 1.0.1 | **Ratified**: 2026-10-13 | **Last Amended**: 2026-11-11

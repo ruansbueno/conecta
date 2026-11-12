@@ -201,7 +201,11 @@ class _Corpo extends StatelessWidget {
                 _TurmaDisponivel(key: ValueKey(t.id), turma: t),
                 const SizedBox(height: 12),
               ],
-              RodapeLista(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
+              RodapeLista(
+                lista: lista,
+                onRepetir: () => controller.carregarMais(repetir: true),
+                fim: 'Não há mais turmas disponíveis.',
+              ),
               const SizedBox(height: 8),
               CaixaCartao(
                 child: Row(

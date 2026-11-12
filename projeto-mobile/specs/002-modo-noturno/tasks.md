@@ -28,9 +28,9 @@
 
 ## Fase 3: Fim de lista
 
-- [ ] M007 [US3] Testes dos fechos (agenda por vir e provas, turmas disponíveis, solicitações,
+- [x] M007 [US3] Testes dos fechos (agenda por vir e provas, turmas disponíveis, solicitações,
       horários) e da ausência com mais páginas
-- [ ] M008 [US3] `FimDaLista`, parâmetro `fim` no `RodapeLista` e aplicação nas quatro telas
+- [x] M008 [US3] `FimDaLista`, parâmetro `fim` no `RodapeLista` e aplicação nas quatro telas
 
 ## Fase 4: Acessibilidade e registro
 

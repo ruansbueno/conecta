@@ -90,7 +90,11 @@ class _Corpo extends StatelessWidget {
                 _SolicitacaoCard(solicitacao: s),
                 const SizedBox(height: 12),
               ],
-              RodapeLista(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
+              RodapeLista(
+                lista: lista,
+                onRepetir: () => controller.carregarMais(repetir: true),
+                fim: 'Não há mais solicitações.',
+              ),
             ],
           ),
         ),

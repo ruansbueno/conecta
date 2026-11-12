@@ -15,6 +15,7 @@ import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
+import '../comum/fim_da_lista.dart';
 import 'folha_turmas.dart';
 
 const _siglas = {1: 'SEG', 2: 'TER', 3: 'QUA', 4: 'QUI', 5: 'SEX', 6: 'SÁB', 7: 'DOM'};
@@ -188,6 +189,9 @@ class _Conteudo extends StatelessWidget {
         if (controller.aulas.where((a) => a.diaSemana == dia).toList() case final doDia
             when doDia.isNotEmpty)
           _Dia(dia: dia, aulas: doDia),
+      // Os dias sem aula não aparecem: o fecho diz que não faltou nada (spec 002).
+      if (controller.aulas.map((a) => a.diaSemana).toSet().length < 7)
+        const FimDaLista('Não há aulas nos outros dias da semana.'),
     ],
   };
 }

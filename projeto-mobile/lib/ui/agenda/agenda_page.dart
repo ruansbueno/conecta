@@ -94,6 +94,7 @@ class _Agenda extends StatelessWidget {
                 key: ValueKey(('proximos', tipo)),
                 value: controller.proximos,
                 child: _ListaEventos(
+                  fim: 'Não há mais eventos por vir.',
                   vazio: tipo == null
                       ? const EstadoVazio(
                           icone: Icons.event_outlined,
@@ -112,6 +113,7 @@ class _Agenda extends StatelessWidget {
                 key: const ValueKey('provas'),
                 value: controller.provas,
                 child: const _ListaEventos(
+                  fim: 'Não há mais provas marcadas.',
                   vazio: EstadoVazio(
                     icone: Icons.event_available_outlined,
                     titulo: 'Nenhuma prova marcada',
@@ -133,9 +135,12 @@ class _Agenda extends StatelessWidget {
 }
 
 class _ListaEventos extends StatelessWidget {
-  const _ListaEventos({required this.vazio});
+  const _ListaEventos({required this.vazio, required this.fim});
 
   final Widget vazio;
+
+  /// Fecho da lista quando não há mais páginas (spec 002).
+  final String fim;
 
   Future<void> _recarregar(BuildContext context) async {
     final controller = context.read<EventosController>();
@@ -196,6 +201,7 @@ class _ListaEventos extends StatelessWidget {
                       : RodapeLista(
                           lista: lista,
                           onRepetir: () => controller.carregarMais(repetir: true),
+                          fim: fim,
                         ),
                 ),
               ),

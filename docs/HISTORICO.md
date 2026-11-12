@@ -63,6 +63,7 @@ antes do merge.
 | **Evidências por teste** | Registros da web e do aplicativo com cada teste pelo nome (10/11) | web 414 (Vitest) + 62 (Playwright), app 357 | [#34](https://github.com/ruansbueno/conecta/pull/34) |
 | **Pronto para a banca** | README da raiz como guia para a avaliação, histórico e documentos superados em `docs/`, nome do curso corrigido nos clientes, "Tentar de novo" do rodapé dos avisos repetindo a página que falhou, licença MIT | API 995, web 414 (Vitest), app 358 | [#35](https://github.com/ruansbueno/conecta/pull/35) |
 | **Modo noturno** | Web e aplicativo: botão de lua e sol no canto superior direito de todas as telas, tema que segue o sistema até a pessoa escolher, escolha guardada no navegador ou no aparelho, paleta escura com contraste AA conferido nos dois temas; fecho "não há mais" nas listas curtas e avisos nos blocos vazios do painel (specs 002) | web 465 (Vitest) + 74 (Playwright) + 11 da implantação, app 408 + 22 de integração | [#36](https://github.com/ruansbueno/conecta/pull/36) |
+| **Modelo de dados** | ER do SQL Power Architect em `docs/modelo-de-dados/` com os tipos do banco (UUID, TEXT, JSONB, TIMESTAMPTZ) e linhas que saem da coluna FK, a partir da validação externa do DER; dois CHECK registrados para aplicar depois (`pendente-restricoes.sql`) | — (sem mudança de código) | [#37](https://github.com/ruansbueno/conecta/pull/37) |
 
 **Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
 web → API → app contra a API real): no fechamento, em 01/11/2026

@@ -26,6 +26,10 @@ function assinar(avisar: () => void): () => void {
   window.addEventListener(EVENTO_TEMA, avisar)
   window.addEventListener('storage', deOutraAba)
   consulta?.addEventListener?.('change', doSistema)
+  // Entre o script inicial e este ponto, outra aba pode ter mudado a escolha (e o evento passou
+  // sem ninguém ouvindo): confere uma vez ao começar a ouvir.
+  const efetivo = temaEfetivo()
+  if (document.documentElement.dataset.tema && efetivo !== temaAplicado()) aplicarTema(efetivo)
   return () => {
     window.removeEventListener(EVENTO_TEMA, avisar)
     window.removeEventListener('storage', deOutraAba)

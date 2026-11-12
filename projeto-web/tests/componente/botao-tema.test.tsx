@@ -111,6 +111,17 @@ describe('botão do modo noturno', () => {
     expect(desativar()).toBeInTheDocument()
   })
 
+  it('escolha feita em outra aba antes de esta página montar também vale', () => {
+    sistemaEm(false)
+    html().dataset.tema = 'claro' // o script inicial rodou quando ainda não havia escolha
+    localStorage.setItem(CHAVE_TEMA, 'escuro') // e a outra aba escolheu antes do React montar aqui
+
+    barra()
+
+    expect(html().dataset.tema).toBe('escuro')
+    expect(desativar()).toBeInTheDocument()
+  })
+
   it('sai sem deixar ouvintes do sistema para trás', () => {
     const sistema = sistemaEm(false)
     const { unmount } = render(<BarraSuperior titulo="Painel" />)

@@ -59,7 +59,7 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen bg-branco">
-      <aside className="hidden w-[60%] max-w-[860px] flex-col justify-between bg-navy px-14 py-14 text-branco lg:flex">
+      <aside className="hidden w-[60%] max-w-[860px] flex-col justify-between bg-painel px-14 py-14 text-sobre-cor lg:flex">
         <div className="flex items-center gap-2.5">
           <Marca tamanho={30} />
           <span className="text-[26px] font-extrabold tracking-[0.07em]">CONECTA</span>
@@ -68,12 +68,12 @@ export default function Login() {
           <p className="max-w-[460px] text-[34px] leading-tight font-bold tracking-[-0.025em]">
             Um só lugar para avisar a turma certa.
           </p>
-          <p className="mt-5 max-w-[420px] text-[15px] leading-relaxed text-azul-100">
+          <p className="mt-5 max-w-[420px] text-[15px] leading-relaxed text-sobre-painel-suave">
             Publique avisos e eventos para todos, para semestres inteiros, para os docentes ou para
             turmas específicas — e acompanhe o que foi publicado, editado e arquivado.
           </p>
         </div>
-        <p className="text-[12.5px] text-azul-100">IFSul · Análise e Desenvolvimento de Sistemas</p>
+        <p className="text-[12.5px] text-sobre-painel-suave">IFSul · Análise e Desenvolvimento de Sistemas</p>
       </aside>
 
       <main className="flex flex-1 items-center justify-center px-8">

@@ -38,8 +38,8 @@ em `tests/componente/`, fluxo e acessibilidade em `e2e/`.
 
 ## Fase 4: Ponta a ponta, acessibilidade e registro
 
-- [ ] W010 [US1] `e2e/tema.spec.ts`: alternar, recarregar, primeiro quadro escuro, texto mantido
-- [ ] W011 [US2] `e2e/acessibilidade.spec.ts`: axe também no tema escuro, em todas as telas da
+- [x] W010 [US1] `e2e/tema.spec.ts`: alternar, recarregar, primeiro quadro escuro, texto mantido
+- [x] W011 [US2] `e2e/acessibilidade.spec.ts`: axe também no tema escuro, em todas as telas da
       suíte
 - [ ] W012 Capturas em `design/web-escuro/` e seção "Tema escuro" em `design/README.md`
 - [ ] W013 Registro datado em `evidencias/` (typecheck, lint, Vitest, Playwright 2×) e READMEs

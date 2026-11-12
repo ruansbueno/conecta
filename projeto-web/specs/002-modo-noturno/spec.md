@@ -148,7 +148,7 @@ Com poucos dados, algumas telas terminam num bloco em branco que parece "carrega
   User Story 3.
 - **SC-002**: A verificação com axe roda em todas as telas da suíte de acessibilidade também no
   tema escuro, sem violação.
-- **SC-003**: Recarregar no escuro não mostra nenhum quadro claro (verificado pela cor de fundo no
-  primeiro quadro em teste de ponta a ponta).
+- **SC-003**: Recarregar no escuro não mostra nenhum quadro claro: o teste de ponta a ponta
+  confere que o tema já está no `<html>` quando o `<body>` começa a ser montado.
 - **SC-004**: Nenhuma cor escrita fora de `src/estilos/globals.css`, verificado por um teste que
   busca cores soltas no código.

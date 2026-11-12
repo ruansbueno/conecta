@@ -14,6 +14,7 @@ import '../../state/solicitacoes_controller.dart';
 import '../../state/turmas_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
@@ -58,7 +59,12 @@ class _Minhas extends StatelessWidget {
     final controller = context.watch<MinhasTurmasController>();
     final turmas = controller.turmas;
     return Scaffold(
-      appBar: AppBar(title: const Text('Minhas turmas'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Minhas turmas'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       backgroundColor: context.cores.fundoPagina,
       body: Column(
         children: [

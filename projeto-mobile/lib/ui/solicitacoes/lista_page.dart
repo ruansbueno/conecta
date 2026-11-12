@@ -8,6 +8,7 @@ import '../../state/avisos_controller.dart' show EstadoLista;
 import '../../state/solicitacoes_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
@@ -28,7 +29,11 @@ class SolicitacoesPage extends StatelessWidget {
       context.read<MudancasDeSolicitacao>(),
     )..carregar(),
     child: Scaffold(
-      appBar: AppBar(title: const Text('Minhas solicitações'), toolbarHeight: 60),
+      appBar: AppBar(
+        title: const Text('Minhas solicitações'),
+        toolbarHeight: 60,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       backgroundColor: context.cores.fundoPagina,
       body: const _Corpo(),
     ),

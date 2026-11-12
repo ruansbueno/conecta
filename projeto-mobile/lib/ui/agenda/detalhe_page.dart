@@ -8,6 +8,7 @@ import '../../services/api_failure.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/chip_destino.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
@@ -76,7 +77,7 @@ class _EventoDetalhePageState extends State<EventoDetalhePage> {
   Widget build(BuildContext context) {
     final evento = _evento;
     return Scaffold(
-      appBar: AppBar(leading: const BackButton()),
+      appBar: AppBar(leading: const BackButton(), actions: const [BotaoTema(), SizedBox(width: 8)]),
       body: evento == null
           ? (_falha == null
                 ? const EsqueletoLista(itens: 2)

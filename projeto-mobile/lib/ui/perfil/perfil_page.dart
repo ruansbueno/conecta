@@ -11,6 +11,7 @@ import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/faixa_cache.dart';
 import '../comum/faixa_informativa.dart';
 import '../turmas/turma_card.dart';
@@ -114,7 +115,12 @@ class _PerfilPageState extends State<PerfilPage> {
     final usuario = sessao.usuario;
     final dadosDe = sessao.perfilDoCache;
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Perfil'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       body: usuario == null
           ? const SizedBox.shrink()
           : ListView(

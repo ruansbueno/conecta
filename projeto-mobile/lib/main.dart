@@ -10,6 +10,7 @@ import 'config/ambiente.dart';
 import 'services/api_client.dart';
 import 'services/cache_local.dart';
 import 'services/cofre_sessao.dart';
+import 'services/preferencia_tema.dart';
 import 'ui/rotas_das_telas.dart';
 
 Future<void> main() async {
@@ -24,9 +25,12 @@ Future<void> iniciarFormatos() async {
   await initializeDateFormatting('pt_BR');
 }
 
-Future<Dependencias> dependenciasReais({String baseUrl = Ambiente.apiBaseUrl}) async =>
-    Dependencias(
-      api: ApiClient(client: http.Client(), baseUrl: baseUrl),
-      cache: CacheLocal(await SharedPreferences.getInstance()),
-      cofre: const CofreSessao(FlutterSecureStorage()),
-    );
+Future<Dependencias> dependenciasReais({String baseUrl = Ambiente.apiBaseUrl}) async {
+  final prefs = await SharedPreferences.getInstance();
+  return Dependencias(
+    api: ApiClient(client: http.Client(), baseUrl: baseUrl),
+    cache: CacheLocal(prefs),
+    cofre: const CofreSessao(FlutterSecureStorage()),
+    preferencias: PreferenciaTema(prefs),
+  );
+}

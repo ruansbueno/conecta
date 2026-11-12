@@ -1,10 +1,12 @@
 import 'package:conecta/app.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/services/cofre_sessao.dart';
+import 'package:conecta/services/preferencia_tema.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../apoio.dart';
 import '../fixtures/fixtures.dart';
@@ -27,7 +29,12 @@ void main() {
   Future<void> abrir(WidgetTester tester) async {
     await tester.pumpWidget(
       ConectaApp(
-        dependencias: Dependencias(api: api.api, cache: cache, cofre: cofre),
+        dependencias: Dependencias(
+          api: api.api,
+          cache: cache,
+          cofre: cofre,
+          preferencias: PreferenciaTema(await SharedPreferences.getInstance()),
+        ),
       ),
     );
     await tester.pumpAndSettle();

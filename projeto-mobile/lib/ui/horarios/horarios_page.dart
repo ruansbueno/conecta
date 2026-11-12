@@ -9,6 +9,7 @@ import '../../state/horarios_controller.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/escala.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
@@ -79,7 +80,12 @@ class _HorariosState extends State<_Horarios> {
   Widget build(BuildContext context) {
     final controller = context.watch<HorariosController>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Horários'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Horários'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       body: switch (controller.estado) {
         EstadoLista.carregando => const EsqueletoLista(),
         EstadoLista.erro => EstadoErro(

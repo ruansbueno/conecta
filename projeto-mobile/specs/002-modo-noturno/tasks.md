@@ -20,11 +20,11 @@
 
 ## Fase 2: Escolha, persistência e botão
 
-- [ ] M004 [US1] Testes `preferencia_tema_test.dart`, `tema_controller_test.dart` e
+- [x] M004 [US1] Testes `preferencia_tema_test.dart`, `tema_controller_test.dart` e
       `tema_app_test.dart`
-- [ ] M005 [US1] `PreferenciaTema`, `TemaController`, `Dependencias.preferencias`, `MaterialApp`
+- [x] M005 [US1] `PreferenciaTema`, `TemaController`, `Dependencias.preferencias`, `MaterialApp`
       com `theme`/`darkTheme`/`themeMode`
-- [ ] M006 [US1] `BotaoTema` em todas as `AppBar`, no login e em "Sem conexão"
+- [x] M006 [US1] `BotaoTema` em todas as `AppBar`, no login e em "Sem conexão"
 
 ## Fase 3: Fim de lista
 

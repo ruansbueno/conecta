@@ -7,6 +7,7 @@ import '../../services/api_failure.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/chip_destino.dart';
 import '../comum/datas.dart';
 import '../comum/selo_situacao.dart';
@@ -50,7 +51,7 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
     final aviso = _aviso;
     final publicado = 'Publicado ${dataHoraDetalhe(aviso.publicadoEm)}';
     return Scaffold(
-      appBar: AppBar(leading: const BackButton()),
+      appBar: AppBar(leading: const BackButton(), actions: const [BotaoTema(), SizedBox(width: 8)]),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [

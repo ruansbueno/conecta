@@ -8,6 +8,7 @@ import '../../state/agenda_controller.dart';
 import '../../state/avisos_controller.dart' show EstadoLista;
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
+import '../comum/botao_tema.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
@@ -66,6 +67,7 @@ class _Agenda extends StatelessWidget {
                     if (escolha != null) controller.filtrar(escolha.$1);
                   },
           ),
+          const BotaoTema(),
           const SizedBox(width: 8),
         ],
       ),

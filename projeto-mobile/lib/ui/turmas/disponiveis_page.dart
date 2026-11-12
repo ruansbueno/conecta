@@ -13,6 +13,7 @@ import '../../state/solicitacoes_controller.dart';
 import '../../state/turmas_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
@@ -129,7 +130,11 @@ class _DisponiveisPageState extends State<DisponiveisPage> {
   Widget build(BuildContext context) => ChangeNotifierProvider.value(
     value: _controller,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Turmas disponíveis'), toolbarHeight: 60),
+      appBar: AppBar(
+        title: const Text('Turmas disponíveis'),
+        toolbarHeight: 60,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       backgroundColor: context.cores.fundoPagina,
       body: Column(
         children: [

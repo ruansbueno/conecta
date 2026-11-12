@@ -1,5 +1,9 @@
 // Spec 002, User Story 3 (FR-008): ao fim das listas curtas, o app diz que não há mais nada, em vez
 // de terminar num espaço em branco. Com mais páginas, carregando ou com falha, o fecho não aparece.
+import 'dart:convert';
+
+import 'package:conecta/services/cache_local.dart';
+import 'package:conecta/ui/comum/faixa_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +20,11 @@ final _prova = eventoMapa(
   inicio: DateTime(2030, 10, 16, 19, 10),
   fim: DateTime(2030, 10, 16, 20, 50),
 );
-final _palestra = eventoMapa('e2', titulo: 'Palestra', inicio: DateTime(2030, 10, 21, 19));
+final _palestra = eventoMapa(
+  'e2',
+  titulo: 'Palestra sobre carreira',
+  inicio: DateTime(2030, 10, 21, 19),
+);
 
 void main() {
   late AppFalso app;
@@ -107,6 +115,23 @@ void main() {
         const Offset(0, -400),
       );
 
+      expect(find.text('Não há mais eventos por vir.'), findsNothing);
+    });
+
+    testWidgets('sem rede, com o que estava guardado: sem fecho (não se sabe se acabou)', (
+      tester,
+    ) async {
+      await app.cache.gravar(
+        '7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11',
+        RecursoCache.agendaProximosP1,
+        jsonDecode(paginaJson([_prova, _palestra])) as Map<String, dynamic>,
+      );
+      app.api.falharRede('GET /eventos');
+      await app.abrir(tester);
+      await aba(tester, 'Agenda');
+
+      expect(find.byType(FaixaCache), findsOneWidget);
+      expect(find.text('Palestra sobre carreira'), findsOneWidget);
       expect(find.text('Não há mais eventos por vir.'), findsNothing);
     });
 

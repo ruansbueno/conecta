@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router'
 
+import { BotaoTema } from '../componentes/comum/botao-tema'
 import { Esqueleto } from '../componentes/comum/esqueleto'
 import { EstadoErro } from '../componentes/comum/estado-erro'
 import type { Perfil } from '../api/schemas'
@@ -24,7 +25,13 @@ export function ExigirSessao({ perfis }: { perfis?: readonly Perfil[] }) {
     case 'carregando':
       return <Esqueleto rotulo="Carregando sua sessão" />
     case 'erro':
-      return <EstadoErro mensagem={estado.erro.mensagem} onRepetir={recarregar} />
+      return (
+        <>
+          <EstadoErro mensagem={estado.erro.mensagem} onRepetir={recarregar} />
+          {/* Tela inteira fora da casca: o botão do modo noturno fica no canto (spec 002). */}
+          <BotaoTema className="fixed top-5 right-5" />
+        </>
+      )
     case 'anonimo':
       if (estado.encerramento?.motivo === 'aluno') {
         return <Navigate to="/sem-permissao" replace state={{ aluno: true }} />

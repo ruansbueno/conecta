@@ -35,6 +35,14 @@ ThemeData temaConecta(CoresConecta c) {
     onError: sobreClaro,
     outline: c.linha,
     outlineVariant: c.linhaSuave,
+    // Declarados para que nenhum componente caia no padrão do Flutter (claro) no tema escuro.
+    primaryContainer: c.azulSuperficie,
+    onPrimaryContainer: c.navy,
+    secondaryContainer: c.azulSuperficie,
+    onSecondaryContainer: c.navy,
+    inverseSurface: c.painel,
+    onInverseSurface: c.sobreCor,
+    inversePrimary: c.sobreCor,
   );
 
   OutlineInputBorder borda(Color cor, [double largura = 1]) => OutlineInputBorder(
@@ -117,6 +125,8 @@ ThemeData temaConecta(CoresConecta c) {
     snackBarTheme: SnackBarThemeData(
       backgroundColor: c.painel,
       contentTextStyle: t.apoio.copyWith(color: c.sobreCor),
+      // A ação ("Tentar de novo") sobre o painel: branca nos dois temas (spec 002).
+      actionTextColor: c.sobreCor,
       behavior: SnackBarBehavior.floating,
     ),
   );

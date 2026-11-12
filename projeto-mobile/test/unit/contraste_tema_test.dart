@@ -2,7 +2,8 @@
 import 'dart:math' as math;
 
 import 'package:conecta/theme/cores.dart';
-import 'package:flutter/painting.dart';
+import 'package:conecta/theme/tema.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 double contraste(Color a, Color b) {
@@ -55,6 +56,20 @@ void main() {
           if (contraste(texto, fundo) < 4.5) '$par: ${contraste(texto, fundo).toStringAsFixed(2)}',
       ];
       expect(abaixo, isEmpty);
+    });
+  }
+
+  // A ação da snackbar ("Tentar de novo") usa o tema do componente, não as cores das telas.
+  for (final (nome, cores) in [('claro', CoresConecta.claro), ('escuro', CoresConecta.escuro)]) {
+    test('tema $nome: ação e texto da snackbar legíveis sobre o fundo dela', () {
+      final tema = temaConecta(cores);
+      final fundo = tema.snackBarTheme.backgroundColor!;
+      final acao = tema.snackBarTheme.actionTextColor ?? tema.colorScheme.inversePrimary;
+      expect(contraste(acao, fundo), greaterThanOrEqualTo(4.5));
+      expect(
+        contraste(tema.snackBarTheme.contentTextStyle!.color!, fundo),
+        greaterThanOrEqualTo(4.5),
+      );
     });
   }
 

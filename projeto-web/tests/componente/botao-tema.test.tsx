@@ -96,6 +96,21 @@ describe('botão do modo noturno', () => {
     expect(html().dataset.tema).toBe('escuro')
   })
 
+  it('armazenamento que recusa gravar: a escolha vale na sessão, mesmo se o sistema mudar', async () => {
+    const sistema = sistemaEm(false)
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('cheio', 'QuotaExceededError')
+    })
+    barra()
+
+    await userEvent.click(ativar())
+    act(() => sistema.mudar(true))
+    act(() => sistema.mudar(false))
+
+    expect(html().dataset.tema).toBe('escuro')
+    expect(desativar()).toBeInTheDocument()
+  })
+
   it('sai sem deixar ouvintes do sistema para trás', () => {
     const sistema = sistemaEm(false)
     const { unmount } = render(<BarraSuperior titulo="Painel" />)

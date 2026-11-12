@@ -1,4 +1,6 @@
 // Spec 002, User Story 1 (FR-001 a FR-005): o modo noturno no app inteiro.
+import 'dart:convert';
+
 import 'package:conecta/app.dart';
 import 'package:conecta/services/cache_local.dart';
 import 'package:conecta/services/cofre_sessao.dart';
@@ -7,6 +9,7 @@ import 'package:conecta/theme/cores.dart';
 import 'package:conecta/ui/comum/botao_tema.dart';
 import 'package:conecta/ui/rotas_das_telas.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -182,6 +185,80 @@ void main() {
     await tester.pumpAndSettle();
     naBarraDoTopo('Detalhe do aviso');
   });
+
+  testWidgets('botão também no detalhe do evento, em Turmas disponíveis e em Minhas solicitações', (
+    tester,
+  ) async {
+    await entrarLogado();
+    final evento = eventoMapa(
+      'e1',
+      titulo: 'Palestra sobre carreira',
+      inicio: DateTime(2030, 10, 21, 19),
+    );
+    api
+      ..responder('GET /turmas/minhas', paginaJson([turmaMapa('SI-3A', papel: 'aluno')]))
+      ..responder('GET /eventos', paginaJson([evento]))
+      ..responder('GET /eventos/e1', jsonEncode(evento))
+      ..responder('GET /turmas/disponiveis', paginaJson([turmaMapa('SI-5A', semestre: 5)]))
+      ..responder(
+        'GET /solicitacoes/minhas',
+        paginaJson([solicitacaoMapa('s1', nome: 'Redes II')]),
+      );
+    await abrir(tester);
+    Future<void> aba(String nome) async {
+      await tester.tap(
+        find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text(nome)),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    void naBarra(String tela) => expect(
+      find.descendant(of: find.byType(AppBar).last, matching: find.byType(BotaoTema)),
+      findsOneWidget,
+      reason: tela,
+    );
+
+    await aba('Agenda');
+    await tester.tap(find.text('Palestra sobre carreira'));
+    await tester.pumpAndSettle();
+    naBarra('Detalhe do evento');
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await aba('Turmas');
+    await tester.tap(find.text('Ver turmas'));
+    await tester.pumpAndSettle();
+    naBarra('Turmas disponíveis');
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Ver todas'));
+    await tester.pumpAndSettle();
+    naBarra('Minhas solicitações');
+  });
+
+  testWidgets(
+    'barra de status: ícones claros no login escuro, mesmo vindo de uma tela clara (US2)',
+    (tester) async {
+      await entrarLogado();
+      await abrir(tester);
+      expect(SystemChrome.latestStyle?.statusBarIconBrightness, Brightness.dark);
+
+      await tester.tap(
+        find.descendant(of: find.byKey(const Key('barra-abas')), matching: find.text('Perfil')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sair da conta'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Sair'));
+      await tester.pumpAndSettle();
+      await tester.tap(ativar());
+      await tester.pumpAndSettle();
+
+      expect(brilho(tester), Brightness.dark);
+      expect(SystemChrome.latestStyle?.statusBarIconBrightness, Brightness.light);
+    },
+  );
 
   testWidgets('login e "Sem conexão": canto superior direito, fora de barra', (tester) async {
     await abrir(tester);

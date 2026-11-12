@@ -65,4 +65,29 @@ void main() {
 
     expect(violacoes, isEmpty, reason: 'Fundo cheio: context.cores.painel ou context.cores.acao');
   });
+
+  // `branco` é superfície (escura no tema escuro): nunca cor de ícone, indicador ou texto por cima
+  // de cor cheia — para isso existe `sobreCor`.
+  test('branco não é usado como cor de primeiro plano (ícone, indicador, texto)', () {
+    final primeiroPlano = RegExp(r'(?:Icon|CircularProgressIndicator|TextStyle|copyWith)\(');
+    final violacoes = <String>[];
+    for (final arquivo in Directory('lib').listSync(recursive: true).whereType<File>()) {
+      if (!arquivo.path.endsWith('.dart')) continue;
+      final linhas = arquivo.readAsLinesSync();
+      for (var i = 0; i < linhas.length; i++) {
+        if (!linhas[i].contains('cores.branco')) continue;
+        // O widget dono da cor está na mesma linha ou até 4 linhas acima.
+        final contexto = linhas.sublist((i - 4).clamp(0, i), i + 1).join('\n');
+        final dono = primeiroPlano.allMatches(contexto).lastOrNull;
+        final superficie = RegExp(
+          r'(?:Container|DecoratedBox|BoxDecoration|Material|Card|Scaffold|showModalBottomSheet)\(',
+        ).allMatches(contexto).lastOrNull;
+        if (dono != null && (superficie == null || dono.start > superficie.start)) {
+          violacoes.add('${arquivo.path}:${i + 1}: ${linhas[i].trim()}');
+        }
+      }
+    }
+
+    expect(violacoes, isEmpty, reason: 'Sobre cor cheia, use context.cores.sobreCor');
+  });
 }

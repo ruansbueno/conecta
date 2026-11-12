@@ -10,21 +10,32 @@ export const CHAVE_TEMA = 'conecta:tema'
 export const EVENTO_TEMA = 'conecta:tema'
 const CONSULTA_ESCURO = '(prefers-color-scheme: dark)'
 
+/** Escolha feita nesta página quando o armazenamento recusou guardá-la: vale até recarregar. */
+let escolhaSemArmazenamento: Tema | null = null
+
 export function lerEscolha(): Tema | null {
   try {
     const valor = localStorage.getItem(CHAVE_TEMA)
-    return valor === 'claro' || valor === 'escuro' ? valor : null
+    if (valor === 'claro' || valor === 'escuro') return valor
   } catch {
-    return null // armazenamento bloqueado: como se não houvesse escolha
+    // Armazenamento bloqueado: como se não houvesse escolha guardada.
   }
+  return escolhaSemArmazenamento
 }
 
 export function guardarEscolha(tema: Tema): void {
   try {
     localStorage.setItem(CHAVE_TEMA, tema)
+    escolhaSemArmazenamento = null
   } catch {
-    // Sem armazenamento, a troca vale só para esta página.
+    // Sem armazenamento, a troca vale só para esta página — e continua valendo se o sistema mudar.
+    escolhaSemArmazenamento = tema
   }
+}
+
+/** Para os testes: esquece a escolha que ficou só na memória da página. */
+export function esquecerEscolhaSemArmazenamento(): void {
+  escolhaSemArmazenamento = null
 }
 
 export function consultaDoSistema(): MediaQueryList | undefined {

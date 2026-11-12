@@ -1,5 +1,7 @@
 import { vi } from 'vitest'
 
+import { esquecerEscolhaSemArmazenamento } from '../src/lib/tema'
+
 /** `prefers-color-scheme` controlável: o jsdom não implementa `matchMedia`. */
 export function sistemaEm(escuro: boolean) {
   const ouvintes = new Set<(e: { matches: boolean }) => void>()
@@ -27,6 +29,7 @@ export function sistemaEm(escuro: boolean) {
 /** Estado limpo entre testes: sem escolha guardada e sem tema aplicado no <html>. */
 export function limparTema() {
   localStorage.clear()
+  esquecerEscolhaSemArmazenamento()
   delete document.documentElement.dataset.tema
   document.documentElement.style.colorScheme = ''
   vi.unstubAllGlobals()

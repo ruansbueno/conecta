@@ -276,7 +276,7 @@ class _TurmaDisponivel extends StatelessWidget {
                   dimension: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.2,
-                    color: context.cores.branco,
+                    color: context.cores.sobreCor,
                     semanticsLabel: 'Enviando',
                   ),
                 )

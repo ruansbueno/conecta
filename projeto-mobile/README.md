@@ -70,11 +70,13 @@ Flutter · `provider` (estado) · `Navigator` com rotas nomeadas · `http` com c
 | 11. US6b — Horários | Aba Horários: grade da turma por dia (m-12), troca de turma com a escolha lembrada, mensagens próprias quando o vínculo some, grade guardada por turma | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | 12. Polimento da F2 | Sem rede na agenda e na grade, fonte a 200% conferida no aparelho, leitor de tela, comparação com o design | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | — Login pelo IFSul | Mensagens de acesso pendente e recusado (RM-41); login sem menção ao Moodle | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
+| — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login e "Sem conexão"; segue o sistema até a pessoa escolher, e a escolha fica no aparelho (continua depois de sair da conta); paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
 
-**Testes** (registro de 06/11/2026, [`testes-app-final-2026-11-06.txt`](evidencias/testes-app-final-2026-11-06.txt)):
-357 de unidade e de widget (`flutter test`) e 22 de integração no emulador, com servidor falso, em
-`integration_test/`; o registro de 10/11 traz cada teste pelo nome
-([`testes-app-por-teste-2026-11-10.txt`](evidencias/testes-app-por-teste-2026-11-10.txt)).
+**Testes** (registro de 11/11/2026, com o modo noturno, [`testes-app-2026-11-11.txt`](evidencias/testes-app-2026-11-11.txt)):
+408 de unidade e de widget (`flutter test`, com a acessibilidade nos dois temas) e 22 de integração
+no emulador, com servidor falso, em `integration_test/`. Antes do modo noturno: registro de 06/11
+([`testes-app-final-2026-11-06.txt`](evidencias/testes-app-final-2026-11-06.txt)) e o de 10/11, com
+cada teste pelo nome ([`testes-app-por-teste-2026-11-10.txt`](evidencias/testes-app-por-teste-2026-11-10.txt)).
 
 ## Como rodar
 

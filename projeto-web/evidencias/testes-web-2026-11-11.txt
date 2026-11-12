@@ -1,0 +1,32 @@
+# Verificações da plataforma web — modo noturno e fim de lista (spec 002) — 11/11/2026 22:58
+# commit: 5fb9fbb | Node v24.11.1
+
+## typecheck
+sem erros
+
+## eslint
+sem problemas
+
+## vitest (npx vitest run)
+ Test Files  55 passed (55)
+      Tests  465 passed (465)
+
+## playwright (execução 1, com caffeinate -i)
+  74 passed (2.4m)
+
+## playwright (execução 2, com caffeinate -i)
+  74 passed (2.3m)
+
+## implantação (deploy/verificar.sh: build → nginx em Docker com HTTPS → API local real)
+  ✓   1 deploy/implantacao.spec.ts:4:1 › rota desconhecida cai no index.html e a aplicação decide (vai ao login) (215ms)
+  ✓   2 deploy/implantacao.spec.ts:15:1 › HTTP vai para HTTPS, na porta HTTPS configurada (4ms)
+  ✓   3 deploy/implantacao.spec.ts:22:1 › login pela API em /api: cookie de sessão Secure e httpOnly; recarregar uma rota funda mantém a sessão (2.0s)
+  ✓   4 deploy/implantacao.spec.ts:39:1 › arquivos com hash têm cache longo; a página tem os cabeçalhos de segurança (120ms)
+  ✓   5 deploy/implantacao.spec.ts:49:1 › nenhuma violação da CSP ao entrar e navegar (1.0s)
+  ✓   6 deploy/implantacao.spec.ts:66:1 › fontes têm os cabeçalhos de segurança e o nginx não informa a versão (12ms)
+  ✓   7 deploy/implantacao.spec.ts:82:1 › escrita pela API real: o CSRF assinado da sessão passa (sair encerra a sessão) (302ms)
+  ✓   8 deploy/implantacao.spec.ts:91:1 › CSRF válido de outra sessão, plantado no navegador, é recusado pela API real (RF-33, v2.2) (315ms)
+  ✓   9 deploy/implantacao.spec.ts:106:1 › os cookies vêm com o prefixo __Host- e Secure, Path=/ e sem Domain (cabeçalho bruto) (14ms)
+  ✓  10 deploy/implantacao.spec.ts:117:1 › redirecionamento da própria API (barra no fim) fica sob /api, na mesma origem (7ms)
+  ✓  11 deploy/implantacao.spec.ts:123:1 › a documentação da API não fica exposta pela plataforma (6ms)
+  11 passed (4.5s)

@@ -1,0 +1,24 @@
+# Verificações do aplicativo — modo noturno e fim de lista (spec 002) — 11/11/2026 23:03
+# commit: 5fb9fbb | Flutter 3.41.4 • channel stable • https://github.com/flutter/flutter.git
+
+## flutter analyze
+No issues found! (ran in 2.1s)
+
+## flutter test (unidade e widget)
+00:16 +408: All tests passed!
+
+## flutter test integration_test -d emulator-5554 (Android 16, emulador; servidor falso no contrato da API)
+00:00 +0: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/offline_test.dart
+00:32 +2: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/agenda_test.dart
+01:24 +5: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/token_seguro_test.dart
+01:56 +6: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/avisos_test.dart
+02:58 +10: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/erro_desconhecido_test.dart
+03:23 +11: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/sessao_test.dart
+03:52 +16: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/horarios_test.dart
+04:19 +18: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/solicitacao_fluxo_test.dart
+04:53 +20: loading /Users/ruanbueno/dev/conecta/projeto-mobile/integration_test/perfil_atualizado_test.dart
+05:21 +22: All tests passed!
+
+Nota: a primeira tentativa desta etapa (iniciada logo após a suíte de unidade e widget) parou de
+responder porque o emulador encerrou durante a execução. O emulador foi reiniciado e a etapa foi
+repetida em 12/11/2026 00:33, no mesmo commit; o resultado acima é o dessa repetição.

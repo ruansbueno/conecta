@@ -47,6 +47,8 @@ só.
 | Web: configuração de referência do servidor nginx (HTTPS, `/api` na mesma origem, cabeçalhos de segurança) | [`projeto-web/deploy/nginx.conf`](projeto-web/deploy/nginx.conf) |
 | App: cliente HTTP, token no armazenamento seguro e cache para abrir sem rede | [`projeto-mobile/lib/services/`](projeto-mobile/lib/services/) |
 | App: listas paginadas (resposta antiga não sobrescreve a nova) | [`projeto-mobile/lib/state/lista_paginada.dart`](projeto-mobile/lib/state/lista_paginada.dart) |
+| Web: modo noturno (paleta escura nos mesmos tokens do tema; escolha guardada no navegador e aplicada antes da primeira pintura) | [`projeto-web/src/estilos/globals.css`](projeto-web/src/estilos/globals.css) e [`src/lib/tema.ts`](projeto-web/src/lib/tema.ts) |
+| App: modo noturno (paletas clara e escura; escolha guardada no aparelho) | [`projeto-mobile/lib/theme/cores.dart`](projeto-mobile/lib/theme/cores.dart) e [`lib/state/tema_controller.dart`](projeto-mobile/lib/state/tema_controller.dart) |
 | Fluxo de ponta a ponta da especificação (publicar na gestão e receber no app) | [`projeto-api/tests/e2e/test_fluxo_publicar_receber.py`](projeto-api/tests/e2e/test_fluxo_publicar_receber.py) |
 
 Cada componente segue camadas separadas. Na API: `src/api` (rotas) → `src/services` (regras) →
@@ -61,7 +63,7 @@ em `projeto-*/specs/` (especificação, plano e tarefas).
 | [`projeto-api/`](projeto-api/) | Código (`src/`), migrações (`alembic/`), testes (`tests/`), scripts (`scripts/`), especificações (`specs/`) e evidências (`evidencias/`) |
 | [`projeto-web/`](projeto-web/) | Código (`src/`), testes de unidade e componente (`tests/`), de ponta a ponta (`e2e/`), implantação (`deploy/`), especificações e evidências com capturas |
 | [`projeto-mobile/`](projeto-mobile/) | Código (`lib/`), testes de unidade e widget (`test/`), de integração (`integration_test/`), especificações e evidências com capturas |
-| [`design/`](design/) | As 30 telas desenhadas (14 do aplicativo, 16 da web), com a paleta e a tipografia |
+| [`design/`](design/) | As 30 telas desenhadas (14 do aplicativo, 16 da web), com a paleta e a tipografia, e as capturas no tema escuro (`web-escuro/`, `mobile-escuro/`) |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: componentes, autenticação, módulos e regras |
 | [`docs/modelo-de-dados/`](docs/modelo-de-dados/) | Modelo de dados no SQL Power Architect |
 | [`docs/HISTORICO.md`](docs/HISTORICO.md) | Como o projeto foi construído: ordem das entregas e os pull requests |
@@ -166,9 +168,9 @@ Verificações de estilo: `uv run ruff check .` (API), `npm run lint` e `npm run
 
 ## Evidências dos testes
 
-Os registros abaixo são as saídas das execuções citadas no Apêndice B do TCC. Cada arquivo traz a
-data, a versão do código (commit) e os comandos executados; o roteiro do IFSul rodou no commit
-`59f05d5`.
+Os registros até 10/11 são as saídas das execuções citadas no Apêndice B do TCC; o de 11/11
+registra o modo noturno, acrescentado depois. Cada arquivo traz a data, a versão do código (commit)
+e os comandos executados; o roteiro do IFSul rodou no commit `59f05d5`.
 
 | Execução | Registro |
 |---|---|
@@ -177,6 +179,7 @@ data, a versão do código (commit) e os comandos executados; o roteiro do IFSul
 | Final (06/11): API, web (com a implantação), aplicativo (com a integração no emulador) e roteiro integrado | [API](projeto-api/evidencias/testes-final-2026-11-06.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-06.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-06.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-06.txt) |
 | Roteiro contra a API de autenticação do IFSul, com conta real de aluno (06/11) | [`roteiro-ifsul-2026-11-06.md`](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md) |
 | Web e aplicativo com cada teste pelo nome (10/11) | [web](projeto-web/evidencias/testes-web-por-teste-2026-11-10.txt), [app](projeto-mobile/evidencias/testes-app-por-teste-2026-11-10.txt) |
+| Modo noturno e fim de lista (11/11): web (com a implantação) e aplicativo (com a integração no emulador) | [web](projeto-web/evidencias/testes-web-2026-11-11.txt), [app](projeto-mobile/evidencias/testes-app-2026-11-11.txt) |
 
 O roteiro integrado (`projeto-api/scripts/roteiro_integrado.py`) exercita a API real como a web
 (cookie de sessão e CSRF) e como o aplicativo (token no cabeçalho). Os relatórios de cada fase dos
@@ -187,12 +190,12 @@ Até 06/11/2026, a integração real prevista para o login era com o Moodle; por
 anteriores a essa data citam `MOODLE_URL`, e os 3 testes pulados neles são os dessa integração. A
 partir de 06/11, os pulados são os da integração real com o IFSul.
 
-A `main` tem commits posteriores às execuções registradas: na API, a nova tentativa de conexão com
-o IFSul e um ajuste do seed (PR #33); nos clientes, o nome do curso e uma correção no aplicativo,
-cada um com teste; e esta documentação. Num clone limpo da `main`, em 11/11/2026, a API teve 995
-testes aprovados e 3 pulados, a web 414 de unidade e componente, e o aplicativo 358 de unidade e
-widget. Para repetir uma execução exatamente como registrada, use o commit indicado no registro
-(`git checkout <commit>`).
+A `main` tem commits posteriores às execuções de 06/11 e 10/11: na API, a nova tentativa de conexão
+com o IFSul e um ajuste do seed (PR #33); nos clientes, o nome do curso e uma correção no
+aplicativo, cada um com teste; e esta documentação. Num clone limpo da `main`, em 11/11/2026, a API
+teve 995 testes aprovados e 3 pulados. O modo noturno (PR #36) mudou só os clientes; os números deles
+depois dessa mudança estão no registro de 11/11. Para repetir uma execução exatamente como
+registrada, use o commit indicado no registro (`git checkout <commit>`).
 
 ## Arquitetura em uma página
 

@@ -42,4 +42,4 @@ em `tests/componente/`, fluxo e acessibilidade em `e2e/`.
 - [x] W011 [US2] `e2e/acessibilidade.spec.ts`: axe também no tema escuro, em todas as telas da
       suíte
 - [x] W012 Capturas em `design/web-escuro/` e seção "Tema escuro" em `design/README.md`
-- [ ] W013 Registro datado em `evidencias/` (typecheck, lint, Vitest, Playwright 2×) e READMEs
+- [x] W013 Registro datado em `evidencias/` (typecheck, lint, Vitest, Playwright 2×) e READMEs

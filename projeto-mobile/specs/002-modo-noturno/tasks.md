@@ -36,4 +36,4 @@
 
 - [x] M009 [US2] `acessibilidade_test.dart` também no tema escuro
 - [x] M010 Capturas do emulador em `design/mobile-escuro/`
-- [ ] M011 Registro datado em `evidencias/` (analyze e suíte completa) e READMEs
+- [x] M011 Registro datado em `evidencias/` (analyze e suíte completa) e READMEs

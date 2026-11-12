@@ -55,7 +55,7 @@ Future<SaidaDaFolha?> mostrarFolhaConfirmacao(BuildContext context, String turma
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: context.cores.navy),
+                  style: FilledButton.styleFrom(backgroundColor: context.cores.painel),
                   onPressed: () => Navigator.of(context).pop(SaidaDaFolha.verSolicitacoes),
                   child: const Text('Ver minhas solicitações'),
                 ),

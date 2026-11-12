@@ -46,4 +46,23 @@ void main() {
 
     expect(violacoes, isEmpty, reason: 'Use context.cores e context.tipos');
   });
+
+  // Spec 002 (D-AMN-3): cores de texto clareiam no escuro; fundo cheio usa `painel` ou `acao`.
+  test('nenhuma cor de texto usada como fundo (navy, tinta, apagado…)', () {
+    final fundoComCorDeTexto = RegExp(
+      r'backgroundColor:\s*context\.cores\.(?:navy|navySuave|tinta|textoCorpo|apagado|tenue)\b',
+    );
+    final violacoes = <String>[];
+    for (final arquivo in Directory('lib').listSync(recursive: true).whereType<File>()) {
+      if (!arquivo.path.endsWith('.dart')) continue;
+      final linhas = arquivo.readAsLinesSync();
+      for (var i = 0; i < linhas.length; i++) {
+        if (fundoComCorDeTexto.hasMatch(linhas[i])) {
+          violacoes.add('${arquivo.path}:${i + 1}: ${linhas[i].trim()}');
+        }
+      }
+    }
+
+    expect(violacoes, isEmpty, reason: 'Fundo cheio: context.cores.painel ou context.cores.acao');
+  });
 }

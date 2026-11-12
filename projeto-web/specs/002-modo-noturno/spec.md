@@ -116,8 +116,9 @@ Com poucos dados, algumas telas terminam num bloco em branco que parece "carrega
   temas claro e escuro. Na casca da gestão ele fica na barra superior, à direita; no login, no
   canto superior direito da página.
 - **FR-002**: O botão MUST mostrar a lua quando o tema efetivo é o claro e o sol quando é o
-  escuro, com nome acessível "Ativar modo noturno" / "Desativar modo noturno", `aria-pressed`
-  refletindo o modo noturno, foco visível e dica ao passar o mouse com o mesmo texto.
+  escuro, com nome acessível "Ativar modo noturno" / "Desativar modo noturno" (o nome diz o que o
+  acionamento faz; por isso sem `aria-pressed`, que com nome variável se contradiria), foco
+  visível e dica ao passar o mouse com o mesmo texto.
 - **FR-003**: A escolha MUST ser guardada no `localStorage` do navegador, na chave
   `conecta:tema`, com os valores `claro` ou `escuro`. Nenhum outro dado vai junto.
 - **FR-004**: Sem escolha guardada, o tema efetivo MUST seguir `prefers-color-scheme` e

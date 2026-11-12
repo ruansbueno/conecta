@@ -36,20 +36,21 @@ export default tseslint.config(
     },
   },
   {
-    // Princípio III: armazenamento do navegador só no rascunho; cookie só o CSRF, no cliente.
+    // Princípio III: armazenamento do navegador só no rascunho e na preferência de tema (spec 002);
+    // cookie só o CSRF, no cliente.
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/lib/rascunho.ts', 'src/api/cliente.ts'],
+    ignores: ['src/lib/rascunho.ts', 'src/lib/tema.ts', 'src/api/cliente.ts'],
     rules: {
       'no-restricted-globals': [
         'error',
-        { name: 'localStorage', message: 'Armazenamento só em src/lib/rascunho.ts.' },
-        { name: 'sessionStorage', message: 'Armazenamento só em src/lib/rascunho.ts.' },
+        { name: 'localStorage', message: 'Armazenamento só em src/lib/rascunho.ts e src/lib/tema.ts.' },
+        { name: 'sessionStorage', message: 'Armazenamento só em src/lib/rascunho.ts e src/lib/tema.ts.' },
       ],
       'no-restricted-properties': [
         'error',
         { object: 'document', property: 'cookie', message: 'Cookie só o CSRF, em src/api/cliente.ts.' },
-        { object: 'window', property: 'localStorage', message: 'Armazenamento só em src/lib/rascunho.ts.' },
-        { object: 'window', property: 'sessionStorage', message: 'Armazenamento só em src/lib/rascunho.ts.' },
+        { object: 'window', property: 'localStorage', message: 'Armazenamento só em src/lib/rascunho.ts e src/lib/tema.ts.' },
+        { object: 'window', property: 'sessionStorage', message: 'Armazenamento só em src/lib/rascunho.ts e src/lib/tema.ts.' },
       ],
     },
   },

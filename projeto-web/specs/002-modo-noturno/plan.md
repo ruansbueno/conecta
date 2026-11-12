@@ -23,8 +23,10 @@ Playwright contra o servidor falso, axe. Nenhuma dependência nova (Princípio V
 
 - **I. Cliente sem regra de negócio** — PASS. Tema é preferência de interface; nada vai à API.
 - **III. Token fora do alcance do JavaScript** — PASS, com esclarecimento (constituição 2.0.1): o
-  princípio proíbe guardar **token** no navegador; o `localStorage` passa a conter apenas
-  `conecta:tema` (`claro`/`escuro`), que não identifica a pessoa nem dá acesso a nada.
+  princípio proíbe guardar **token** no navegador; além do rascunho de formulário, o
+  `localStorage` passa a conter `conecta:tema` (`claro`/`escuro`), que não identifica a pessoa nem
+  dá acesso a nada e não é apagado ao sair. A regra de lint que restringe o armazenamento ganha
+  `src/lib/tema.ts` como segunda exceção.
 - **IV. Build estático** — PASS. O script de tema é um arquivo estático em `public/`, servido pela
   mesma origem; a CSP (`default-src 'self'`) continua sem `unsafe-inline` para scripts.
 - **V. Design system e acessibilidade** — PASS. Tokens redefinidos no mesmo arquivo; contraste AA

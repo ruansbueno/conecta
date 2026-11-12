@@ -12,21 +12,21 @@ em `tests/componente/`, fluxo e acessibilidade em `e2e/`.
 
 ## Fase 1: Tokens e tema escuro
 
-- [ ] W001 [US2] Testes: `contraste-tema.test.ts` (pares texto × fundo ≥ 4,5:1 nos dois temas;
+- [x] W001 [US2] Testes: `contraste-tema.test.ts` (pares texto × fundo ≥ 4,5:1 nos dois temas;
       `sobre-cor` sobre `acao` e `painel`) e `cores-so-no-tema.test.ts` (sem cor solta em `src/`)
-- [ ] W002 [US2] `globals.css`: tokens `sobre-cor`, `sobre-painel-suave`, `painel`, `acao`,
+- [x] W002 [US2] `globals.css`: tokens `sobre-cor`, `sobre-painel-suave`, `painel`, `acao`,
       `acao-escura` (D-MN-2); bloco `html[data-tema='escuro']` com a paleta D-MN-3,
       `color-scheme` e a seta escura do `select`
-- [ ] W003 [US2] Trocar os usos de dois papéis: `.botao-primario` (`bg-acao`, `text-sobre-cor`,
+- [x] W003 [US2] Trocar os usos de dois papéis: `.botao-primario` (`bg-acao`, `text-sobre-cor`,
       `hover:bg-acao-escura`), avatar, painel do login e filtro de Pedidos de acesso (`bg-painel`,
       `text-sobre-cor`, `text-sobre-painel-suave`)
 
 ## Fase 2: Escolha, persistência e botão
 
-- [ ] W004 [US1] Testes `tema.test.ts` (D-MN-5) e `botao-tema.test.tsx` (FR-001 a FR-006)
-- [ ] W005 [US1] `src/lib/tema.ts` e `public/tema-inicial.js` + `<script>` no `index.html` (D-MN-4)
-- [ ] W006 [US1] Ícones `lua` e `sol`; `componentes/comum/botao-tema.tsx` com `useTema()`
-- [ ] W007 [US1] Botão na `BarraSuperior`, no login e em "Sem permissão" fora da casca (D-MN-6)
+- [x] W004 [US1] Testes `tema.test.ts` (D-MN-5) e `botao-tema.test.tsx` (FR-001 a FR-006)
+- [x] W005 [US1] `src/lib/tema.ts` e `public/tema-inicial.js` + `<script>` no `index.html` (D-MN-4)
+- [x] W006 [US1] Ícones `lua` e `sol`; `componentes/comum/botao-tema.tsx` com `useTema()`
+- [x] W007 [US1] Botão na `BarraSuperior`, no login e em "Sem permissão" fora da casca (D-MN-6)
 
 ## Fase 3: Fim de lista e vazios amigáveis
 

@@ -5,6 +5,7 @@ export function Icone({ nome, tamanho = 20, className }: { nome: NomeIcone; tama
   return (
     <svg
       aria-hidden="true"
+      data-icone={nome}
       width={tamanho}
       height={tamanho}
       viewBox="0 0 22 22"

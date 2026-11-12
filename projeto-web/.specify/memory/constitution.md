@@ -3,8 +3,9 @@ Sync Impact Report
 Version change: 2.0.0 → 2.0.1 (2026-11-11)
 Modified principles:
   - III. Token Fora do Alcance do JavaScript — esclarecimento (PATCH): a proibição vale para o
-    token e qualquer dado de sessão; o `localStorage` pode guardar preferência de interface que não
-    identifica a pessoa (o tema, spec 002-modo-noturno).
+    token e qualquer dado de sessão; além do rascunho de formulário (apagado ao sair), o
+    `localStorage` pode guardar preferência de interface que não identifica a pessoa (o tema,
+    spec 002-modo-noturno), que permanece ao sair.
 Templates: nenhum alterado.
 
 Version change: 1.0.0 → 2.0.0 (2026-10-13)
@@ -59,8 +60,9 @@ código que roda no navegador — nada de `localStorage`, `sessionStorage`, vari
 cópia em memória. O navegador apenas carrega o cookie automaticamente a cada requisição
 (`credentials: 'include'`).
 
-O armazenamento do navegador (`localStorage`) MAY guardar apenas preferências de interface que
-não identificam a pessoa nem dão acesso a nada — hoje, o tema claro ou escuro.
+O armazenamento do navegador (`localStorage`) MAY guardar apenas o rascunho de formulário, apagado
+ao sair da conta, e preferências de interface que não identificam a pessoa nem dão acesso a
+nada — hoje, o tema claro ou escuro, que permanece ao sair.
 
 Disso decorrem duas obrigações: toda requisição de escrita MUST carregar proteção contra CSRF, na
 forma definida pela API; e a plataforma MUST ser servida na **mesma origem** da API, que fica

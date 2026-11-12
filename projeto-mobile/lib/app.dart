@@ -13,21 +13,33 @@ import 'services/api_client.dart';
 import 'services/api_failure.dart';
 import 'services/cache_local.dart';
 import 'services/cofre_sessao.dart';
+import 'services/preferencia_tema.dart';
 import 'state/session_controller.dart';
 import 'state/solicitacoes_controller.dart';
+import 'state/tema_controller.dart';
+import 'theme/cores.dart';
 import 'theme/tema.dart';
 import 'ui/casca/casca_abas.dart';
+import 'ui/comum/botao_tema.dart';
 import 'ui/comum/estado_erro.dart';
 import 'ui/comum/marca.dart';
 import 'ui/login/login_page.dart';
 
 /// O que o app precisa do mundo de fora; os testes injetam versões falsas.
 class Dependencias {
-  const Dependencias({required this.api, required this.cache, required this.cofre});
+  const Dependencias({
+    required this.api,
+    required this.cache,
+    required this.cofre,
+    required this.preferencias,
+  });
 
   final ApiClient api;
   final CacheLocal cache;
   final CofreSessao cofre;
+
+  /// Tema claro ou escuro escolhido no aparelho (spec 002).
+  final PreferenciaTema preferencias;
 }
 
 class ConectaApp extends StatelessWidget {
@@ -50,21 +62,27 @@ class ConectaApp extends StatelessWidget {
         Provider(create: (_) => HorariosRepository(d.api, d.cache)),
         Provider(create: (_) => SolicitacoesRepository(d.api)),
         ChangeNotifierProvider(create: (_) => MudancasDeSolicitacao()),
+        // Lida antes do primeiro quadro: as preferências já vêm carregadas em Dependencias (FR-005).
+        ChangeNotifierProvider(create: (_) => TemaController(d.preferencias)),
         ChangeNotifierProvider(
           create: (_) =>
               SessionController(api: d.api, auth: auth, cofre: d.cofre, cache: d.cache)..iniciar(),
         ),
       ],
-      child: MaterialApp(
-        title: 'CONECTA',
-        debugShowCheckedModeBanner: false,
-        theme: temaConecta(),
-        locale: const Locale('pt', 'BR'),
-        supportedLocales: const [Locale('pt', 'BR')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        navigatorKey: Rotas.navigatorKey,
-        onGenerateRoute: Rotas.gerar,
-        home: const _Raiz(),
+      child: Builder(
+        builder: (context) => MaterialApp(
+          title: 'CONECTA',
+          debugShowCheckedModeBanner: false,
+          theme: temaConecta(CoresConecta.claro),
+          darkTheme: temaConecta(CoresConecta.escuro),
+          themeMode: context.watch<TemaController>().modo,
+          locale: const Locale('pt', 'BR'),
+          supportedLocales: const [Locale('pt', 'BR')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          navigatorKey: Rotas.navigatorKey,
+          onGenerateRoute: Rotas.gerar,
+          home: const _Raiz(),
+        ),
       ),
     );
   }
@@ -97,9 +115,11 @@ class _RaizState extends State<_Raiz> {
       EstadoSessao.deslogado => const LoginPage(),
       EstadoSessao.logado => CascaAbas(key: ValueKey(sessao.usuario?.id)),
       EstadoSessao.semConexao => Scaffold(
-        body: EstadoErro(
-          mensagem: const ApiFailure(code: ApiFailure.semRede).mensagem,
-          onRepetir: sessao.iniciar,
+        body: ComBotaoTema(
+          child: EstadoErro(
+            mensagem: const ApiFailure(code: ApiFailure.semRede).mensagem,
+            onRepetir: sessao.iniciar,
+          ),
         ),
       ),
     };

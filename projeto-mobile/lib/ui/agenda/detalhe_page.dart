@@ -8,6 +8,7 @@ import '../../services/api_failure.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/chip_destino.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
@@ -76,7 +77,7 @@ class _EventoDetalhePageState extends State<EventoDetalhePage> {
   Widget build(BuildContext context) {
     final evento = _evento;
     return Scaffold(
-      appBar: AppBar(leading: const BackButton()),
+      appBar: AppBar(leading: const BackButton(), actions: const [BotaoTema(), SizedBox(width: 8)]),
       body: evento == null
           ? (_falha == null
                 ? const EsqueletoLista(itens: 2)
@@ -116,7 +117,7 @@ class _Conteudo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cor = corDoTipo(evento.tipo);
+    final cor = corDoTipo(evento.tipo, context.cores);
     final (quando, horas) = _quando;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,15 +130,15 @@ class _Conteudo extends StatelessWidget {
           ),
           child: Text(
             evento.rotuloTipo,
-            style: Tipografia.chip.copyWith(color: cor, fontWeight: FontWeight.w600),
+            style: context.tipos.chip.copyWith(color: cor, fontWeight: FontWeight.w600),
           ),
         ),
         const SizedBox(height: 12),
-        Semantics(header: true, child: Text(evento.titulo, style: Tipografia.tituloGrande)),
+        Semantics(header: true, child: Text(evento.titulo, style: context.tipos.tituloGrande)),
         const SizedBox(height: 20),
         DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(color: Cores.linha),
+            border: Border.all(color: context.cores.linha),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -152,10 +153,10 @@ class _Conteudo extends StatelessWidget {
         ),
         if (evento.descricao case final descricao? when descricao.trim().isNotEmpty) ...[
           const SizedBox(height: 20),
-          SelectionArea(child: Text(descricao, style: Tipografia.corpo)),
+          SelectionArea(child: Text(descricao, style: context.tipos.corpo)),
         ],
         const SizedBox(height: 24),
-        Text('Para quem é', style: Tipografia.rotuloCampo),
+        Text('Para quem é', style: context.tipos.rotuloCampo),
         const SizedBox(height: 8),
         ChipsDestino(evento.destinos),
         const SizedBox(height: 24),
@@ -167,9 +168,12 @@ class _Conteudo extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(evento.autorNome, style: Tipografia.autor.copyWith(color: Cores.navy)),
+                  Text(
+                    evento.autorNome,
+                    style: context.tipos.autor.copyWith(color: context.cores.navy),
+                  ),
                   if (evento.editadoEm case final editado?)
-                    Text('Editado ${dataHoraDetalhe(editado)}', style: Tipografia.meta),
+                    Text('Editado ${dataHoraDetalhe(editado)}', style: context.tipos.meta),
                 ],
               ),
             ),
@@ -194,14 +198,14 @@ class _Linha extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icone, size: 20, color: Cores.azul),
+          Icon(icone, size: 20, color: context.cores.azul),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(titulo, style: Tipografia.tituloCartao),
-                if (apoio case final apoio?) Text(apoio, style: Tipografia.meta),
+                Text(titulo, style: context.tipos.tituloCartao),
+                if (apoio case final apoio?) Text(apoio, style: context.tipos.meta),
               ],
             ),
           ),

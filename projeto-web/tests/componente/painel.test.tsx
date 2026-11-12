@@ -194,3 +194,91 @@ describe('painel do docente (T14)', () => {
     expect(novo).toHaveFocus()
   })
 })
+
+// Spec 002, User Story 3 (FR-010): o bloco diz quando a lista acabou e, vazio, explica com ícone.
+describe('painel: fim da lista e vazios amigáveis', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('coordenação: todas as pendentes no bloco → "Não há mais solicitações esperando decisão."', async () => {
+    api({ 'GET /gestao/solicitacoes': () => ({ status: 200, corpo: pagina(PENDENTES) }) })
+    abrir()
+    const bloco = await cartao('Solicitações de inscrição')
+    expect(await within(bloco).findByText('Não há mais solicitações esperando decisão.')).toBeInTheDocument()
+  })
+
+  it('coordenação: mais pendentes que o bloco mostra → sem fecho', async () => {
+    api() // 2 no bloco, 7 no total
+    abrir()
+    const bloco = await cartao('Solicitações de inscrição')
+    await within(bloco).findByText('Caio Ribeiro')
+    expect(within(bloco).queryByText(/Não há mais/)).not.toBeInTheDocument()
+  })
+
+  it('coordenação: menos avisos que o limite → "Não há mais avisos recentes."', async () => {
+    api()
+    abrir()
+    const bloco = await cartao('Avisos recentes')
+    expect(await within(bloco).findByText('Não há mais avisos recentes.')).toBeInTheDocument()
+  })
+
+  it('coordenação: avisos além do bloco → sem fecho', async () => {
+    api({
+      'GET /gestao/avisos': (q) =>
+        q.get('limit') === '1' ? { status: 200, corpo: pagina([], 9) } : { status: 200, corpo: pagina(AVISOS, 9) },
+    })
+    abrir()
+    const bloco = await cartao('Avisos recentes')
+    await within(bloco).findByText('Matrícula do 2º semestre')
+    expect(within(bloco).queryByText(/Não há mais/)).not.toBeInTheDocument()
+  })
+
+  it('coordenação: blocos vazios com ícone, frase e atalho para publicar', async () => {
+    api({
+      'GET /gestao/avisos': () => ({ status: 200, corpo: pagina([]) }),
+      'GET /gestao/solicitacoes': () => ({ status: 200, corpo: pagina([]) }),
+    })
+    abrir()
+    const avisos = await cartao('Avisos recentes')
+    const vazioAvisos = await within(avisos).findByText('Nenhum aviso publicado ainda.')
+    expect(vazioAvisos.closest('[data-vazio]')?.querySelector('svg')).not.toBeNull()
+    expect(within(avisos).getByRole('link', { name: 'Publicar aviso' })).toHaveAttribute('href', '/avisos/novo')
+    expect(within(avisos).queryByText(/Não há mais/)).not.toBeInTheDocument()
+    const solicitacoes = await cartao('Solicitações de inscrição')
+    const vazioSol = await within(solicitacoes).findByText('Nenhuma solicitação esperando decisão.')
+    expect(vazioSol.closest('[data-vazio]')?.querySelector('svg')).not.toBeNull()
+  })
+
+  it('com falha: sem fecho', async () => {
+    api({ 'GET /gestao/solicitacoes': () => ({ status: 500, corpo: erro('ERRO_INTERNO') }) })
+    abrir()
+    const bloco = await cartao('Solicitações de inscrição')
+    await within(bloco).findByRole('alert')
+    expect(within(bloco).queryByText(/Não há mais/)).not.toBeInTheDocument()
+  })
+
+  it('docente: "Meus avisos" vazio com atalho; pendentes que cabem no bloco com fecho', async () => {
+    api(
+      {
+        'GET /gestao/avisos': () => ({ status: 200, corpo: pagina([]) }),
+        'GET /gestao/solicitacoes': () => ({ status: 200, corpo: pagina(PENDENTES) }),
+      },
+      meDocente,
+    )
+    abrir()
+    const avisos = await cartao('Meus avisos')
+    expect(await within(avisos).findByText('Você ainda não publicou avisos.')).toBeInTheDocument()
+    expect(within(avisos).getByRole('link', { name: 'Publicar aviso' })).toHaveAttribute('href', '/avisos/novo')
+    const pendentes = await cartao('Solicitações das minhas turmas')
+    expect(await within(pendentes).findByText('Não há mais solicitações esperando decisão.')).toBeInTheDocument()
+  })
+
+  it('docente: mais de 4 pendentes → o bloco mostra 4 e não diz que acabou', async () => {
+    const seis = Array.from({ length: 6 }, (_, i) => ({ ...PENDENTES[0], id: `s${i}`, aluno: { id: `al${i}`, username: `al${i}`, nome: `Aluno ${i}` } }))
+    api({ 'GET /gestao/solicitacoes': () => ({ status: 200, corpo: pagina(seis) }) }, meDocente)
+    abrir()
+    const pendentes = await cartao('Solicitações das minhas turmas')
+    await within(pendentes).findByText('Aluno 3')
+    expect(within(pendentes).queryByText('Aluno 4')).not.toBeInTheDocument()
+    expect(within(pendentes).queryByText(/Não há mais/)).not.toBeInTheDocument()
+  })
+})

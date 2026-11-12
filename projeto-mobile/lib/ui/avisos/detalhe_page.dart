@@ -7,6 +7,7 @@ import '../../services/api_failure.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/chip_destino.dart';
 import '../comum/datas.dart';
 import '../comum/selo_situacao.dart';
@@ -50,7 +51,7 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
     final aviso = _aviso;
     final publicado = 'Publicado ${dataHoraDetalhe(aviso.publicadoEm)}';
     return Scaffold(
-      appBar: AppBar(leading: const BackButton()),
+      appBar: AppBar(leading: const BackButton(), actions: const [BotaoTema(), SizedBox(width: 8)]),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
         children: [
@@ -62,7 +63,7 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
             ],
           ),
           const SizedBox(height: 12),
-          Semantics(header: true, child: Text(aviso.titulo, style: Tipografia.tituloGrande)),
+          Semantics(header: true, child: Text(aviso.titulo, style: context.tipos.tituloGrande)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -71,7 +72,7 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
               Expanded(
                 child: Text(
                   aviso.autorNome,
-                  style: Tipografia.autor.copyWith(fontSize: 13, color: Cores.navy),
+                  style: context.tipos.autor.copyWith(fontSize: 13, color: context.cores.navy),
                 ),
               ),
             ],
@@ -80,24 +81,24 @@ class _AvisoDetalhePageState extends State<AvisoDetalhePage> {
           const Divider(),
           const SizedBox(height: 16),
           // Selecionável por toque longo, sem virar um alvo de toque de uma linha (SC-007).
-          SelectionArea(child: Text(aviso.conteudo, style: Tipografia.corpo)),
+          SelectionArea(child: Text(aviso.conteudo, style: context.tipos.corpo)),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
             decoration: BoxDecoration(
-              color: Cores.fundoPagina,
+              color: context.cores.fundoPagina,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
-                const Icon(Icons.history, size: 16, color: Cores.tenue),
+                Icon(Icons.history, size: 16, color: context.cores.tenue),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     aviso.foiEditado
                         ? '$publicado · editado ${dataHoraDetalhe(aviso.editadoEm!)}'
                         : publicado,
-                    style: Tipografia.meta,
+                    style: context.tipos.meta,
                   ),
                 ),
               ],

@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 
-/** Barra superior de 68 px (design `.topbar`): título da seção e o perfil de quem está usando. */
+import { BotaoTema } from '../comum/botao-tema'
+
+/** Barra superior de 68 px (design `.topbar`): título da seção, ações da página e, no canto
+ * direito, o botão do modo noturno (spec 002, D-MN-6). */
 export function BarraSuperior({ titulo, subtitulo, acoes }: { titulo: string; subtitulo?: string; acoes?: ReactNode }) {
   return (
     <header className="flex h-[68px] shrink-0 items-center gap-4 border-b border-linha bg-branco px-7">
@@ -10,6 +13,7 @@ export function BarraSuperior({ titulo, subtitulo, acoes }: { titulo: string; su
       </div>
       <span className="grow" />
       {acoes}
+      <BotaoTema />
     </header>
   )
 }

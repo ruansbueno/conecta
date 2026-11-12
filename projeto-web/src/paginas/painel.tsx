@@ -10,8 +10,10 @@ import { listarTurmas } from '../api/recursos/turmas'
 import type { AvisoGestao, Pagina, SolicitacaoGestao, Turma } from '../api/schemas'
 import { Avatar } from '../componentes/comum/avatar'
 import { ChipDestino } from '../componentes/comum/chip-destino'
+import { FimDaLista } from '../componentes/comum/fim-da-lista'
 import { Icone } from '../componentes/comum/icone'
 import { SeloSituacao } from '../componentes/comum/selo-situacao'
+import { VazioDoBloco } from '../componentes/comum/vazio-do-bloco'
 import { dataNumerica, dataRelativa } from '../lib/datas'
 import { estaAgendado } from '../lib/formulario-aviso'
 import { quantidade } from '../lib/texto'
@@ -164,24 +166,50 @@ function LinhaAviso({ a, agora, autor = true }: { a: AvisoGestao; agora: Date; a
   )
 }
 
-function ListaPendentes({ itens, agora }: { itens: SolicitacaoGestao[]; agora: Date }) {
-  if (itens.length === 0) return <p className="px-6 py-6 text-[13px] text-apagado">Nenhuma solicitação esperando decisão.</p>
+/** Todos os itens da lista couberam no bloco: o bloco diz que acabou (spec 002, FR-010). */
+const acabou = (mostrados: number, total: number) => mostrados > 0 && total <= mostrados
+
+function ListaPendentes({ itens, total, agora }: { itens: SolicitacaoGestao[]; total: number; agora: Date }) {
+  if (itens.length === 0) return <VazioDoBloco icone="check" texto="Nenhuma solicitação esperando decisão." />
   return (
-    <ul>
-      {itens.map((s) => (
-        <li key={s.id} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
-          <Avatar nome={s.aluno.nome} />
-          <div className="min-w-0">
-            <p className="font-semibold text-navy">{s.aluno.nome}</p>
-            <p className="truncate text-[12.5px] text-tenue">
-              {s.turma.nome} · {dataRelativa(s.solicitadaEm, agora)}
-            </p>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul>
+        {itens.map((s) => (
+          <li key={s.id} className="flex items-center gap-3 border-b border-linha-suave px-6 py-3 last:border-b-0">
+            <Avatar nome={s.aluno.nome} />
+            <div className="min-w-0">
+              <p className="font-semibold text-navy">{s.aluno.nome}</p>
+              <p className="truncate text-[12.5px] text-tenue">
+                {s.turma.nome} · {dataRelativa(s.solicitadaEm, agora)}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {acabou(itens.length, total) && <FimDaLista texto="Não há mais solicitações esperando decisão." />}
+    </>
   )
 }
+
+/** Avisos do bloco, com o fecho quando todos couberam nele. */
+function ListaAvisos({ p, agora, autor }: { p: Pagina<AvisoGestao>; agora: Date; autor?: boolean }) {
+  return (
+    <>
+      <ul>
+        {p.items.map((a) => (
+          <LinhaAviso key={a.id} a={a} agora={agora} autor={autor} />
+        ))}
+      </ul>
+      {acabou(p.items.length, p.total) && <FimDaLista texto="Não há mais avisos recentes." />}
+    </>
+  )
+}
+
+const publicarAviso = (
+  <Link to="/avisos/novo" className="botao-secundario mt-4">
+    Publicar aviso
+  </Link>
+)
 
 const irParaFila = (
   <Link to="/solicitacoes" className="text-[13.5px] font-semibold whitespace-nowrap text-azul hover:underline">
@@ -226,13 +254,9 @@ function PainelCoordenacao() {
         <Bloco titulo="Avisos recentes" carga={recentes.carga} repetir={recentes.repetir} acao={verAvisos}>
           {(p) =>
             p.items.length === 0 ? (
-              <p className="px-6 py-6 text-[13px] text-apagado">Nenhum aviso publicado ainda.</p>
+              <VazioDoBloco icone="avisos" texto="Nenhum aviso publicado ainda." acao={publicarAviso} />
             ) : (
-              <ul>
-                {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={recentes.em} />
-                ))}
-              </ul>
+              <ListaAvisos p={p} agora={recentes.em} />
             )
           }
         </Bloco>
@@ -243,7 +267,7 @@ function PainelCoordenacao() {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items} agora={pendentes.em} />}
+          {(p) => <ListaPendentes itens={p.items} total={p.total} agora={pendentes.em} />}
         </Bloco>
       </div>
     </>
@@ -280,7 +304,7 @@ function PainelDocente() {
         <Bloco titulo="Minhas turmas" carga={turmas.carga} repetir={turmas.repetir}>
           {(p: Pagina<Turma>) =>
             p.items.length === 0 ? (
-              <p className="px-6 py-6 text-[13px] text-apagado">Nenhuma turma ativa.</p>
+              <VazioDoBloco icone="turmas" texto="Nenhuma turma ativa." />
             ) : (
               <ul>
                 {p.items.map((t) => {
@@ -319,13 +343,9 @@ function PainelDocente() {
         <Bloco titulo="Meus avisos" carga={avisos.carga} repetir={avisos.repetir} acao={verAvisos}>
           {(p) =>
             p.items.length === 0 ? (
-              <p className="px-6 py-6 text-[13px] text-apagado">Você ainda não publicou avisos.</p>
+              <VazioDoBloco icone="avisos" texto="Você ainda não publicou avisos." acao={publicarAviso} />
             ) : (
-              <ul>
-                {p.items.map((a) => (
-                  <LinhaAviso key={a.id} a={a} agora={avisos.em} autor={false} />
-                ))}
-              </ul>
+              <ListaAvisos p={p} agora={avisos.em} autor={false} />
             )
           }
         </Bloco>
@@ -338,7 +358,7 @@ function PainelDocente() {
           destaque={contaPendentes(pendentes.carga)}
           acao={irParaFila}
         >
-          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} agora={pendentes.em} />}
+          {(p) => <ListaPendentes itens={p.items.slice(0, 4)} total={p.total} agora={pendentes.em} />}
         </Bloco>
       </div>
       <section aria-labelledby="perfil-permite" className="mt-6 rounded-xl border border-linha bg-branco">

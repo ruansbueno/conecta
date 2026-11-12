@@ -31,9 +31,9 @@ class CaixaCartao extends StatelessWidget {
     width: double.infinity,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     decoration: BoxDecoration(
-      color: Cores.branco,
+      color: context.cores.branco,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: Cores.linha),
+      border: Border.all(color: context.cores.linha),
     ),
     child: child,
   );
@@ -90,12 +90,15 @@ class TurmaCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Cores.azulSuperficie,
+                    color: context.cores.azulSuperficie,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     siglaCurta(turma.codigo),
-                    style: Tipografia.botaoPequeno.copyWith(color: Cores.azul, height: 1.2),
+                    style: context.tipos.botaoPequeno.copyWith(
+                      color: context.cores.azul,
+                      height: 1.2,
+                    ),
                   ),
                 ),
               ),
@@ -104,10 +107,10 @@ class TurmaCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(turma.nome, style: Tipografia.tituloCartao),
+                    Text(turma.nome, style: context.tipos.tituloCartao),
                     if (descricao.isNotEmpty) ...[
                       const SizedBox(height: 2),
-                      Text(descricao, style: Tipografia.meta),
+                      Text(descricao, style: context.tipos.meta),
                     ],
                   ],
                 ),
@@ -119,10 +122,10 @@ class TurmaCard extends StatelessWidget {
               : Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Cores.azulSuperficie,
+                    color: context.cores.azulSuperficie,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(papel, style: Tipografia.chip.copyWith(color: Cores.azul)),
+                  child: Text(papel, style: context.tipos.chip.copyWith(color: context.cores.azul)),
                 ),
         ),
       ),

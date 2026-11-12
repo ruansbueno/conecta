@@ -22,7 +22,7 @@ class EstadoVazio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-    color: Cores.fundoPagina,
+    color: context.cores.fundoPagina,
     child: Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
@@ -33,16 +33,16 @@ class EstadoVazio extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: Cores.branco,
-                border: Border.all(color: Cores.linha),
+                color: context.cores.branco,
+                border: Border.all(color: context.cores.linha),
                 borderRadius: BorderRadius.circular(22),
               ),
-              child: Icon(icone, size: 30, color: Cores.tenue),
+              child: Icon(icone, size: 30, color: context.cores.tenue),
             ),
             const SizedBox(height: 20),
-            Text(titulo, style: Tipografia.subtitulo, textAlign: TextAlign.center),
+            Text(titulo, style: context.tipos.subtitulo, textAlign: TextAlign.center),
             const SizedBox(height: 8),
-            Text(texto, style: Tipografia.apoio, textAlign: TextAlign.center),
+            Text(texto, style: context.tipos.apoio, textAlign: TextAlign.center),
             if (acao != null) ...[
               const SizedBox(height: 20),
               OutlinedButton(onPressed: onAcao, child: Text(acao!)),

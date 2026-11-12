@@ -8,6 +8,7 @@ import '../../state/agenda_controller.dart';
 import '../../state/avisos_controller.dart' show EstadoLista;
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
+import '../comum/botao_tema.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
@@ -57,7 +58,7 @@ class _Agenda extends StatelessWidget {
             // O destaque do ícone é só cor: o tipo escolhido vai também no nome do botão.
             tooltip: tipo == null ? 'Filtrar por tipo' : 'Filtrar por tipo (${tipo.rotulo})',
             icon: const Icon(Icons.filter_list),
-            color: tipo == null ? Cores.navy : Cores.azul,
+            color: tipo == null ? context.cores.navy : context.cores.azul,
             // Provas já é um filtro de tipo (D-AF2-2).
             onPressed: emProvas
                 ? null
@@ -66,6 +67,7 @@ class _Agenda extends StatelessWidget {
                     if (escolha != null) controller.filtrar(escolha.$1);
                   },
           ),
+          const BotaoTema(),
           const SizedBox(width: 8),
         ],
       ),
@@ -92,6 +94,7 @@ class _Agenda extends StatelessWidget {
                 key: ValueKey(('proximos', tipo)),
                 value: controller.proximos,
                 child: _ListaEventos(
+                  fim: 'Não há mais eventos por vir.',
                   vazio: tipo == null
                       ? const EstadoVazio(
                           icone: Icons.event_outlined,
@@ -110,6 +113,7 @@ class _Agenda extends StatelessWidget {
                 key: const ValueKey('provas'),
                 value: controller.provas,
                 child: const _ListaEventos(
+                  fim: 'Não há mais provas marcadas.',
                   vazio: EstadoVazio(
                     icone: Icons.event_available_outlined,
                     titulo: 'Nenhuma prova marcada',
@@ -131,9 +135,12 @@ class _Agenda extends StatelessWidget {
 }
 
 class _ListaEventos extends StatelessWidget {
-  const _ListaEventos({required this.vazio});
+  const _ListaEventos({required this.vazio, required this.fim});
 
   final Widget vazio;
+
+  /// Fecho da lista quando não há mais páginas (spec 002).
+  final String fim;
 
   Future<void> _recarregar(BuildContext context) async {
     final controller = context.read<EventosController>();
@@ -194,6 +201,7 @@ class _ListaEventos extends StatelessWidget {
                       : RodapeLista(
                           lista: lista,
                           onRepetir: () => controller.carregarMais(repetir: true),
+                          fim: fim,
                         ),
                 ),
               ),

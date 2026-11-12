@@ -121,9 +121,9 @@ class _BarraAbas extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     key: const Key('barra-abas'),
-    decoration: const BoxDecoration(
-      color: Cores.branco,
-      border: Border(top: BorderSide(color: Cores.linha)),
+    decoration: BoxDecoration(
+      color: context.cores.branco,
+      border: Border(top: BorderSide(color: context.cores.linha)),
     ),
     child: SafeArea(
       top: false,
@@ -151,7 +151,7 @@ class _ItemAba extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cor = ativa ? Cores.azul : Cores.tenue;
+    final cor = ativa ? context.cores.azul : context.cores.tenue;
     return Semantics(
       button: true,
       selected: ativa,
@@ -180,7 +180,7 @@ class _ItemAba extends StatelessWidget {
                     aba.rotulo,
                     maxLines: 1,
                     softWrap: false,
-                    style: Tipografia.aba.copyWith(color: cor),
+                    style: context.tipos.aba.copyWith(color: cor),
                   ),
                 ),
               ),

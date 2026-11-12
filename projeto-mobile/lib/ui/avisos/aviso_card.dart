@@ -24,8 +24,8 @@ class AvisoCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Cores.linhaSuave)),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: context.cores.linhaSuave)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,23 +37,26 @@ class AvisoCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         aviso.autorNome,
-                        style: Tipografia.autor,
+                        style: context.tipos.autor,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(aviso.foiEditado ? '$quando · editado' : quando, style: Tipografia.meta),
+                    Text(
+                      aviso.foiEditado ? '$quando · editado' : quando,
+                      style: context.tipos.meta,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Text(
                   aviso.titulo,
-                  style: Tipografia.tituloCartao,
+                  style: context.tipos.tituloCartao,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
-                Text(aviso.trecho, style: Tipografia.apoio),
+                Text(aviso.trecho, style: context.tipos.apoio),
                 if (aviso.destinos.isNotEmpty) ...[
                   const SizedBox(height: 10),
                   ChipsDestino(aviso.destinos),

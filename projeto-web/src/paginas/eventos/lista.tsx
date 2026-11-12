@@ -9,6 +9,7 @@ import { Busca } from '../../componentes/comum/busca'
 import { Esqueleto } from '../../componentes/comum/esqueleto'
 import { EstadoErro } from '../../componentes/comum/estado-erro'
 import { EstadoVazio } from '../../componentes/comum/estado-vazio'
+import { FimDaLista } from '../../componentes/comum/fim-da-lista'
 import { Icone } from '../../componentes/comum/icone'
 import { MensagemDaAcao } from '../../componentes/comum/mensagem-da-acao'
 import { Paginacao } from '../../componentes/comum/paginacao'
@@ -190,6 +191,10 @@ export default function ListaEventos() {
         ) : (
           <>
             {cartoes(eventos, `Eventos — ${ROTULO_ABA[aba]}`)}
+            {/* Última página (spec 002, D-MN-8): a lista diz que acabou. */}
+            {offset + eventos.length >= carga.dados.total && (
+              <FimDaLista texto="Não há mais eventos." className="border-t border-linha-suave" />
+            )}
             {carga.dados.total > POR_PAGINA && (
               <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
                 <p className="text-[13px] text-apagado">

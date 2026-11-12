@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../state/lista_paginada.dart';
+import '../comum/fim_da_lista.dart';
 
-/// Carregando a próxima página, ou falha ao carregá-la. Listas de turmas são curtas: sem o
-/// "não há mais" da lista de avisos.
+/// Carregando a próxima página, falha ao carregá-la ou, com [fim], o fecho da lista que acabou
+/// (spec 002, D-AMN-7). Com dados guardados (sem rede), não se sabe se acabou: sem fecho.
 class RodapeLista extends StatelessWidget {
-  const RodapeLista({required this.lista, required this.onRepetir, super.key});
+  const RodapeLista({required this.lista, required this.onRepetir, this.fim, super.key});
 
   final ListaPaginada<Object?> lista;
   final VoidCallback onRepetir;
+
+  /// Texto do fecho, como "Não há mais solicitações.".
+  final String? fim;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +31,10 @@ class RodapeLista extends StatelessWidget {
       return Center(
         child: TextButton(onPressed: onRepetir, child: const Text('Tentar de novo')),
       );
+    }
+    if (fim case final texto?
+        when !lista.temMais && lista.dadosDe == null && lista.itens.isNotEmpty) {
+      return FimDaLista(texto);
     }
     return const SizedBox.shrink();
   }

@@ -8,6 +8,7 @@ import '../../state/avisos_controller.dart';
 import '../../state/session_controller.dart';
 import '../../theme/tipografia.dart';
 import '../casca/casca_abas.dart';
+import '../comum/botao_tema.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
@@ -48,7 +49,12 @@ class _Lista extends StatelessWidget {
     final controller = context.watch<AvisosController>();
     final lista = controller.lista;
     return Scaffold(
-      appBar: AppBar(title: const Text('Avisos'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Avisos'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       body: Column(
         children: [
           // Fora da AppBar: a altura acompanha a escala de fonte do sistema (RM-36).
@@ -179,7 +185,7 @@ class _Rodape extends StatelessWidget {
     } else if (lista.falhaAoCarregarMais != null) {
       conteudo = TextButton(onPressed: onRepetir, child: const Text('Tentar de novo'));
     } else if (!lista.temMais && lista.dadosDe == null) {
-      conteudo = const Text('Não há mais avisos.', style: Tipografia.meta);
+      conteudo = Text('Não há mais avisos.', style: context.tipos.meta);
     } else {
       conteudo = const SizedBox.shrink();
     }

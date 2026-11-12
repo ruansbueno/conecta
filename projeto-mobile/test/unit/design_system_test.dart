@@ -24,4 +24,70 @@ void main() {
 
     expect(violacoes, isEmpty, reason: 'Use as constantes de lib/theme/cores.dart');
   });
+
+  // Spec 002 (FR-006, SC-003): cor fixa não acompanha o tema escuro. As telas leem as cores e os
+  // estilos de texto do tema ativo (`context.cores`, `context.tipos`).
+  test('nenhuma tela usa cor ou estilo de texto fixo (fora de lib/theme/)', () {
+    final fixo = RegExp(r'\b(?:Cores|CoresDestino|CoresEvento)\.|\bTipografia\.(?!familia\b)');
+    final violacoes = <String>[];
+    final arquivos = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .where((f) => !f.path.startsWith('lib${Platform.pathSeparator}theme'));
+    for (final arquivo in arquivos) {
+      final linhas = arquivo.readAsLinesSync();
+      for (var i = 0; i < linhas.length; i++) {
+        if (fixo.hasMatch(linhas[i])) {
+          violacoes.add('${arquivo.path}:${i + 1}: ${linhas[i].trim()}');
+        }
+      }
+    }
+
+    expect(violacoes, isEmpty, reason: 'Use context.cores e context.tipos');
+  });
+
+  // Spec 002 (D-AMN-3): cores de texto clareiam no escuro; fundo cheio usa `painel` ou `acao`.
+  test('nenhuma cor de texto usada como fundo (navy, tinta, apagado…)', () {
+    final fundoComCorDeTexto = RegExp(
+      r'backgroundColor:\s*context\.cores\.(?:navy|navySuave|tinta|textoCorpo|apagado|tenue)\b',
+    );
+    final violacoes = <String>[];
+    for (final arquivo in Directory('lib').listSync(recursive: true).whereType<File>()) {
+      if (!arquivo.path.endsWith('.dart')) continue;
+      final linhas = arquivo.readAsLinesSync();
+      for (var i = 0; i < linhas.length; i++) {
+        if (fundoComCorDeTexto.hasMatch(linhas[i])) {
+          violacoes.add('${arquivo.path}:${i + 1}: ${linhas[i].trim()}');
+        }
+      }
+    }
+
+    expect(violacoes, isEmpty, reason: 'Fundo cheio: context.cores.painel ou context.cores.acao');
+  });
+
+  // `branco` é superfície (escura no tema escuro): nunca cor de ícone, indicador ou texto por cima
+  // de cor cheia — para isso existe `sobreCor`.
+  test('branco não é usado como cor de primeiro plano (ícone, indicador, texto)', () {
+    final primeiroPlano = RegExp(r'(?:Icon|CircularProgressIndicator|TextStyle|copyWith)\(');
+    final violacoes = <String>[];
+    for (final arquivo in Directory('lib').listSync(recursive: true).whereType<File>()) {
+      if (!arquivo.path.endsWith('.dart')) continue;
+      final linhas = arquivo.readAsLinesSync();
+      for (var i = 0; i < linhas.length; i++) {
+        if (!linhas[i].contains('cores.branco')) continue;
+        // O widget dono da cor está na mesma linha ou até 4 linhas acima.
+        final contexto = linhas.sublist((i - 4).clamp(0, i), i + 1).join('\n');
+        final dono = primeiroPlano.allMatches(contexto).lastOrNull;
+        final superficie = RegExp(
+          r'(?:Container|DecoratedBox|BoxDecoration|Material|Card|Scaffold|showModalBottomSheet)\(',
+        ).allMatches(contexto).lastOrNull;
+        if (dono != null && (superficie == null || dono.start > superficie.start)) {
+          violacoes.add('${arquivo.path}:${i + 1}: ${linhas[i].trim()}');
+        }
+      }
+    }
+
+    expect(violacoes, isEmpty, reason: 'Sobre cor cheia, use context.cores.sobreCor');
+  });
 }

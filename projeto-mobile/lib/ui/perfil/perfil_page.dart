@@ -11,6 +11,7 @@ import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
 import '../comum/avatar.dart';
+import '../comum/botao_tema.dart';
 import '../comum/faixa_cache.dart';
 import '../comum/faixa_informativa.dart';
 import '../turmas/turma_card.dart';
@@ -98,7 +99,7 @@ class _PerfilPageState extends State<PerfilPage> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Cores.perigo),
+            style: TextButton.styleFrom(foregroundColor: context.cores.perigo),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Sair'),
           ),
@@ -114,7 +115,12 @@ class _PerfilPageState extends State<PerfilPage> {
     final usuario = sessao.usuario;
     final dadosDe = sessao.perfilDoCache;
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Perfil'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       body: usuario == null
           ? const SizedBox.shrink()
           : ListView(
@@ -134,7 +140,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     header: true,
                     child: Text(
                       'Minhas turmas',
-                      style: Tipografia.subtitulo.copyWith(color: Cores.apagado),
+                      style: context.tipos.subtitulo.copyWith(color: context.cores.apagado),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -159,7 +165,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     onPressed: _sair,
                     icon: const Icon(Icons.logout, size: 20),
                     label: const Text('Sair da conta'),
-                    style: TextButton.styleFrom(foregroundColor: Cores.perigo),
+                    style: TextButton.styleFrom(foregroundColor: context.cores.perigo),
                   ),
                 ),
               ],
@@ -187,17 +193,17 @@ class _Identificacao extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(usuario.nome, style: Tipografia.titulo),
+              Text(usuario.nome, style: context.tipos.titulo),
               const SizedBox(height: 2),
-              Text(usuario.username, style: Tipografia.apoio),
+              Text(usuario.username, style: context.tipos.apoio),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Cores.azulSuperficie,
+                  color: context.cores.azulSuperficie,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(perfil, style: Tipografia.chip.copyWith(color: Cores.azul)),
+                child: Text(perfil, style: context.tipos.chip.copyWith(color: context.cores.azul)),
               ),
             ],
           ),
@@ -232,9 +238,9 @@ class _Dados extends StatelessWidget {
     ];
     return Container(
       decoration: BoxDecoration(
-        color: Cores.branco,
+        color: context.cores.branco,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Cores.linha),
+        border: Border.all(color: context.cores.linha),
       ),
       child: Column(
         children: [
@@ -266,7 +272,7 @@ class _ChipTurma extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Cores.azulSuperficie,
+        color: context.cores.azulSuperficie,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -275,10 +281,10 @@ class _ChipTurma extends StatelessWidget {
           Container(
             width: 6,
             height: 6,
-            decoration: const BoxDecoration(color: Cores.azul, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: context.cores.azul, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
-          Text(rotulo, style: Tipografia.chip),
+          Text(rotulo, style: context.tipos.chip),
         ],
       ),
     ),
@@ -297,8 +303,8 @@ class _LinhaDeDado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final grande = MediaQuery.textScalerOf(context).scale(10) > 13;
-    final cabeca = [Icon(icone, size: 20, color: Cores.apagado), const SizedBox(width: 12)];
-    final textoValor = Text(valor, style: Tipografia.tituloCartao, textAlign: TextAlign.end);
+    final cabeca = [Icon(icone, size: 20, color: context.cores.apagado), const SizedBox(width: 12)];
+    final textoValor = Text(valor, style: context.tipos.tituloCartao, textAlign: TextAlign.end);
     if (grande) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,7 +312,7 @@ class _LinhaDeDado extends StatelessWidget {
           Row(
             children: [
               ...cabeca,
-              Expanded(child: Text(rotulo, style: Tipografia.apoio)),
+              Expanded(child: Text(rotulo, style: context.tipos.apoio)),
             ],
           ),
           const SizedBox(height: 4),
@@ -317,7 +323,7 @@ class _LinhaDeDado extends StatelessWidget {
     return Row(
       children: [
         ...cabeca,
-        Text(rotulo, style: Tipografia.apoio),
+        Text(rotulo, style: context.tipos.apoio),
         const SizedBox(width: 12),
         Expanded(child: textoValor),
       ],

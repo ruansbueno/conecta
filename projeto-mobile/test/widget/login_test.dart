@@ -1,5 +1,6 @@
 import 'package:conecta/repositories/auth_repository.dart';
 import 'package:conecta/state/session_controller.dart';
+import 'package:conecta/theme/cores.dart';
 import 'package:conecta/theme/tema.dart';
 import 'package:conecta/ui/login/login_page.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider.value(
         value: sessao,
-        child: MaterialApp(theme: temaConecta(), home: const LoginPage()),
+        child: MaterialApp(theme: temaConecta(CoresConecta.claro), home: const LoginPage()),
       ),
     );
   }

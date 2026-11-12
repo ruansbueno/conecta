@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router'
 
+import { BotaoTema } from '../componentes/comum/botao-tema'
 import { Icone } from '../componentes/comum/icone'
 
 /** T16. Explica sem expor dado nenhum (RW-12); aluno é orientado a usar o aplicativo (RW-06). */
@@ -37,6 +38,8 @@ export function SemPermissao({ aluno }: { aluno?: boolean }) {
           </Link>
         </>
       )}
+      {/* Fora da casca da gestão: o botão do modo noturno fica no canto da página (spec 002). */}
+      <BotaoTema className="fixed top-5 right-5" />
     </div>
   )
 }

@@ -77,6 +77,14 @@ describe('sessão na interface', () => {
     expect(await screen.findByText('login destino=/avisos/novo')).toBeInTheDocument()
   })
 
+  it('a tela de erro da sessão também tem o botão do modo noturno (spec 002, FR-001)', async () => {
+    fetchFalso({ 'GET /me': { status: 503, corpo: erro('ERRO_INTERNO') } })
+    montar('/avisos/novo')
+
+    await screen.findByRole('button', { name: 'Tentar de novo' })
+    expect(screen.getByRole('button', { name: /modo noturno/ })).toBeInTheDocument()
+  })
+
   it('depois de sair, o login não guarda a página de quem saiu (a próxima pessoa vai ao painel)', async () => {
     fetchFalso({ 'GET /me': { status: 200, corpo: me }, 'DELETE /auth/sessao': { status: 204 } })
     montar('/avisos')

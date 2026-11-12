@@ -28,10 +28,13 @@ class Avatar extends StatelessWidget {
         width: lado,
         height: lado,
         alignment: Alignment.center,
-        decoration: BoxDecoration(color: Cores.navy, borderRadius: BorderRadius.circular(raio)),
+        decoration: BoxDecoration(
+          color: context.cores.painel,
+          borderRadius: BorderRadius.circular(raio),
+        ),
         child: Text(
           iniciaisDe(nome),
-          style: Tipografia.avatar.copyWith(fontSize: fonte),
+          style: context.tipos.avatar.copyWith(fontSize: fonte),
           textScaler: TextScaler.noScaling, // cabe no quadrado em qualquer escala de fonte
         ),
       ),

@@ -62,8 +62,9 @@ String quantidadeDeAtividades(int n) => n == 1 ? '1 atividade' : '$n atividades'
   );
 }
 
-Color corDoTipo(TipoEvento t) => switch (t) {
-  TipoEvento.prova => CoresEvento.prova,
-  TipoEvento.dataImportante => CoresEvento.dataImportante,
-  _ => CoresEvento.demais,
+/// Cor do tipo de evento na paleta do tema ativo (`context.cores`).
+Color corDoTipo(TipoEvento t, CoresConecta c) => switch (t) {
+  TipoEvento.prova => c.eventoProva,
+  TipoEvento.dataImportante => c.eventoDataImportante,
+  _ => c.eventoDemais,
 };

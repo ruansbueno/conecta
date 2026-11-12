@@ -9,11 +9,13 @@ import '../../state/horarios_controller.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/escala.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
+import '../comum/fim_da_lista.dart';
 import 'folha_turmas.dart';
 
 const _siglas = {1: 'SEG', 2: 'TER', 3: 'QUA', 4: 'QUI', 5: 'SEX', 6: 'SÁB', 7: 'DOM'};
@@ -79,7 +81,12 @@ class _HorariosState extends State<_Horarios> {
   Widget build(BuildContext context) {
     final controller = context.watch<HorariosController>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Horários'), toolbarHeight: 60, titleSpacing: 20),
+      appBar: AppBar(
+        title: const Text('Horários'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
       body: switch (controller.estado) {
         EstadoLista.carregando => const EsqueletoLista(),
         EstadoLista.erro => EstadoErro(
@@ -119,7 +126,7 @@ class _Conteudo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(turma.nome, style: Tipografia.apoio),
+                Text(turma.nome, style: context.tipos.apoio),
                 const SizedBox(height: 12),
                 if (variasTurmas)
                   // O leitor de tela ouve o que o botão faz, não só o código da turma.
@@ -145,7 +152,7 @@ class _Conteudo extends StatelessWidget {
                     ),
                   )
                 else
-                  Text('Turma ${turma.codigo}', style: Tipografia.tituloCartao),
+                  Text('Turma ${turma.codigo}', style: context.tipos.tituloCartao),
               ],
             ),
           ),
@@ -182,6 +189,9 @@ class _Conteudo extends StatelessWidget {
         if (controller.aulas.where((a) => a.diaSemana == dia).toList() case final doDia
             when doDia.isNotEmpty)
           _Dia(dia: dia, aulas: doDia),
+      // Os dias sem aula não aparecem: o fecho diz que não faltou nada (spec 002).
+      if (controller.aulas.map((a) => a.diaSemana).toSet().length < 7)
+        const FimDaLista('Não há aulas nos outros dias da semana.'),
     ],
   };
 }
@@ -195,8 +205,8 @@ class _Dia extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: Cores.linhaSuave)),
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: context.cores.linhaSuave)),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +214,7 @@ class _Dia extends StatelessWidget {
         // A coluna acompanha a fonte do sistema, para a sigla nunca quebrar (RM-36); a mesma
         // largura em todos os dias mantém as barras alinhadas.
         SizedBox(
-          width: larguraEscalada(context, 56, Tipografia.meta.fontSize!),
+          width: larguraEscalada(context, 56, context.tipos.meta.fontSize!),
           child: Padding(
             padding: const EdgeInsets.only(top: 2),
             // A sigla é visual; o leitor de tela ouve o dia por extenso.
@@ -215,7 +225,7 @@ class _Dia extends StatelessWidget {
               child: Text(
                 _siglas[dia]!,
                 softWrap: false,
-                style: Tipografia.meta.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1),
+                style: context.tipos.meta.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1),
               ),
             ),
           ),
@@ -250,21 +260,24 @@ class _Aula extends StatelessWidget {
           children: [
             Container(
               width: 3,
-              decoration: BoxDecoration(color: Cores.azul, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: context.cores.azul,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(aula.disciplina, style: Tipografia.tituloCartao),
+                  Text(aula.disciplina, style: context.tipos.tituloCartao),
                   const SizedBox(height: 2),
                   Text(
                     aula.local == null ? horas : '$horas · ${aula.local}',
-                    style: Tipografia.meta,
+                    style: context.tipos.meta,
                   ),
                   if (aula.docenteNome case final docente?)
-                    Text(docente, style: Tipografia.meta.copyWith(color: Cores.apagado)),
+                    Text(docente, style: context.tipos.meta.copyWith(color: context.cores.apagado)),
                 ],
               ),
             ),

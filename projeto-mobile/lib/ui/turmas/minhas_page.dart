@@ -14,6 +14,7 @@ import '../../state/solicitacoes_controller.dart';
 import '../../state/turmas_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
@@ -58,8 +59,13 @@ class _Minhas extends StatelessWidget {
     final controller = context.watch<MinhasTurmasController>();
     final turmas = controller.turmas;
     return Scaffold(
-      appBar: AppBar(title: const Text('Minhas turmas'), toolbarHeight: 60, titleSpacing: 20),
-      backgroundColor: Cores.fundoPagina,
+      appBar: AppBar(
+        title: const Text('Minhas turmas'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
+      backgroundColor: context.cores.fundoPagina,
       body: Column(
         children: [
           if (turmas.dadosDe != null)
@@ -107,7 +113,7 @@ class _Minhas extends StatelessWidget {
               if (turmas.itens.isEmpty)
                 const _SemTurmasAluno()
               else ...[
-                Text(_resumo(turmas), style: Tipografia.apoio),
+                Text(_resumo(turmas), style: context.tipos.apoio),
                 const SizedBox(height: 16),
                 for (final t in turmas.itens) ...[TurmaCard(turma: t), const SizedBox(height: 12)],
                 RodapeLista(lista: turmas, onRepetir: () => controller.carregarMais(repetir: true)),
@@ -125,7 +131,7 @@ class _Minhas extends StatelessWidget {
                         header: true,
                         child: Text(
                           'Minhas solicitações',
-                          style: Tipografia.subtitulo.copyWith(color: Cores.apagado),
+                          style: context.tipos.subtitulo.copyWith(color: context.cores.apagado),
                         ),
                       ),
                     ),
@@ -194,11 +200,11 @@ class _SemTurmasAluno extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Você ainda não participa de nenhuma turma', style: Tipografia.subtitulo),
+        Text('Você ainda não participa de nenhuma turma', style: context.tipos.subtitulo),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Peça inscrição em uma turma aberta. Seus avisos de turma aparecem depois da aprovação.',
-          style: Tipografia.apoio,
+          style: context.tipos.apoio,
         ),
       ],
     ),
@@ -217,11 +223,11 @@ class _EntrarEmOutraTurma extends StatelessWidget {
       conteudo: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Entrar em outra turma', style: Tipografia.tituloCartao),
+          Text('Entrar em outra turma', style: context.tipos.tituloCartao),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'A inscrição passa pela aprovação da coordenação ou de quem leciona na turma.',
-            style: Tipografia.apoio,
+            style: context.tipos.apoio,
           ),
         ],
       ),
@@ -252,9 +258,9 @@ class _SolicitacaoRecente extends StatelessWidget {
           conteudo: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(s.turma.nome, style: Tipografia.tituloCartao),
+              Text(s.turma.nome, style: context.tipos.tituloCartao),
               const SizedBox(height: 2),
-              Text(linha, style: Tipografia.meta),
+              Text(linha, style: context.tipos.meta),
             ],
           ),
           acao: selo ?? const SizedBox.shrink(),

@@ -52,6 +52,9 @@ class _Barra extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: largura,
     height: altura,
-    decoration: BoxDecoration(color: Cores.linhaSuave, borderRadius: BorderRadius.circular(6)),
+    decoration: BoxDecoration(
+      color: context.cores.linhaSuave,
+      borderRadius: BorderRadius.circular(6),
+    ),
   );
 }

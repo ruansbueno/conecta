@@ -8,6 +8,7 @@ import '../../state/avisos_controller.dart' show EstadoLista;
 import '../../state/solicitacoes_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/datas.dart';
 import '../comum/esqueleto_lista.dart';
 import '../comum/estado_erro.dart';
@@ -28,8 +29,12 @@ class SolicitacoesPage extends StatelessWidget {
       context.read<MudancasDeSolicitacao>(),
     )..carregar(),
     child: Scaffold(
-      appBar: AppBar(title: const Text('Minhas solicitações'), toolbarHeight: 60),
-      backgroundColor: Cores.fundoPagina,
+      appBar: AppBar(
+        title: const Text('Minhas solicitações'),
+        toolbarHeight: 60,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
+      backgroundColor: context.cores.fundoPagina,
       body: const _Corpo(),
     ),
   );
@@ -85,7 +90,11 @@ class _Corpo extends StatelessWidget {
                 _SolicitacaoCard(solicitacao: s),
                 const SizedBox(height: 12),
               ],
-              RodapeLista(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
+              RodapeLista(
+                lista: lista,
+                onRepetir: () => controller.carregarMais(repetir: true),
+                fim: 'Não há mais solicitações.',
+              ),
             ],
           ),
         ),
@@ -131,20 +140,20 @@ class _SolicitacaoCard extends StatelessWidget {
                   conteudo: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.turma.nome, style: Tipografia.tituloCartao),
+                      Text(s.turma.nome, style: context.tipos.tituloCartao),
                       const SizedBox(height: 2),
-                      Text('Enviada em ${dataDiaMes(s.solicitadaEm)}', style: Tipografia.meta),
+                      Text('Enviada em ${dataDiaMes(s.solicitadaEm)}', style: context.tipos.meta),
                     ],
                   ),
                   acao: selo ?? const SizedBox.shrink(),
                 ),
                 if (detalhe != null) ...[
                   const SizedBox(height: 10),
-                  Text(detalhe, style: Tipografia.apoio),
+                  Text(detalhe, style: context.tipos.apoio),
                 ],
                 if (s.status == StatusSolicitacao.recusada && s.motivoRecusa != null) ...[
                   const SizedBox(height: 4),
-                  Text('Motivo: ${s.motivoRecusa}', style: Tipografia.apoio),
+                  Text('Motivo: ${s.motivoRecusa}', style: context.tipos.apoio),
                 ],
               ],
             ),
@@ -153,8 +162,8 @@ class _SolicitacaoCard extends StatelessWidget {
             const SizedBox(height: 12),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                foregroundColor: Cores.perigo,
-                side: BorderSide(color: Cores.perigo.withValues(alpha: 0.3)),
+                foregroundColor: context.cores.perigo,
+                side: BorderSide(color: context.cores.perigo.withValues(alpha: 0.3)),
               ),
               onPressed: cancelando ? null : () => _cancelar(context, s),
               child: Text(
@@ -185,7 +194,7 @@ class _SolicitacaoCard extends StatelessWidget {
             child: const Text('Manter'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Cores.perigo),
+            style: TextButton.styleFrom(foregroundColor: context.cores.perigo),
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Cancelar solicitação'),
           ),

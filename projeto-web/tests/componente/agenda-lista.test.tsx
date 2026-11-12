@@ -127,3 +127,52 @@ describe('agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6)', () => {
     await screen.findByText('Nenhum evento próximo')
   })
 })
+
+// Spec 002, User Story 3 (FR-011): ao fim da última página, a agenda diz que não há mais eventos.
+describe('agenda: fim da lista', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it.each([
+    ['/eventos', 'Próximos'],
+    ['/eventos?aba=realizados', 'Realizados'],
+    ['/eventos?aba=arquivados', 'Arquivados'],
+  ])('%s (%s): poucos eventos → "Não há mais eventos."', async (caminho) => {
+    apiAgenda({ 'GET /gestao/eventos': { status: 200, corpo: pagina([PROVA, PRAZO]) } })
+    abrir(caminho)
+
+    await screen.findByText('Prova de Banco de Dados II')
+    expect(screen.getByText('Não há mais eventos.')).toBeInTheDocument()
+  })
+
+  it('com mais páginas, sem fecho; na última página, com fecho', async () => {
+    const muitos = Array.from({ length: 20 }, (_, i) => ({ ...PRAZO, id: `p${i}`, titulo: `Prazo ${i + 1}` }))
+    apiAgenda({
+      'GET /gestao/eventos': (q) =>
+        q.get('offset') === '20'
+          ? { status: 200, corpo: { ...pagina([PROVA], 21), offset: 20 } }
+          : { status: 200, corpo: pagina(muitos, 21) },
+    })
+    abrir()
+
+    await screen.findByText('Prazo 1')
+    expect(screen.queryByText('Não há mais eventos.')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Próxima página' }))
+    expect(await screen.findByText('Prova de Banco de Dados II')).toBeInTheDocument()
+    expect(screen.getByText('Não há mais eventos.')).toBeInTheDocument()
+  })
+
+  it('vazio, carregando e erro: sem fecho', async () => {
+    apiAgenda({ 'GET /gestao/eventos': () => ({ status: 200, corpo: pagina([]) }) })
+    abrir()
+    expect(screen.queryByText('Não há mais eventos.')).not.toBeInTheDocument()
+    await screen.findByText('Nenhum evento próximo')
+    expect(screen.queryByText('Não há mais eventos.')).not.toBeInTheDocument()
+  })
+
+  it('erro: sem fecho', async () => {
+    apiAgenda({ 'GET /gestao/eventos': { status: 500, corpo: erro('ERRO') } })
+    abrir()
+    await screen.findByRole('button', { name: 'Tentar de novo' })
+    expect(screen.queryByText('Não há mais eventos.')).not.toBeInTheDocument()
+  })
+})

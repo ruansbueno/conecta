@@ -44,6 +44,31 @@ O **chip de destino** é o elemento recorrente das duas plataformas: um ponto co
 destino — azul para turma, navy para semestre, verde para todos, âmbar para docentes — seguido do
 nome. É o que torna visível, em qualquer lista, a regra de público da especificação.
 
+## Tema escuro
+
+Acrescentado em 11/11/2026 (`projeto-web/specs/002-modo-noturno`, `projeto-mobile/specs/002-modo-noturno`).
+Os mesmos papéis, redefinidos; o botão principal mantém o azul de ação com texto branco. Todo par
+de texto × fundo tem contraste AA (4,5:1), conferido por teste nos dois projetos.
+
+| Papel | Claro | Escuro |
+|---|---|---|
+| Fundo da página | `#F5F8FC` | `#0B1424` |
+| Superfície (cartões, barras, campos) | `#FFFFFF` | `#121E34` |
+| Navy (títulos) | `#132A4E` | `#E3EAF6` |
+| Texto corrido / secundário / discreto | `#263A5B` / `#5B6B86` / `#646F80` | `#C9D4E6` / `#9EACC4` / `#8C9AB1` |
+| Azul de ação (texto e link) | `#2563EB` | `#6B9BFF` |
+| Azul de fundo | `#EFF4FF` | `#172A4D` |
+| Linhas | `#E4E9F2` / `#EFF2F7` | `#26344F` / `#1B2842` |
+| Botão principal | `#2563EB`, texto branco | `#2563EB`, texto branco |
+| Painel navy cheio (login, avatar) | `#132A4E` | `#1C3560` |
+| Agendado / pendente | `#B45309` sobre `#FDF4E6` | `#F5B149` sobre `#2D2312` |
+| Aprovado / ativo | `#15803D` sobre `#E9F6EE` | `#5CC98A` sobre `#122B1E` |
+| Recusado / excluído | `#B91C1C` sobre `#FCECEC` | `#F58A8A` sobre `#2E1719` |
+
+`mobile-escuro/` e `web-escuro/` não são mockups: são capturas das telas implementadas, no tema
+escuro, em 11/11/2026 (o app no emulador Android; a web no Chrome headless, 1440×900 @2x), com os
+dados de demonstração do seed. Os nomes seguem os das telas claras correspondentes.
+
 ## Telas — aplicativo mobile
 
 | Arquivo | Tela | Requisitos relacionados |

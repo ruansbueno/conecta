@@ -5,6 +5,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router'
 
 import { ApiError, SESSAO_NAO_GUARDADA } from '../api/erros'
 import { login, me } from '../api/recursos/auth'
+import { BotaoTema } from '../componentes/comum/botao-tema'
 import { Icone, Marca } from '../componentes/comum/icone'
 import { useSessao } from '../sessao/contexto'
 
@@ -59,7 +60,7 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen bg-branco">
-      <aside className="hidden w-[60%] max-w-[860px] flex-col justify-between bg-navy px-14 py-14 text-branco lg:flex">
+      <aside className="hidden w-[60%] max-w-[860px] flex-col justify-between bg-painel px-14 py-14 text-sobre-cor lg:flex">
         <div className="flex items-center gap-2.5">
           <Marca tamanho={30} />
           <span className="text-[26px] font-extrabold tracking-[0.07em]">CONECTA</span>
@@ -68,15 +69,15 @@ export default function Login() {
           <p className="max-w-[460px] text-[34px] leading-tight font-bold tracking-[-0.025em]">
             Um só lugar para avisar a turma certa.
           </p>
-          <p className="mt-5 max-w-[420px] text-[15px] leading-relaxed text-azul-100">
+          <p className="mt-5 max-w-[420px] text-[15px] leading-relaxed text-sobre-painel-suave">
             Publique avisos e eventos para todos, para semestres inteiros, para os docentes ou para
             turmas específicas — e acompanhe o que foi publicado, editado e arquivado.
           </p>
         </div>
-        <p className="text-[12.5px] text-azul-100">IFSul · Análise e Desenvolvimento de Sistemas</p>
+        <p className="text-[12.5px] text-sobre-painel-suave">IFSul · Análise e Desenvolvimento de Sistemas</p>
       </aside>
 
-      <main className="flex flex-1 items-center justify-center px-8">
+      <main className="relative flex flex-1 items-center justify-center px-8">
         <form noValidate onSubmit={enviar} className="w-full max-w-[380px]">
           <h1 className="text-[26px] font-bold tracking-[-0.025em] text-navy">Acesso à gestão</h1>
           <p className="mt-2 text-[13.5px] leading-normal text-apagado">
@@ -120,6 +121,8 @@ export default function Login() {
             Use o login e a senha institucionais do IFSul. A sessão expira em 24 h.
           </p>
         </form>
+        {/* Depois do formulário na ordem do teclado; no canto superior direito na tela (spec 002). */}
+        <BotaoTema className="absolute top-5 right-5" />
       </main>
     </div>
   )

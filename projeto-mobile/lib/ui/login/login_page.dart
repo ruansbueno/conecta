@@ -6,6 +6,7 @@ import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tema.dart';
 import '../../theme/tipografia.dart';
+import '../comum/botao_tema.dart';
 import '../comum/marca.dart';
 
 /// T01 — login (design m-01). A senha só existe no campo, enquanto a tela está aberta.
@@ -83,79 +84,82 @@ class _LoginPageState extends State<LoginPage> {
     final mensagem = _falha?.mensagem ?? encerramento;
 
     return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, limites) => SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(28, 56, 28, 30),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: limites.maxHeight - 86),
-              child: IntrinsicHeight(
-                child: AutofillGroup(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Align(alignment: Alignment.centerLeft, child: MarcaConecta()),
-                      const SizedBox(height: 20),
-                      Text('CONECTA', style: Tipografia.marca),
-                      const SizedBox(height: 8),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 290),
-                        child: const Text(
-                          'Avisos, agenda e turmas do curso de Análise e Desenvolvimento de '
-                          'Sistemas — IFSul.',
-                          style: Tipografia.apoio,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      _Campo(
-                        key: const Key('campo-usuario'),
-                        rotulo: 'Usuário',
-                        controle: _usuario,
-                        dica: 'seu.usuario',
-                        icone: Icons.person_outline,
-                        erro: _erroCampo('username', _usuario, 'Informe o usuário.'),
-                        acao: TextInputAction.next,
-                        autofill: const [AutofillHints.username],
-                        aoEnviar: (_) => _focoSenha.requestFocus(),
-                      ),
-                      const SizedBox(height: 16),
-                      _Campo(
-                        key: const Key('campo-senha'),
-                        rotulo: 'Senha',
-                        controle: _senha,
-                        foco: _focoSenha,
-                        icone: Icons.lock_outline,
-                        oculto: true,
-                        erro: _erroCampo('password', _senha, 'Informe a senha.'),
-                        acao: TextInputAction.done,
-                        autofill: const [AutofillHints.password],
-                        aoEnviar: (_) => _entrar(),
-                      ),
-                      if (mensagem != null) ...[
+      // Sem barra no topo: o botão do modo noturno fica no canto, sobre a tela (spec 002).
+      body: ComBotaoTema(
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, limites) => SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(28, 56, 28, 30),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: limites.maxHeight - 86),
+                child: IntrinsicHeight(
+                  child: AutofillGroup(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Align(alignment: Alignment.centerLeft, child: MarcaConecta()),
                         const SizedBox(height: 20),
-                        _Mensagem(
-                          texto: mensagem,
-                          onRepetir: _falha?.efeito == EfeitoFalha.repetir ? _entrar : null,
+                        Text('CONECTA', style: context.tipos.marca),
+                        const SizedBox(height: 8),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 290),
+                          child: Text(
+                            'Avisos, agenda e turmas do curso de Análise e Desenvolvimento de '
+                            'Sistemas — IFSul.',
+                            style: context.tipos.apoio,
+                          ),
                         ),
+                        const SizedBox(height: 32),
+                        _Campo(
+                          key: const Key('campo-usuario'),
+                          rotulo: 'Usuário',
+                          controle: _usuario,
+                          dica: 'seu.usuario',
+                          icone: Icons.person_outline,
+                          erro: _erroCampo('username', _usuario, 'Informe o usuário.'),
+                          acao: TextInputAction.next,
+                          autofill: const [AutofillHints.username],
+                          aoEnviar: (_) => _focoSenha.requestFocus(),
+                        ),
+                        const SizedBox(height: 16),
+                        _Campo(
+                          key: const Key('campo-senha'),
+                          rotulo: 'Senha',
+                          controle: _senha,
+                          foco: _focoSenha,
+                          icone: Icons.lock_outline,
+                          oculto: true,
+                          erro: _erroCampo('password', _senha, 'Informe a senha.'),
+                          acao: TextInputAction.done,
+                          autofill: const [AutofillHints.password],
+                          aoEnviar: (_) => _entrar(),
+                        ),
+                        if (mensagem != null) ...[
+                          const SizedBox(height: 20),
+                          _Mensagem(
+                            texto: mensagem,
+                            onRepetir: _falha?.efeito == EfeitoFalha.repetir ? _entrar : null,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          onPressed: _enviando ? null : _entrar,
+                          child: _enviando
+                              ? SizedBox.square(
+                                  dimension: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                    color: context.cores.sobreCor,
+                                    semanticsLabel: 'Entrando',
+                                  ),
+                                )
+                              : const Text('Entrar'),
+                        ),
+                        const Spacer(),
+                        const SizedBox(height: 32),
+                        const _AvisoSenha(),
                       ],
-                      const SizedBox(height: 24),
-                      FilledButton(
-                        onPressed: _enviando ? null : _entrar,
-                        child: _enviando
-                            ? const SizedBox.square(
-                                dimension: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.4,
-                                  color: Cores.branco,
-                                  semanticsLabel: 'Entrando',
-                                ),
-                              )
-                            : const Text('Entrar'),
-                      ),
-                      const Spacer(),
-                      const SizedBox(height: 32),
-                      const _AvisoSenha(),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -197,7 +201,7 @@ class _Campo extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(rotulo, style: Tipografia.rotuloCampo),
+      Text(rotulo, style: context.tipos.rotuloCampo),
       const SizedBox(height: 6),
       TextField(
         controller: controle,
@@ -209,7 +213,7 @@ class _Campo extends StatelessWidget {
         textInputAction: acao,
         autofillHints: autofill,
         onSubmitted: aoEnviar,
-        style: Tipografia.campo,
+        style: context.tipos.campo,
         decoration: InputDecoration(
           hintText: dica,
           semanticCounterText: rotulo,
@@ -234,15 +238,15 @@ class _Mensagem extends StatelessWidget {
     child: Container(
       padding: EdgeInsets.fromLTRB(14, 10, onRepetir == null ? 14 : 4, 10),
       decoration: BoxDecoration(
-        color: Cores.perigoFundo,
+        color: context.cores.perigoFundo,
         borderRadius: BorderRadius.circular(Raios.campo),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, size: 18, color: Cores.perigo),
+          Icon(Icons.error_outline, size: 18, color: context.cores.perigo),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(texto, style: Tipografia.apoio.copyWith(color: Cores.perigo)),
+            child: Text(texto, style: context.tipos.apoio.copyWith(color: context.cores.perigo)),
           ),
           if (onRepetir != null)
             TextButton(onPressed: onRepetir, child: const Text('Tentar de novo')),
@@ -259,18 +263,18 @@ class _AvisoSenha extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
     decoration: BoxDecoration(
-      color: Cores.fundoPagina,
+      color: context.cores.fundoPagina,
       borderRadius: BorderRadius.circular(Raios.cartao),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.shield_outlined, size: 18, color: Cores.navySuave),
+        Icon(Icons.shield_outlined, size: 18, color: context.cores.navySuave),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             'Use o login e a senha institucionais do IFSul. O CONECTA não armazena sua senha.',
-            style: Tipografia.apoio.copyWith(fontSize: 12.5, color: Cores.navySuave),
+            style: context.tipos.apoio.copyWith(fontSize: 12.5, color: context.cores.navySuave),
           ),
         ),
       ],

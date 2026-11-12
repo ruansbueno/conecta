@@ -142,7 +142,7 @@ export function PedidosDeAcesso({ administracao }: Props) {
             <label
               key={valor}
               className={`cursor-pointer rounded-full border px-3.5 py-1.5 text-[13px] font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-azul ${
-                situacao === valor ? 'border-navy bg-navy text-branco' : 'border-linha text-apagado hover:bg-fundo'
+                situacao === valor ? 'border-painel bg-painel text-sobre-cor' : 'border-linha text-apagado hover:bg-fundo'
               }`}
             >
               <input

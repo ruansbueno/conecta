@@ -12,7 +12,7 @@ Future<SaidaDaFolha?> mostrarFolhaConfirmacao(BuildContext context, String turma
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      backgroundColor: Cores.branco,
+      backgroundColor: context.cores.branco,
       builder: (context) => SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -23,22 +23,25 @@ Future<SaidaDaFolha?> mostrarFolhaConfirmacao(BuildContext context, String turma
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Cores.sucessoFundo,
+                  color: context.cores.sucessoFundo,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.check, color: Cores.sucesso),
+                child: Icon(Icons.check, color: context.cores.sucesso),
               ),
               const SizedBox(height: 16),
-              Semantics(header: true, child: Text('Solicitação enviada', style: Tipografia.titulo)),
+              Semantics(
+                header: true,
+                child: Text('Solicitação enviada', style: context.tipos.titulo),
+              ),
               const SizedBox(height: 8),
               Text.rich(
                 TextSpan(
-                  style: Tipografia.apoio,
+                  style: context.tipos.apoio,
                   children: [
                     const TextSpan(text: 'Sua inscrição em '),
                     TextSpan(
                       text: turmaNome,
-                      style: const TextStyle(fontWeight: FontWeight.w700, color: Cores.navy),
+                      style: TextStyle(fontWeight: FontWeight.w700, color: context.cores.navy),
                     ),
                     const TextSpan(
                       text:
@@ -52,7 +55,7 @@ Future<SaidaDaFolha?> mostrarFolhaConfirmacao(BuildContext context, String turma
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: Cores.navy),
+                  style: FilledButton.styleFrom(backgroundColor: context.cores.painel),
                   onPressed: () => Navigator.of(context).pop(SaidaDaFolha.verSolicitacoes),
                   child: const Text('Ver minhas solicitações'),
                 ),

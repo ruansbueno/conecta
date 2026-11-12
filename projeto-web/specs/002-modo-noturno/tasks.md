@@ -30,10 +30,10 @@ em `tests/componente/`, fluxo e acessibilidade em `e2e/`.
 
 ## Fase 3: Fim de lista e vazios amigáveis
 
-- [ ] W008 [US3] Testes do painel (fecho de solicitações e de avisos recentes; vazios com ícone e
+- [x] W008 [US3] Testes do painel (fecho de solicitações e de avisos recentes; vazios com ícone e
       atalho "Publicar aviso"; sem fecho quando há mais) e da agenda (fecho na última página das
       três abas; sem fecho com mais páginas, no carregamento e no erro)
-- [ ] W009 [US3] `FimDaLista` e `VazioDoBloco` em `componentes/comum/`; aplicar no painel
+- [x] W009 [US3] `FimDaLista` e `VazioDoBloco` em `componentes/comum/`; aplicar no painel
       (D-MN-7) e na agenda (D-MN-8)
 
 ## Fase 4: Ponta a ponta, acessibilidade e registro

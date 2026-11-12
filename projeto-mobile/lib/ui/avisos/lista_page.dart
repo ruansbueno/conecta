@@ -98,7 +98,7 @@ class _Lista extends StatelessWidget {
               itemCount: lista.itens.length + 1,
               itemBuilder: (context, i) => i < lista.itens.length
                   ? AvisoCard(aviso: lista.itens[i], onTap: () => _abrir(context, lista.itens[i]))
-                  : _Rodape(lista: lista, onRepetir: controller.carregarMais),
+                  : _Rodape(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
             ),
           ),
         ),

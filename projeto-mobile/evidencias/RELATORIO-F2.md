@@ -1,5 +1,7 @@
 # Evidências do aplicativo — fase F2
 
+> **Registro da fase F2, feito em 01/11/2026.** Os números de testes abaixo são os daquela data. As execuções finais, citadas no Apêndice B do TCC, estão em [`testes-app-final-2026-11-06.txt`](testes-app-final-2026-11-06.txt) (suítes completas e integração no emulador) e [`testes-app-por-teste-2026-11-10.txt`](testes-app-por-teste-2026-11-10.txt) (cada teste pelo nome). As capturas também são as daquela fase.
+
 01/11/2026. Fecha as fases 11 e 12 de [`tasks-f2.md`](../specs/001-app-conecta/tasks-f2.md)
 (T082–T088). A agenda (fases 9 e 10) entrou no [#28](https://github.com/ruansbueno/conecta/pull/28).
 A saída das verificações está em [`testes-app-2026-11-01.txt`](testes-app-2026-11-01.txt).

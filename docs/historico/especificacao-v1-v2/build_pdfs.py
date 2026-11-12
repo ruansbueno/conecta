@@ -1,10 +1,10 @@
 """Gera os PDFs de apresentação a partir dos arquivos Markdown desta pasta.
 
-Uso:  python docs/build_pdfs.py        (requer `pip install reportlab`)
+Uso:  python build_pdfs.py        (requer `pip install reportlab`)
 
-Saídas (na raiz de projeto-api/):
-  CONECTA_API_Especificacao_SDD_v2.pdf  <- docs/apresentacao_especificacao_v2.md
-  CONECTA_Decisoes_v2.pdf               <- docs/CONECTA_Decisoes_v2.md
+Saídas (nesta mesma pasta):
+  CONECTA_API_Especificacao_SDD_v2.pdf  <- apresentacao_especificacao_v2.md
+  CONECTA_Decisoes_v2.pdf               <- CONECTA_Decisoes_v2.md
 
 Suporta o subconjunto de Markdown usado nos documentos: títulos (#, ##, ###), parágrafos,
 listas (- e 1.), tabelas, blocos de código, citações (>), **negrito** e `código`.
@@ -24,8 +24,8 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import (CondPageBreak, KeepTogether, PageBreak, Paragraph, Preformatted,
                                 SimpleDocTemplate, Spacer, Table, TableStyle)
 
-ROOT = Path(__file__).resolve().parent.parent
-DOCS = Path(__file__).resolve().parent
+DOCS = Path(__file__).resolve().parent  # os PDFs ficam ao lado dos .md
+ROOT = DOCS
 FONT_DIRS = [Path("/System/Library/Fonts/Supplemental"), Path("/Library/Fonts"),
              Path("/usr/share/fonts/truetype/msttcorefonts")]
 

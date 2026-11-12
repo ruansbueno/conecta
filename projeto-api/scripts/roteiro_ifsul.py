@@ -6,7 +6,7 @@ login mascarado (spec.md §9.4).
 
 Pré-requisito: a API do CONECTA no ar com o provedor real, por exemplo:
 
-    export IFSUL_AUTH_URL=http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes
+    export IFSUL_AUTH_URL='<endereço informado pelo IFSul>'
     AUTH_PROVIDER=ifsul IFSUL_AUTH_PERMITIR_HTTP=true uv run uvicorn src.main:app --port 8001
 
 Uso: `uv run python -m scripts.roteiro_ifsul --conecta http://localhost:8001`

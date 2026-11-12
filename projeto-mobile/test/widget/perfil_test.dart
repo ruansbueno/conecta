@@ -62,7 +62,7 @@ void main() {
     expect(find.text('Aluno de Teste'), findsOneWidget);
     expect(find.text('aluno.teste'), findsOneWidget);
     expect(find.text('Aluno'), findsOneWidget);
-    expect(find.text('Sistemas para Internet'), findsOneWidget);
+    expect(find.text('Análise e Desenvolvimento de Sistemas'), findsOneWidget);
     expect(find.text('2026/2'), findsOneWidget);
     expect(find.text('2 vínculos'), findsOneWidget);
     expect(find.text('Minhas turmas'), findsOneWidget);
@@ -83,7 +83,7 @@ void main() {
     await app.abrir(tester);
     await abrirAba(tester, 'Perfil');
 
-    final curso = tester.getRect(find.text('Sistemas para Internet'));
+    final curso = tester.getRect(find.text('Análise e Desenvolvimento de Sistemas'));
     final periodo = tester.getRect(find.text('2026/2'));
     final vinculos = tester.getRect(find.text('1 vínculo'));
     expect(periodo.right, moreOrLessEquals(curso.right, epsilon: 1));
@@ -141,7 +141,7 @@ void main() {
     expect(find.text('Nenhum vínculo'), findsOneWidget);
     expect(find.text('Período letivo'), findsNothing);
     expect(find.text('Minhas turmas'), findsNothing);
-    expect(find.text('Sistemas para Internet'), findsOneWidget);
+    expect(find.text('Análise e Desenvolvimento de Sistemas'), findsOneWidget);
   });
 
   testWidgets('mudança de perfil entre duas cargas vale na mesma sessão (RM-09)', (tester) async {

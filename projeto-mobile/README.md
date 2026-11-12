@@ -1,12 +1,12 @@
 # CONECTA — Aplicativo Mobile
 
-Aplicativo Flutter do CONECTA, para todos os usuários autenticados: avisos, turmas, solicitação de
-inscrição, perfil e — na fase seguinte — agenda e horários.
+Aplicativo Flutter do CONECTA, para todos os usuários autenticados: avisos, agenda, horários,
+turmas, solicitação de inscrição e perfil.
 
-A F1 está completa (66 de 66 tarefas): entrar, manter a sessão com segurança, ler os avisos,
-acompanhar as turmas, inclusive sem rede, pedir inscrição numa turma e ver o perfil — com
-acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
-[`evidencias/`](evidencias/RELATORIO.md). Veja [Andamento](#andamento).
+As fases F1 e F2 estão completas: entrar, manter a sessão com segurança, ler os avisos, consultar a
+agenda e a grade de horários, acompanhar as turmas, inclusive sem rede, pedir inscrição numa turma
+e ver o perfil — com as evidências em [`evidencias/`](evidencias/). Verificado no Android
+(emulador Android 16). Veja [Andamento](#andamento).
 
 ## Onde está cada coisa
 
@@ -16,7 +16,7 @@ acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
 | `test/` | Testes de unidade e de widget |
 | `integration_test/` | Testes de integração com servidor falso |
 | `.specify/memory/constitution.md` | Princípios que governam o app (cliente sem regra de negócio, sessão segura, camadas, design system) |
-| `specs/001-app-conecta/spec.md` | Especificação funcional: escopo em fases, telas, user stories, requisitos RM-01 a RM-40 |
+| `specs/001-app-conecta/spec.md` | Especificação funcional: escopo em fases, telas, user stories, requisitos RM-01 a RM-41 |
 | `specs/001-app-conecta/plan.md` | Plano técnico: stack, estrutura de pastas, fluxos centrais |
 | `specs/001-app-conecta/research.md` | Decisões técnicas com alternativas e motivos (D1 a D12) |
 | `specs/001-app-conecta/data-model.md` | Modelos do app e regras de apresentação |
@@ -24,6 +24,10 @@ acessibilidade e fonte a 200% verificadas em todas as telas e as evidências em
 | `specs/001-app-conecta/quickstart.md` | Como rodar contra a API local e o roteiro de verificação |
 | `specs/001-app-conecta/tasks.md` | 66 tarefas da fase F1, agrupadas por user story |
 | `specs/001-app-conecta/checklists/requirements.md` | Checklist de qualidade da spec |
+
+Siglas usadas nas specs e nas tabelas: **US** = história de usuário; **RM** = requisito do
+aplicativo; **m-xx** = tela desenhada em `design/mobile/`; **Txxx** = tarefa do `tasks.md`;
+**Dn** = decisão técnica do `research.md`.
 
 ## Relação com os outros projetos
 
@@ -47,8 +51,6 @@ Flutter · `provider` (estado) · `Navigator` com rotas nomeadas · `http` com c
 
 ## Andamento
 
-Atualizado em 01/11/2026.
-
 | Fase da F1 | Conteúdo | Situação |
 |---|---|---|
 | 1. Setup | Projeto Flutter, dependências, análise estática | ✅ [#2](https://github.com/ruansbueno/conecta/pull/2) |
@@ -67,9 +69,12 @@ Atualizado em 01/11/2026.
 | 10. US6a — Agenda | Aba Agenda: Próximos e Provas com filtro de tipo (m-10), mês de domingo a sábado com marcadores (m-10b), detalhe do evento (m-11), sem rede com o que estava guardado | ✅ [#28](https://github.com/ruansbueno/conecta/pull/28) |
 | 11. US6b — Horários | Aba Horários: grade da turma por dia (m-12), troca de turma com a escolha lembrada, mensagens próprias quando o vínculo some, grade guardada por turma | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
 | 12. Polimento da F2 | Sem rede na agenda e na grade, fonte a 200% conferida no aparelho, leitor de tela, comparação com o design | ✅ [#29](https://github.com/ruansbueno/conecta/pull/29) |
+| — Login pelo IFSul | Mensagens de acesso pendente e recusado (RM-41); login sem menção ao Moodle | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 
-**Testes**: 348 de unidade e de widget (`flutter test`), mais 22 de integração no aparelho com servidor falso
-em `integration_test/`.
+**Testes** (registro de 06/11/2026, [`testes-app-final-2026-11-06.txt`](evidencias/testes-app-final-2026-11-06.txt)):
+357 de unidade e de widget (`flutter test`) e 22 de integração no emulador, com servidor falso, em
+`integration_test/`; o registro de 10/11 traz cada teste pelo nome
+([`testes-app-por-teste-2026-11-10.txt`](evidencias/testes-app-por-teste-2026-11-10.txt)).
 
 ## Como rodar
 
@@ -78,13 +83,11 @@ Com a API no ar (veja [`projeto-api/README.md`](../projeto-api/README.md)):
 ```bash
 flutter pub get
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000   # emulador Android
-flutter run --dart-define=API_BASE_URL=http://localhost:8000  # iOS ou desktop
 flutter test                                                   # unidade e widget
+flutter test integration_test -d <id do emulador>              # integração, com servidor falso
 ```
 
-O roteiro completo está em [`quickstart.md`](specs/001-app-conecta/quickstart.md).
-
-## Próximo passo
-
-O aplicativo está completo nas fases F1 e F2. Com o login pela API de autenticação do IFSul
-(06/11/2026), o app só ganhou as mensagens de acesso pendente e recusado (RM-41); o resto é da API.
+Num celular Android ligado por USB, use `adb reverse tcp:8000 tcp:8000` e
+`--dart-define=API_BASE_URL=http://localhost:8000`: o app só aceita HTTP sem TLS para o emulador
+(`10.0.2.2`) e para `localhost`. O roteiro completo está em
+[`quickstart.md`](specs/001-app-conecta/quickstart.md).

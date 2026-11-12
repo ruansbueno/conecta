@@ -130,6 +130,39 @@ void main() {
     );
   });
 
+  testWidgets('"Tentar de novo" do rodapé repete a página seguinte que falhou', (tester) async {
+    var falhar = true;
+    app.api.rotas['GET /avisos'] = (r) {
+      final offset = int.parse(r.url.queryParameters['offset']!);
+      if (offset > 0 && falhar) throw http.ClientException('Connection refused');
+      return respostaJson(
+        paginaAvisosJson(total: 25, offset: offset, situacao: r.url.queryParameters['situacao']!),
+      );
+    };
+
+    await app.abrir(tester);
+    final lista = find.descendant(
+      of: find.byKey(const Key('lista-avisos')),
+      matching: find.byType(Scrollable),
+    );
+    await tester.dragUntilVisible(find.text('Tentar de novo'), lista, const Offset(0, -600));
+    await tester.pumpAndSettle();
+
+    falhar = false;
+    await tester.tap(find.text('Tentar de novo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tentar de novo'), findsNothing, reason: 'o toque pediu a página de novo');
+    expect(
+      app.api.pedidos.where((p) => p.url.queryParameters['offset'] == '20'),
+      hasLength(2),
+      reason: 'a página que falhou foi pedida outra vez',
+    );
+    expect(find.text('Aviso número 21'), findsOneWidget);
+
+    await tester.dragUntilVisible(find.text('Aviso número 25'), lista, const Offset(0, -600));
+    expect(find.text('Aviso número 25'), findsOneWidget);
+  });
+
   testWidgets('arquivados: alternância com explicação da lista', (tester) async {
     paginado(2);
     await app.abrir(tester);

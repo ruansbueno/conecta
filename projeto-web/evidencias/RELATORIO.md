@@ -1,5 +1,7 @@
 # Evidências da plataforma web — fase F1
 
+> **Registro da fase F1, feito em 28/10/2026.** Os números de testes abaixo são os daquela data. As execuções finais, citadas no Apêndice B do TCC, estão em [`testes-web-final-2026-11-06.txt`](testes-web-final-2026-11-06.txt) (suítes completas e implantação) e [`testes-web-por-teste-2026-11-10.txt`](testes-web-por-teste-2026-11-10.txt) (cada teste pelo nome). As capturas também são as daquela fase.
+
 28/10/2026. Fecha a fase 10 de [`tasks.md`](../specs/001-plataforma-gestao/tasks.md) (T071–T077).
 A saída completa de cada verificação está em [`testes-web-2026-10-28.txt`](testes-web-2026-10-28.txt).
 

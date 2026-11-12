@@ -3,6 +3,12 @@
 Mockups estáticos do aplicativo mobile e da plataforma web de gestão, desenhados a partir de
 `projeto-api/specs/001-auth-perfil-turmas-avisos/spec.md` e de `CONECTA_Arquitetura.md`.
 
+> **Proposta original, de outubro de 2026.** As telas preveem o login validado pelo Moodle e usam o
+> curso de Tecnologia em Sistemas para Internet como exemplo. No sistema implementado, o login é
+> feito pela API de autenticação do IFSul e o curso é Análise e Desenvolvimento de Sistemas. As
+> demais diferenças entre o desenho e as telas implementadas estão nos relatórios de evidências
+> (`projeto-web/evidencias/` e `projeto-mobile/evidencias/`).
+
 As imagens são renderizadas a partir de HTML/CSS (`_src/`, `_assets/`) com o Chrome headless:
 
 ```bash

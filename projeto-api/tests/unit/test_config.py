@@ -53,7 +53,7 @@ def test_csrf_secret_igual_a_jwt_secret_e_rejeitada():
 
 
 URL_IFSUL_HTTPS = "https://autenticacao.ifsul.edu.br/api/v1/autenticacoes"
-URL_IFSUL_HTTP = "http://200.19.1.19/luissilva/Conecta_API_REST/public/api/v1/autenticacoes"
+URL_IFSUL_HTTP = "http://autenticacao.exemplo.ifsul/api/v1/autenticacoes"
 
 
 def _settings(**extra):
@@ -88,7 +88,7 @@ def test_ifsul_com_http_liberado_explicitamente_e_aceito():
     assert isinstance(provider_from_settings(settings), IfsulAuthProvider)
 
 
-@pytest.mark.parametrize("url", ["ftp://ifsul/x", "200.19.1.19/api", "https://"])
+@pytest.mark.parametrize("url", ["ftp://ifsul/x", "192.0.2.1/api", "https://"])
 def test_ifsul_com_url_sem_esquema_http_ou_sem_host_e_recusado(url):
     with pytest.raises(ValidationError, match="IFSUL_AUTH_URL"):
         _settings(AUTH_PROVIDER="ifsul", IFSUL_AUTH_URL=url, IFSUL_AUTH_PERMITIR_HTTP=True)

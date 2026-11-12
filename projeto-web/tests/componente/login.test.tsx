@@ -69,6 +69,7 @@ describe('login (T01)', () => {
     expect(await screen.findByRole('heading', { name: 'Acesso à gestão' })).toBeInTheDocument()
     expect(screen.getByText(/Alunos usam o aplicativo/)).toBeInTheDocument()
     expect(screen.getByText(/A sessão expira em 24 h/)).toBeInTheDocument()
+    expect(screen.getByText('IFSul · Análise e Desenvolvimento de Sistemas')).toBeInTheDocument()
   })
 
   it('abrir sem sessão não diz que a sessão expirou', async () => {

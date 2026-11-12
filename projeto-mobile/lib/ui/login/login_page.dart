@@ -96,14 +96,14 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       const Align(alignment: Alignment.centerLeft, child: MarcaConecta()),
                       const SizedBox(height: 20),
-                      Text('CONECTA', style: Tipografia.marca),
+                      Text('CONECTA', style: context.tipos.marca),
                       const SizedBox(height: 8),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 290),
-                        child: const Text(
+                        child: Text(
                           'Avisos, agenda e turmas do curso de Análise e Desenvolvimento de '
                           'Sistemas — IFSul.',
-                          style: Tipografia.apoio,
+                          style: context.tipos.apoio,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -142,11 +142,11 @@ class _LoginPageState extends State<LoginPage> {
                       FilledButton(
                         onPressed: _enviando ? null : _entrar,
                         child: _enviando
-                            ? const SizedBox.square(
+                            ? SizedBox.square(
                                 dimension: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.4,
-                                  color: Cores.branco,
+                                  color: context.cores.sobreCor,
                                   semanticsLabel: 'Entrando',
                                 ),
                               )
@@ -197,7 +197,7 @@ class _Campo extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(rotulo, style: Tipografia.rotuloCampo),
+      Text(rotulo, style: context.tipos.rotuloCampo),
       const SizedBox(height: 6),
       TextField(
         controller: controle,
@@ -209,7 +209,7 @@ class _Campo extends StatelessWidget {
         textInputAction: acao,
         autofillHints: autofill,
         onSubmitted: aoEnviar,
-        style: Tipografia.campo,
+        style: context.tipos.campo,
         decoration: InputDecoration(
           hintText: dica,
           semanticCounterText: rotulo,
@@ -234,15 +234,15 @@ class _Mensagem extends StatelessWidget {
     child: Container(
       padding: EdgeInsets.fromLTRB(14, 10, onRepetir == null ? 14 : 4, 10),
       decoration: BoxDecoration(
-        color: Cores.perigoFundo,
+        color: context.cores.perigoFundo,
         borderRadius: BorderRadius.circular(Raios.campo),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, size: 18, color: Cores.perigo),
+          Icon(Icons.error_outline, size: 18, color: context.cores.perigo),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(texto, style: Tipografia.apoio.copyWith(color: Cores.perigo)),
+            child: Text(texto, style: context.tipos.apoio.copyWith(color: context.cores.perigo)),
           ),
           if (onRepetir != null)
             TextButton(onPressed: onRepetir, child: const Text('Tentar de novo')),
@@ -259,18 +259,18 @@ class _AvisoSenha extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
     decoration: BoxDecoration(
-      color: Cores.fundoPagina,
+      color: context.cores.fundoPagina,
       borderRadius: BorderRadius.circular(Raios.cartao),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.shield_outlined, size: 18, color: Cores.navySuave),
+        Icon(Icons.shield_outlined, size: 18, color: context.cores.navySuave),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             'Use o login e a senha institucionais do IFSul. O CONECTA não armazena sua senha.',
-            style: Tipografia.apoio.copyWith(fontSize: 12.5, color: Cores.navySuave),
+            style: context.tipos.apoio.copyWith(fontSize: 12.5, color: context.cores.navySuave),
           ),
         ),
       ],

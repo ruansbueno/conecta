@@ -179,7 +179,7 @@ class _Rodape extends StatelessWidget {
     } else if (lista.falhaAoCarregarMais != null) {
       conteudo = TextButton(onPressed: onRepetir, child: const Text('Tentar de novo'));
     } else if (!lista.temMais && lista.dadosDe == null) {
-      conteudo = const Text('Não há mais avisos.', style: Tipografia.meta);
+      conteudo = Text('Não há mais avisos.', style: context.tipos.meta);
     } else {
       conteudo = const SizedBox.shrink();
     }

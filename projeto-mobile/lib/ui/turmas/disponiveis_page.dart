@@ -130,14 +130,14 @@ class _DisponiveisPageState extends State<DisponiveisPage> {
     value: _controller,
     child: Scaffold(
       appBar: AppBar(title: const Text('Turmas disponíveis'), toolbarHeight: 60),
-      backgroundColor: Cores.fundoPagina,
+      backgroundColor: context.cores.fundoPagina,
       body: Column(
         children: [
           Container(
             width: double.infinity,
-            color: Cores.branco,
+            color: context.cores.branco,
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-            child: const Text('Turmas ativas com inscrições abertas', style: Tipografia.apoio),
+            child: Text('Turmas ativas com inscrições abertas', style: context.tipos.apoio),
           ),
           const Divider(),
           const Expanded(child: _Corpo()),
@@ -198,16 +198,16 @@ class _Corpo extends StatelessWidget {
               ],
               RodapeLista(lista: lista, onRepetir: () => controller.carregarMais(repetir: true)),
               const SizedBox(height: 8),
-              const CaixaCartao(
+              CaixaCartao(
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, size: 20, color: Cores.apagado),
+                    Icon(Icons.info_outline, size: 20, color: context.cores.apagado),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Turmas das quais você já participa ou para as quais já pediu inscrição '
                         'não aparecem nesta lista.',
-                        style: Tipografia.apoio,
+                        style: context.tipos.apoio,
                       ),
                     ),
                   ],
@@ -250,9 +250,9 @@ class _TurmaDisponivel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(turma.nome, style: Tipografia.tituloCartao),
+              Text(turma.nome, style: context.tipos.tituloCartao),
               const SizedBox(height: 2),
-              Text(linha, style: Tipografia.meta),
+              Text(linha, style: context.tipos.meta),
             ],
           ),
         ),
@@ -263,11 +263,11 @@ class _TurmaDisponivel extends StatelessWidget {
               ? null
               : () => context.findAncestorStateOfType<_DisponiveisPageState>()!._solicitar(turma),
           child: enviando
-              ? const SizedBox.square(
+              ? SizedBox.square(
                   dimension: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.2,
-                    color: Cores.branco,
+                    color: context.cores.branco,
                     semanticsLabel: 'Enviando',
                   ),
                 )

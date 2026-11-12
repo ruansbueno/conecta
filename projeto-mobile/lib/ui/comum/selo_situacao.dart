@@ -15,17 +15,17 @@ class SeloSituacao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (cor, fundo) = switch (tom) {
-      TomSelo.alerta => (Cores.alerta, Cores.alertaFundo),
-      TomSelo.sucesso => (Cores.sucesso, Cores.sucessoFundo),
-      TomSelo.perigo => (Cores.perigo, Cores.perigoFundo),
-      TomSelo.neutro => (Cores.apagado, Cores.linhaSuave),
+      TomSelo.alerta => (context.cores.alerta, context.cores.alertaFundo),
+      TomSelo.sucesso => (context.cores.sucesso, context.cores.sucessoFundo),
+      TomSelo.perigo => (context.cores.perigo, context.cores.perigoFundo),
+      TomSelo.neutro => (context.cores.apagado, context.cores.linhaSuave),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: fundo, borderRadius: BorderRadius.circular(999)),
       child: Text(
         texto,
-        style: Tipografia.chip.copyWith(color: cor, fontWeight: FontWeight.w600),
+        style: context.tipos.chip.copyWith(color: cor, fontWeight: FontWeight.w600),
       ),
     );
   }

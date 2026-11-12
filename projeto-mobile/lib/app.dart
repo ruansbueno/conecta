@@ -15,6 +15,7 @@ import 'services/cache_local.dart';
 import 'services/cofre_sessao.dart';
 import 'state/session_controller.dart';
 import 'state/solicitacoes_controller.dart';
+import 'theme/cores.dart';
 import 'theme/tema.dart';
 import 'ui/casca/casca_abas.dart';
 import 'ui/comum/estado_erro.dart';
@@ -58,7 +59,7 @@ class ConectaApp extends StatelessWidget {
       child: MaterialApp(
         title: 'CONECTA',
         debugShowCheckedModeBanner: false,
-        theme: temaConecta(),
+        theme: temaConecta(CoresConecta.claro),
         locale: const Locale('pt', 'BR'),
         supportedLocales: const [Locale('pt', 'BR')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,

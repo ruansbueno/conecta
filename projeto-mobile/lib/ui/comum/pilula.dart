@@ -29,14 +29,14 @@ class Pilula extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: ativa ? Cores.navy : Cores.branco,
-              border: ativa ? null : Border.all(color: Cores.linha),
+              color: ativa ? context.cores.painel : context.cores.branco,
+              border: ativa ? null : Border.all(color: context.cores.linha),
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               texto,
-              style: Tipografia.segmento.copyWith(
-                color: ativa ? Cores.branco : Cores.apagado,
+              style: context.tipos.segmento.copyWith(
+                color: ativa ? context.cores.sobreCor : context.cores.apagado,
                 fontWeight: ativa ? FontWeight.w600 : FontWeight.w500,
               ),
             ),

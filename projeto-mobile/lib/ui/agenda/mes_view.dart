@@ -36,7 +36,7 @@ class MesView extends StatelessWidget {
           FaixaInformativa(
             'Mostrando ${controller.eventos.length} de ${controller.total} atividades deste mês.',
           ),
-        Container(height: 8, color: Cores.fundoPagina),
+        Container(height: 8, color: context.cores.fundoPagina),
         switch (controller.estado) {
           // O esqueleto rola sozinho: aqui ele ocupa uma altura fixa dentro da lista do mês.
           EstadoLista.carregando => const SizedBox(height: 220, child: EsqueletoLista(itens: 2)),
@@ -65,19 +65,19 @@ class _Cabecalho extends StatelessWidget {
           child: Semantics(
             header: true,
             liveRegion: true,
-            child: Text(controller.mes.nome, style: Tipografia.titulo),
+            child: Text(controller.mes.nome, style: context.tipos.titulo),
           ),
         ),
         IconButton(
           tooltip: 'Mês anterior',
           icon: const Icon(Icons.chevron_left),
-          color: Cores.azul,
+          color: context.cores.azul,
           onPressed: () => controller.irPara(controller.mes.anterior),
         ),
         IconButton(
           tooltip: 'Próximo mês',
           icon: const Icon(Icons.chevron_right),
-          color: Cores.azul,
+          color: context.cores.azul,
           onPressed: () => controller.irPara(controller.mes.proximo),
         ),
       ],
@@ -107,7 +107,7 @@ class _Grade extends StatelessWidget {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(letra, textAlign: TextAlign.center, style: Tipografia.meta),
+                      child: Text(letra, textAlign: TextAlign.center, style: context.tipos.meta),
                     ),
                   ),
               ],
@@ -156,12 +156,12 @@ class _Dia extends StatelessWidget {
   Widget build(BuildContext context) {
     final quantidade = eventos.isEmpty ? 'sem atividades' : quantidadeDeAtividades(eventos.length);
     final cor = escolhido
-        ? Cores.branco
+        ? context.cores.sobreCor
         : hoje
-        ? Cores.azul
+        ? context.cores.azul
         : doMes
-        ? Cores.navy
-        : Cores.tenue;
+        ? context.cores.navy
+        : context.cores.tenue;
     // O nome começa pelo número visível (WCAG 2.5.3): "16, sexta, 16 de outubro, 2 atividades".
     return Semantics(
       button: true,
@@ -185,11 +185,11 @@ class _Dia extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 alignment: Alignment.center,
                 decoration: escolhido
-                    ? const BoxDecoration(color: Cores.navy, shape: BoxShape.circle)
+                    ? BoxDecoration(color: context.cores.painel, shape: BoxShape.circle)
                     : null,
                 child: Text(
                   '${dia.day}',
-                  style: Tipografia.corpo.copyWith(
+                  style: context.tipos.corpo.copyWith(
                     color: cor,
                     fontWeight: hoje || escolhido ? FontWeight.w600 : FontWeight.w400,
                   ),
@@ -206,7 +206,10 @@ class _Dia extends StatelessWidget {
                         width: 5,
                         height: 5,
                         margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                        decoration: BoxDecoration(color: corDoTipo(tipo), shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: corDoTipo(tipo, context.cores),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                   ],
                 ),
@@ -240,16 +243,19 @@ class _DoDia extends StatelessWidget {
               alignment: WrapAlignment.spaceBetween,
               spacing: 12,
               children: [
-                Semantics(header: true, child: Text(tituloDoDia(dia), style: Tipografia.subtitulo)),
+                Semantics(
+                  header: true,
+                  child: Text(tituloDoDia(dia), style: context.tipos.subtitulo),
+                ),
                 if (eventos.isNotEmpty)
-                  Text(quantidadeDeAtividades(eventos.length), style: Tipografia.meta),
+                  Text(quantidadeDeAtividades(eventos.length), style: context.tipos.meta),
               ],
             ),
           ),
           if (eventos.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(20, 12, 20, 12),
-              child: Text('Nenhuma atividade neste dia', style: Tipografia.apoio),
+              child: Text('Nenhuma atividade neste dia', style: context.tipos.apoio),
             )
           else
             for (final e in eventos)
@@ -282,8 +288,8 @@ class _ItemDoDia extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Cores.linhaSuave)),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: context.cores.linhaSuave)),
           ),
           child: IntrinsicHeight(
             child: Row(
@@ -291,19 +297,19 @@ class _ItemDoDia extends StatelessWidget {
               children: [
                 // Acompanha a fonte do sistema: "o dia todo" não quebra (RM-36).
                 SizedBox(
-                  width: larguraEscalada(context, 68, Tipografia.tituloCartao.fontSize!),
+                  width: larguraEscalada(context, 68, context.tipos.tituloCartao.fontSize!),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         rotuloNoDia(evento, dia),
-                        style: Tipografia.tituloCartao.copyWith(fontSize: 14),
+                        style: context.tipos.tituloCartao.copyWith(fontSize: 14),
                       ),
                       // O tipo é uma palavra só ("Palestra"): encolhe em vez de quebrar no meio.
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
-                        child: Text(evento.rotuloTipo, maxLines: 1, style: Tipografia.meta),
+                        child: Text(evento.rotuloTipo, maxLines: 1, style: context.tipos.meta),
                       ),
                     ],
                   ),
@@ -311,7 +317,7 @@ class _ItemDoDia extends StatelessWidget {
                 Container(
                   width: 3,
                   decoration: BoxDecoration(
-                    color: corDoTipo(evento.tipo).withValues(alpha: 0.55),
+                    color: corDoTipo(evento.tipo, context.cores).withValues(alpha: 0.55),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -320,14 +326,14 @@ class _ItemDoDia extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(evento.titulo, style: Tipografia.tituloCartao),
+                      Text(evento.titulo, style: context.tipos.tituloCartao),
                       if (evento.local case final local?) ...[
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.place_outlined, size: 15, color: Cores.tenue),
+                            Icon(Icons.place_outlined, size: 15, color: context.cores.tenue),
                             const SizedBox(width: 5),
-                            Flexible(child: Text(local, style: Tipografia.meta)),
+                            Flexible(child: Text(local, style: context.tipos.meta)),
                           ],
                         ),
                       ],

@@ -23,7 +23,7 @@ class EventoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cor = corDoTipo(evento.tipo);
+    final cor = corDoTipo(evento.tipo, context.cores);
     final (dia, mes) = diaEMes(evento.inicio);
     return MergeSemantics(
       child: Semantics(
@@ -32,8 +32,8 @@ class EventoCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Cores.linhaSuave)),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: context.cores.linhaSuave)),
             ),
             child: IntrinsicHeight(
               child: Row(
@@ -41,12 +41,12 @@ class EventoCard extends StatelessWidget {
                 children: [
                   // Acompanha a fonte do sistema: a data não quebra em "3 / 0" (RM-36).
                   SizedBox(
-                    width: larguraEscalada(context, 44, Tipografia.tituloGrande.fontSize!),
+                    width: larguraEscalada(context, 44, context.tipos.tituloGrande.fontSize!),
                     child: mostrarData
                         ? Column(
                             children: [
-                              Text(dia, style: Tipografia.tituloGrande.copyWith(height: 1.1)),
-                              Text(mes, style: Tipografia.meta),
+                              Text(dia, style: context.tipos.tituloGrande.copyWith(height: 1.1)),
+                              Text(mes, style: context.tipos.meta),
                             ],
                           )
                         // Sem a coluna, o leitor de tela ainda ouve a data.
@@ -67,10 +67,13 @@ class EventoCard extends StatelessWidget {
                       children: [
                         Text(
                           evento.rotuloTipo,
-                          style: Tipografia.chip.copyWith(color: cor, fontWeight: FontWeight.w600),
+                          style: context.tipos.chip.copyWith(
+                            color: cor,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         const SizedBox(height: 4),
-                        Text(evento.titulo, style: Tipografia.tituloCartao),
+                        Text(evento.titulo, style: context.tipos.tituloCartao),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 14,
@@ -107,9 +110,9 @@ class _Info extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icone, size: 15, color: Cores.tenue),
+      Icon(icone, size: 15, color: context.cores.tenue),
       const SizedBox(width: 5),
-      Flexible(child: Text(texto, style: Tipografia.meta)),
+      Flexible(child: Text(texto, style: context.tipos.meta)),
     ],
   );
 }

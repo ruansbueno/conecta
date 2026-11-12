@@ -24,7 +24,7 @@ Future<TurmaVinculada?> escolherTurma(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             child: Semantics(
               header: true,
-              child: Text('Escolher turma', style: Tipografia.subtitulo),
+              child: Text('Escolher turma', style: context.tipos.subtitulo),
             ),
           ),
           for (final t in turmas)
@@ -45,13 +45,14 @@ Future<TurmaVinculada?> escolherTurma(
                         Expanded(
                           child: Text(
                             '${t.codigo} — ${t.nome}',
-                            style: Tipografia.corpo.copyWith(
-                              color: t.id == atual?.id ? Cores.azul : Cores.navy,
+                            style: context.tipos.corpo.copyWith(
+                              color: t.id == atual?.id ? context.cores.azul : context.cores.navy,
                               fontWeight: t.id == atual?.id ? FontWeight.w600 : FontWeight.w400,
                             ),
                           ),
                         ),
-                        if (t.id == atual?.id) const Icon(Icons.check, size: 20, color: Cores.azul),
+                        if (t.id == atual?.id)
+                          Icon(Icons.check, size: 20, color: context.cores.azul),
                       ],
                     ),
                   ),

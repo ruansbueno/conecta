@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 Widget _app(Widget filho) => MaterialApp(
-  theme: temaConecta(),
+  theme: temaConecta(CoresConecta.claro),
   home: Scaffold(body: filho),
 );
 
@@ -30,7 +30,7 @@ void main() {
 
       expect(find.text('Todos'), findsOneWidget);
       final ponto = tester.widget<DecoratedBox>(find.byKey(const Key('ponto-destino')));
-      expect((ponto.decoration as BoxDecoration).color, CoresDestino.todosPonto);
+      expect((ponto.decoration as BoxDecoration).color, CoresConecta.claro.destinoTodosPonto);
       expect(find.bySemanticsLabel('Destino: Todos'), findsOneWidget);
       semantica.dispose();
     });
@@ -42,7 +42,10 @@ void main() {
 
       expect(find.text('curso'), findsOneWidget);
       final ponto = tester.widget<DecoratedBox>(find.byKey(const Key('ponto-destino')));
-      expect((ponto.decoration as BoxDecoration).color, CoresDestino.desconhecidoPonto);
+      expect(
+        (ponto.decoration as BoxDecoration).color,
+        CoresConecta.claro.destinoDesconhecidoPonto,
+      );
     });
   });
 

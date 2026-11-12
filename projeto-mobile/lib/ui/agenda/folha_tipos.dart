@@ -22,7 +22,7 @@ Future<(TipoEvento?,)?> escolherTipo(BuildContext context, TipoEvento? atual) =>
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Semantics(
                   header: true,
-                  child: Text('Filtrar por tipo', style: Tipografia.subtitulo),
+                  child: Text('Filtrar por tipo', style: context.tipos.subtitulo),
                 ),
               ),
               for (final tipo in <TipoEvento?>[null, ...TipoEvento.conhecidos])
@@ -62,13 +62,13 @@ class _Opcao extends StatelessWidget {
               Expanded(
                 child: Text(
                   texto,
-                  style: Tipografia.corpo.copyWith(
-                    color: escolhida ? Cores.azul : Cores.navy,
+                  style: context.tipos.corpo.copyWith(
+                    color: escolhida ? context.cores.azul : context.cores.navy,
                     fontWeight: escolhida ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
               ),
-              if (escolhida) const Icon(Icons.check, size: 20, color: Cores.azul),
+              if (escolhida) Icon(Icons.check, size: 20, color: context.cores.azul),
             ],
           ),
         ),

@@ -57,7 +57,7 @@ class _Agenda extends StatelessWidget {
             // O destaque do ícone é só cor: o tipo escolhido vai também no nome do botão.
             tooltip: tipo == null ? 'Filtrar por tipo' : 'Filtrar por tipo (${tipo.rotulo})',
             icon: const Icon(Icons.filter_list),
-            color: tipo == null ? Cores.navy : Cores.azul,
+            color: tipo == null ? context.cores.navy : context.cores.azul,
             // Provas já é um filtro de tipo (D-AF2-2).
             onPressed: emProvas
                 ? null

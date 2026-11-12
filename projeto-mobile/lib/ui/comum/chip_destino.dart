@@ -10,17 +10,17 @@ class ChipDestino extends StatelessWidget {
 
   final Destino destino;
 
-  (Color, Color) get _cores => switch (destino.tipo) {
-    TipoDestino.todos => (CoresDestino.todosPonto, CoresDestino.todosFundo),
-    TipoDestino.turma => (CoresDestino.turmaPonto, CoresDestino.turmaFundo),
-    TipoDestino.semestre => (CoresDestino.semestrePonto, CoresDestino.semestreFundo),
-    TipoDestino.docentes => (CoresDestino.docentesPonto, CoresDestino.docentesFundo),
-    TipoDestino.desconhecido => (CoresDestino.desconhecidoPonto, CoresDestino.desconhecidoFundo),
+  (Color, Color) _coresDe(CoresConecta c) => switch (destino.tipo) {
+    TipoDestino.todos => (c.destinoTodosPonto, c.destinoTodosFundo),
+    TipoDestino.turma => (c.destinoTurmaPonto, c.destinoTurmaFundo),
+    TipoDestino.semestre => (c.destinoSemestrePonto, c.destinoSemestreFundo),
+    TipoDestino.docentes => (c.destinoDocentesPonto, c.destinoDocentesFundo),
+    TipoDestino.desconhecido => (c.destinoDesconhecidoPonto, c.destinoDesconhecidoFundo),
   };
 
   @override
   Widget build(BuildContext context) {
-    final (ponto, fundo) = _cores;
+    final (ponto, fundo) = _coresDe(context.cores);
     return Semantics(
       label: 'Destino: ${destino.rotulo}',
       excludeSemantics: true,
@@ -38,7 +38,11 @@ class ChipDestino extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Flexible(
-              child: Text(destino.rotulo, style: Tipografia.chip, overflow: TextOverflow.ellipsis),
+              child: Text(
+                destino.rotulo,
+                style: context.tipos.chip,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

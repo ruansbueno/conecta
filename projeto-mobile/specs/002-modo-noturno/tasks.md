@@ -11,11 +11,11 @@
 
 ## Fase 1: Tema a partir da paleta
 
-- [ ] M001 [US2] Testes: `contraste_tema_test.dart`, `tema_test.dart` estendido e
+- [x] M001 [US2] Testes: `contraste_tema_test.dart`, `tema_test.dart` estendido e
       `design_system_test.dart` estendido (sem `Cores.` fora de `lib/theme/`)
-- [ ] M002 [US2] `CoresConecta` (claro e escuro, tokens novos de D-AMN-3), `TiposConecta`,
+- [x] M002 [US2] `CoresConecta` (claro e escuro, tokens novos de D-AMN-3), `TiposConecta`,
       extensões `context.cores`/`context.tipos` e `temaConecta(CoresConecta)`
-- [ ] M003 [US2] Trocar `Cores.`/`Tipografia.` com cor nas 28 telas por `context.cores`/
+- [x] M003 [US2] Trocar `Cores.`/`Tipografia.` com cor nas 28 telas por `context.cores`/
       `context.tipos`; a suíte atual continua verde
 
 ## Fase 2: Escolha, persistência e botão

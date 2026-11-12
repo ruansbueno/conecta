@@ -15,10 +15,10 @@ class FaixaInformativa extends StatelessWidget {
   Widget build(BuildContext context) {
     final linha = Row(
       children: [
-        Icon(icone, size: 16, color: Cores.apagado),
+        Icon(icone, size: 16, color: context.cores.apagado),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(texto, style: Tipografia.meta.copyWith(color: Cores.apagado)),
+          child: Text(texto, style: context.tipos.meta.copyWith(color: context.cores.apagado)),
         ),
         // Com a fonte do sistema grande, a ação desce para baixo do texto (RM-36).
         if (!_acaoEmbaixo(context)) ?acao,
@@ -26,7 +26,7 @@ class FaixaInformativa extends StatelessWidget {
     );
     return Container(
       width: double.infinity,
-      color: Cores.fundoPagina,
+      color: context.cores.fundoPagina,
       padding: EdgeInsets.fromLTRB(20, 12, acao == null || _acaoEmbaixo(context) ? 20 : 8, 12),
       child: _acaoEmbaixo(context)
           ? Column(

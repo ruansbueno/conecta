@@ -4,15 +4,17 @@ import '../../theme/cores.dart';
 
 /// Capelo acadêmico do CONECTA, transcrito do SVG do design (viewBox 28×28).
 class MarcaConecta extends StatelessWidget {
-  const MarcaConecta({this.tamanho = 44, this.cor = Cores.navy, super.key});
+  const MarcaConecta({this.tamanho = 44, this.cor, super.key});
 
   final double tamanho;
-  final Color cor;
+
+  /// Sem cor, a de título do tema ativo.
+  final Color? cor;
 
   @override
   Widget build(BuildContext context) => Semantics(
     label: 'CONECTA',
-    child: CustomPaint(size: Size.square(tamanho), painter: _Capelo(cor)),
+    child: CustomPaint(size: Size.square(tamanho), painter: _Capelo(cor ?? context.cores.navy)),
   );
 }
 

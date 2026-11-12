@@ -119,7 +119,7 @@ class _Conteudo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(turma.nome, style: Tipografia.apoio),
+                Text(turma.nome, style: context.tipos.apoio),
                 const SizedBox(height: 12),
                 if (variasTurmas)
                   // O leitor de tela ouve o que o botão faz, não só o código da turma.
@@ -145,7 +145,7 @@ class _Conteudo extends StatelessWidget {
                     ),
                   )
                 else
-                  Text('Turma ${turma.codigo}', style: Tipografia.tituloCartao),
+                  Text('Turma ${turma.codigo}', style: context.tipos.tituloCartao),
               ],
             ),
           ),
@@ -195,8 +195,8 @@ class _Dia extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: Cores.linhaSuave)),
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: context.cores.linhaSuave)),
     ),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +204,7 @@ class _Dia extends StatelessWidget {
         // A coluna acompanha a fonte do sistema, para a sigla nunca quebrar (RM-36); a mesma
         // largura em todos os dias mantém as barras alinhadas.
         SizedBox(
-          width: larguraEscalada(context, 56, Tipografia.meta.fontSize!),
+          width: larguraEscalada(context, 56, context.tipos.meta.fontSize!),
           child: Padding(
             padding: const EdgeInsets.only(top: 2),
             // A sigla é visual; o leitor de tela ouve o dia por extenso.
@@ -215,7 +215,7 @@ class _Dia extends StatelessWidget {
               child: Text(
                 _siglas[dia]!,
                 softWrap: false,
-                style: Tipografia.meta.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1),
+                style: context.tipos.meta.copyWith(fontWeight: FontWeight.w600, letterSpacing: 1),
               ),
             ),
           ),
@@ -250,21 +250,24 @@ class _Aula extends StatelessWidget {
           children: [
             Container(
               width: 3,
-              decoration: BoxDecoration(color: Cores.azul, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: context.cores.azul,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(aula.disciplina, style: Tipografia.tituloCartao),
+                  Text(aula.disciplina, style: context.tipos.tituloCartao),
                   const SizedBox(height: 2),
                   Text(
                     aula.local == null ? horas : '$horas · ${aula.local}',
-                    style: Tipografia.meta,
+                    style: context.tipos.meta,
                   ),
                   if (aula.docenteNome case final docente?)
-                    Text(docente, style: Tipografia.meta.copyWith(color: Cores.apagado)),
+                    Text(docente, style: context.tipos.meta.copyWith(color: context.cores.apagado)),
                 ],
               ),
             ),

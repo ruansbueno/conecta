@@ -229,6 +229,8 @@ async def _solicitacoes(session: AsyncSession, usuarios: dict, turmas: dict) -> 
                     status=status,
                     motivo_recusa=motivo,
                     decidida_em=None if status == "pendente" else datetime.now(UTC),
+                    # Toda decisão tem autor (ck_..._decisor_coerente): a coordenação do seed.
+                    decidida_por=None if status == "pendente" else usuarios["coord.teste"],
                 )
             )
 

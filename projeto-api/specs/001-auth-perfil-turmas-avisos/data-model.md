@@ -24,7 +24,7 @@ Pessoa identificada no sistema; criada no primeiro login bem-sucedido, ou anteci
 | nome | string | Sincronizado do provedor a cada login |
 | perfil | enum (`administrador`, `coordenacao`, `docente`, `aluno`), **nulo** só em pedido de acesso | 1º login de aluno: `aluno`; de outro tipo: nulo até a decisão (emenda v2.3); **nunca** sobrescrito pelo login; só o administrador altera (E2), a gestão de acessos ou seed |
 | situacao_acesso | enum (`liberado`, `pendente`, `recusado`), padrão `liberado` | Emenda v2.3: `pendente` e `recusado` não entram (403) nem aparecem na gestão de usuários; **perfil não nulo ⇔ `liberado`** (restrição no banco) |
-| tipo_institucional | string, nulo (`aluno`, `administrativo`) | Do provedor (API do IFSul), atualizado a cada login; informativo depois do 1º login |
+| tipo_institucional | string, nulo (`aluno`, `administrativo`) | Do provedor (API do IFSul), atualizado a cada login; informativo depois do 1º login; só esses dois valores ou nulo (restrição no banco, 12/11/2026) |
 | email | string, nulo | Do provedor, atualizado a cada login |
 | acesso_decidido_em | timestamp, nulo | Quando o pedido de acesso foi aprovado ou recusado |
 | acesso_decidido_por_id | UUID (FK Usuario), nulo | Quem decidiu (`SET NULL` se essa pessoa sair do banco) |
@@ -85,7 +85,7 @@ Pedido do aluno para entrar em uma turma.
 | status | enum (`pendente`, `aprovada`, `recusada`, `cancelada`) | Padrão `pendente` |
 | solicitada_em | timestamp | |
 | decidida_em | timestamp, nulo | Preenchido ao aprovar/recusar/cancelar |
-| decidida_por | UUID (FK → Usuario), nulo | Decisor; no cancelamento, o próprio aluno |
+| decidida_por | UUID (FK → Usuario), nulo | Decisor; no cancelamento, o próprio aluno. **Nulo ⇔ `pendente`** (restrição no banco, 12/11/2026) |
 | motivo_recusa | string(300), nulo | Opcional, só em `recusada` |
 
 **Regras**:

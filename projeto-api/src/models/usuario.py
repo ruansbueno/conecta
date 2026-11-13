@@ -15,6 +15,10 @@ PERFIS: tuple[str, ...] = get_args(Perfil)
 SituacaoAcesso = Literal["liberado", "pendente", "recusado"]
 SITUACOES_ACESSO: tuple[str, ...] = get_args(SituacaoAcesso)
 
+# Classificação que a API de autenticação do IFSul devolve; nulo quando não vem.
+TipoInstitucional = Literal["aluno", "administrativo"]
+TIPOS_INSTITUCIONAIS: tuple[str, ...] = get_args(TipoInstitucional)
+
 
 class Usuario(Base):
     """Pessoa identificada no CONECTA. Nenhuma senha é armazenada."""
@@ -31,6 +35,10 @@ class Usuario(Base):
         # Pendente ou recusado nunca aparece como aluno/docente em listas, vínculos ou alcance.
         CheckConstraint(
             "(st_acesso = 'liberado') = (tp_perfil IS NOT NULL)", name="perfil_so_se_liberado"
+        ),
+        CheckConstraint(
+            "tp_institucional IN (" + ", ".join(f"'{t}'" for t in TIPOS_INSTITUCIONAIS) + ")",
+            name="institucional_valido",
         ),
     )
 

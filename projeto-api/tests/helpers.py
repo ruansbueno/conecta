@@ -70,14 +70,28 @@ async def vincular(db, turma, usuario_id, papel="aluno", origem="seed"):
 
 
 async def criar_solicitacao(db, turma, aluno_id, status="pendente", **campos):
+    """Decidida sem `decidida_por`: cancelada pelo próprio aluno; aprovada ou recusada por uma
+    coordenação criada aqui, `decisor.padrao` (o banco exige o decisor fora de pendente). Quem
+    contar usuários de coordenação precisa lembrar dela."""
     if status != "pendente":
         campos.setdefault("decidida_em", datetime.now(UTC))
+        if "decidida_por" not in campos:
+            campos["decidida_por"] = (
+                aluno_id if status == "cancelada" else (await _decisor_padrao(db)).id
+            )
     solicitacao = SolicitacaoInscricao(
         turma_id=turma.id, aluno_id=aluno_id, status=status, **campos
     )
     db.add(solicitacao)
     await db.commit()
     return solicitacao
+
+
+async def _decisor_padrao(db) -> Usuario:
+    existente = await db.scalar(select(Usuario).where(Usuario.username == "decisor.padrao"))
+    return existente or await criar_usuario(
+        db, username="decisor.padrao", nome="Coordenação", perfil="coordenacao"
+    )
 
 
 async def entrar(client, db, username="aluno.teste", perfil=None):

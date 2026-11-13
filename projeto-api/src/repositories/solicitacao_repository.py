@@ -65,7 +65,7 @@ class SolicitacaoRepository:
         await self.session.flush()
 
     async def approve(
-        self, solicitacao: SolicitacaoInscricao, decisor_id: uuid.UUID | None
+        self, solicitacao: SolicitacaoInscricao, decisor_id: uuid.UUID
     ) -> VinculoTurma:
         """Aprova e cria o vínculo na mesma transação (o commit é de quem chama)."""
         self._decidir(solicitacao, "aprovada", decisor_id)
@@ -83,7 +83,7 @@ class SolicitacaoRepository:
     async def refuse(
         self,
         solicitacao: SolicitacaoInscricao,
-        decisor_id: uuid.UUID | None,
+        decisor_id: uuid.UUID,
         motivo: str | None = None,
     ) -> None:
         self._decidir(solicitacao, "recusada", decisor_id)
@@ -91,9 +91,7 @@ class SolicitacaoRepository:
         await self.session.flush()
 
     @staticmethod
-    def _decidir(
-        solicitacao: SolicitacaoInscricao, status: str, decisor_id: uuid.UUID | None
-    ) -> None:
+    def _decidir(solicitacao: SolicitacaoInscricao, status: str, decisor_id: uuid.UUID) -> None:
         # Estados finais não mudam: pendente → aprovada | recusada | cancelada.
         if solicitacao.status != "pendente":
             raise SolicitacaoNaoPendente()

@@ -104,6 +104,19 @@ async def test_seed_cria_turmas_vinculos_e_solicitacoes(db):
     assert pendentes == 1
 
 
+async def test_seed_registra_quem_recusou_a_solicitacao(db):
+    await seed(db)
+
+    decisores = (
+        await db.execute(
+            select(SolicitacaoInscricao.status, Usuario.username)
+            .join(Usuario, Usuario.id == SolicitacaoInscricao.decidida_por)
+            .where(SolicitacaoInscricao.status != "pendente")
+        )
+    ).all()
+    assert decisores == [("recusada", "coord.teste")]
+
+
 async def test_seed_de_turmas_e_idempotente(db):
     await seed(db)
     contagens = [await _contar(db, m) for m in (Turma, VinculoTurma, SolicitacaoInscricao)]

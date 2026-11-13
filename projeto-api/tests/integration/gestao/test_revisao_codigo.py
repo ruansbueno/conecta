@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import event, select, update
+from sqlalchemy import event, select, text, update
 
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
@@ -41,16 +41,33 @@ def contar_consultas(engine):
 
 async def _vira_docente_durante(session_factory, usuario_id, requisicao):
     """Outra transação muda o perfil para docente (como `PATCH /gestao/usuarios`, que trava a
-    linha) e só confirma depois que `requisicao` começou."""
+    linha) e só confirma depois que `requisicao` está esperando por ela ou já terminou.
+
+    Não depende de tempo: com a trava, a requisição aparece esperando um lock e o commit vem
+    depois; sem ela, a requisição termina antes do commit com o perfil antigo, e o teste falha.
+    """
     async with session_factory() as outra:
         await outra.execute(select(Usuario).where(Usuario.id == usuario_id).with_for_update())
         await outra.execute(
             update(Usuario).where(Usuario.id == usuario_id).values(perfil="docente")
         )
         tarefa = asyncio.create_task(requisicao())
-        await asyncio.sleep(0.5)  # a requisição chega à leitura do perfil antes do commit
+        async with session_factory() as observador:
+            while not tarefa.done() and not await _alguem_espera_lock(observador):
+                await asyncio.sleep(0.02)
         await outra.commit()
     return await tarefa
+
+
+async def _alguem_espera_lock(session) -> bool:
+    esperando = await session.scalar(
+        text(
+            "SELECT count(*) FROM pg_stat_activity "
+            "WHERE datname = current_database() AND wait_event_type = 'Lock'"
+        )
+    )
+    await session.rollback()  # cada consulta vê o estado atual
+    return esperando > 0
 
 
 # --- 1. Corrida entre perfil e vínculo ----------------------------------------------------------

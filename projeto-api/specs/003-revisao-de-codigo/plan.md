@@ -14,7 +14,7 @@ eventos. Cada achado foi reproduzido por um teste que falha antes da correção
 | # | Achado | Efeito | Decisão |
 |---|---|---|---|
 | 1 | `vincular` e `aprovar` (solicitação) leem o perfil sem travar a linha do usuário, enquanto `PATCH /gestao/usuarios` trava | Com as duas operações ao mesmo tempo, um docente pode ficar com vínculo de aluno | D-RV-1 |
-| 2 | Arquivar ou desarquivar um aviso excluído responde 409 | Diferente de eventos (404) e do `GET` | D-RV-2 |
+| 2 | Arquivar ou desarquivar um aviso excluído responde 409 | Diferente de eventos (404); para o docente, diferente também do `GET` (404) | D-RV-2 |
 | 3 | O histórico do aviso grava `publicar_em` no fuso em que veio | O dos eventos converte para UTC; o histórico do aviso mistura fusos | D-RV-3 |
 | 4 | `publicar_em: null` num aviso publicado sem agendamento dá "nenhuma alteração" | O erro muda conforme o aviso foi criado | D-RV-4 |
 | 5 | A busca `q` vai para o `ILIKE` sem escapar `%` e `_` | "100%" também encontra "1000"; "a_b" encontra "axb" | D-RV-5 |

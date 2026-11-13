@@ -49,8 +49,9 @@ nos testes, de um provedor de autenticação simulado (mock).
 
 > **Emenda v2.4 (2026-11-13)** — decorre de uma revisão de código feita depois das evidências
 > finais ([specs/003](../003-revisao-de-codigo/plan.md)). Decisões do autor: (1) **arquivar ou
-> desarquivar um aviso excluído responde 404 `AVISO_NAO_ENCONTRADO`**, como nos eventos e no
-> `GET` (antes, 409 `AVISO_SITUACAO_INVALIDA`); (2) **`publicar_em` enviado num aviso já
+> desarquivar um aviso excluído responde 404 `AVISO_NAO_ENCONTRADO`**, como nos eventos
+> (antes, 409 `AVISO_SITUACAO_INVALIDA`; a gestão continua lendo e auditando o excluído pelo
+> `GET`, as versões e o histórico); (2) **`publicar_em` enviado num aviso já
 > publicado responde sempre 422 "aviso já publicado não pode ser reagendado"**, seja qual for o
 > valor (antes, `null` num aviso publicado sem agendamento dava "nenhuma alteração"). Também
 > fica explícito que (3) a busca `q` das listas de gestão é por texto literal: `%` e `_` não são

@@ -121,7 +121,7 @@ async def test_falha_ao_gravar_o_evento_desfaz_a_operacao_inteira(app, db, monke
         def falhar(*_, **__):
             raise RuntimeError("disco cheio")
 
-        monkeypatch.setattr(AuditoriaRepository, "registrar_evento", falhar)
+        monkeypatch.setattr(AuditoriaRepository, "registrar", falhar)
         if operacao == "criar":
             r = await c.post(
                 "/gestao/avisos",

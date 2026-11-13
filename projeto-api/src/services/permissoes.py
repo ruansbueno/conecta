@@ -44,6 +44,22 @@ async def turmas_que_leciona(session: AsyncSession, usuario: Usuario) -> set[uui
     return set(ids)
 
 
+async def turmas_em_que_leciona(
+    session: AsyncSession, usuario: Usuario, turmas: set[uuid.UUID]
+) -> set[uuid.UUID]:
+    """Dentre `turmas`, aquelas em que o docente leciona, numa consulta."""
+    if usuario.perfil != "docente":
+        return set()
+    ids = await session.scalars(
+        select(VinculoTurma.turma_id).where(
+            VinculoTurma.usuario_id == usuario.id,
+            VinculoTurma.papel == "docente",
+            VinculoTurma.turma_id.in_(turmas),
+        )
+    )
+    return set(ids)
+
+
 def papel_do_perfil(perfil: str) -> str | None:
     """Papel de vínculo compatível com o perfil; administração e coordenação não têm vínculo."""
     return {"aluno": "aluno", "docente": "docente"}.get(perfil)

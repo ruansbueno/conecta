@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.base import coluna
 from src.models.usuario import Usuario
 from src.providers.auth.base import AuthenticatedUser
+from src.repositories.busca import contem
 
 
 class UsuarioRepository:
@@ -30,6 +31,14 @@ class UsuarioRepository:
             stmt.order_by(Usuario.criado_em, Usuario.username).limit(limit).offset(offset)
         )
         return list(usuarios), total
+
+    async def por_ids(self, ids: set[uuid.UUID]) -> dict[uuid.UUID, Usuario]:
+        """Vários usuários numa consulta (os decisores de uma página de pedidos, por exemplo)."""
+        if not ids:
+            return {}
+        return {
+            u.id: u for u in await self.session.scalars(select(Usuario).where(Usuario.id.in_(ids)))
+        }
 
     async def get_by_username(self, username: str) -> Usuario | None:
         return await self.session.scalar(select(Usuario).where(Usuario.username == username))
@@ -86,8 +95,7 @@ class UsuarioRepository:
         # Pedidos de acesso (pendentes e recusados) ficam em /gestao/acessos, sem perfil.
         stmt = select(Usuario).where(Usuario.situacao_acesso == "liberado")
         if q:
-            termo = f"%{q.strip()}%"
-            stmt = stmt.where(or_(Usuario.nome.ilike(termo), Usuario.username.ilike(termo)))
+            stmt = stmt.where(contem(q, Usuario.nome, Usuario.username))
         if perfil is not None:
             stmt = stmt.where(Usuario.perfil == perfil)
         if ativo is not None:

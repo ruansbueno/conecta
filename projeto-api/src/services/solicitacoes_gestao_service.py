@@ -17,6 +17,7 @@ from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.repositories.solicitacao_repository import SolicitacaoRepository
 from src.repositories.turma_repository import TurmaRepository
+from src.repositories.usuario_repository import UsuarioRepository
 from src.services.permissoes import gere_tudo, leciona, turmas_que_leciona
 
 MOTIVO_JA_VINCULADO = "Aluno já vinculado à turma"
@@ -98,7 +99,9 @@ async def aprovar(session: AsyncSession, decisor: Usuario, solicitacao_id: uuid.
         await repo.refuse(solicitacao, decisor_id, MOTIVO_JA_VINCULADO)
         await session.commit()
         raise JaVinculado()
-    aluno = await session.get(Usuario, solicitacao.aluno_id)
+    # Travado, como em `PATCH /gestao/usuarios`: uma troca de perfil em andamento termina antes
+    # (specs/003, D-RV-1). A solicitação já está travada; o usuário vem sempre depois dela.
+    aluno = await UsuarioRepository(session).get_for_update(solicitacao.aluno_id)
     if aluno.perfil != "aluno":
         raise PerfilIncompativel("O solicitante não tem mais perfil de aluno")
 

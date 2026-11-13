@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import false, func, or_, select
+from sqlalchemy import false, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +8,7 @@ from src.api.errors import CodigoTurmaDuplicado, SemPermissao, TurmaNaoEncontrad
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
+from src.repositories.busca import contem
 from src.services.permissoes import gere_tudo, leciona, turmas_que_leciona
 
 _UNICO_CODIGO = "uq_tb_turma_cod_turma"
@@ -53,8 +54,7 @@ async def listar(
     if periodo_letivo is not None:
         stmt = stmt.where(Turma.periodo_letivo == periodo_letivo)
     if q:
-        termo = f"%{q.strip()}%"
-        stmt = stmt.where(or_(Turma.codigo.ilike(termo), Turma.nome.ilike(termo)))
+        stmt = stmt.where(contem(q, Turma.codigo, Turma.nome))
     total = await session.scalar(select(func.count()).select_from(stmt.subquery()))
     turmas = list(
         await session.scalars(

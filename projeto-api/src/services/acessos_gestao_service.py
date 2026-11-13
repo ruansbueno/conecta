@@ -19,8 +19,12 @@ PERFIS_QUE_A_COORDENACAO_CONCEDE = ("docente", "coordenacao")
 
 async def listar(
     session: AsyncSession, situacao: str, limit: int, offset: int
-) -> tuple[list[Usuario], int]:
-    return await UsuarioRepository(session).listar_acessos(situacao, limit, offset)
+) -> tuple[list[tuple[Usuario, Usuario | None]], int]:
+    """Pedidos da página, cada um com quem o decidiu; os decisores vêm numa consulta só."""
+    repo = UsuarioRepository(session)
+    pedidos, total = await repo.listar_acessos(situacao, limit, offset)
+    decisores = await repo.por_ids({p.acesso_decidido_por_id for p in pedidos} - {None})
+    return [(p, decisores.get(p.acesso_decidido_por_id)) for p in pedidos], total
 
 
 async def _alvo(session: AsyncSession, usuario_id: uuid.UUID) -> Usuario:
@@ -63,9 +67,3 @@ async def recusar(session: AsyncSession, gestor: Usuario, usuario_id: uuid.UUID)
     _decidir(alvo, gestor, "recusado", None)
     await session.commit()
     return alvo
-
-
-async def decisor(session: AsyncSession, alvo: Usuario) -> Usuario | None:
-    if alvo.acesso_decidido_por_id is None:
-        return None
-    return await session.get(Usuario, alvo.acesso_decidido_por_id)

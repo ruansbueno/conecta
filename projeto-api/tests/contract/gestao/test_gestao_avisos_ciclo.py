@@ -102,7 +102,8 @@ async def test_excluir_some_de_avisos_e_de_gestao(client, db, coord, publicar):
     assert no_app.status_code == 404
     assert gestao.json()["total"] == 0
     assert (de_novo.status_code, de_novo.json()["code"]) == (404, "AVISO_NAO_ENCONTRADO")
-    assert (arquivar.status_code, arquivar.json()["code"]) == (409, "AVISO_SITUACAO_INVALIDA")
+    # Excluído não existe para as ações, como nos eventos (emenda v2.4).
+    assert (arquivar.status_code, arquivar.json()["code"]) == (404, "AVISO_NAO_ENCONTRADO")
 
 
 @pytest.mark.parametrize(

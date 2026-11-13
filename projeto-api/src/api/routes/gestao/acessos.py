@@ -15,8 +15,7 @@ router = APIRouter(prefix="/acessos")
 _gestores = require_perfil("administrador", "coordenacao")
 
 
-async def _saida(session: AsyncSession, usuario: Usuario) -> AcessoOut:
-    decisor = await service.decisor(session, usuario)
+def _saida(usuario: Usuario, decisor: Usuario | None) -> AcessoOut:
     return AcessoOut(
         id=usuario.id,
         username=usuario.username,
@@ -42,9 +41,9 @@ async def listar(
     page: PaginationParams = Depends(),
     session: AsyncSession = Depends(get_session),
 ) -> Page[AcessoOut]:
-    usuarios, total = await service.listar(session, situacao, page.limit, page.offset)
+    pedidos, total = await service.listar(session, situacao, page.limit, page.offset)
     return Page(
-        items=[await _saida(session, u) for u in usuarios],
+        items=[_saida(pedido, decisor) for pedido, decisor in pedidos],
         total=total,
         limit=page.limit,
         offset=page.offset,
@@ -58,7 +57,8 @@ async def aprovar(
     gestor: Usuario = Depends(_gestores),
     session: AsyncSession = Depends(get_session),
 ) -> AcessoOut:
-    return await _saida(session, await service.aprovar(session, gestor, usuario_id, body.perfil))
+    # Quem decidiu é o próprio gestor: a resposta não precisa consultá-lo.
+    return _saida(await service.aprovar(session, gestor, usuario_id, body.perfil), gestor)
 
 
 @router.post("/{usuario_id}/recusar", response_model=AcessoOut)
@@ -67,4 +67,4 @@ async def recusar(
     gestor: Usuario = Depends(_gestores),
     session: AsyncSession = Depends(get_session),
 ) -> AcessoOut:
-    return await _saida(session, await service.recusar(session, gestor, usuario_id))
+    return _saida(await service.recusar(session, gestor, usuario_id), gestor)

@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from src.models.evento import Evento
 from src.models.evento_historico import EventoHistorico
 from src.models.evento_versao import EventoVersao
-from src.repositories.auditoria_repository import AuditoriaEventoRepository
+from src.repositories.auditoria_repository import AuditoriaRepository
 from tests.helpers import bearer, criar_turma, criar_usuario, vincular
 
 BASE = {
@@ -174,7 +174,7 @@ async def test_falha_ao_gravar_o_historico_desfaz_a_operacao_inteira(
         def falhar(*_, **__):
             raise RuntimeError("disco cheio")
 
-        monkeypatch.setattr(AuditoriaEventoRepository, "registrar", falhar)
+        monkeypatch.setattr(AuditoriaRepository, "registrar", falhar)
         match operacao:
             case "criar":
                 r = await c.post("/gestao/eventos", headers=bearer(coord), json=BASE)

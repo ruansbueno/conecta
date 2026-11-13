@@ -294,8 +294,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
     if (avisoId && !existente) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
     if (existente && !gestao && existente.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
     if (existente && existente.situacao !== 'ativo') return erro(res, 409, 'AVISO_NAO_EDITAVEL')
-    if (existente && 'publicar_em' in corpo && corpo.publicar_em !== existente.publicar_em) {
-      // Agendamento só muda antes da publicação (plan-e2 D-E2-6).
+    if (existente && 'publicar_em' in corpo) {
+      // Agendamento só muda antes da publicação (plan-e2 D-E2-6); depois, qualquer valor é este erro (emenda v2.4).
       if (new Date(existente.publicado_em as string) <= new Date()) {
         return erro(res, 422, 'VALIDATION_ERROR', 'Dados inválidos', [{ campo: 'publicar_em', mensagem: 'aviso já publicado não pode ser reagendado' }])
       }
@@ -352,7 +352,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (acao) {
     const [, id, nome] = acao
     const aviso = estado.avisos.find((a) => a.id === id)
-    if (!aviso || (aviso.situacao === 'excluido' && !gestao)) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
+    // Excluído: a gestão ainda o audita; para arquivar ou desarquivar ele não existe (404), como na API (emenda v2.4).
+    if (!aviso || (aviso.situacao === 'excluido' && (!gestao || metodo === 'POST'))) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
     if (!gestao && aviso.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
     if (metodo === 'GET' && (nome === 'versoes' || nome === 'historico')) {
       const a = estado.auditoria.get(id) ?? { versoes: [], eventos: [] }

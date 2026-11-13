@@ -7,7 +7,7 @@ from src.api.errors import DestinoNaoPermitido, ErroDeValidacao, TurmaNaoEncontr
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.schemas.destino import DestinoIn
-from src.services.permissoes import gere_tudo, leciona
+from src.services.permissoes import gere_tudo, turmas_em_que_leciona
 
 
 async def validar_destinos(
@@ -28,12 +28,15 @@ async def validar_destinos(
 async def exigir_destinos_do_docente(
     session: AsyncSession, usuario: Usuario, destinos: list[DestinoIn]
 ) -> None:
-    """Docente: todos os destinos são turmas em que leciona (spec §3.3)."""
+    """Docente: todos os destinos são turmas em que leciona (spec §3.3). Uma consulta só, seja
+    qual for o número de destinos (specs/003, D-RV-6)."""
     if gere_tudo(usuario):
         return
-    for d in destinos:
-        if d.tipo != "turma" or not await leciona(session, usuario, d.turma_id):
-            raise DestinoNaoPermitido()
+    if any(d.tipo != "turma" for d in destinos):
+        raise DestinoNaoPermitido()
+    turmas = {d.turma_id for d in destinos}
+    if turmas and await turmas_em_que_leciona(session, usuario, turmas) != turmas:
+        raise DestinoNaoPermitido()
 
 
 def destinos_atuais(destinos) -> list[DestinoIn]:

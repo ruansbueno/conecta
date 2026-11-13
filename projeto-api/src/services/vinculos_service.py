@@ -15,6 +15,7 @@ from src.api.errors import (
 from src.models.turma import Turma
 from src.models.usuario import Usuario
 from src.models.vinculo_turma import VinculoTurma
+from src.repositories.usuario_repository import UsuarioRepository
 from src.services.permissoes import gere_tudo, leciona, papel_do_perfil
 
 
@@ -55,7 +56,9 @@ async def vincular(
     session: AsyncSession, gestor: Usuario, turma_id: uuid.UUID, usuario_id: uuid.UUID, papel: str
 ) -> tuple[VinculoTurma, Usuario]:
     await _turma(session, turma_id)
-    usuario = await session.get(Usuario, usuario_id)
+    # Travada, como em `PATCH /gestao/usuarios`: uma troca de perfil em andamento termina antes, e
+    # o perfil lido aqui é o confirmado (specs/003, D-RV-1).
+    usuario = await UsuarioRepository(session).get_for_update(usuario_id)
     # Quem aguarda acesso não tem perfil nem pode ter vínculo (emenda v2.3).
     if usuario is None or usuario.situacao_acesso != "liberado":
         raise UsuarioNaoEncontrado()

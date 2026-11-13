@@ -1,0 +1,609 @@
+# Verificações do aplicativo — execução final, cada teste pelo nome — 12/11/2026 22:41
+# commit: be2cd10 | Flutter 3.41.4 • channel stable • https://github.com/flutter/flutter.git
+# Unidade e widget em série (--concurrency=1), para cada teste aparecer uma vez, pelo nome.
+
+## flutter analyze
+No issues found! (ran in 2.0s)
+
+## flutter test --reporter expanded --concurrency=1 (unidade e widget)
+Resolving dependencies...
+Downloading packages...
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.2.0 available)
+  crypto 3.0.7 (3.0.8 available)
+  hooks 2.0.2 (2.2.0 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.1.0 (1.1.2 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.17.0 (1.19.0 available)
+  objective_c 9.5.0 (9.6.3 available)
+  platform 3.1.6 (3.2.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.4.23 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.10 (0.7.15 available)
+  vector_math 2.2.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+18 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart
+00:00 +0: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: grava e lê o JSON com a data de coleta
+00:00 +1: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: idade do dado a partir da coleta
+00:00 +2: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: nada guardado devolve null
+00:00 +3: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: conteúdo de um usuário nunca aparece para outro (RM-31)
+00:00 +4: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: apagar o usuário remove só as chaves dele (RM-30)
+00:00 +5: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: entrada corrompida é tratada como ausente
+00:00 +6: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cache_local_test.dart: recurso com sufixo: uma entrada por item (grade por turma)
+00:00 +7: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_failure_test.dart
+00:00 +7: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_failure_test.dart: mensagens e efeitos da seção 6 da spec, por code
+00:00 +8: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_failure_test.dart: sem rede e timeout oferecem repetir
+00:00 +9: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_failure_test.dart: 5xx e code desconhecido caem na mensagem genérica, com repetir
+00:00 +10: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_failure_test.dart: o texto de detail nunca é a mensagem exibida (RM-06)
+00:00 +11: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cofre_sessao_test.dart
+00:00 +11: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cofre_sessao_test.dart: grava, lê e apaga a sessão guardada
+00:00 +12: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cofre_sessao_test.dart: sem sessão guardada devolve null
+00:00 +13: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/cofre_sessao_test.dart: nada além de token, id e expiração é guardado (a senha nunca, RM-02)
+00:00 +14: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart
+00:01 +14: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: próximos (plan-f2 D-AF2-2) sem janela: limit 20 e offset; a ordem é a da API
+00:01 +15: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: próximos (plan-f2 D-AF2-2) com tipo: tipo= no valor da API
+00:01 +16: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: próximos (plan-f2 D-AF2-2) só a primeira página sem filtro vai para o cache (D-AF2-8)
+00:01 +17: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: próximos (plan-f2 D-AF2-2) falha de rede não grava cache
+00:01 +18: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: mês (D-AF2-4) janela em UTC, com os encerrados e limit 100
+00:01 +19: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: mês (D-AF2-4) tipo filtrado também vai na janela
+00:01 +20: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: mês (D-AF2-4) guarda o mês corrente e só o devolve para o mesmo mês
+00:01 +21: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/eventos_repository_test.dart: obter: GET /eventos/{id}
+00:01 +22: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart
+00:01 +22: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: Inter em todo o texto
+00:01 +23: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: cores do design (design/README.md)
+00:01 +24: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: alvo de toque mínimo de 48 dp (RM-34)
+00:01 +25: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: títulos com entreletra negativa de -0,02 em
+00:01 +26: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: tema escuro (spec 002) é escuro, com a paleta e a tipografia do escuro
+00:01 +27: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: tema escuro (spec 002) o claro carrega as extensões do claro
+00:01 +28: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: tema escuro (spec 002) botão principal: #2563eb com texto branco nos dois temas
+00:01 +29: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_test.dart: tema escuro (spec 002) a extensão interpola entre os temas (troca animada)
+00:01 +30: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart
+00:02 +30: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: minhas (contrato §5) pede limit 20 e offset e traz o papel de cada turma
+00:02 +31: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: minhas (contrato §5) lista vazia é um resultado normal (coordenação e administração)
+00:02 +32: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: minhas (contrato §5) a primeira página vai para o cache (turmas_minhas), com a data da coleta
+00:02 +33: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: minhas (contrato §5) páginas seguintes e falhas não mexem no cache
+00:02 +34: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: minhas (contrato §5) resposta que chega depois de sair da conta não é guardada
+00:02 +35: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: disponíveis (contrato §6) lista sem papel e não guarda cache
+00:02 +36: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: disponíveis (contrato §6) 403 SEM_PERMISSAO para quem não é aluno chega com a mensagem de perfil
+00:02 +37: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: disponíveis (contrato §6) formato inesperado vira RESPOSTA_INVALIDA
+00:02 +38: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: solicitações recentes (contrato §8, rodapé de T06) pede as três mais recentes e converte status e datas
+00:02 +39: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_repository_test.dart: solicitações recentes (contrato §8, rodapé de T06) 403 SEM_PERMISSAO é repassado (a tela esconde a seção)
+00:02 +40: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/design_system_test.dart
+00:02 +40: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/design_system_test.dart: nenhum literal de cor fora de lib/theme/
+00:02 +41: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/design_system_test.dart: nenhuma tela usa cor ou estilo de texto fixo (fora de lib/theme/)
+00:02 +42: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/design_system_test.dart: nenhuma cor de texto usada como fundo (navy, tinta, apagado…)
+00:02 +43: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/design_system_test.dart: branco não é usado como cor de primeiro plano (ícone, indicador, texto)
+00:02 +44: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart
+00:02 +44: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Sessao vem da resposta de login, sem senha
+00:02 +45: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Usuario de GET /me, com turmas vinculadas e papel
+00:02 +46: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Usuario perfil fora do conjunto conhecido vira desconhecido e guarda o valor cru
+00:02 +47: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Usuario igualdade por valor
+00:02 +48: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Usuario podeSolicitarInscricao só para aluno
+00:02 +49: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Usuario iniciais: primeira letra do primeiro e do último nome, sem partículas
+00:02 +50: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Aviso campos do contrato, com autor e datas em UTC
+00:02 +51: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Aviso data com microssegundos e aviso editado
+00:02 +52: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Aviso todos os destinos, na ordem recebida
+00:02 +53: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Aviso trecho corta em limite de palavra, com reticências
+00:02 +54: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Destino rótulos por tipo
+00:02 +55: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Destino turma sem nome usa o id curto
+00:02 +56: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Destino tipo novo da API vira desconhecido com o rótulo cru, sem quebrar
+00:02 +57: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Pagina temMais segue offset + itens < total
+00:02 +58: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Turma e Solicitacao turma de /turmas/disponiveis, sem papel
+00:02 +59: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/models_test.dart: Turma e Solicitacao solicitação recusada com motivo; status desconhecido não quebra
+00:02 +60: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/auth_repository_test.dart
+00:03 +60: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/auth_repository_test.dart: login 200 devolve a sessão, sem enviar token
+00:03 +61: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/auth_repository_test.dart: login com credencial inválida, inativo, validação e sem rede
+00:03 +62: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/auth_repository_test.dart: me() devolve o usuário com turmas e guarda o perfil em cache
+00:03 +63: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/auth_repository_test.dart: me() com falha não grava cache
+00:03 +64: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart
+00:03 +64: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) 201: devolve a solicitação pendente criada
+00:03 +65: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) 404 TURMA_INDISPONIVEL: recarrega as disponíveis
+00:03 +66: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) 409 JA_VINCULADO: recarrega as disponíveis
+00:03 +67: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) 409 SOLICITACAO_DUPLICADA: abre as solicitações
+00:03 +68: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) sem rede: oferece repetir
+00:03 +69: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: criar (contrato §7) o id da turma vai codificado no caminho
+00:03 +70: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: cancelar (contrato §9) 204: sem corpo, sem erro
+00:03 +71: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: cancelar (contrato §9) 409 SOLICITACAO_NAO_PENDENTE: recarrega
+00:03 +72: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_repository_test.dart: cancelar (contrato §9) 404 SOLICITACAO_NAO_ENCONTRADA: recarrega
+00:03 +73: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart
+00:04 +73: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: lista ativos com limit 20 e offset, na ordem da API
+00:04 +74: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: só a primeira página de ativos vai para o cache
+00:04 +75: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: arquivados pedem situacao=arquivado
+00:04 +76: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: falha de rede não grava cache e repassa SEM_REDE
+00:04 +77: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: obter o detalhe; 404 vira AVISO_NAO_ENCONTRADO
+00:04 +78: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_repository_test.dart: 200 com formato inesperado: RESPOSTA_INVALIDA registrada no log uma vez (RM-38)
+00:04 +79: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart
+00:04 +79: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) sem token guardado vai para o login
+00:04 +80: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) com token válido valida em GET /me e entra
+00:04 +81: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) com token inválido apaga a sessão e mostra que expirou
+00:04 +82: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) usuário desativado: encerra com a mensagem própria
+00:04 +83: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) sem rede com perfil em cache: entra com os dados guardados
+00:04 +84: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: abertura (RM-07) sem rede e sem cache: tela de sem conexão, sessão preservada
+00:04 +85: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) cofre ilegível (backup restaurado) abre no login, sem travar
+00:04 +86: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) GET /me fora do formato na abertura não trava na verificação
+00:04 +87: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) perfil em cache com formato antigo é tratado como sem cache
+00:04 +88: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) recargas sobrepostas: a resposta mais antiga não desfaz o perfil novo
+00:04 +89: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) sair com GET /me em andamento: a resposta tardia não volta a gravar nada
+00:04 +90: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) 401 de uma chamada feita com o token antigo não derruba a sessão nova
+00:04 +91: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: robustez (revisão final) sessão encerrada sem usuário carregado ainda limpa o cache do dono do token
+00:04 +92: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: login e logout login grava o token no cofre e entra
+00:04 +93: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: login e logout login com falha não grava nada e repassa a falha
+00:04 +94: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: login e logout logout apaga token e cache (RM-10, RM-30)
+00:04 +95: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/session_controller_test.dart: sessão invalidada no meio do uso (RM-04, RM-05) 401 em qualquer chamada encerra uma única vez
+00:04 +96: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart
+00:05 +96: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart: Evento.fromJson (contracts E3 §1) converte todos os campos, com as datas em UTC
+00:05 +97: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart: Evento.fromJson (contracts E3 §1) fim, local, descrição e edição podem vir nulos
+00:05 +98: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart: Evento.fromJson (contracts E3 §1) data_importante e tipo desconhecido
+00:05 +99: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart: Evento.fromJson (contracts E3 §1) rótulo de cada tipo
+00:05 +100: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/evento_test.dart: Evento.fromJson (contracts E3 §1) vários dias quando o fim cai em outro dia local
+00:05 +101: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart
+00:05 +101: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) lista as solicitações com limit 20, todos os status
+00:05 +102: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar: DELETE, recarrega a lista e avisa a mudança
+00:05 +103: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar já decidida (409): devolve a falha, recarrega e avisa
+00:05 +104: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) cancelar sem rede: nada muda, sem aviso
+00:05 +105: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: SolicitacoesController (RM-21, RM-22) marca a solicitação em cancelamento enquanto a API responde
+00:05 +106: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) 201: a turma sai da lista e a mudança é avisada
+00:05 +107: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) a última turma solicitada deixa a lista vazia
+00:05 +108: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) JA_VINCULADO ou TURMA_INDISPONIVEL: devolve a falha e recarrega as disponíveis
+00:05 +109: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) SOLICITACAO_DUPLICADA também avisa (há uma pendente que Minhas turmas não mostra)
+00:05 +110: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) sem rede: nada muda antes do 201 (RM-23)
+00:05 +111: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: DisponiveisController.solicitar (RM-19, RM-23) enviando: só a turma pedida fica ocupada, e um segundo toque não reenvia
+00:05 +112: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/solicitacoes_controller_test.dart: Minhas turmas recarrega turmas e solicitações quando uma mudança é avisada
+00:05 +113: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart
+00:05 +113: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: carrega a primeira página: conteúdo, total e temMais
+00:05 +114: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: lista vazia é o estado vazio, não erro
+00:05 +115: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: carregar mais concatena até esgotar o total
+00:05 +116: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: chamadas simultâneas de carregar mais pedem a página uma vez só
+00:05 +117: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: falha ao carregar mais mantém os itens e marca o erro do rodapé
+00:05 +118: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: sem rede e sem cache: estado de erro com a falha
+00:05 +119: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: sem rede com cache: conteúdo guardado e a data dos dados (RM-29)
+00:05 +120: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: recarregar substitui a lista e limpa a faixa de cache
+00:05 +121: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: recarregar sem rede mantém o que já estava na tela
+00:05 +122: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: ativos e arquivados são listas independentes
+00:05 +123: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: falha ao carregar mais não repete sozinha a cada rolagem; só pelo botão
+00:05 +124: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: recarregar durante "carregar mais": a página tardia é descartada
+00:05 +125: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: resposta que chega depois do descarte não quebra
+00:05 +126: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: robustez (pontos menores) cargas sobrepostas: vale a resposta do pedido mais recente
+00:05 +127: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: robustez (pontos menores) recarga superada termina com o resultado da mais recente (a falha dela)
+00:05 +128: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: robustez (pontos menores) "carregar mais" antigo, depois de uma recarga, não libera o pedido novo
+00:05 +129: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/avisos_controller_test.dart: robustez (pontos menores) "Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando
+00:05 +130: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart
+00:06 +130: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: (setUpAll)
+00:06 +130: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: mês e grade (D-AF2-4) chave, nome, anterior e próximo, com virada de ano
+00:06 +131: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: mês e grade (D-AF2-4) grade de semanas inteiras começando no domingo
+00:06 +132: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: mês e grade (D-AF2-4) toda grade, de 2026 a 2030: dias à meia-noite local, semanas de domingo a sábado
+00:06 +133: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: mês e grade (D-AF2-4) janela da grade: do primeiro dia ao dia seguinte ao último, meia-noite local
+00:06 +134: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: eventos por dia evento de vários dias toca cada dia; termina à meia-noite não toca o dia seguinte
+00:06 +135: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: eventos por dia lista do dia em ordem de início; sem fim, só o próprio dia
+00:06 +136: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: eventos por dia marcadores: um por evento, com o tipo, até três
+00:06 +137: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: eventos por dia rótulo de horário no dia: início, "o dia todo" e "até HH:MM"
+00:06 +138: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: cartão (D-AF2-3) faixa de horas
+00:06 +139: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: cartão (D-AF2-3) agrupamento por data: a coluna da data só no primeiro evento de cada dia
+00:06 +140: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: cartão (D-AF2-3) títulos: dia por extenso e quantidade
+00:06 +141: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/calendario_test.dart: (tearDownAll)
+00:06 +141: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart
+00:06 +141: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart: grade da turma numa chamada, com limit 100
+00:07 +142: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart: cache por turma: cada turma tem a sua grade guardada (D-AF2-8)
+00:07 +143: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart: logout apaga também as grades guardadas
+00:07 +144: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart: 403 SEM_PERMISSAO chega como ApiFailure e não grava cache
+00:07 +145: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/horarios_repository_test.dart: turma escolhida em Horários fica lembrada por usuário e sai no logout
+00:07 +146: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/aula_test.dart
+00:07 +146: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/aula_test.dart: Aula.fromJson (contracts E3 §3) converte os campos; as horas ficam como texto, sem conversão de fuso
+00:07 +147: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/aula_test.dart: Aula.fromJson (contracts E3 §3) local e docente podem vir nulos
+00:07 +148: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart
+00:07 +148: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: GET com sucesso: decodifica JSON e envia cabeçalhos e token
+00:07 +149: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: parâmetros de consulta entram na URL
+00:07 +150: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: POST sem autenticação envia o corpo e não envia Authorization
+00:07 +151: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: erro com code vira ApiFailure com code, status, detail e errors
+00:07 +152: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: corpo inesperado (HTML de proxy) vira RESPOSTA_INVALIDA com o status
+00:07 +153: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sucesso com corpo que não é JSON também é RESPOSTA_INVALIDA
+00:07 +154: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: timeout vira TIMEOUT
+00:07 +155: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: ausência de rede vira SEM_REDE
+00:07 +156: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: falha de TLS (portal cativo) também é SEM_REDE, nunca exceção crua
+00:07 +157: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: GET 2xx sem corpo é RESPOSTA_INVALIDA, não erro de null
+00:07 +158: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: o evento de sessão inválida diz com qual token a chamada foi feita
+00:07 +159: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: 204 sem corpo devolve null
+00:07 +160: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sessão inválida (D6) vários 401 simultâneos com o mesmo token emitem um único evento
+00:07 +161: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sessão inválida (D6) um token novo volta a poder emitir
+00:07 +162: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sessão inválida (D6) 403 USUARIO_INATIVO em chamada autenticada também encerra
+00:07 +163: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sessão inválida (D6) 401 e 403 do próprio login não emitem (não há sessão a encerrar)
+00:07 +164: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: sessão inválida (D6) 403 SEM_PERMISSAO não encerra a sessão
+00:07 +165: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) toda falha registra método, endpoint e code, uma vez
+00:07 +166: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) code fora do catálogo e 5xx também ficam registrados
+00:07 +167: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) sem rede e resposta inválida também são registradas
+00:07 +168: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) o log não leva token, query, corpo nem o texto do servidor (sem dados pessoais)
+00:07 +169: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) corpo de erro malformado vira RESPOSTA_INVALIDA registrada, não uma exceção crua
+00:07 +170: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/api_client_test.dart: registro de falhas em log local (RM-38) sucesso não registra nada
+00:07 +171: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart
+00:08 +171: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) aluno: carrega as turmas e as três solicitações mais recentes
+00:08 +172: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) quem não é aluno não pede solicitações; lista vazia é estado vazio
+00:08 +173: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) SEM_PERMISSAO ou falha nas solicitações esconde só o rodapé
+00:08 +174: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) sem rede, mostra as turmas guardadas com a data da coleta
+00:08 +175: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) sem rede e sem cache, estado de erro com a mensagem de conexão
+00:08 +176: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) carregar mais traz a página seguinte até o total
+00:08 +177: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) "carregar mais" antigo, depois de uma recarga, não libera o pedido novo
+00:08 +178: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) recarregar com falha mantém a lista e guarda a falha para um aviso breve
+00:08 +179: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: MinhasTurmasController (RM-18) recarregar também atualiza as solicitações recentes (recarga cruzada, RM-19)
+00:08 +180: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: DisponiveisController (RM-19, RM-20) carrega as turmas abertas
+00:08 +181: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: DisponiveisController (RM-19, RM-20) 403 SEM_PERMISSAO marca semPermissao com a mensagem de perfil
+00:08 +182: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: DisponiveisController (RM-19, RM-20) sem rede não há cache: estado de erro
+00:08 +183: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) cargas sobrepostas: vale a resposta do pedido mais recente
+00:08 +184: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) recarga superada termina com o resultado da mais recente (a falha dela)
+00:08 +185: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) recentes sobrepostas: vale a resposta do pedido mais recente
+00:08 +186: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) 403 numa recarga de disponíveis também marca semPermissao
+00:08 +187: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) 403 ao carregar mais disponíveis também marca semPermissao
+00:08 +188: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) vários avisos de mudança seguidos: no máximo uma recarga em curso e uma depois
+00:08 +189: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/turmas_controller_test.dart: robustez (pontos menores) "Tentar de novo" seguido de uma recarga que falha não deixa a lista presa carregando
+00:08 +190: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart
+00:08 +190: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: tema claro: todo par de texto × fundo tem 4,5:1 ou mais
+00:08 +191: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: tema escuro: todo par de texto × fundo tem 4,5:1 ou mais
+00:08 +192: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: tema claro: ação e texto da snackbar legíveis sobre o fundo dela
+00:08 +193: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: tema escuro: ação e texto da snackbar legíveis sobre o fundo dela
+00:08 +194: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: escuro: superfícies e texto redefinidos (nada herdado do claro por esquecimento)
+00:08 +195: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/contraste_tema_test.dart: mesma paleta da web (projeto-web/src/estilos/globals.css)
+00:08 +196: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_controller_test.dart
+00:09 +196: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_controller_test.dart: sem escolha: segue o sistema
+00:09 +197: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_controller_test.dart: com escolha: o modo da escolha
+00:09 +198: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_controller_test.dart: alternar a partir do que está na tela: claro vira escuro e vice-versa, e grava
+00:09 +199: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/tema_controller_test.dart: sistema escuro sem escolha: o primeiro toque grava claro
+00:09 +200: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart
+00:10 +200: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: responde pela rota com o JSON configurado e registra o pedido
+00:10 +201: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: rota sem resposta configurada devolve 404 no formato da API
+00:10 +202: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: resposta dinâmica recebe os parâmetros de consulta
+00:10 +203: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: forçar 401 vale para toda chamada autenticada
+00:10 +204: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: lentidão atrasa a resposta
+00:10 +205: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/servidor_falso_test.dart: queda recusa conexões; religar volta a responder na mesma URL
+00:10 +206: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart
+00:11 +206: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: (setUpAll)
+00:11 +206: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) menos de um minuto
+00:11 +207: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) minutos e horas no mesmo dia
+00:11 +208: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) dia anterior é "ontem"
+00:11 +209: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) até 7 dias: dia da semana e hora
+00:11 +210: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) depois de 7 dias: data curta; outro ano leva o ano
+00:11 +211: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataRelativa (lista) data no futuro (relógio do aparelho atrasado) não quebra
+00:11 +212: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataHoraDetalhe sempre com hora
+00:11 +213: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: converte do UTC da API para o fuso do aparelho
+00:11 +214: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataDiaMes no ano corrente, só dia e mês
+00:11 +215: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: dataDiaMes em outro ano, com o ano
+00:11 +216: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/datas_test.dart: (tearDownAll)
+00:11 +216: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart
+00:11 +216: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart: nenhuma linha da tabela fica de fora da leitura (formato inesperado)
+00:11 +217: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart: a tabela foi encontrada e tem os codes do contrato
+00:11 +218: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart: cada code da tabela tem no app exatamente a mensagem da spec
+00:11 +219: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart: sem rede e code desconhecido usam as mensagens da tabela
+00:11 +220: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/mensagens_spec_test.dart: todo code que o app trata está na tabela da spec
+00:11 +221: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/preferencia_tema_test.dart
+00:12 +221: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/preferencia_tema_test.dart: sem escolha: null
+00:12 +222: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/preferencia_tema_test.dart: lê claro e escuro
+00:12 +223: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/preferencia_tema_test.dart: valor desconhecido ou de outro tipo conta como sem escolha
+00:12 +224: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/unit/preferencia_tema_test.dart: grava só a chave do tema
+00:12 +225: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart
+00:12 +225: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: identidade da tela: marca, campos e aviso sobre a senha
+00:12 +226: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: campo vazio é indicado sem chamar a API
+00:13 +227: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: o aviso de campo vazio some assim que o usuário digita
+00:13 +228: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: credencial inválida: mensagem, senha limpa, permanece
+00:13 +229: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: usuário desativado: mensagem própria
+00:13 +230: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: servidor aguardando liberação: aviso próprio, sem entrar (emenda v2.3 da API)
+00:13 +231: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: acesso recusado: aviso próprio
+00:13 +232: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: o rodapé fala das credenciais institucionais do IFSul
+00:13 +233: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: sem rede: mensagem com repetir, que reenvia sem redigitar
+00:13 +234: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: erro de validação da API marca o campo
+00:13 +235: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: sucesso entra na sessão
+00:13 +236: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: mostra o motivo de um encerramento de sessão anterior
+00:13 +237: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: cada campo é precedido pelo seu rótulo na ordem de leitura
+00:13 +238: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/login_test.dart: alvos de toque e rótulos acessíveis
+00:13 +239: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart
+00:14 +239: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: carregando: esqueleto enquanto a primeira página não chega
+00:14 +240: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: conteúdo: autor, data, título, trecho e todos os destinos
+00:14 +241: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: aviso com vários destinos aparece uma vez, com todos os chips
+00:14 +242: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: aviso editado leva a marca "editado"
+00:14 +243: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: vazio: explicação e atalho para turmas, para aluno
+00:15 +244: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: vazio para docente: sem o atalho de solicitar turma
+00:15 +245: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: erro sem cache: mensagem e tentar de novo
+00:15 +246: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: rolagem até o fim carrega a segunda página e mostra o fim da lista
+00:15 +247: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: "Tentar de novo" do rodapé repete a página seguinte que falhou
+00:15 +248: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: arquivados: alternância com explicação da lista
+00:15 +249: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: puxar para baixo recarrega do servidor
+00:15 +250: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: sem rede com cache: mostra o guardado e a faixa com a data
+00:15 +251: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/avisos_lista_test.dart: "Tentar de novo" da faixa mantém os avisos guardados na tela enquanto tenta
+00:15 +252: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart
+00:16 +252: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro login e erro de credenciais
+00:16 +253: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro avisos: lista, arquivados, detalhe e vazio
+00:17 +254: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro turmas: minhas, disponíveis e folha de confirmação
+00:17 +255: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro minhas solicitações e o diálogo de cancelar
+00:17 +256: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro perfil e o diálogo de sair
+00:17 +257: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro coordenação sem turmas e estado de erro
+00:17 +258: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro sem rede com dados guardados (faixa) e listas vazias de turmas e solicitações
+00:17 +259: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema escuro ordem de leitura segue a ordem visual (login, avisos, turmas, perfil)
+00:17 +260: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro login e erro de credenciais
+00:18 +261: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro avisos: lista, arquivados, detalhe e vazio
+00:18 +262: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro turmas: minhas, disponíveis e folha de confirmação
+00:18 +263: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro minhas solicitações e o diálogo de cancelar
+00:18 +264: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro perfil e o diálogo de sair
+00:18 +265: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro coordenação sem turmas e estado de erro
+00:18 +266: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro sem rede com dados guardados (faixa) e listas vazias de turmas e solicitações
+00:18 +267: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/acessibilidade_test.dart: tema claro ordem de leitura segue a ordem visual (login, avisos, turmas, perfil)
+00:18 +268: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart
+00:19 +268: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: (setUpAll)
+00:19 +268: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: sem escolha e sistema claro: claro, com a lua
+00:19 +269: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: sem escolha e sistema escuro: escuro desde o primeiro quadro, com o sol
+00:19 +270: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: a escolha "claro" vence o sistema escuro
+00:19 +271: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: tocar alterna, grava e vale depois de reabrir o app
+00:20 +272: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: sair da conta não apaga a escolha: o login abre escuro
+00:20 +273: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: no login, trocar o tema não apaga o usuário digitado
+00:20 +274: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: o botão está no canto superior direito de toda tela (FR-001)
+00:20 +275: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: botão também no detalhe do evento, em Turmas disponíveis e em Minhas solicitações
+00:20 +276: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: barra de status: ícones claros no login escuro, mesmo vindo de uma tela clara (US2)
+00:20 +277: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: login e "Sem conexão": canto superior direito, fora de barra
+00:20 +278: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: alvo de toque de 48 dp e rótulo para o leitor de tela
+00:20 +279: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/tema_app_test.dart: (tearDownAll)
+00:20 +279: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart
+00:21 +279: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) aluno com vínculos: cartões, total, atalho e solicitações recentes
+00:22 +280: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) docente: papel no cartão, sem atalho e sem pedir solicitações
+00:22 +281: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) coordenação sem vínculo: estado vazio próprio, sem atalho de inscrição
+00:22 +282: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) aluno sem turmas: estado vazio com o caminho para pedir inscrição
+00:22 +283: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) sem rede: turmas guardadas com a faixa de data
+00:22 +284: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) sem rede com mais turmas que as guardadas: diz quantas aparecem
+00:22 +285: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) "Tentar de novo" da faixa mantém as turmas na tela enquanto tenta
+00:22 +286: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) perfil mudou com Turmas disponíveis aberta: a tela empilhada fecha
+00:22 +287: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Minhas turmas (T06) erro sem cache: mensagem e tentar de novo
+00:22 +288: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Turmas disponíveis (T07) lista as abertas com código, semestre e o botão Solicitar
+00:22 +289: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Turmas disponíveis (T07) nenhuma turma aberta: estado vazio
+00:22 +290: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Turmas disponíveis (T07) 403 SEM_PERMISSAO: explica o perfil e volta a Minhas turmas
+00:22 +291: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/turmas_test.dart: Turmas disponíveis (T07) o atalho do estado vazio de avisos abre as turmas disponíveis
+00:22 +292: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart
+00:23 +292: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda por vir, sem mais páginas: "Não há mais eventos por vir."
+00:24 +293: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda provas, sem mais páginas: "Não há mais provas marcadas."
+00:24 +294: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda com mais páginas, sem fecho; depois da última, com fecho
+00:24 +295: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda falha ao carregar mais: "Tentar de novo", sem fecho
+00:24 +296: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda sem rede, com o que estava guardado: sem fecho (não se sabe se acabou)
+00:24 +297: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Agenda vazio: o estado vazio, sem fecho
+00:24 +298: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Turmas disponíveis: "Não há mais turmas disponíveis."
+00:24 +299: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Minhas solicitações: "Não há mais solicitações."
+00:24 +300: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Horários aula em alguns dias: "Não há aulas nos outros dias da semana."
+00:24 +301: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/fim_da_lista_test.dart: Horários aula em todos os dias: sem fecho
+00:24 +302: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart
+00:25 +302: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) os quatro status, com datas, motivo e cancelar só na pendente
+00:26 +303: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelar confirmado: DELETE, mensagem e lista recarregada
+00:26 +304: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelar recusado pelo usuário: nada é enviado
+00:26 +305: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelar com 409 SOLICITACAO_NAO_PENDENTE: mensagem e lista recarregada
+00:26 +306: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelar com 404 SOLICITACAO_NAO_ENCONTRADA: mensagem e lista recarregada
+00:26 +307: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelando: botão desativado e nenhuma mensagem antes da resposta (RM-23)
+00:26 +308: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) cancelar sem rede: "Tentar de novo" reenvia e mostra o resultado
+00:26 +309: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Minhas solicitações (T09) vazia: explica onde pedir inscrição
+00:26 +310: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 201: folha de confirmação; "Voltar às turmas" recarrega Minhas turmas
+00:26 +311: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Ver minhas solicitações" abre a lista com a nova pendente
+00:27 +312: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 JA_VINCULADO: mensagem e disponíveis recarregadas
+00:27 +313: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 404 TURMA_INDISPONIVEL: mensagem e disponíveis recarregadas
+00:27 +314: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 409 SOLICITACAO_DUPLICADA: mensagem e abre Minhas solicitações
+00:27 +315: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 403 com a folha aberta: a folha fica, e "Voltar às turmas" volta a Minhas turmas
+00:27 +316: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) 403 com a folha aberta: a folha fica, e "Ver minhas solicitações" volta a Minhas turmas
+00:27 +317: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) resposta que chega depois de sair da tela não abre a folha nem navega
+00:27 +318: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) pedido duplicado respondido depois de sair da tela não troca de tela
+00:27 +319: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) "Tentar de novo" depois de sair da tela não quebra
+00:27 +320: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/solicitacoes_test.dart: Solicitar em Turmas disponíveis (T07 → T08) sem rede: nada muda e "Tentar de novo" reenvia
+00:27 +321: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart
+00:28 +321: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: (setUpAll)
+00:28 +321: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: sem token abre no login
+00:28 +322: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: com token válido vai direto para Avisos, sem passar pelo login
+00:28 +323: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: barra com as cinco abas da spec §3
+00:29 +324: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: cada aba expõe a ação de toque ao leitor de tela
+00:29 +325: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: login válido leva à casca
+00:29 +326: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: sair, no Perfil, apaga a sessão e volta ao login
+00:29 +327: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: 401 no meio do uso volta ao login com aviso de sessão expirada
+00:29 +328: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: a barra de abas não toma a tela: o conteúdo da aba tem altura
+00:29 +329: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: abertura sem rede e sem cache: tela de sem conexão com repetir
+00:29 +330: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/app_test.dart: (tearDownAll)
+00:29 +330: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart
+00:29 +330: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: aluno com vínculos: identificação, curso, período, turmas e a nota
+00:30 +331: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: valores alinhados à direita do cartão, sem quebra desnecessária
+00:30 +332: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: aberto sem rede, com o perfil guardado: faixa de dados desatualizados
+00:30 +333: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: o leitor de tela lê o nome uma vez só
+00:30 +334: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: coordenação sem vínculo: sem período nem lista de turmas
+00:30 +335: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: mudança de perfil entre duas cargas vale na mesma sessão (RM-09)
+00:30 +336: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: voltar do segundo plano recarrega o perfil (RM-09)
+00:30 +337: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: sair pede confirmação: cancelar fica, confirmar volta ao login (RM-10)
+00:31 +338: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: turmas de períodos diferentes: os dois períodos, em ordem
+00:31 +339: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: tocar de novo na aba Perfil já aberta não pede o /me outra vez
+00:31 +340: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: turmas mudaram com o período ainda carregando: a resposta antiga não volta
+00:31 +341: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: falha da API na carga do período: a linha some e a falha vai uma vez ao log (RM-38)
+00:31 +342: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: erro inesperado na carga do período: a linha some e a falha vai uma vez ao log (RM-38)
+00:31 +343: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/perfil_test.dart: sair apaga o perfil guardado neste aparelho (RM-10)
+00:31 +344: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart
+00:31 +344: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: (setUpAll)
+00:31 +344: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: ChipDestino rótulo, cor do ponto por tipo e leitura para leitor de tela
+00:32 +345: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: ChipDestino tipo desconhecido usa o rótulo cru e cor neutra
+00:32 +346: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: Avatar mostra as iniciais e é anunciado pelo nome
+00:32 +347: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: SeloSituacao renderiza o texto
+00:32 +348: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: EstadoVazio título, explicação e ação com alvo de 48 dp
+00:32 +349: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: EstadoVazio sem ação não mostra botão
+00:32 +350: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: EstadoErro mostra a mensagem e repete com alvo de 48 dp
+00:32 +351: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: EsqueletoLista é anunciado como carregando
+00:32 +352: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: FaixaCache mostra a data dos dados e oferece tentar de novo
+00:32 +353: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: FaixaInformativa renderiza o texto
+00:32 +354: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/comum_test.dart: (tearDownAll)
+00:32 +354: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart
+00:32 +354: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: (setUpAll)
+00:32 +354: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: cabeçalho D S T Q Q S S; ‹ › pedem a janela da grade com os encerrados
+00:33 +355: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: hoje escolhido ao abrir; tocar num dia lista as atividades dele
+00:33 +356: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: acima de 100 eventos na janela, a faixa avisa
+00:33 +357: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: o tipo filtrado vale também no mês, que continua no mesmo mês e dia
+00:34 +358: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: trocar de mês depressa: a resposta atrasada do mês anterior é descartada
+00:34 +359: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: sem rede: o mês corrente guardado, com a faixa
+00:34 +360: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/mes_view_test.dart: (tearDownAll)
+00:34 +360: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart
+00:34 +360: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: Próximos: cartão como na m-10, com a data só no primeiro evento do dia
+00:35 +361: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: rolagem infinita pede a página seguinte
+00:35 +362: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: Provas: tipo=prova; a folha de tipos fica desabilitada
+00:35 +363: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: filtro por tipo: folha, consulta e título
+00:36 +364: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: o filtro ativo é dito ao leitor de tela; em Provas, o título não o mostra
+00:36 +365: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: vazio de Próximos e de Provas
+00:36 +366: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: sem rede: o que estava guardado, com a faixa
+00:36 +367: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: erro sem cache: mensagem e tentar de novo
+00:36 +368: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/agenda_page_test.dart: tocar no cartão abre o detalhe
+00:36 +369: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart
+00:36 +369: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: cinco abas: Horários entra entre Turmas e Perfil (spec §3)
+00:37 +370: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: sem vínculo: estado vazio da US6
+00:37 +371: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: um vínculo: a grade por dia, com disciplina, horas, local e docente
+00:37 +372: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: turma sem aulas: estado vazio próprio
+00:37 +373: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: mais de um vínculo: a folha troca a turma, e a escolha fica lembrada
+00:37 +374: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: turma lembrada que perdeu o vínculo: volta à primeira
+00:37 +375: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: 403 (vínculo removido): mensagem própria e as turmas são recarregadas
+00:37 +376: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: 403 numa turma que a lista ainda traz: não fica em voltas, mostra o erro
+00:37 +377: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: 404 (turma inativa): mensagem própria
+00:38 +378: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: sem rede: a grade guardada da turma, com a faixa
+00:38 +379: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: sem rede e sem nada guardado: erro com tentar de novo
+00:38 +380: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: 403/404 esquecem a turma lembrada (D-AF2-7)
+00:38 +381: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: sem rede: a faixa da grade guardada não fica na turma que não tem cache
+00:38 +382: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: trocar de turma: a grade da turma anterior, que chega depois, é descartada
+00:38 +383: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/horarios_page_test.dart: o botão da turma diz ao leitor de tela que troca a turma
+00:38 +384: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart
+00:38 +384: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart: conteúdo completo, autor e destinos
+00:39 +385: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart: linha "Publicado … · editado …" quando o aviso foi editado
+00:39 +386: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart: a revalidação atualiza o conteúdo exibido
+00:39 +387: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart: 404: avisa que não está mais disponível, volta e recarrega a lista
+00:39 +388: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/aviso_detalhe_test.dart: sem rede no detalhe: continua mostrando o dado da lista
+00:39 +389: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart
+00:40 +389: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: lista de avisos a 200%: alternância e cartões sem estouro
+00:40 +390: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: login a 200% sem estouro
+00:40 +391: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: detalhe do aviso a 200% sem estouro
+00:40 +392: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: minhas turmas e turmas disponíveis a 200% sem estouro
+00:41 +393: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: minhas solicitações e a folha de confirmação a 200% sem estouro
+00:41 +394: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: perfil a 200% sem estouro
+00:41 +395: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: estados vazios, faixa sem rede e os diálogos de confirmação a 200% sem estouro
+00:41 +396: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: agenda a 200%: Próximos, Mês e detalhe sem estouro
+
+Warning: A call to tap() with finder "Found 1 widget with text "Mês": [
+  Text("Mês", inherit: true, color: Color(alpha: 1.0000, red: 0.3569, green: 0.4196, blue: 0.5255, colorSpace: ColorSpace.sRGB), family: Inter, size: 12.5, weight: 500, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(500.4, 85.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+Indeed, Offset(500.4, 85.0) is outside the bounds of the root of the render tree, Size(360.0, 640.0).
+The finder corresponds to this RenderBox: RenderParagraph#acff2 relayoutBoundary=up31
+The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#83d73(_ReusableRenderView#633c7), HitTestEntry<HitTestTarget>#e8140(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2158:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1942:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1075:7)
+#3      main.<anonymous closure> (file:///Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart:293:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+#6      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
+00:41 +397: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: horários a 200%: grade, botão da turma e folha de turmas sem estouro
+00:41 +398: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: sigla do dia a 200% numa linha só
+00:41 +399: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: folha de tipos da agenda a 200% sem estouro
+00:41 +400: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/escala_fonte_test.dart: data do cartão a 200% numa linha só; mês sem estouro
+00:41 +401: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart
+00:42 +401: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: m-11: tipo, título, data e horas, local, descrição, público e autor
+00:42 +402: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: revalida e mostra a versão nova; "editado em" quando houver
+00:43 +403: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: vários dias e sem local
+00:43 +404: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: 404: mensagem, volta e avisa a lista para recarregar
+00:43 +405: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: sem rede: fica o que veio da lista
+00:43 +406: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: erro do servidor: segue com o evento da lista, sem dizer que falta rede
+00:43 +407: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/test/widget/detalhe_evento_test.dart: aberto só com o id: esqueleto até a resposta
+00:43 +408: All tests passed!
+
+## flutter test integration_test -d emulator-5554 --reporter expanded (Android 16, emulador; servidor falso no contrato da API)
+Resolving dependencies...
+Downloading packages...
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.2.0 available)
+  crypto 3.0.7 (3.0.8 available)
+  hooks 2.0.2 (2.2.0 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.1.0 (1.1.2 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.17.0 (1.19.0 available)
+  objective_c 9.5.0 (9.6.3 available)
+  platform 3.1.6 (3.2.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences_android 2.4.23 (2.5.5 available)
+  shared_preferences_foundation 2.5.7 (2.6.1 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.10 (0.7.15 available)
+  vector_math 2.2.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+18 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/offline_test.dart
+Running Gradle task 'assembleDebug'...                             12,0s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          564ms
+00:00 +0: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/offline_test.dart: sem rede, as três abas abrem com o conteúdo guardado e a data
+00:07 +1: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/offline_test.dart: sem rede, a agenda, o mês corrente, o detalhe e a grade abrem do que foi guardado
+00:16 +2: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/offline_test.dart: (tearDownAll)
+00:17 +2: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/agenda_test.dart
+Running Gradle task 'assembleDebug'...                             12,4s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          449ms
+00:34 +2: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/agenda_test.dart: Próximos, Provas e o detalhe
+00:39 +3: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/agenda_test.dart: mês: o evento de vários dias aparece em cada dia
+00:44 +4: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/agenda_test.dart: evento excluído na API: 404 volta à agenda com a mensagem
+00:47 +5: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/agenda_test.dart: (tearDownAll)
+00:47 +5: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/token_seguro_test.dart
+Running Gradle task 'assembleDebug'...                             12,4s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          437ms
+01:04 +5: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/token_seguro_test.dart: o token fica só no armazenamento seguro
+01:09 +6: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/token_seguro_test.dart: (tearDownAll)
+01:09 +6: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart
+Running Gradle task 'assembleDebug'...                             12,1s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          477ms
+01:26 +6: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart: primeira carga mostra os avisos com o token do usuário
+01:29 +7: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart: rolar até o fim carrega a segunda página
+01:38 +8: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart: puxar para baixo recarrega do servidor
+01:41 +9: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart: sem rede, reabre com o conteúdo guardado e a faixa com a data
+01:43 +10: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/avisos_test.dart: (tearDownAll)
+01:43 +10: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/erro_desconhecido_test.dart
+Running Gradle task 'assembleDebug'...                             12,2s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          409ms
+02:00 +10: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/erro_desconhecido_test.dart: code desconhecido: mensagem genérica na tela e registro no log
+02:03 +11: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/erro_desconhecido_test.dart: (tearDownAll)
+02:04 +11: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart
+Running Gradle task 'assembleDebug'...                             12,2s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          454ms
+02:20 +11: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: abertura com token válido vai direto para a casca
+02:22 +12: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: abertura com token inválido volta ao login e apaga a sessão
+02:23 +13: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: login de verdade grava o token no cofre do aparelho
+02:24 +14: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: 401 no meio da navegação encerra a sessão e volta ao login
+02:25 +15: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: sair limpa token e cache; reabrir leva ao login
+02:28 +16: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/sessao_test.dart: (tearDownAll)
+02:28 +16: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/horarios_test.dart
+Running Gradle task 'assembleDebug'...                             12,3s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          444ms
+02:45 +16: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/horarios_test.dart: aluno com duas turmas troca a turma e vê a grade dela
+02:50 +17: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/horarios_test.dart: vínculo removido na API: mensagem e volta à turma que restou
+02:52 +18: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/horarios_test.dart: (tearDownAll)
+02:52 +18: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/solicitacao_fluxo_test.dart
+Running Gradle task 'assembleDebug'...                             12,2s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          398ms
+03:09 +18: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: solicitar → ver pendente → cancelar → a turma volta a disponíveis
+03:17 +19: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: solicitar duas vezes a mesma turma: o segundo pedido abre Minhas solicitações
+03:21 +20: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/solicitacao_fluxo_test.dart: (tearDownAll)
+03:22 +20: loading /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/perfil_atualizado_test.dart
+Running Gradle task 'assembleDebug'...                             12,3s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          439ms
+03:38 +20: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/perfil_atualizado_test.dart: abrir a aba Perfil traz o perfil novo e ajusta as outras abas
+03:44 +21: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/perfil_atualizado_test.dart: voltar do segundo plano também reavalia o perfil
+03:46 +22: /Users/ruanbueno/dev/conecta-evidencias/projeto-mobile/integration_test/perfil_atualizado_test.dart: (tearDownAll)
+03:47 +22: All tests passed!

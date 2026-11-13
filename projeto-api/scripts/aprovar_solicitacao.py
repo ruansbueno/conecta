@@ -15,15 +15,16 @@ from src.repositories.usuario_repository import UsuarioRepository
 from src.services import solicitacoes_gestao_service
 
 
-async def aprovar(
-    session: AsyncSession, solicitacao_id: uuid.UUID | str, decisor_username: str | None
-):
-    """Mesmo serviço do endpoint de gestão (plan-e2 D-E2-10), com as mesmas regras."""
+async def aprovar(session: AsyncSession, solicitacao_id: uuid.UUID | str, decisor_username: str):
+    """Mesmo serviço do endpoint de gestão (plan-e2 D-E2-10), com as mesmas regras.
+
+    O decisor é obrigatório: toda decisão registra quem decidiu (ck_..._decisor_coerente).
+    """
     decisor = None
-    if decisor_username is not None:
+    if decisor_username:
         decisor = await UsuarioRepository(session).get_by_username(decisor_username)
-        if decisor is None:
-            raise UsuarioNaoEncontrado()
+    if decisor is None:
+        raise UsuarioNaoEncontrado()
     return await solicitacoes_gestao_service.aprovar(
         session, decisor, uuid.UUID(str(solicitacao_id))
     )

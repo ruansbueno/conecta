@@ -73,25 +73,23 @@ async def _linha(session: AsyncSession, solicitacao_id: uuid.UUID) -> Linha:
 
 
 async def _para_decidir(
-    session: AsyncSession, decisor: Usuario | None, solicitacao_id: uuid.UUID
+    session: AsyncSession, decisor: Usuario, solicitacao_id: uuid.UUID
 ) -> SolicitacaoInscricao:
     """Trava a solicitação: decisões simultâneas esperam e a segunda vê o estado final."""
     solicitacao = await SolicitacaoRepository(session).get(solicitacao_id, for_update=True)
     if solicitacao is None:
         raise SolicitacaoNaoEncontrada()
-    docente = decisor is not None and not gere_tudo(decisor)
+    docente = not gere_tudo(decisor)
     if docente and not await leciona(session, decisor, solicitacao.turma_id):
         raise SemPermissao()
     return solicitacao
 
 
-async def aprovar(
-    session: AsyncSession, decisor: Usuario | None, solicitacao_id: uuid.UUID
-) -> Linha:
-    """Aprova e cria o vínculo na mesma transação (RF-17). `decisor` None: script de dev."""
+async def aprovar(session: AsyncSession, decisor: Usuario, solicitacao_id: uuid.UUID) -> Linha:
+    """Aprova e cria o vínculo na mesma transação (RF-17)."""
     repo = SolicitacaoRepository(session)
     solicitacao = await _para_decidir(session, decisor, solicitacao_id)
-    decisor_id = decisor.id if decisor else None
+    decisor_id = decisor.id
     if solicitacao.status != "pendente":
         await repo.approve(solicitacao, decisor_id)  # levanta SOLICITACAO_NAO_PENDENTE
 

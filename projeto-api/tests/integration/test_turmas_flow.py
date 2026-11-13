@@ -19,6 +19,7 @@ async def _codigos(client, url, headers):
 
 async def test_fluxo_completo_da_inscricao(client, db, session_factory):
     headers, aluno_id = await entrar(client, db, "aluno.sem.turma")
+    await entrar(client, db, "coord.teste", perfil="coordenacao")
     turma = await criar_turma(db, codigo="TADS-3B-2026-2")
     assert await _codigos(client, "/turmas/disponiveis", headers) == ["TADS-3B-2026-2"]
 
@@ -28,7 +29,7 @@ async def test_fluxo_completo_da_inscricao(client, db, session_factory):
     assert await _codigos(client, "/turmas/minhas", headers) == []
 
     async with session_factory() as s:
-        await aprovar(s, criada["id"], decisor_username=None)
+        await aprovar(s, criada["id"], decisor_username="coord.teste")
 
     assert await _codigos(client, "/turmas/minhas", headers) == ["TADS-3B-2026-2"]
     me = (await client.get("/me", headers=headers)).json()
@@ -62,24 +63,43 @@ async def test_aprovar_solicitacao_que_nao_esta_pendente_e_rejeitado(client, db,
     turma = await criar_turma(db)
     criada = (await client.post(f"/turmas/{turma.id}/solicitacoes", headers=headers)).json()
     await client.delete(f"/solicitacoes/{criada['id']}", headers=headers)
+    await entrar(client, db, "coord.teste", perfil="coordenacao")
 
     async with session_factory() as s:
         with pytest.raises(DomainError) as exc:
-            await aprovar(s, criada["id"], decisor_username=None)
+            await aprovar(s, criada["id"], decisor_username="coord.teste")
 
     assert exc.value.code == "SOLICITACAO_NAO_PENDENTE"
     async with session_factory() as s:
         assert await s.scalar(select(VinculoTurma)) is None
 
 
-async def test_recusar_registra_motivo_e_libera_nova_solicitacao(client, db, session_factory):
+async def test_script_nao_aprova_sem_decisor(client, db, session_factory):
     headers, _ = await entrar(client, db)
     turma = await criar_turma(db)
     criada = (await client.post(f"/turmas/{turma.id}/solicitacoes", headers=headers)).json()
 
     async with session_factory() as s:
+        with pytest.raises(DomainError) as exc:
+            await aprovar(s, criada["id"], decisor_username=None)
+
+    assert exc.value.code == "USUARIO_NAO_ENCONTRADO"
+    async with session_factory() as s:
+        solicitacao = await s.get(SolicitacaoInscricao, criada["id"])
+        assert (solicitacao.status, await s.scalar(select(VinculoTurma))) == ("pendente", None)
+
+
+async def test_recusar_registra_motivo_e_libera_nova_solicitacao(client, db, session_factory):
+    headers, _ = await entrar(client, db)
+    _, coord_id = await entrar(client, db, "coord.teste", perfil="coordenacao")
+    turma = await criar_turma(db)
+    criada = (await client.post(f"/turmas/{turma.id}/solicitacoes", headers=headers)).json()
+
+    async with session_factory() as s:
         repo = SolicitacaoRepository(s)
-        await repo.refuse(await repo.get(criada["id"]), decisor_id=None, motivo="Turma completa")
+        await repo.refuse(
+            await repo.get(criada["id"]), decisor_id=coord_id, motivo="Turma completa"
+        )
         await s.commit()
 
     item = (await client.get("/solicitacoes/minhas", headers=headers)).json()["items"][0]

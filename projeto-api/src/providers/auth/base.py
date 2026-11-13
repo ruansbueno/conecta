@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Protocol
 
-TipoInstitucional = Literal["aluno", "administrativo"]
+from src.models.usuario import TipoInstitucional
 
 
 @dataclass(frozen=True)

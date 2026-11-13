@@ -22,6 +22,10 @@ class SolicitacaoInscricao(Base):
         CheckConstraint(
             "txt_motivo_recusa IS NULL OR st_solicitacao = 'recusada'", name="motivo_so_em_recusa"
         ),
+        # Toda decisão tem autor; no cancelamento, o próprio aluno.
+        CheckConstraint(
+            "(st_solicitacao = 'pendente') = (id_usuario_decisor IS NULL)", name="decisor_coerente"
+        ),
         # No máximo uma pendente por aluno e turma (RF-14).
         Index(
             "uq_tb_solicitacao_inscricao_pendente",

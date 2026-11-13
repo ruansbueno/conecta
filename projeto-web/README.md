@@ -87,11 +87,12 @@ mesma origem, e proteção CSRF em toda escrita.
 | — Login pelo IFSul | Aba Aguardando acesso em Usuários, com contador na barra lateral (RW-50, RW-51), e as mensagens de acesso pendente e recusado no login | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 | — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login; segue o sistema até a pessoa escolher, e a escolha fica no navegador; paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas e blocos vazios do painel com aviso | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
 
-**Testes** (registro de 11/11/2026, com o modo noturno, [`testes-web-2026-11-11.txt`](evidencias/testes-web-2026-11-11.txt)):
-465 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas) e
-11 da implantação (`deploy/verificar.sh`). Antes do modo noturno: registro de 06/11
-([`testes-web-final-2026-11-06.txt`](evidencias/testes-web-final-2026-11-06.txt)) e o de 10/11, com
-cada teste pelo nome ([`testes-web-por-teste-2026-11-10.txt`](evidencias/testes-web-por-teste-2026-11-10.txt)).
+**Testes** (registro de 13/11/2026, [`testes-web-revisao-2026-11-13.txt`](evidencias/testes-web-revisao-2026-11-13.txt)):
+466 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas) e
+11 da implantação (`deploy/verificar.sh`), com o servidor falso alinhado à emenda v2.4 da API.
+Registros anteriores: o final de 12/11, com cada teste pelo nome
+([`testes-web-final-2026-11-12.txt`](evidencias/testes-web-final-2026-11-12.txt)), o do modo noturno
+([`testes-web-2026-11-11.txt`](evidencias/testes-web-2026-11-11.txt)) e os de 06/11 e 10/11.
 Além disso, a validação visual de cada tela contra a
 API local real ([F1](evidencias/RELATORIO.md), [F2](evidencias/RELATORIO-F2.md)).
 

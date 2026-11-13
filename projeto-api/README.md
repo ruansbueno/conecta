@@ -15,7 +15,8 @@ Especificação, contrato e tarefas em
 [`specs/001-auth-perfil-turmas-avisos/`](specs/001-auth-perfil-turmas-avisos/) (`tasks.md` para a
 E1; `plan-e2.md` e `tasks-e2.md` para a E2) e
 [`specs/002-agenda-horarios/`](specs/002-agenda-horarios/) para a E3 (com o próprio
-`quickstart.md`).
+`quickstart.md`). As correções de uma revisão de código posterior às evidências finais (emenda
+v2.4) estão em [`specs/003-revisao-de-codigo/`](specs/003-revisao-de-codigo/).
 
 ## Rodando localmente
 
@@ -87,8 +88,10 @@ domínio da API sob `/api`, como previsto na `spec.md`.
 `src/api` (rotas, erros, CSRF) → `src/services` (regras) → `src/repositories` (persistência) →
 `src/models` (SQLAlchemy). A integração externa fica isolada em `src/providers/auth`: o
 `IfsulAuthProvider` fala com a API de autenticação do IFSul, e trocar o mock por ele é só definir
-`AUTH_PROVIDER=ifsul` e `IFSUL_AUTH_URL`, sem tocar em rotas, serviços ou contratos. Migrações em `alembic/`, scripts de desenvolvimento em
-`scripts/`.
+`AUTH_PROVIDER=ifsul` e `IFSUL_AUTH_URL`, sem tocar em rotas, serviços ou contratos. A gestão de avisos e a de eventos têm o
+mesmo ciclo de vida: o que é comum aos dois fica em `src/services/publicacao_gestao.py`, e cada
+serviço guarda só o que é próprio (o agendamento do aviso; início, fim e local do evento).
+Migrações em `alembic/`, scripts de desenvolvimento em `scripts/`.
 
 ## Auditoria dos avisos
 

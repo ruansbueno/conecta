@@ -35,7 +35,7 @@ só.
 | Quem recebe um aviso ou evento: uma só regra de alcance para os dois | [`projeto-api/src/repositories/alcance.py`](projeto-api/src/repositories/alcance.py) |
 | Aviso agendado só aparece a partir da data de publicação | [`projeto-api/src/repositories/aviso_repository.py`](projeto-api/src/repositories/aviso_repository.py) |
 | Docente só publica para as turmas em que leciona | [`projeto-api/src/services/destinos.py`](projeto-api/src/services/destinos.py) e [`permissoes.py`](projeto-api/src/services/permissoes.py) |
-| Publicar e editar geram uma versão; toda operação (inclusive arquivar e excluir) grava um registro no histórico, na mesma transação | [`projeto-api/src/services/avisos_gestao_service.py`](projeto-api/src/services/avisos_gestao_service.py) |
+| Publicar e editar geram uma versão; toda operação (inclusive arquivar e excluir) grava um registro no histórico, na mesma transação (o mesmo código para avisos e eventos) | [`projeto-api/src/services/publicacao_gestao.py`](projeto-api/src/services/publicacao_gestao.py); o que é só do aviso, em [`avisos_gestao_service.py`](projeto-api/src/services/avisos_gestao_service.py) |
 | O banco recusa alterar ou apagar versões e histórico (*trigger*) | Avisos: [`20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py`](projeto-api/alembic/versions/20261026_9e05f46bf9bf_cria_aviso_versao_e_aviso_evento.py); eventos: [`20261031_321cb139e662_cria_evento_e_horario.py`](projeto-api/alembic/versions/20261031_321cb139e662_cria_evento_e_horario.py) (em `projeto-api/alembic/versions/`) |
 | Conflito de sala e de docente na grade: informado, sem impedir | Regra em [`projeto-api/src/services/conflitos.py`](projeto-api/src/services/conflitos.py); gravação com os conflitos na resposta em [`horarios_service.py`](projeto-api/src/services/horarios_service.py) |
 | Sessão: token validado e usuário (perfil e situação) relido no banco a cada requisição | [`projeto-api/src/core/security.py`](projeto-api/src/core/security.py) |
@@ -168,9 +168,10 @@ Verificações de estilo: `uv run ruff check .` (API), `npm run lint` e `npm run
 
 ## Evidências dos testes
 
-Os registros até 10/11 são as saídas das execuções citadas no Apêndice B do TCC; o de 11/11
-registra o modo noturno, acrescentado depois. Cada arquivo traz a data, a versão do código (commit)
-e os comandos executados; o roteiro do IFSul rodou no commit `59f05d5`.
+Os registros até 12/11 são as saídas das execuções citadas no TCC, menos o de 11/11 (modo
+noturno). O de 13/11 registra as correções de uma revisão de código feita depois das evidências
+finais (emenda v2.4 da API). Cada arquivo traz a data, a versão do código (commit) e os comandos
+executados; o roteiro do IFSul rodou no commit `59f05d5`.
 
 | Execução | Registro |
 |---|---|
@@ -180,6 +181,8 @@ e os comandos executados; o roteiro do IFSul rodou no commit `59f05d5`.
 | Roteiro contra a API de autenticação do IFSul, com conta real de aluno (06/11) | [`roteiro-ifsul-2026-11-06.md`](projeto-api/evidencias/roteiro-ifsul-2026-11-06.md) |
 | Web e aplicativo com cada teste pelo nome (10/11) | [web](projeto-web/evidencias/testes-web-por-teste-2026-11-10.txt), [app](projeto-mobile/evidencias/testes-app-por-teste-2026-11-10.txt) |
 | Modo noturno e fim de lista (11/11): web (com a implantação) e aplicativo (com a integração no emulador) | [web](projeto-web/evidencias/testes-web-2026-11-11.txt), [app](projeto-mobile/evidencias/testes-app-2026-11-11.txt) |
+| Final (12/11), depois do modo noturno, do modelo de dados e das restrições do banco: API, web (com a implantação), aplicativo (com a integração no emulador) e roteiro integrado, cada teste pelo nome | [API](projeto-api/evidencias/testes-final-2026-11-12.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-12.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-12.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-12.txt) |
+| Correções da revisão de código (13/11): API, roteiro integrado e web (com a implantação) | [API](projeto-api/evidencias/testes-revisao-2026-11-13.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-revisao-2026-11-13.txt), [web](projeto-web/evidencias/testes-web-revisao-2026-11-13.txt) |
 
 O roteiro integrado (`projeto-api/scripts/roteiro_integrado.py`) exercita a API real como a web
 (cookie de sessão e CSRF) e como o aplicativo (token no cabeçalho). Os relatórios de cada fase dos
@@ -190,12 +193,10 @@ Até 06/11/2026, a integração real prevista para o login era com o Moodle; por
 anteriores a essa data citam `MOODLE_URL`, e os 3 testes pulados neles são os dessa integração. A
 partir de 06/11, os pulados são os da integração real com o IFSul.
 
-A `main` tem commits posteriores às execuções de 06/11 e 10/11: na API, a nova tentativa de conexão
-com o IFSul e um ajuste do seed (PR #33); nos clientes, o nome do curso e uma correção no
-aplicativo, cada um com teste; e esta documentação. Num clone limpo da `main`, em 11/11/2026, a API
-teve 995 testes aprovados e 3 pulados. O modo noturno (PR #36) mudou só os clientes; os números deles
-depois dessa mudança estão no registro de 11/11. Para repetir uma execução exatamente como
-registrada, use o commit indicado no registro (`git checkout <commit>`).
+Depois da execução final de 12/11, a `main` mudou só com as correções da revisão de código
+(PR #40), registradas em 13/11: a API passou de 1011 para 1028 testes aprovados (3 pulados) e a
+web, de 465 para 466 de unidade e componente; o aplicativo não mudou. Para repetir uma execução
+exatamente como registrada, use o commit indicado no registro (`git checkout <commit>`).
 
 ## Arquitetura em uma página
 

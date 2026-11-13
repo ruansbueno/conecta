@@ -28,4 +28,4 @@ comportamento: a suíte inteira é a sua rede.
 
 - [x] R008 Emenda v2.4 na spec 001 e nos contratos (404 no excluído, `publicar_em`, `q` literal)
 - [x] R009 Servidor falso da web: 404 ao arquivar ou desarquivar aviso excluído
-- [ ] R010 Registro datado em `evidencias/` (suíte completa da API e da web) e READMEs
+- [x] R010 Registro datado em `evidencias/` (suíte completa da API e da web) e READMEs

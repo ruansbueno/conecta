@@ -182,6 +182,21 @@ describe('lista de avisos (T03, RW-13, RW-14)', () => {
     await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
   })
 
+  it('arquivar um aviso que outra pessoa excluiu enquanto a lista estava aberta: avisa e recarrega', async () => {
+    // A API responde 404 para arquivar ou desarquivar um aviso excluído (emenda v2.4).
+    const chamadas = api({
+      'POST /gestao/avisos/a2/arquivar': { status: 404, corpo: erro('AVISO_NAO_ENCONTRADO') },
+    })
+    abrir()
+    const linha = within(await tabela()).getByRole('row', { name: /Entrega adiada/ })
+
+    await userEvent.click(within(linha).getByRole('button', { name: 'Arquivar “Entrega adiada para 30/10”' }))
+    await userEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Arquivar' }))
+
+    expect(await screen.findByText('Este aviso não está mais disponível.')).toBeInTheDocument()
+    await waitFor(() => expect(listagens(chamadas).length).toBeGreaterThanOrEqual(2))
+  })
+
   it('na aba Arquivados a ação é desarquivar, sem confirmação; não há editar', async () => {
     const arquivado = { ...AVISOS[0], situacao: 'arquivado' }
     const chamadas = api({

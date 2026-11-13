@@ -352,7 +352,8 @@ async function tratar(req: IncomingMessage, res: ServerResponse) {
   if (acao) {
     const [, id, nome] = acao
     const aviso = estado.avisos.find((a) => a.id === id)
-    if (!aviso || (aviso.situacao === 'excluido' && !gestao)) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
+    // Excluído: a gestão ainda o audita; para arquivar ou desarquivar ele não existe (404), como na API (emenda v2.4).
+    if (!aviso || (aviso.situacao === 'excluido' && (!gestao || metodo === 'POST'))) return erro(res, 404, 'AVISO_NAO_ENCONTRADO')
     if (!gestao && aviso.autor.id !== usuario.id) return erro(res, 403, 'SEM_PERMISSAO')
     if (metodo === 'GET' && (nome === 'versoes' || nome === 'historico')) {
       const a = estado.auditoria.get(id) ?? { versoes: [], eventos: [] }

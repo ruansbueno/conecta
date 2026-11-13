@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-auth-perfil-turmas-avisos`
 
-**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13 | **Emenda (v2.2)**: 2026-10-31 | **Emenda (v2.3)**: 2026-11-06
+**Created**: 2026-09-22 | **Revisão (v2)**: 2026-09-30 | **Emenda (v2.1)**: 2026-10-13 | **Emenda (v2.2)**: 2026-10-31 | **Emenda (v2.3)**: 2026-11-06 | **Emenda (v2.4)**: 2026-11-13
 
 **Status**: Draft v2 — revisada a partir do parecer do orientador sobre a v1
 
@@ -46,6 +46,17 @@ nos testes, de um provedor de autenticação simulado (mock).
 > HTTPS, salvo liberação explícita para teste (a doc avisa que a atual usa HTTP). Requisitos
 > alterados: RF-02, RF-03, RF-08; novos: RF-50 a RF-52. Códigos novos: `ACESSO_PENDENTE`,
 > `ACESSO_RECUSADO`, `ACESSO_JA_DECIDIDO`.
+
+> **Emenda v2.4 (2026-11-13)** — decorre de uma revisão de código feita depois das evidências
+> finais ([specs/003](../003-revisao-de-codigo/plan.md)). Decisões do autor: (1) **arquivar ou
+> desarquivar um aviso excluído responde 404 `AVISO_NAO_ENCONTRADO`**, como nos eventos e no
+> `GET` (antes, 409 `AVISO_SITUACAO_INVALIDA`); (2) **`publicar_em` enviado num aviso já
+> publicado responde sempre 422 "aviso já publicado não pode ser reagendado"**, seja qual for o
+> valor (antes, `null` num aviso publicado sem agendamento dava "nenhuma alteração"). Também
+> fica explícito que (3) a busca `q` das listas de gestão é por texto literal: `%` e `_` não são
+> curingas; (4) o histórico registra as datas em UTC; e (5) vincular, aprovar uma solicitação e
+> trocar o perfil de um usuário não correm ao mesmo tempo sobre o mesmo usuário. Nenhum requisito
+> novo; os clientes não mudam.
 
 ## 1. Escopo e Entregas
 

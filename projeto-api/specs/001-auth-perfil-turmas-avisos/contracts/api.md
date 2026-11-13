@@ -369,7 +369,7 @@ Todos sob `/gestao`, com a matriz de permissões da `spec.md` seção 2.3. Sem p
 ## 10. Usuários e perfis
 
 ### GET /gestao/usuarios
-**Auth**: administrador, coordenação. **Query**: `q` (busca em nome/username), `perfil`, `ativo`, `limit`, `offset`.
+**Auth**: administrador, coordenação. **Query**: `q` (busca em nome/username; texto literal, `%` e `_` não são curingas — emenda v2.4), `perfil`, `ativo`, `limit`, `offset`.
 
 **200**
 ```json
@@ -485,7 +485,7 @@ aguardam a gestão. Não têm perfil até a decisão.
 **Erros**: 409 `CODIGO_TURMA_DUPLICADO`; 422.
 
 ### GET /gestao/turmas
-**Query**: `ativa`, `semestre_curso`, `periodo_letivo`, `q`, `limit`, `offset`. **200**: lista paginada de turmas completas, mais `total_alunos` e `total_docentes`.
+**Query**: `ativa`, `semestre_curso`, `periodo_letivo`, `q` (em código e nome; texto literal, emenda v2.4), `limit`, `offset`. **200**: lista paginada de turmas completas, mais `total_alunos` e `total_docentes`.
 
 ### GET /gestao/turmas/{turma_id}
 **200**: turma completa. 404 `TURMA_NAO_ENCONTRADA`.
@@ -600,7 +600,7 @@ Efeito: cria versão 1 e evento `criado`.
 
 ### GET /gestao/avisos
 **Auth**: administrador e coordenação (todos); docente (somente os que publicou).
-**Query**: `situacao` (`ativo|agendado|arquivado|excluido`; padrão: todos exceto `excluido`), `autor_id`, `turma_id`, `q`, `limit`, `offset`.
+**Query**: `situacao` (`ativo|agendado|arquivado|excluido`; padrão: todos exceto `excluido`), `autor_id`, `turma_id`, `q` (em título e conteúdo; texto literal, emenda v2.4), `limit`, `offset`.
 
 `situacao=agendado` devolve os avisos **ativos cuja `publicar_em` ainda não chegou** (RF-34);
 `situacao=ativo` devolve os ativos **já publicados**. A distinção existe para que a plataforma web
@@ -643,6 +643,7 @@ pagine corretamente a aba de agendados — no banco, os dois são `ativo`.
 }
 ```
 Campos e validações: os mesmos de `POST`. Se nada mudou de fato → 422 `VALIDATION_ERROR` ("nenhuma alteração").
+`publicar_em` só muda enquanto o aviso está agendado (`null` publica já). Num aviso já publicado, `publicar_em` enviado, com qualquer valor, → 422 `VALIDATION_ERROR` no campo `publicar_em` ("aviso já publicado não pode ser reagendado"; emenda v2.4). No histórico, as datas de `alteracoes` vêm em UTC.
 
 **200**: aviso de gestão atualizado, com `versao_atual` incrementada e `editado_em` preenchido.
 Efeitos: nova versão; evento `editado` com `alteracoes`, por exemplo
@@ -655,10 +656,10 @@ Efeitos: nova versão; evento `editado` com `alteracoes`, por exemplo
 
 ### POST /gestao/avisos/{aviso_id}/arquivar
 **200**: aviso com `situacao: "arquivado"` e `arquivado_em`. Evento `arquivado`.
-**Erros**: 403; 404; 409 `AVISO_SITUACAO_INVALIDA` (já arquivado/excluído).
+**Erros**: 403; 404 (inexistente ou excluído, emenda v2.4); 409 `AVISO_SITUACAO_INVALIDA` (já arquivado).
 
 ### POST /gestao/avisos/{aviso_id}/desarquivar
-**200**: aviso com `situacao: "ativo"`. Evento `desarquivado`. **Erros**: 403; 404; 409 `AVISO_SITUACAO_INVALIDA` (não está arquivado).
+**200**: aviso com `situacao: "ativo"`. Evento `desarquivado`. **Erros**: 403; 404 (inexistente ou excluído, emenda v2.4); 409 `AVISO_SITUACAO_INVALIDA` (não está arquivado).
 
 ### DELETE /gestao/avisos/{aviso_id}
 Exclusão lógica (`situacao = excluido`, `excluido_em`). **204**. Evento `excluido`.

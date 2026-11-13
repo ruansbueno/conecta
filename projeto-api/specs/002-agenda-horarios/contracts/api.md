@@ -181,7 +181,8 @@ Efeito: cria versão 1 e registro de histórico `criado`.
 
 **Auth**: administração e coordenação (todos); docente (somente os que criou).
 **Query**: `situacao` (`ativo|arquivado|excluido`; padrão: todos exceto `excluido`), `tipo`,
-`autor_id`, `turma_id`, `de`, `ate`, `q`, `quando`, `limit`, `offset`.
+`autor_id`, `turma_id`, `de`, `ate`, `q` (em título, descrição e local; texto literal, `%` e `_`
+não são curingas — emenda v2.4 da spec 001), `quando`, `limit`, `offset`.
 
 `quando` (emenda de 31/10/2026, para as abas da plataforma web): `proximos` traz os não
 encerrados, na ordem de `inicio` crescente (o mesmo "encerrado" da seção 1); `realizados`, os

@@ -15,10 +15,13 @@ from src.repositories.usuario_repository import UsuarioRepository
 from src.services import solicitacoes_gestao_service
 
 
-async def aprovar(session: AsyncSession, solicitacao_id: uuid.UUID | str, decisor_username: str):
+async def aprovar(
+    session: AsyncSession, solicitacao_id: uuid.UUID | str, decisor_username: str | None
+):
     """Mesmo serviço do endpoint de gestão (plan-e2 D-E2-10), com as mesmas regras.
 
-    O decisor é obrigatório: toda decisão registra quem decidiu (ck_..._decisor_coerente).
+    O decisor é obrigatório: toda decisão registra quem decidiu (ck_..._decisor_coerente). Sem
+    ele, ou com um que não existe, levanta USUARIO_NAO_ENCONTRADO e nada é aprovado.
     """
     decisor = None
     if decisor_username:

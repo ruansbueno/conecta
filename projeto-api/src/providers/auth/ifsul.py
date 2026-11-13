@@ -14,9 +14,9 @@ from typing import Any
 import anyio
 import httpx
 
-from src.providers.auth.base import AuthenticatedUser, TipoInstitucional
+from src.models.usuario import TIPOS_INSTITUCIONAIS
+from src.providers.auth.base import AuthenticatedUser
 
-_TIPOS: tuple[TipoInstitucional, ...] = ("aluno", "administrativo")
 # Tempos do exemplo da doc (CURLOPT_CONNECTTIMEOUT 5, CURLOPT_TIMEOUT 15). O do httpx vale por
 # etapa (cada leitura); o limite total cobre a operação inteira, como o CURLOPT_TIMEOUT.
 TIMEOUT = httpx.Timeout(15.0, connect=5.0)
@@ -120,5 +120,5 @@ def _usuario(dados: Any) -> AuthenticatedUser:
         username=login.strip().lower(),
         nome=nome.strip(),
         email=email.strip() if isinstance(email, str) and email.strip() else None,
-        tipo_institucional=tipo if tipo in _TIPOS else None,
+        tipo_institucional=tipo if tipo in TIPOS_INSTITUCIONAIS else None,
     )

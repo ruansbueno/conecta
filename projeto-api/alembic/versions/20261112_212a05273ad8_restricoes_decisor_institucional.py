@@ -11,6 +11,12 @@ Validação externa do DER (12/11/2026):
 
 Dados antigos: a cancelada sem decisor recebe o próprio aluno (é quem cancela, por definição).
 Qualquer outra violação faz a migração parar com os ids, sem inventar quem decidiu.
+
+Banco de dev semeado antes desta migração: a recusada do seed não tem decisor e a migração
+para. Corrija com a coordenação do seed e migre de novo:
+    UPDATE tb_solicitacao_inscricao SET id_usuario_decisor =
+        (SELECT id_usuario FROM tb_usuario WHERE cod_usuario = 'coord.teste')
+    WHERE st_solicitacao <> 'pendente' AND id_usuario_decisor IS NULL;
 """
 
 from collections.abc import Sequence

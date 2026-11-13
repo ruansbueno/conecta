@@ -7,6 +7,7 @@
 
 import asyncio
 import os
+import re
 import uuid
 
 import pytest
@@ -17,6 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
+from src.models.usuario import TIPOS_INSTITUCIONAIS
 from tests.helpers import criar_turma, criar_usuario
 
 # Última migração antes destas restrições.
@@ -99,10 +101,11 @@ def _semear_antes(url, solicitacoes):
     ]
     for sid, status, com_decisor in solicitacoes:
         decisor = f"'{coord}'" if com_decisor else "NULL"
+        decidida = "NULL" if status == "pendente" else "now()"
         sqls.append(
             "INSERT INTO tb_solicitacao_inscricao (id_solicitacao, id_turma, id_usuario, "
             "st_solicitacao, dt_decisao, id_usuario_decisor) "
-            f"VALUES ('{sid}', '{turma}', '{aluno}', '{status}', now(), {decisor})"
+            f"VALUES ('{sid}', '{turma}', '{aluno}', '{status}', {decidida}, {decisor})"
         )
     _executar(url, *sqls)
     return aluno, coord
@@ -124,8 +127,9 @@ def test_migracao_preenche_a_cancelada_sem_decisor_com_o_proprio_aluno(migrated_
         )
         assert dict(linhas) == {cancelada: aluno, recusada: coord}
     finally:
-        command.upgrade(cfg, "head")
+        # Limpa antes de subir: com dados ruins, o upgrade do finally falharia de novo.
         _executar(migrated_db, "TRUNCATE tb_usuario, tb_turma CASCADE")
+        command.upgrade(cfg, "head")
 
 
 def test_migracao_para_e_lista_a_decidida_sem_decisor_que_nao_e_cancelada(migrated_db):
@@ -135,13 +139,47 @@ def test_migracao_para_e_lista_a_decidida_sem_decisor_que_nao_e_cancelada(migrat
     try:
         _semear_antes(migrated_db, [(recusada, "recusada", False)])
 
-        with pytest.raises(Exception, match=str(recusada)):
+        with pytest.raises(RuntimeError, match=str(recusada)):
             command.upgrade(cfg, "head")
 
         (linhas,) = _executar(
             migrated_db, "SELECT id_usuario_decisor FROM tb_solicitacao_inscricao"
         )
         assert linhas == [(None,)]  # nada inventado
+    finally:
+        _executar(migrated_db, "TRUNCATE tb_usuario, tb_turma CASCADE")
+        command.upgrade(cfg, "head")
+
+
+def test_migracao_que_para_desfaz_tambem_o_preenchimento_da_cancelada(migrated_db):
+    cfg = _cfg()
+    cancelada, recusada = uuid.uuid4(), uuid.uuid4()
+    command.downgrade(cfg, ANTES_DAS_RESTRICOES)
+    try:
+        _semear_antes(migrated_db, [(cancelada, "cancelada", False), (recusada, "recusada", False)])
+
+        with pytest.raises(RuntimeError, match=str(recusada)):
+            command.upgrade(cfg, "head")
+
+        (linhas,) = _executar(
+            migrated_db,
+            "SELECT id_solicitacao, id_usuario_decisor FROM tb_solicitacao_inscricao",
+        )
+        assert dict(linhas) == {cancelada: None, recusada: None}
+    finally:
+        _executar(migrated_db, "TRUNCATE tb_usuario, tb_turma CASCADE")
+        command.upgrade(cfg, "head")
+
+
+def test_migracao_para_e_lista_a_pendente_com_decisor(migrated_db):
+    cfg = _cfg()
+    pendente = uuid.uuid4()
+    command.downgrade(cfg, ANTES_DAS_RESTRICOES)
+    try:
+        _semear_antes(migrated_db, [(pendente, "pendente", True)])
+
+        with pytest.raises(RuntimeError, match=str(pendente)):
+            command.upgrade(cfg, "head")
     finally:
         _executar(migrated_db, "TRUNCATE tb_usuario, tb_turma CASCADE")
         command.upgrade(cfg, "head")
@@ -157,8 +195,19 @@ def test_migracao_para_e_lista_o_tipo_institucional_fora_da_lista(migrated_db):
             "UPDATE tb_usuario SET tp_institucional = 'servidor' WHERE cod_usuario = 'coord.mig'",
         )
 
-        with pytest.raises(Exception, match="coord.mig"):
+        with pytest.raises(RuntimeError, match="coord.mig"):
             command.upgrade(cfg, "head")
     finally:
         _executar(migrated_db, "TRUNCATE tb_usuario, tb_turma CASCADE")
         command.upgrade(cfg, "head")
+
+
+def test_check_do_banco_aceita_exatamente_os_tipos_institucionais_do_model(migrated_db):
+    # compare_metadata não compara a expressão de um CHECK: um valor novo no Literal sem
+    # migração faria o banco recusar o login. O catálogo diz o que o banco aceita.
+    (linhas,) = _executar(
+        migrated_db,
+        "SELECT pg_get_constraintdef(oid) FROM pg_constraint "
+        "WHERE conname = 'ck_tb_usuario_institucional_valido'",
+    )
+    assert set(re.findall(r"'(\w+)'", linhas[0][0])) == set(TIPOS_INSTITUCIONAIS)

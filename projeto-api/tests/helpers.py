@@ -71,7 +71,8 @@ async def vincular(db, turma, usuario_id, papel="aluno", origem="seed"):
 
 async def criar_solicitacao(db, turma, aluno_id, status="pendente", **campos):
     """Decidida sem `decidida_por`: cancelada pelo próprio aluno; aprovada ou recusada por uma
-    coordenação criada aqui (o banco exige o decisor fora de pendente)."""
+    coordenação criada aqui, `decisor.padrao` (o banco exige o decisor fora de pendente). Quem
+    contar usuários de coordenação precisa lembrar dela."""
     if status != "pendente":
         campos.setdefault("decidida_em", datetime.now(UTC))
         if "decidida_por" not in campos:

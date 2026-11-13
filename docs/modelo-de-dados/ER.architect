@@ -85,7 +85,7 @@
      <remarks>liberado, pendente ou recusado; perfil só quando liberado</remarks>
     </column>
     <column id="COL25" populated="true" UUID="2e063404-04df-4fad-85c1-e228e218f850" autoIncrement="false" autoIncrementSequenceName="tb_usuario_tp_institucional_seq" defaultValue="" name="tp_institucional" nullable="1" physicalName="tp_institucional" precision="20" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
-     <remarks>aluno ou administrativo, informado pela API do IFSul; NULL quando não informado. CHECK ck_tb_usuario_institucional_valido (pendente no banco: pendente-restricoes.sql)</remarks>
+     <remarks>aluno ou administrativo, informado pela API do IFSul; NULL quando não informado. CHECK ck_tb_usuario_institucional_valido (migração 212a05273ad8)</remarks>
     </column>
     <column id="COL26" populated="true" UUID="f0144c10-2e4e-4a32-9295-70090455bef7" autoIncrement="false" autoIncrementSequenceName="tb_usuario_txt_email_seq" defaultValue="" name="txt_email" nullable="1" physicalName="txt_email" precision="200" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
      <remarks></remarks>
@@ -291,7 +291,7 @@
      <remarks>com fuso</remarks>
     </column>
     <column id="COL95" populated="true" UUID="65e767ec-e1b7-4379-a31f-f51fed762a08" autoIncrement="false" autoIncrementSequenceName="tb_solicitacao_inscricao_id_usuario_decisor_seq" defaultValue="" name="id_usuario_decisor" nullable="1" physicalName="id_usuario_decisor" precision="0" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="1111" userDefinedTypeUUID="adda8711-12f6-529c-a576-3edc86777f23" >
-     <remarks>uuid; NULL se e somente se st_solicitacao = pendente (na cancelada é o próprio aluno). CHECK ck_tb_solicitacao_inscricao_decisor_coerente (pendente no banco: pendente-restricoes.sql)</remarks>
+     <remarks>uuid; NULL se e somente se st_solicitacao = pendente (na cancelada é o próprio aluno). CHECK ck_tb_solicitacao_inscricao_decisor_coerente (migração 212a05273ad8)</remarks>
     </column>
     <column id="COL96" populated="true" UUID="9a2135e6-ff6b-4787-8167-ff6f4c111fbd" autoIncrement="false" autoIncrementSequenceName="tb_solicitacao_inscricao_txt_motivo_recusa_seq" defaultValue="" name="txt_motivo_recusa" nullable="1" physicalName="txt_motivo_recusa" precision="300" referenceCount="1" scale="0" sourceDataTypeName="UserDefinedSQLType" type="12" userDefinedTypeUUID="831ac2d4-0e65-47ec-a0b7-62b7f6b8760a" >
      <remarks></remarks>

@@ -65,7 +65,7 @@ em `projeto-*/specs/` (especificação, plano e tarefas).
 | [`projeto-mobile/`](projeto-mobile/) | Código (`lib/`), testes de unidade e widget (`test/`), de integração (`integration_test/`), especificações e evidências com capturas |
 | [`design/`](design/) | As 30 telas desenhadas (14 do aplicativo, 16 da web), com a paleta e a tipografia, e as capturas no tema escuro (`web-escuro/`, `mobile-escuro/`) |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: componentes, autenticação, módulos e regras |
-| [`docs/modelo-de-dados/`](docs/modelo-de-dados/) | Modelo de dados no SQL Power Architect (`ER.architect`) e as restrições registradas para aplicar depois no banco (`pendente-restricoes.sql`) |
+| [`docs/modelo-de-dados/`](docs/modelo-de-dados/) | Modelo de dados no SQL Power Architect (`ER.architect`) |
 | [`docs/HISTORICO.md`](docs/HISTORICO.md) | Como o projeto foi construído: ordem das entregas e os pull requests |
 | [`docs/historico/`](docs/historico/) | Versões superadas da especificação (v1 e v2), guardadas como registro |
 

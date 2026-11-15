@@ -15,7 +15,10 @@ enum RecursoCache {
   horarios('horarios'),
 
   /// Turma escolhida em Horários: só o id, lembrado por usuário.
-  horariosTurma('horarios_turma');
+  horariosTurma('horarios_turma'),
+
+  /// Aulas do docente em todas as turmas (emenda E3.1 da API).
+  aulasDoDocente('aulas_do_docente');
 
   const RecursoCache(this.chave);
   final String chave;

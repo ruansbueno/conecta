@@ -25,8 +25,26 @@ class HorariosRepository {
     return pagina.items;
   }
 
-  (List<Aula>, DateTime)? gradeEmCache(String usuarioId, String turmaId) {
-    final guardado = _cache.ler(usuarioId, RecursoCache.horarios, sufixo: turmaId);
+  /// `GET /horarios/minhas` (contracts E3 §3a, emenda E3.1): as aulas do docente em todas as
+  /// turmas, numa chamada, como a grade de uma turma.
+  Future<List<Aula>> minhasAulas({required String usuarioId}) async {
+    final token = _api.token;
+    const caminho = '/horarios/minhas';
+    final json = await _api.get(caminho, query: {'limit': limite, 'offset': 0});
+    final pagina = converter(() => Pagina.fromJson(json, Aula.fromJson), origem: 'GET $caminho');
+    if (token != null && _api.token == token) {
+      await _cache.gravar(usuarioId, RecursoCache.aulasDoDocente, json);
+    }
+    return pagina.items;
+  }
+
+  (List<Aula>, DateTime)? minhasAulasEmCache(String usuarioId) =>
+      _lerAulas(_cache.ler(usuarioId, RecursoCache.aulasDoDocente));
+
+  (List<Aula>, DateTime)? gradeEmCache(String usuarioId, String turmaId) =>
+      _lerAulas(_cache.ler(usuarioId, RecursoCache.horarios, sufixo: turmaId));
+
+  static (List<Aula>, DateTime)? _lerAulas(ConteudoGuardado? guardado) {
     if (guardado == null) return null;
     try {
       return (Pagina.fromJson(guardado.dados, Aula.fromJson).items, guardado.coletadoEm);

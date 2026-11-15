@@ -86,6 +86,7 @@ mesma origem, e proteção CSRF em toda escrita.
 | 14. Polimento da F2 | E2E da agenda e dos horários, axe e teclado nas telas novas, validação visual contra a API real, rastreabilidade e mensagens | ✅ [#26](https://github.com/ruansbueno/conecta/pull/26) |
 | — Login pelo IFSul | Aba Aguardando acesso em Usuários, com contador na barra lateral (RW-50, RW-51), e as mensagens de acesso pendente e recusado no login | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 | — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login; segue o sistema até a pessoa escolher, e a escolha fica no navegador; paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas e blocos vazios do painel com aviso | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
+| — Pedidos na aba | Aba Aguardando acesso, em Usuários, com a mesma bolinha laranja da barra lateral e o número de pedidos esperando ("Aguardando acesso 1 pendente" no leitor de tela) | ✅ [#42](https://github.com/ruansbueno/conecta/pull/42) |
 
 **Testes** (registro de 13/11/2026, [`testes-web-revisao-2026-11-13.txt`](evidencias/testes-web-revisao-2026-11-13.txt)):
 466 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas) e

@@ -38,6 +38,7 @@ void main() {
   }
 
   int pedidosDeMe() => app.api.pedidos.where((p) => p.url.path == '/me').length;
+  int pedidosDeTurmas() => app.api.pedidos.where((p) => p.url.path == '/turmas/minhas').length;
 
   testWidgets('aluno com vínculos: identificação, curso, período, turmas e a nota', (tester) async {
     await preparar(
@@ -305,5 +306,94 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(app.cache.ler('7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11', RecursoCache.perfil), isNull);
+  });
+
+  testWidgets('puxar para atualizar no Perfil recarrega o /me e o período das turmas', (
+    tester,
+  ) async {
+    final turmas = [
+      {'id': 't1', 'codigo': 'TADS-3A-2026-2', 'nome': 'TADS 3º Sem A', 'papel': 'aluno'},
+    ];
+    await preparar(_me(turmas: turmas));
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]),
+    );
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+    expect(find.text('2026/2'), findsOneWidget);
+    final antes = pedidosDeMe();
+    // A gestão mudou o perfil e o período da turma; as turmas do usuário são as mesmas.
+    app.api
+      ..responder('GET /me', _me(perfil: 'docente', turmas: turmas))
+      ..responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno', periodo: '2027/1')]),
+      );
+
+    await tester.fling(find.text('Aluno de Teste'), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    expect(pedidosDeMe(), antes + 1);
+    expect(find.text('Docente'), findsOneWidget);
+    expect(find.text('2027/1'), findsOneWidget);
+  });
+
+  testWidgets('puxar no Perfil pede o período uma vez só', (tester) async {
+    final turmas = [
+      {'id': 't1', 'codigo': 'TADS-3A-2026-2', 'nome': 'TADS 3º Sem A', 'papel': 'aluno'},
+    ];
+    await preparar(_me(turmas: turmas));
+    app.api.responder(
+      'GET /turmas/minhas',
+      paginaJson([turmaMapa('TADS-3A-2026-2', papel: 'aluno')]),
+    );
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+    final antes = pedidosDeTurmas();
+
+    await tester.fling(find.text('Aluno de Teste'), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    // A reconstrução depois do /me não repete o pedido feito pelo puxar.
+    expect(pedidosDeTurmas(), antes + 1);
+  });
+
+  testWidgets('"Tentar de novo" da faixa do Perfil, ainda sem rede, avisa como o puxar', (
+    tester,
+  ) async {
+    await preparar(_me());
+    app.api
+      ..responder('GET /turmas/minhas', paginaJson([]))
+      ..falharRede('GET /me');
+    await app.cache.gravar(
+      '7b1c0e3a-6f64-4f43-8a58-2f3d5f0c1a11',
+      RecursoCache.perfil,
+      jsonDecode(_me()) as Map<String, dynamic>,
+    );
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+
+    await tester.tap(
+      find.descendant(of: find.byType(FaixaCache), matching: find.text('Tentar de novo')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FaixaCache), findsOneWidget);
+    expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  testWidgets('puxar no Perfil sem rede mantém os dados na tela e avisa', (tester) async {
+    await preparar(_me());
+    app.api.responder('GET /turmas/minhas', paginaJson([]));
+    await app.abrir(tester);
+    await abrirAba(tester, 'Perfil');
+    app.api.falharRede('GET /me');
+
+    await tester.fling(find.text('Aluno de Teste'), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Aluno de Teste'), findsOneWidget);
+    expect(find.byType(SnackBar), findsOneWidget);
   });
 }

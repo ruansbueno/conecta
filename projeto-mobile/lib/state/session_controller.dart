@@ -103,21 +103,25 @@ class SessionController extends ChangeNotifier {
   }
 
   /// Reavalia perfil e turmas (RM-09). 401/403 encerram pelo evento central; sem rede, mantém.
-  Future<void> recarregarPerfil() async {
-    if (_estado != EstadoSessao.logado) return;
+  /// Devolve a falha quando a recarga não aconteceu (para o puxar do Perfil avisar).
+  Future<ApiFailure?> recarregarPerfil() async {
+    if (_estado != EstadoSessao.logado) return null;
     final token = _api.token;
     final recarga = ++_recargas;
     try {
       final usuario = await _auth.me();
-      if (_estado != EstadoSessao.logado || _api.token != token) return; // saiu nesse meio-tempo
+      // Saiu nesse meio-tempo.
+      if (_estado != EstadoSessao.logado || _api.token != token) return null;
       // Abrir a aba e voltar do segundo plano podem pedir juntos: só a recarga mais recente vale,
       // para uma resposta antiga não desfazer um perfil já atualizado.
-      if (recarga != _recargas) return;
+      if (recarga != _recargas) return null;
       _usuario = usuario;
       _perfilDoCache = null;
       notifyListeners();
-    } on ApiFailure {
+      return null;
+    } on ApiFailure catch (falha) {
       // Mantém os dados atuais; o encerramento por 401/403 já veio pelo evento central.
+      return falha;
     }
   }
 

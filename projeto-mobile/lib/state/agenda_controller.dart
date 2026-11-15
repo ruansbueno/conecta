@@ -4,6 +4,7 @@ import '../models/evento.dart';
 import '../models/mes.dart';
 import '../models/pagina.dart';
 import '../repositories/eventos_repository.dart';
+import 'avisos_controller.dart' show EstadoLista;
 import 'lista_paginada.dart';
 import 'mes_controller.dart';
 
@@ -26,7 +27,8 @@ class EventosController extends ControllerDeLista<Evento> {
 }
 
 /// Os chips Próximos · Provas · Mês e o filtro de tipo (plan-f2 D-AF2-2). Cada visão é criada ao
-/// ser aberta; mudar o tipo recria Próximos e Mês (o mês aberto continua o mesmo).
+/// ser aberta; mudar o tipo recria Próximos e Mês (o mês aberto continua o mesmo). Voltar ao Mês
+/// busca de novo o mês aberto.
 class AgendaController extends ChangeNotifier {
   AgendaController(this._repo, {required this.usuarioId});
 
@@ -63,6 +65,12 @@ class AgendaController extends ChangeNotifier {
   void alternar(VisaoAgenda visao) {
     if (visao == _visao) return;
     _visao = visao;
+    // Voltar ao Mês busca de novo o mês aberto: um evento marcado enquanto outra visão estava aberta
+    // aparece sem trocar de mês e voltar. Ainda carregando, a carga em curso já serve.
+    final mes = _mes;
+    if (visao == VisaoAgenda.mes && mes != null && mes.estado != EstadoLista.carregando) {
+      mes.recarregar();
+    }
     notifyListeners();
   }
 

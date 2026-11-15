@@ -1,9 +1,13 @@
 // Abas no padrão ARIA (RW-39): só a ativa no Tab; setas, Home e End trocam e levam o foco.
 import type { KeyboardEvent } from 'react'
 
+import { ContadorPendentes } from './contador-pendentes'
+
 export interface Aba<T extends string> {
   id: T
   rotulo: string
+  /** Pendências da aba (ex.: pedidos de acesso esperando), com a bolinha da barra lateral. */
+  contador?: number
 }
 
 interface Props<T extends string> {
@@ -57,6 +61,7 @@ export function Abas<T extends string>({
           }`}
         >
           {a.rotulo}
+          <ContadorPendentes quantidade={a.contador ?? 0} />
         </button>
       ))}
     </div>

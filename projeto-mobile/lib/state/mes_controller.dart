@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/evento.dart';
 import '../models/mes.dart';
+import '../models/pagina.dart';
 import '../repositories/eventos_repository.dart';
 import '../services/api_failure.dart';
 import 'avisos_controller.dart' show EstadoLista;
@@ -38,6 +39,9 @@ class MesController extends ChangeNotifier {
   /// Data dos dados quando a tela mostra o cache por falta de rede.
   DateTime? dadosDe;
 
+  /// Falha de uma recarga que manteve o mês na tela (para um aviso breve).
+  ApiFailure? ultimaFalha;
+
   int _pedido = 0;
   bool _descartado = false;
 
@@ -51,22 +55,26 @@ class MesController extends ChangeNotifier {
     return m.contem(h) ? DateTime(h.year, h.month, h.day) : DateTime(m.ano, m.mes);
   }
 
+  Future<Pagina<Evento>> _buscar(Mes alvo) {
+    final janela = janelaDaGrade(alvo);
+    return _repo.doMes(
+      usuarioId: usuarioId,
+      chave: alvo.chave,
+      de: janela.de,
+      ate: janela.ate,
+      tipo: tipo,
+      guardar: alvo == Mes.de(_agora()),
+    );
+  }
+
   Future<void> carregar() async {
     final pedido = ++_pedido;
     final alvo = mes;
     estado = EstadoLista.carregando;
     falha = null;
     notifyListeners();
-    final janela = janelaDaGrade(alvo);
     try {
-      final pagina = await _repo.doMes(
-        usuarioId: usuarioId,
-        chave: alvo.chave,
-        de: janela.de,
-        ate: janela.ate,
-        tipo: tipo,
-        guardar: alvo == Mes.de(_agora()),
-      );
+      final pagina = await _buscar(alvo);
       if (pedido != _pedido) return;
       _aplicar(pagina.items, pagina.total);
     } on ApiFailure catch (f) {
@@ -80,6 +88,26 @@ class MesController extends ChangeNotifier {
         estado = EstadoLista.erro;
         falha = f;
       }
+    }
+    notifyListeners();
+  }
+
+  /// Puxar para atualizar e voltar ao chip Mês: busca de novo o mês aberto sem tirar a grade da
+  /// tela. Falhando, o que estava fica e a falha vai para [ultimaFalha]. Carregando ou com erro, não
+  /// há o que manter: é uma carga completa.
+  Future<void> recarregar() async {
+    // Zerada antes de tudo: quem puxou não pode ver a falha de uma recarga anterior.
+    ultimaFalha = null;
+    if (estado != EstadoLista.conteudo) return carregar();
+    final pedido = ++_pedido;
+    final alvo = mes;
+    try {
+      final pagina = await _buscar(alvo);
+      if (pedido != _pedido) return;
+      _aplicar(pagina.items, pagina.total);
+    } on ApiFailure catch (f) {
+      if (pedido != _pedido) return;
+      ultimaFalha = f;
     }
     notifyListeners();
   }

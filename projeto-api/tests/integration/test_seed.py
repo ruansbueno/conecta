@@ -27,7 +27,7 @@ async def test_seed_cria_todos_os_usuarios_do_mock_com_seus_perfis(db):
     perfis = await _perfis(db)
     assert set(perfis) == set(USUARIOS_DO_SEED)
     # Os de primeiro login só existem depois de entrar (o aluno.novo2 é o do vídeo de demonstração).
-    assert {"aluno.novo", "aluno.novo2", "servidor.novo"}.isdisjoint(perfis)
+    assert {"aluno.novo", "aluno.novo2", "servidor.novo", "servidor.novo2"}.isdisjoint(perfis)
     assert perfis["admin.conecta"] == "administrador"
     assert perfis["admin.teste"] == "administrador"
     assert perfis["coord.teste"] == "coordenacao"

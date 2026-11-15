@@ -152,6 +152,7 @@ Todos com a senha `senha-teste`. Os dados são fictícios.
 | `servidor.aguardando` | — | Um pedido de acesso pendente, para a gestão aprovar ou recusar |
 | `aluno.novo`, `servidor.novo` | — (não estão no seed) | O primeiro login: aluno entra como aluno; servidor vira um pedido de acesso |
 | `aluno.novo2` | — (não está no seed) | Outro primeiro login de aluno, reservado para o vídeo de demonstração |
+| `servidor.novo2` | — (não está no seed) | Outro primeiro login de servidor: vira um pedido de acesso, aprovado na aba Aguardando acesso |
 
 ## Como rodar os testes
 

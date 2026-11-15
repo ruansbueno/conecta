@@ -20,12 +20,14 @@ USUARIOS_TESTE: dict[str, tuple[str, TipoInstitucional]] = {
     "servidor.aguardando": ("Servidor Aguardando de Teste", "administrativo"),
     "servidor.novo": ("Servidor Novo de Teste", "administrativo"),
     "aluno.novo": ("Aluno Novo de Teste", "aluno"),
-    # Primeiro login do vídeo de demonstração, separado do aluno.novo usado nos testes manuais.
+    # Primeiros logins extras: o aluno.novo2 é o do vídeo de demonstração; o servidor.novo2 mostra
+    # o caminho do servidor (pedido de acesso) sem gastar o servidor.novo.
     "aluno.novo2": ("Aluno Novo Dois de Teste", "aluno"),
+    "servidor.novo2": ("Servidor Novo Dois de Teste", "administrativo"),
 }
 
 # O seed não os cria: só existem no banco depois do 1º login.
-PRIMEIRO_LOGIN = ("servidor.novo", "aluno.novo", "aluno.novo2")
+PRIMEIRO_LOGIN = ("servidor.novo", "aluno.novo", "aluno.novo2", "servidor.novo2")
 USUARIOS_DO_SEED = tuple(u for u in USUARIOS_TESTE if u not in PRIMEIRO_LOGIN)
 
 

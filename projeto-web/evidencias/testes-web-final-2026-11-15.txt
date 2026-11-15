@@ -1,0 +1,714 @@
+# Verificações da plataforma web — execução final, cada teste pelo nome — 15/11/2026 00:45
+# commit: e8982f2 | Node v24.11.1 | Playwright 1.64.1 (Chromium) | servidor falso no contrato da API
+
+## typecheck
+sem erros
+
+## eslint
+sem problemas
+
+## vitest (npx vitest run --reporter=verbose)
+
+ RUN  v5.0.5 /Users/ruanbueno/dev/conecta-evidencias/projeto-web
+
+ ✓ tests/componente/login.test.tsx > login (T01) > identidade da tela 96ms
+ ✓ tests/componente/login.test.tsx > login (T01) > abrir sem sessão não diz que a sessão expirou 11ms
+ ✓ tests/componente/login.test.tsx > login (T01) > campo vazio é indicado sem chamar o login 44ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > mostra os dados da turma e os vínculos com papel, origem e data 193ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > cada linha mostra código, nome, semestre, período, totais, inscrições e situação 203ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > cada linha mostra título, versão, autor, destinos, publicação e situação 228ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > gestão vê o link Horários para a grade da turma; docente não (plan-f2 D-F2-3) 33ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > docente não vê o link Horários 22ms
+ ✓ tests/componente/login.test.tsx > login (T01) > credencial inválida: mensagem acima do botão, usuário preservado, senha limpa 167ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > abre na aba Ativos e troca de aba pela URL, voltando à primeira página 76ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > selo "Agendado" vem de ativo com publicação futura (apresentação, não estado da API) 53ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > abas Ativas, Inativas e Todas viram o filtro ativa da API 138ms
+ ✓ tests/componente/turma-corridas.test.tsx > detalhe da turma sob corrida > resposta atrasada de outro papel não substitui a lista do papel escolhido 299ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > filtro por papel vai para a API; busca filtra os nomes carregados 156ms
+ ✓ tests/componente/login.test.tsx > login (T01) > usuário desativado vê a mensagem própria e permanece 128ms
+ ✓ tests/componente/turma-corridas.test.tsx > detalhe da turma sob corrida > enquanto uma remoção está em curso, as outras ficam indisponíveis (nada é ignorado em silêncio) 104ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > fechar inscrições explica o efeito antes e atualiza a turma 83ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > desativar explica que vínculos ficam e avisos param; depois dá para reativar 69ms
+ ✓ tests/componente/login.test.tsx > login (T01) > servidor aguardando liberação vê o aviso próprio e permanece (emenda v2.3) 102ms
+ ✓ tests/componente/login.test.tsx > login (T01) > acesso recusado vê o aviso próprio 87ms
+ ✓ tests/componente/login.test.tsx > login (T01) > o rodapé diz que as credenciais são as institucionais do IFSul 5ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > Nova aula: campos vazios, docente entre os de perfil docente; salvar cria e recarrega a grade 465ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > célula vazia abre a nova aula com o dia e o início da linha 41ms
+ ✓ tests/componente/detalhe-turma.test.tsx > detalhe da turma (T08, RW-25, RW-26) > editar turma pelo cabeçalho 97ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > coordenação publica para três turmas e vê a confirmação 538ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > validação local antes do envio, com o foco no primeiro campo com erro, na ordem da modal 86ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > cartão abre a edição; o PATCH leva só o que mudou 57ms
+ ✓ tests/componente/login.test.tsx > login (T01) > falha de rede mantém o que foi digitado 81ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > voltar no navegador depois de publicar não reabre o formulário 215ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > sem nenhuma mudança, não chama a API e avisa 49ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > busca, autor e turma viram filtros da API e ficam na URL 441ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > paginação pela URL 31ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > docente não tem a aba Excluídos nem o filtro de autor 14ms
+ ✓ tests/componente/login.test.tsx > login (T01) > sucesso: chama GET /me e vai ao painel 96ms
+ ✓ tests/componente/login.test.tsx > login (T01) > login aceito, mas a sessão não ficou no navegador: explica sem falar em expiração 82ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > 422 marca o campo indicado pela API, e nada digitado se perde 104ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > arquivar pela linha confirma, recarrega e informa 71ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > arquivar um aviso que outra pessoa excluiu enquanto a lista estava aberta: avisa e recarrega 55ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > na aba Arquivados a ação é desarquivar, sem confirmação; não há editar 36ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > semestres e grupos viram chips removíveis, sem repetição 163ms
+ ✓ tests/componente/login.test.tsx > login (T01) > volta para a página pretendida depois de entrar (RW-07) 93ms
+ ✓ tests/componente/login.test.tsx > login (T01) > aluno: sessão encerrada e tela de sem permissão (RW-06) 81ms
+ ✓ tests/componente/login.test.tsx > login (T01) > 401 no meio do uso volta ao login dizendo que a sessão expirou 7ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > 409 PERFIL_INCOMPATIVEL marca o docente e recarrega a lista de docentes 100ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > remover vínculo alerta a perda imediata de acesso e recarrega 53ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > mensagem trazida de outra página (publicado, excluído) aparece uma vez 13ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > aba sem avisos mostra o estado vazio da aba 7ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > falha ao carregar permite tentar de novo 9ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > sem destino: a interface impede e explica, sem chamar a API 146ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > sem rede: alerta na modal, que continua aberta com o que foi digitado 102ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > remover pede confirmação, apaga e recarrega a grade 59ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > vincular docente: busca pela pessoa, quem já está vinculado aparece indisponível 380ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > aula que já não existe: fecha a modal, mostra o erro e recarrega a grade 54ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > Esc na confirmação de remover fecha só ela: a edição continua com o digitado e o foco volta ao botão 85ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > docente recusado sai da escolha: a modal mostra e envia "Sem docente" na tentativa seguinte 120ms
+ ✓ tests/componente/modal-aula.test.tsx > modal de aula (T13, plan-f2 D-F2-9) > turma que deixou de existir ao salvar: fecha a modal e a página vira o aviso sem repetir 53ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > busca, semestre e período vão para a API e ficam na URL; período incompleto não vai 1168ms
+ ✓ tests/componente/turma-corridas.test.tsx > detalhe da turma sob corrida > no vincular, resultado de uma busca anterior não fica escolhível nem escolhido 748ms
+ ✓ tests/componente/turma-corridas.test.tsx > vincular: trocar de papel no meio da carga > quem já está na turma vem do papel aberto agora, não de uma resposta atrasada do anterior 377ms
+ ✓ tests/componente/turma-corridas.test.tsx > id inválido no endereço (a API real responde 422) > turma: mostra "não está mais disponível" sem chamar a API 3ms
+ ✓ tests/componente/turma-corridas.test.tsx > id inválido no endereço (a API real responde 422) > aviso: mostra "não está mais disponível" sem chamar a API 4ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > URL como fonte da verdade > busca acompanha a URL quando ela muda por fora (link, voltar) 484ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > URL como fonte da verdade > página além do fim (depois de arquivar a última linha) volta para a última página com avisos 45ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > URL como fonte da verdade > parâmetros inválidos não vão à API; página fracionária é truncada 19ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > URL como fonte da verdade > filtro que a API recusa (turma apagada) oferece limpar os filtros 30ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > limite de 20 destinos 498ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > URL como fonte da verdade > docente: autor na URL é ignorado (não há filtro de autor para ele) 15ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > clique duplo em desarquivar envia uma vez só 44ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > ao trocar de aba, a tabela antiga sai e aparece o carregando (sem linhas de outra aba sob o título novo) 35ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > a mensagem de uma ação some quando a pessoa muda a busca, a aba ou a página 89ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > JA_VINCULADO e PERFIL_INCOMPATIVEL aparecem no próprio formulário 388ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > docente vê a turma e os vínculos só para leitura 8ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > turma inexistente oferece voltar; turma alheia leva à tela sem permissão 8ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > turma alheia (403) leva à tela sem permissão 9ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > nova turma: cria, informa e recarrega a lista 276ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > com o filtro em Alunos, quem já é docente da turma continua indisponível ao vincular docente 390ms
+ ✓ tests/componente/detalhe-turma.test.tsx > vínculos (RW-26, RW-27) > 403 numa ação (perfil mudou no meio do caminho) leva à tela sem permissão 51ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > arquivar a última linha da última página: a lista vai para a página anterior e a mensagem fica 83ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > editar pela linha abre o formulário preenchido e salva só o que mudou 131ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > vínculos da linha leva ao detalhe da turma 40ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > docente vê "Minhas turmas" só para leitura 43ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > agendamento no passado é recusado antes de enviar 342ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > cria com os dados do formulário 352ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > valida antes de enviar: campos marcados e foco no primeiro erro 83ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > aba sem turmas mostra o estado vazio; falha permite tentar de novo 23ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > falha ao carregar permite tentar de novo 9ms
+ ✓ tests/componente/lista-turmas.test.tsx > lista de turmas (T07, RW-23) > período incompleto avisa no próprio campo, e "Limpar filtros" também o limpa 80ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > voltar no navegador não traz de volta a mensagem de uma ação antiga 181ms
+ ✓ tests/componente/lista-avisos.test.tsx > lista de avisos (T03, RW-13, RW-14) > tentar de novo depois de uma falha mostra o carregando 57ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > código duplicado marca o campo código e mantém o digitado 279ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > agendamento futuro: envia publicar_em e confirma como agendado 418ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > valida antes de enviar e leva o foco ao primeiro erro 247ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > 422 da API marca o campo pelo nome do contrato 247ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > pendentes por padrão, da mais antiga para a mais nova, com o total na aba 142ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > mais de 3 dias conta em horas: 3 dias e 20 horas já é destaque 43ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > destaca quem espera há mais de 3 dias 50ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > abas de status e filtro de turma vão para a API e para a URL 75ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > erro de validação da API marca o campo e o destino problemático 292ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > falha de rede avisa e não fecha 256ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > edição abre preenchida e salva 123ms
+ ✓ tests/componente/turma-form.test.tsx > formulário de turma (T07, RW-24) > turma inativa: inscrições não podem ser abertas pelo formulário (e o porquê é dito) 7ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > decididas mostram quem decidiu, quando e o motivo; canceladas, que o aluno cancelou 56ms
+ ✓ tests/componente/solicitacoes.test.tsx > fila de solicitações (T09, RW-28) > aba sem solicitações mostra o estado vazio 9ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > aprovar cria o vínculo e a linha passa a mostrar quem aprovou e quando 85ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > cada linha mostra pessoa, perfil, último acesso e situação, com texto 186ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > cria com os destinos escolhidos e volta à agenda com a mensagem 384ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > docente escolhe só entre as turmas em que leciona 28ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > abre com o aviso atual e avisa que salvar cria nova versão 179ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > recusar pede o motivo (opcional, até 300) e mostra a recusa 153ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > já decidida por outra pessoa (409): explica e recarrega a fila 47ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > lista os pedidos pendentes com nome, login, e-mail e quando pediram 192ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > falha de rede mantém o formulário 269ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > docente (T15, RW-17) > só as turmas em que leciona; grupos indisponíveis com explicação 21ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > docente (T15, RW-17) > destino que o docente não pode usar (rascunho de outro perfil) não fica escondido no envio 31ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > 422 da API marca o campo indicado e nada digitado se perde 288ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > aluno já vinculado por outro caminho (409 JA_VINCULADO): explica e recarrega 38ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > turma que não é mais de quem decide (403): explica e recarrega a fila 29ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > envia só o que mudou; destinos intactos não vão no corpo 189ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > administração aprova escolhendo qualquer um dos quatro perfis 155ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > uma decisão por vez: enquanto uma está em curso, as outras ficam indisponíveis 78ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > revisão da fase 7 > depois de decidir, a fila vem do servidor (sem pular pendentes na página seguinte) e a decidida continua à vista 61ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > docente (T15, RW-17) > erro de destino fica ligado ao grupo e às turmas (leitor de tela) 271ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > destinos alterados vão como lista completa 70ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > sem alteração não chama a API 38ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > "nenhuma alteração" vindo da API informa, sem tratar como falha 50ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > sem rede: avisa, mantém o formulário e guarda o rascunho 247ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > editar abre com o evento e envia só o que mudou 59ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > editar evento arquivado explica e não oferece salvar 9ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > abrir sem mexer não grava rascunho 11ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > rascunho mais antigo que a última edição no servidor é descartado 16ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > revisão da fase 7 > recarga depois de um 409 não traz de volta os botões de quem já foi decidida 82ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > docente (T15, RW-17) > DESTINO_NAO_PERMITIDO explica, recarrega as turmas e mantém o texto 227ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > rascunho mais novo volta e a página avisa 12ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > abas de perfil e de inativos, e a busca, vão para a API e ficam na URL 447ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > depois de liberar, o contador de Usuários baixa (mesmo atrás da guarda de perfil) 236ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > a aba Aguardando acesso mostra quantos pedidos esperam, com a bolinha da barra lateral 79ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > revisão da fase 7 > recusa que falha mantém o modal aberto com o motivo digitado 123ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > revisão da fase 7 > aprovar quem não tem mais perfil de aluno explica o que fazer 34ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > revisão da fase 7 > filtro de turma que a API recusa oferece limpar o filtro 21ms
+ ✓ tests/componente/solicitacoes.test.tsx > decidir (RW-29, RW-30) > turma da URL que não está nas opções aparece no seletor (não "Todas") 13ms
+ ✓ tests/componente/solicitacoes.test.tsx > tabela de solicitações: um "agora" só para a lista inteira > a data segue o momento em que a lista chegou, não o relógio de cada linha 5ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > aviso arquivado: oferece desarquivar e mantém o texto 122ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > rascunho da edição > mais novo que a última edição: é recuperado e anunciado 14ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > rascunho da edição > mais antigo que a última edição (de outra pessoa): é descartado, vale o aviso atual 12ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > arquivado por outra pessoa durante a edição: oferece desarquivar 111ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > excluído durante a edição: volta à agenda com a mensagem 71ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > administração altera o perfil: a lista recarrega e informa 129ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > administração desativa uma pessoa (com confirmação) 87ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > sem pedidos esperando, a aba Aguardando acesso fica sem número 35ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > coordenação só concede docente ou coordenação 51ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > aviso agendado (ativo com publicar_em futuro) > abre com o agendamento e muda só o horário 78ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > aviso agendado (ativo com publicar_em futuro) > mudar só o título não reenvia a data 56ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > aviso que não existe mais: explica e oferece voltar, sem "tentar de novo" 8ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > aviso de outra pessoa (403 SEM_PERMISSAO) leva à tela sem permissão (RW-12) 3ms
+ ✓ tests/componente/editar-aviso.test.tsx > edição de aviso (RW-18) > falha de rede ao abrir permite tentar de novo 7ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > rascunho (RW-42) > guarda o que foi digitado e é recuperado ao reabrir 212ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > sem permissão leva à tela de sem permissão 65ms
+ ✓ tests/componente/editor-evento.test.tsx > editor de evento (T12; plan-f2 D-F2-5) > rascunho de edição (achado da revisão) > "nenhuma alteração" da API não é falha 79ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > recusar pede confirmação e explica a consequência 63ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > recusados: a administração ainda libera; não há como recusar de novo 66ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > mudar o próprio perfil atualiza a sessão (a navegação acompanha) 88ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > coordenação vê a lista, mas não a ação de alterar perfil (RW-11) 27ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > recusados: a coordenação só consulta 67ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > 403 ao alterar (perfil mudou no meio do caminho) leva à tela sem permissão (RW-12) 123ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > 403 na lista leva à tela sem permissão 17ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > aba sem pessoas mostra o estado vazio 18ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > rascunho (RW-42) > é apagado ao publicar 268ms
+ ✓ tests/componente/painel.test.tsx > painel da coordenação (T02) > números vêm do total de cada lista, sem endpoint de resumo 265ms
+ ✓ tests/componente/painel.test.tsx > painel da coordenação (T02) > publicados recentemente e solicitações pendentes, com atalho para cada lista 51ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > pedido já decidido por outra pessoa: avisa e recarrega a lista 115ms
+ ✓ tests/componente/editor.test.tsx > editor de aviso (T04/T05/T15) > prévia mostra o cartão como aparece no aplicativo (RW-22) 171ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > recusar um pedido que outra pessoa já decidiu: aviso informativo, não erro 97ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > sem pedidos: estado vazio que explica de onde eles vêm 22ms
+ ✓ tests/componente/acessos.test.tsx > aguardando acesso (RW-50, RW-51) > contador de pedidos pendentes em Usuários, para administração e coordenação 46ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > rebaixar o próprio perfil, com a guarda da rota > para docente: vai ao painel com a mensagem (a lista já não é dela) 105ms
+ ✓ tests/componente/usuarios.test.tsx > usuários (T10, RW-31) > rebaixar o próprio perfil, com a guarda da rota > para coordenação: continua na lista (a coordenação lê usuários), sem o aviso de perder a tela 100ms
+ ✓ tests/componente/painel.test.tsx > painel da coordenação (T02) > falha de uma chamada fica no seu bloco, com tentar de novo; os outros aparecem 57ms
+ ✓ tests/componente/painel.test.tsx > falhas no painel (D13, RW-37) > número que não carregou diz por quê, além de oferecer tentar de novo 37ms
+ ✓ tests/componente/painel.test.tsx > falhas no painel (D13, RW-37) > tentar de novo mostra que está carregando (e a nova falha é anunciada de novo) 46ms
+ ✓ tests/componente/painel.test.tsx > painel do docente (T14) > minhas turmas com as pendências de cada uma, meus avisos e o que o perfil permite 91ms
+ ✓ tests/componente/painel.test.tsx > painel do docente (T14) > a mensagem trazida pega o foco uma vez só (não a cada nova renderização) 90ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > coordenação: todas as pendentes no bloco → "Não há mais solicitações esperando decisão." 23ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > coordenação: mais pendentes que o bloco mostra → sem fecho 40ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > coordenação: menos avisos que o limite → "Não há mais avisos recentes." 21ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > coordenação: avisos além do bloco → sem fecho 31ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > coordenação: blocos vazios com ícone, frase e atalho para publicar 25ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > com falha: sem fecho 17ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > docente: "Meus avisos" vazio com atalho; pendentes que cabem no bloco com fecho 33ms
+ ✓ tests/componente/painel.test.tsx > painel: fim da lista e vazios amigáveis > docente: mais de 4 pendentes → o bloco mostra 4 e não diz que acabou 29ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > Próximos é a aba inicial e pede os não encerrados 205ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > cartão como na w-12: dia, mês, tipo, horário, local e destinos 36ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > cada aba pede a sua consulta e fica na URL 71ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > filtro de tipo e busca vão para a consulta 13ms
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > pede a janela do mês e mostra semanas de segunda a domingo 220ms
+ ✓ tests/componente/sair.test.tsx > sair (RW-09) > saída confirmada pela API volta ao login 220ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > arquivar pede confirmação e mostra a mensagem; em Arquivados, desarquivar vai direto 190ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > vazio de cada aba explica o que aparece ali; erro oferece tentar de novo 10ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > docente vê "Novo evento" e só os seus (quem filtra é a API) 11ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda — lista (T12, w-12; plan-f2 D-F2-1, D-F2-6) > enquanto carrega, mostra o carregando 16ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > /eventos (Próximos): poucos eventos → "Não há mais eventos." 16ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > /eventos?aba=realizados (Realizados): poucos eventos → "Não há mais eventos." 17ms
+stderr | tests/componente/sair.test.tsx > título da seção na barra superior > docente vê "Meus avisos", o mesmo nome da navegação
+Resposta da API fora do contrato /gestao/solicitacoes [
+  {
+    expected: 'array',
+    code: 'invalid_type',
+    path: [ 'items' ],
+    message: 'Invalid input: expected array, received undefined'
+  },
+  {
+    expected: 'number',
+    code: 'invalid_type',
+    path: [ 'total' ],
+    message: 'Invalid input: expected number, received undefined'
+  },
+  {
+    expected: 'number',
+    code: 'invalid_type',
+    path: [ 'limit' ],
+    message: 'Invalid input: expected number, received undefined'
+  },
+  {
+    expected: 'number',
+    code: 'invalid_type',
+    path: [ 'offset' ],
+    message: 'Invalid input: expected number, received undefined'
+  }
+]
+
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > evento de vários dias aparece em cada dia; mais de 3 num dia vira "+N" 212ms
+ ✓ tests/componente/sair.test.tsx > sair (RW-09) > saída que falhou avisa e mantém a pessoa na gestão 59ms
+ ✓ tests/componente/sair.test.tsx > sair (RW-09) > CSRF inválido também sai: a API recusa, mas já expirou os cookies (01/11/2026) 32ms
+ ✓ tests/componente/sair.test.tsx > título da seção na barra superior > docente vê "Meus avisos", o mesmo nome da navegação 21ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > /eventos?aba=arquivados (Arquivados): poucos eventos → "Não há mais eventos." 36ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > cada perfil diz o que pode fazer; o atual vem marcado e o efeito imediato é explicado 205ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > salva o perfil escolhido 49ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > com mais páginas, sem fecho; na última página, com fecho 136ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > vazio, carregando e erro: sem fecho 10ms
+ ✓ tests/componente/agenda-lista.test.tsx > agenda: fim da lista > erro: sem fecho 21ms
+ ✓ tests/componente/sair.test.tsx > perfil alterado vale na navegação seguinte (SC-008) > trocar de página relê a sessão: a navegação mostra o perfil novo 74ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > cada tipo de evento aparece com autor e data, do mais recente ao mais antigo 160ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > edição mostra o texto anterior e o novo 48ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > destinos alterados aparecem como conjunto, com os nomes das turmas 22ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > PERFIL_INCOMPATIVEL explica que os vínculos precisam sair antes 67ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > 422 do último administrador 56ms
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > ‹ › trocam o mês na URL e pedem a nova janela 144ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > desativar pede confirmação com a consequência e então desativa 47ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > o foco fica dentro do modal ao entrar e sair da confirmação de desativar (RW-39) 41ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > inativo: reativar vai direto 27ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > a própria conta não tem a opção de desativar, e explica por quê 17ms
+ ✓ tests/componente/sair.test.tsx > contador de solicitações na barra lateral > mostra quantas esperam decisão e atualiza ao trocar de página 134ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > versão atual destacada; abrir uma versão mostra o conteúdo dela 107ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > mensagem trazida da edição aparece no detalhe 13ms
+ ✓ tests/componente/historico.test.tsx > histórico e versões do aviso (T06, RW-20, RW-21) > aba Conteúdo mostra o aviso atual 18ms
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > clicar num dia lista os eventos dele abaixo do calendário 217ms
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > dia de outro mês na grade também mostra os eventos dele 87ms
+ ✓ tests/componente/calendario-mes.test.tsx > agenda — aba Mês (plan-f2 D-F2-7) > mais eventos do que cabem numa página: avisa que o mês está incompleto 25ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > a própria conta, saindo da administração: avisa o que muda, conforme o novo perfil 54ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > durante o envio, não dá para cancelar nem fechar 47ms
+ ✓ tests/componente/perfil-modal.test.tsx > alterar perfil de acesso (T11, RW-32, RW-33) > 422 de outro campo cai na mensagem geral, não na do último administrador 39ms
+ ✓ tests/componente/conflitos.test.tsx > conflitos (T13, RW-46, plan-f2 D-F2-10) > aula salva com conflitos: atenção, não erro, com sala ou docente, turma, dia e horas; foco na mensagem 508ms
+ ✓ tests/componente/historico.test.tsx > ciclo de vida no detalhe (RW-19, RW-41) > arquivar pede confirmação explicando a consequência e atualiza a situação 92ms
+ ✓ tests/componente/historico.test.tsx > ciclo de vida no detalhe (RW-19, RW-41) > excluir confirma e volta à lista com a mensagem 71ms
+ ✓ tests/componente/sair.test.tsx > contador acompanha as decisões > decidir na fila atualiza o contador da barra lateral sem trocar de página 187ms
+ ✓ tests/componente/historico.test.tsx > ciclo de vida no detalhe (RW-19, RW-41) > aviso excluído continua auditável e sem ações 26ms
+ ✓ tests/componente/historico.test.tsx > ciclo de vida no detalhe (RW-19, RW-41) > aviso de outra pessoa leva à tela sem permissão 19ms
+ ✓ tests/componente/sair.test.tsx > contador resiste a uma falha momentânea > se a contagem falha, o número anterior fica (em vez de sumir) 197ms
+ ✓ tests/componente/historico-evento.test.tsx > evento — histórico e versões (RW-34; plan-f2 D-F2-4) > linha do tempo com o vocabulário do evento e as mudanças de data e local 177ms
+ ✓ tests/componente/historico-evento.test.tsx > evento — histórico e versões (RW-34; plan-f2 D-F2-4) > versões: cada uma abre com data, local e destinos 105ms
+ ✓ tests/componente/historico-evento.test.tsx > evento — histórico e versões (RW-34; plan-f2 D-F2-4) > a aba de detalhes mostra data, local, descrição e destinos 73ms
+ ✓ tests/componente/historico-evento.test.tsx > evento — histórico e versões (RW-34; plan-f2 D-F2-4) > excluir pede confirmação e volta à agenda com a mensagem 130ms
+ ✓ tests/componente/historico-evento.test.tsx > evento — histórico e versões (RW-34; plan-f2 D-F2-4) > mudança de tipo aparece com o rótulo, não com o valor da API 31ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > colunas de segunda a sexta, linhas pelos inícios, cartão com disciplina, horas, local e docente 252ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > cabeçalho com a turma (link para trocar) e o período 44ms
+ ✓ tests/componente/comum.test.tsx > ChipDestino > rótulo por tipo e leitura acessível 48ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > docentes nesta grade, com as disciplinas 38ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > grade vazia: estado vazio e o botão Nova aula 15ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > turma inexistente: mensagem e caminho de volta à escolha da turma 26ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > falha ao carregar a grade oferece tentar de novo 41ms
+ ✓ tests/componente/grade-semanal.test.tsx > grade semanal (T13, w-13, plan-f2 D-F2-8) > sábado com aula entra na grade, com "no sábado" na célula vazia 35ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > com sessão válida, mostra a página protegida 50ms
+ ✓ tests/componente/comum.test.tsx > ChipDestino > removível por botão com rótulo próprio, operável por teclado 89ms
+ ✓ tests/componente/comum.test.tsx > SeloSituacao > texto visível (a situação não depende só de cor, RW-40) 5ms
+ ✓ tests/componente/comum.test.tsx > Avatar > mostra as iniciais e é anunciado pelo nome 5ms
+ ✓ tests/componente/comum.test.tsx > estados > EstadoVazio com ação 21ms
+ ✓ tests/componente/comum.test.tsx > estados > EstadoErro anuncia a mensagem e oferece tentar de novo 18ms
+ ✓ tests/componente/comum.test.tsx > estados > Esqueleto anuncia o carregamento a leitores de tela 7ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > depois de um erro de rede, tentar de novo sem sessão leva ao login 137ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > a tela de erro da sessão também tem o botão do modo noturno (spec 002, FR-001) 14ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > no claro: lua, "Ativar modo noturno", com a mesma dica ao passar o mouse 104ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > sistema escuro e sem escolha: começa no escuro, com o sol 16ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > acionar alterna na hora, guarda a escolha e troca o símbolo 48ms
+ ✓ tests/componente/avisar-turma.test.tsx > avisar a turma (T13, RW-36, plan-f2 D-F2-11) > cartão fixo "Mudou alguma aula?" leva ao aviso da turma 161ms
+ ✓ tests/componente/avisar-turma.test.tsx > avisar a turma (T13, RW-36, plan-f2 D-F2-11) > turma inativa: sem o link para o aviso, que não aceitaria a turma como destino 30ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > depois de sair, o login não guarda a página de quem saiu (a próxima pessoa vai ao painel) 26ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > sem sessão, vai ao login guardando o destino pretendido (RW-07) 9ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > duas chamadas com 401 juntas encerram a sessão uma vez só 16ms
+ ✓ tests/componente/sessao.test.tsx > sessão na interface > aluno autenticado vê sem permissão e a sessão é encerrada (RW-06) 23ms
+ ✓ tests/componente/comum.test.tsx > Tabela > associa cabeçalhos às células e expõe a legenda 19ms
+ ✓ tests/componente/comum.test.tsx > Paginacao e Busca > paginação anuncia a faixa e navega 49ms
+ ✓ tests/componente/comum.test.tsx > Paginacao e Busca > na última página não há próxima 7ms
+ ✓ tests/componente/comum.test.tsx > Paginacao e Busca > busca com rótulo acessível 24ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > funciona pelo teclado (Enter e espaço) 22ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > a escolha guardada vence o sistema 3ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > sem escolha, acompanha o sistema; depois de escolher, não acompanha mais 29ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > escolha feita em outra aba vale aqui também 3ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > armazenamento que recusa gravar: a escolha vale na sessão, mesmo se o sistema mudar 18ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > escolha feita em outra aba antes de esta página montar também vale 6ms
+ ✓ tests/componente/botao-tema.test.tsx > botão do modo noturno > sai sem deixar ouvintes do sistema para trás 1ms
+ ✓ tests/componente/botao-tema.test.tsx > o botão está em toda tela (FR-001) > barra superior da gestão, à direita das ações da página 3ms
+ ✓ tests/componente/comum.test.tsx > Modal e Confirmacao (RW-39, RW-41) > foco preso, Esc fecha e o foco volta à origem 65ms
+ ✓ tests/componente/comum.test.tsx > Modal e Confirmacao (RW-39, RW-41) > confirmação descreve a consequência e confirma ou cancela 25ms
+ ✓ tests/componente/comum.test.tsx > Modal sob nova renderização da página > o foco fica onde a pessoa estava quando o pai renderiza de novo (onFechar novo) 8ms
+ ✓ tests/componente/seletor-destinos.test.tsx > abas do seletor de destinos (padrão ARIA de abas) > só a aba ativa entra na ordem do Tab e o painel leva o nome dela 128ms
+ ✓ tests/componente/seletor-destinos.test.tsx > abas do seletor de destinos (padrão ARIA de abas) > setas, Home e End trocam de aba e levam o foco junto 92ms
+ ✓ tests/componente/seletor-destinos.test.tsx > seletor de destinos no evento (plan-f2 D-F2-4) > fala de evento, não de aviso 28ms
+ ✓ tests/componente/avisar-turma.test.tsx > avisar a turma (T13, RW-36, plan-f2 D-F2-11) > a mensagem depois de remover também oferece o aviso da turma 193ms
+ ✓ tests/componente/avisar-turma.test.tsx > avisar a turma (T13, RW-36, plan-f2 D-F2-11) > /avisos/novo?turma=<id> abre o editor com a turma como destino 42ms
+ ✓ tests/componente/avisar-turma.test.tsx > avisar a turma (T13, RW-36, plan-f2 D-F2-11) > turma que não está entre as disponíveis é ignorada 25ms
+ ✓ tests/componente/botao-tema.test.tsx > o botão está em toda tela (FR-001) > login, sem perder o que foi digitado ao trocar 149ms
+ ✓ tests/componente/botao-tema.test.tsx > o botão está em toda tela (FR-001) > "Sem permissão" aberta fora da gestão (aluno) 11ms
+ ✓ tests/componente/layout.test.tsx > barra lateral por perfil (RW-11) > coordenação e administração veem todos os itens, com Agenda e Horários (F2) 154ms
+ ✓ tests/componente/layout.test.tsx > barra lateral por perfil (RW-11) > docente vê "Meus avisos", "Agenda" e "Minhas turmas", sem Usuários 22ms
+ ✓ tests/componente/layout.test.tsx > barra lateral por perfil (RW-11) > o histórico ou o editor de um evento marcam Agenda 23ms
+ ✓ tests/componente/layout.test.tsx > barra lateral por perfil (RW-11) > o item da seção atual fica marcado 59ms
+ ✓ tests/componente/layout.test.tsx > barra lateral por perfil (RW-11) > mostra quem está conectado e permite sair 61ms
+ ✓ tests/componente/layout.test.tsx > sem permissão (RW-06, RW-12) > aluno é orientado a usar o aplicativo 10ms
+ ✓ tests/componente/layout.test.tsx > sem permissão (RW-06, RW-12) > perfil de gestão sem acesso à área vê a explicação e volta ao painel 4ms
+ ✓ tests/componente/escolher-turma.test.tsx > escolher a turma dos horários (T13, plan-f2 D-F2-3) > lista as turmas ativas, cada uma levando à sua grade 187ms
+ ✓ tests/componente/escolher-turma.test.tsx > escolher a turma dos horários (T13, plan-f2 D-F2-3) > lembra a última turma aberta e a oferece primeiro 30ms
+ ✓ tests/componente/escolher-turma.test.tsx > escolher a turma dos horários (T13, plan-f2 D-F2-3) > a última turma que não está mais ativa não é oferecida 25ms
+ ✓ tests/componente/escolher-turma.test.tsx > escolher a turma dos horários (T13, plan-f2 D-F2-3) > sem turma ativa: estado vazio 6ms
+ ✓ tests/componente/escolher-turma.test.tsx > item Horários na barra lateral (D-F2-13) > administração e coordenação veem Horários; docente não 1ms
+ ✓ tests/componente/escolher-turma.test.tsx > item Horários na barra lateral (D-F2-13) > a grade de uma turma marca Horários, não Turmas 0ms
+ ✓ tests/unit/usuarios-recurso.test.ts > recurso de usuários de gestão (contrato §10) > listar com busca, perfil e situação 4ms
+ ✓ tests/unit/usuarios-recurso.test.ts > recurso de usuários de gestão (contrato §10) > obter traz as turmas da pessoa 1ms
+ ✓ tests/unit/usuarios-recurso.test.ts > recurso de usuários de gestão (contrato §10) > alterar envia só o que mudou 12ms
+ ✓ tests/unit/usuarios-recurso.test.ts > recurso de usuários de gestão (contrato §10) > 409 PERFIL_INCOMPATIVEL e 422 chegam como ApiError 1ms
+ ✓ tests/unit/acessos-recurso.test.ts > recurso de pedidos de acesso (contrato §10a) > listar por situação converte datas e nomes de campo 16ms
+ ✓ tests/unit/acessos-recurso.test.ts > recurso de pedidos de acesso (contrato §10a) > aprovar envia o perfil; recusar não tem corpo; o id vai codificado 9ms
+ ✓ tests/unit/acessos-recurso.test.ts > recurso de pedidos de acesso (contrato §10a) > 409 ACESSO_JA_DECIDIDO chega como ApiError com a mensagem da spec 0ms
+ ✓ tests/unit/solicitacoes-recurso.test.ts > recurso de solicitações de gestão (contrato §13) > listar com status e turma; datas e decisor convertidos 9ms
+ ✓ tests/unit/solicitacoes-recurso.test.ts > recurso de solicitações de gestão (contrato §13) > aprovar sem corpo; recusar com motivo, ou sem motivo quando vazio 5ms
+ ✓ tests/unit/solicitacoes-recurso.test.ts > recurso de solicitações de gestão (contrato §13) > cada code de erro da decisão tem mensagem própria 1ms
+ ✓ tests/componente/sessao-corrida.test.tsx > corrida entre um 401 antigo e um login novo > 401 de uma requisição que saiu antes do login não encerra a sessão nova 210ms
+ ✓ tests/componente/sessao-corrida.test.tsx > corrida entre um 401 antigo e um login novo > releitura da sessão que responde depois de "Sair" não traz a sessão de volta (RW-09) 79ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > criar: destinos no formato do contrato; sem agendamento não envia publicar_em 9ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > criar agendado envia publicar_em em ISO 1ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > editar envia só os campos dados; destinos vão completos 0ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > editar com publicarEm nulo publica já (envia null) 0ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > listar com filtros e paginação 1ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > obter, ciclo de vida, versões e histórico usam os caminhos do contrato 1ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > erro 403 DESTINO_NAO_PERMITIDO chega como ApiError 14ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > erro 404 TURMA_NAO_ENCONTRADA chega como ApiError 1ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > erro 409 AVISO_NAO_EDITAVEL chega como ApiError 0ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > erro 422 VALIDATION_ERROR chega como ApiError 0ms
+ ✓ tests/unit/avisos-recurso.test.ts > recurso de avisos de gestão > turmas ativas para o seletor de destinos 10ms
+ ✓ tests/componente/sair-do-editor.test.tsx > useSairDoEditor > vindo de uma página da aplicação, volta no histórico 248ms
+ ✓ tests/componente/sair-do-editor.test.tsx > useSairDoEditor > link aberto direto e passado pelo login (replace): substitui o editor pelo destino 52ms
+ ✓ tests/unit/tema.test.ts > escolha guardada > sem escolha: null 2ms
+ ✓ tests/unit/tema.test.ts > escolha guardada > lê claro e escuro da chave conecta:tema 0ms
+ ✓ tests/unit/tema.test.ts > escolha guardada > valor desconhecido conta como sem escolha 0ms
+ ✓ tests/unit/tema.test.ts > escolha guardada > localStorage que lança conta como sem escolha 1ms
+ ✓ tests/unit/tema.test.ts > escolha guardada > guardar grava só o tema, e não lança se o armazenamento recusar 1ms
+ ✓ tests/unit/tema.test.ts > tema efetivo > sem escolha, segue o sistema 0ms
+ ✓ tests/unit/tema.test.ts > tema efetivo > a escolha vence o sistema 0ms
+ ✓ tests/unit/tema.test.ts > tema efetivo > sem matchMedia, claro 0ms
+ ✓ tests/unit/tema.test.ts > aplicar > marca o <html> com data-tema e color-scheme 3ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > sem escolha, sistema escuro → null 0ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > sem escolha, sistema claro → null 0ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > escolha claro, sistema escuro → claro 0ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > escolha escuro, sistema claro → escuro 0ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > valor desconhecido, sistema escuro → roxo 0ms
+ ✓ tests/unit/tema.test.ts > public/tema-inicial.js (antes da primeira pintura) > localStorage que lança e sem matchMedia: claro, sem erro 0ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > lista com os filtros da aba na query e converte o evento 16ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > a janela do mês vai em ISO 2ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > criar: datas em ISO, opcionais omitidos, destinos no formato do contrato 5ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > editar envia só o que mudou; limpar fim, local e descrição manda null 1ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > arquivar, desarquivar e excluir 1ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > obter, versões e histórico 2ms
+ ✓ tests/unit/eventos-recurso.test.ts > recurso de eventos da agenda (contracts E3 §4–9) > erro da API vira ApiError com o código 1ms
+ ✓ tests/unit/formulario-turma.test.ts > validação local da turma (RW-24) > turma válida não tem erros 8ms
+ ✓ tests/unit/formulario-turma.test.ts > validação local da turma (RW-24) > código, nome, semestre de 1 a 12 e período AAAA/N 3ms
+ ✓ tests/unit/formulario-turma.test.ts > validação local da turma (RW-24) > converte para o contrato (sem espaços nas pontas) e volta para o formulário 1ms
+ ✓ tests/unit/formulario-turma.test.ts > validação local da turma (RW-24) > diferenças: só o que mudou, comparando com o gravado sem espaços nas pontas 0ms
+stderr | tests/unit/cliente.test.ts > cliente da API > resposta fora do esquema vira RESPOSTA_INVALIDA
+Resposta da API fora do contrato /me [
+  {
+    expected: 'string',
+    code: 'invalid_type',
+    path: [ 'id' ],
+    message: 'Invalid input: expected string, received undefined'
+  }
+]
+
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de turmas (contrato §11) > listar: filtros de situação, semestre, período e busca na query 5ms
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de turmas (contrato §11) > criar e editar enviam os campos do contrato; editar só o que foi dado 5ms
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de turmas (contrato §11) > obter e desativar 0ms
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de turmas (contrato §11) > 409 CODIGO_TURMA_DUPLICADO e 422 chegam como ApiError com mensagem própria 1ms
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de vínculos (contrato §12) > listar com filtro de papel; vincular e desvincular 1ms
+ ✓ tests/unit/turmas-recurso.test.ts > recurso de vínculos (contrato §12) > cada code de erro dos vínculos tem mensagem própria (nunca a generica) 1ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > sucesso: valida pelo esquema e manda credentials em toda chamada 10ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > escritas levam o cabeçalho CSRF lido do cookie; leituras não 3ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > parâmetros de consulta vão na URL, sem valores vazios 0ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > erro com code vira ApiError com code, status e errors 1ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > resposta fora do esquema vira RESPOSTA_INVALIDA 1ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > erro sem JSON (proxy) vira RESPOSTA_INVALIDA com o status 0ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > sem rede vira SEM_REDE 0ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > timeout de 15 s vira TIMEOUT 2ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > 204 devolve undefined 0ms
+ ✓ tests/unit/cliente.test.ts > cliente da API > 401 NAO_AUTENTICADO e 403 USUARIO_INATIVO avisam a sessão; o 401 do login não 1ms
+ ✓ tests/unit/horarios-recurso.test.ts > recurso da grade de horários (contracts E3 §10–13) > grade da turma: pede tudo de uma vez e converte a aula 5ms
+ ✓ tests/unit/horarios-recurso.test.ts > recurso da grade de horários (contracts E3 §10–13) > criar devolve a aula e os conflitos; local e docente vazios não vão 11ms
+ ✓ tests/unit/horarios-recurso.test.ts > recurso da grade de horários (contracts E3 §10–13) > editar manda null para tirar local e docente 1ms
+ ✓ tests/unit/horarios-recurso.test.ts > recurso da grade de horários (contracts E3 §10–13) > remover 0ms
+ ✓ tests/unit/cores-so-no-tema.test.ts > cores só no tema > nenhum arquivo de src/ escreve cor fora de globals.css 9ms
+ ✓ tests/unit/cores-so-no-tema.test.ts > cores só no tema > nenhum token usado no papel do outro (text-branco, bg-navy) 2ms
+ ✓ tests/unit/cores-so-no-tema.test.ts > cores só no tema > a busca pega as formas de cor solta 0ms
+ ✓ tests/unit/grade.test.ts > montagem da grade (plan-f2 D-F2-8) > segunda a sexta sempre, mesmo sem aula 1ms
+ ✓ tests/unit/grade.test.ts > montagem da grade (plan-f2 D-F2-8) > sábado e domingo só quando há aula neles 0ms
+ ✓ tests/unit/grade.test.ts > montagem da grade (plan-f2 D-F2-8) > linhas pelos inícios distintos, em ordem, e cada aula na célula do seu dia 0ms
+ ✓ tests/unit/grade.test.ts > montagem da grade (plan-f2 D-F2-8) > duas aulas no mesmo dia e início ficam na mesma célula, pela hora de fim 10ms
+ ✓ tests/unit/grade.test.ts > docentes nesta grade (D-F2-12) > cada docente, em ordem alfabética, com as disciplinas que dá na turma, sem repetir 0ms
+ ✓ tests/unit/grade.test.ts > texto do conflito (RW-46, D-F2-10) > sala: o local, a outra turma, o dia e as horas da aula de lá 0ms
+ ✓ tests/unit/grade.test.ts > texto do conflito (RW-46, D-F2-10) > docente: o nome de quem foi escolhido para a aula salva 0ms
+ ✓ tests/unit/grade.test.ts > texto do conflito (RW-46, D-F2-10) > tipo desconhecido não quebra a mensagem 0ms
+ ✓ tests/unit/grade.test.ts > formulário da aula (D-F2-9) > nova aula começa no dia e no início da célula, com fim vazio 0ms
+ ✓ tests/unit/grade.test.ts > formulário da aula (D-F2-9) > valida como a API: disciplina de 2 a 120, horas preenchidas, fim depois do início, local até 80 1ms
+ ✓ tests/unit/grade.test.ts > formulário da aula (D-F2-9) > edição manda só o que mudou; local e docente vazios tiram o valor 0ms
+ ✓ tests/unit/grade.test.ts > formulário da aula (D-F2-9) > nomes dos dias de segunda (1) a domingo (7) 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > duas falhas simultâneas encerram uma única vez 2ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > depois de um encerramento concluído, o próximo também acontece 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > sessão expirada guarda a mensagem e preserva o rascunho 1ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > saida apaga os rascunhos 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > inativo apaga os rascunhos 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > aluno apaga os rascunhos 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > expiração: falha ao avisar a API não impede o encerramento local 0ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > saída que a API não confirmou mantém a sessão e o rascunho (RW-09) 1ms
+ ✓ tests/unit/sessao.test.ts > encerramento da sessão > saída com a sessão já inválida na API encerra normalmente 0ms
+ ✓ tests/unit/sessao.test.ts > rascunho > guarda só título, conteúdo, destinos e a data; nunca dado de sessão 0ms
+ ✓ tests/unit/sessao.test.ts > rascunho > entrada corrompida é tratada como ausente 0ms
+ ✓ tests/unit/sessao.test.ts > rascunho > apagar todos não toca em outras chaves do navegador 0ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > login descarta o access_token: a web nunca guarda o token (RW-02) 11ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > usuário da sessão com turmas 1ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > perfil desconhecido não quebra 0ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > aviso de gestão: datas viram Date (inclusive com microssegundos) e nulos ficam nulos 4ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > destino de tipo novo da API é aceito e mantém o valor cru 0ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > turma de gestão e envelope de página 2ms
+ ✓ tests/unit/schemas.test.ts > esquemas do contrato > campo obrigatório ausente é recusado 7ms
+stderr | tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > 5xx e code desconhecido: mensagem genérica, mantém o formulário
+code desconhecido da API: CODIGO_NOVO
+
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > mensagens e efeitos da web 1ms
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > sem rede e timeout 0ms
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > 5xx e code desconhecido: mensagem genérica, mantém o formulário 1ms
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > nunca usa o detail do servidor como mensagem (RW-08) 0ms
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > eventos da agenda (F2): mesmos efeitos dos avisos 0ms
+ ✓ tests/unit/erros.test.ts > mapa code → mensagem e efeito (spec §6) > AVISO_SITUACAO_INVALIDA explica que a situação mudou por fora (a lista é recarregada) 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > validação local do aviso > formulário válido não tem erros 2ms
+ ✓ tests/unit/formulario-aviso.test.ts > validação local do aviso > título, conteúdo e destinos 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > validação local do aviso > mais de 20 destinos 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > validação local do aviso > agendamento exige data e hora futuras 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > validação local do aviso > compara destinos sem depender da ordem 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > agendamento (a API devolve agendado como "ativo" com publicar_em futuro) > ativo com publicar_em no futuro está agendado; no passado, publicado 0ms
+ ✓ tests/unit/formulario-aviso.test.ts > agendamento (a API devolve agendado como "ativo" com publicar_em futuro) > data que não mudou não é validada de novo (o horário pode ter passado durante a edição) 0ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > válido não tem erros 5ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > obrigatórios: título de 3 a 150, tipo, início e ao menos um destino 1ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > fim é opcional, mas, se houver, vem depois do início 0ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > data ou hora incompleta não vira evento pontual em silêncio 0ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > hora que não existe no fuso (horário de verão) > é recusada no campo, em vez de virar outra hora em silêncio 3ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > hora que não existe no fuso (horário de verão) > a hora que existe (inclusive a repetida, quando o relógio volta) passa 3ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > limites de local, descrição e destinos 1ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > novo evento: datas locais viram Date; fim vazio é pontual 0ms
+ ✓ tests/unit/formulario-evento.test.ts > formulário de evento (plan-f2 D-F2-5) > editar: o formulário parte do evento e só o que mudou é enviado 1ms
+ ✓ tests/unit/datas-texto.test.ts > datas (pt-BR, fuso de quem acessa) > relativa: agora, minutos, horas, ontem, dia da semana e data curta 6ms
+ ✓ tests/unit/datas-texto.test.ts > datas (pt-BR, fuso de quem acessa) > data e hora completas e data curta 0ms
+ ✓ tests/unit/datas-texto.test.ts > datas (pt-BR, fuso de quem acessa) > converte o UTC da API para o fuso local 0ms
+ ✓ tests/unit/datas-texto.test.ts > texto > iniciais: primeiro e último nome, sem partículas 0ms
+ ✓ tests/unit/datas-texto.test.ts > texto > trecho corta em limite de palavra com reticências 0ms
+ ✓ tests/unit/datas-texto.test.ts > quantidade > concorda o plural e agrupa milhares em pt-BR 5ms
+ ✓ tests/unit/agenda-abas.test.ts > abas da agenda (plan-f2 D-F2-1) > aba da URL, com Próximos como padrão 2ms
+ ✓ tests/unit/agenda-abas.test.ts > abas da agenda (plan-f2 D-F2-1) > cada aba vira uma consulta da API 1ms
+ ✓ tests/unit/agenda-abas.test.ts > abas da agenda (plan-f2 D-F2-1) > mês da URL no formato AAAA-MM; inválido ou ausente vira o mês de hoje 1ms
+ ✓ tests/unit/agenda-abas.test.ts > abas da agenda (plan-f2 D-F2-1) > navegar entre meses atravessa o ano 0ms
+ ✓ tests/unit/agenda-abas.test.ts > abas da agenda (plan-f2 D-F2-1) > janela do mês: do dia 1 ao dia 1 do mês seguinte, no fuso local 0ms
+ ✓ tests/unit/agenda-abas.test.ts > calendário do mês (D-F2-7) > semanas completas de segunda a domingo cobrindo o mês 0ms
+ ✓ tests/unit/agenda-abas.test.ts > calendário do mês (D-F2-7) > evento de vários dias aparece em cada dia que toca; o que termina à meia-noite, não no dia seguinte 0ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > no mesmo dia: início e fim 1ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > sem fim: só a hora de início; data importante sem fim é prazo 0ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > vários dias: de um dia a outro 0ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > termina à meia-noite do dia seguinte: conta como o mesmo dia 0ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > vira a noite e dura menos de um dia: datas e horas, para não perder as horas 0ms
+ ✓ tests/unit/agenda-abas.test.ts > faixa de horário do cartão (D-F2-6) > na virada do ano, as duas datas levam o ano 0ms
+ ✓ tests/unit/mensagens-spec.test.ts > leitura da tabela da spec > linha fora do formato, code repetido ou tabela faltando não passam calados 1ms
+ ✓ tests/unit/mensagens-spec.test.ts > mensagens de erro: spec §6 × web (T071) > a tabela foi lida inteira, sem linha fora do formato 0ms
+ ✓ tests/unit/mensagens-spec.test.ts > mensagens de erro: spec §6 × web (T071) > cada code da tabela tem, na web, exatamente a mensagem da spec 0ms
+ ✓ tests/unit/mensagens-spec.test.ts > mensagens de erro: spec §6 × web (T071) > 5xx e code desconhecido têm a mensagem genérica da spec 0ms
+ ✓ tests/unit/mensagens-spec.test.ts > mensagens de erro: spec §6 × web (T071) > cada code que a web trata está na tabela da spec 0ms
+ ✓ tests/unit/contraste-tema.test.ts > tema claro: contraste AA > todo par de texto × fundo usado tem 4,5:1 ou mais 2ms
+ ✓ tests/unit/contraste-tema.test.ts > tema escuro: contraste AA > todo par de texto × fundo usado tem 4,5:1 ou mais 0ms
+ ✓ tests/unit/contraste-tema.test.ts > tema escuro > redefine as superfícies e o texto (não herda o claro por esquecimento) 0ms
+ ✓ tests/unit/contraste-tema.test.ts > tema escuro > botão principal: o mesmo azul com texto branco nos dois temas 0ms
+ ✓ tests/unit/contraste-tema.test.ts > tema escuro > controles nativos acompanham o tema (color-scheme) 0ms
+ ✓ tests/unit/destinos.test.ts > destinos guardados em versões e alterações (sem nome de turma) > ganham o nome da turma conhecida; turma desconhecida não quebra a tela 1ms
+ ✓ tests/unit/destinos.test.ts > destinos guardados em versões e alterações (sem nome de turma) > comparação como conjunto: adicionados, removidos e mantidos, sem depender da ordem 0ms
+ ✓ tests/unit/destinos.test.ts > destinos guardados em versões e alterações (sem nome de turma) > aceita a lista em qualquer forma desconhecida sem lançar (dado de auditoria antigo) 0ms
+ ✓ tests/unit/contraste-chips.test.ts > chip de destino: contraste sobre os fundos de chip > toda cor de texto do chip tem 4,5:1 ou mais sobre todos os fundos de chip 2ms
+ ✓ tests/unit/contraste-chips.test.ts > chip de destino: contraste sobre os fundos de chip > a conta pega a cor fraca que já foi usada (tenue no fundo do semestre) 0ms
+ ✓ tests/unit/sem-texto-esmaecido.test.ts > texto sem opacidade > nenhum componente esmaece texto com opacity- (só botões desabilitados, com disabled:) 1ms
+
+ Test Files  55 passed (55)
+      Tests  468 passed (468)
+   Start at  00:45:57
+   Duration  11.85s (tests 41%, environment 40%, setup 8%, import 7%, transform 4%)
+
+Environment  jsdom was created 55 times · 30.42s total, 40% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+## playwright (execução 1: npx playwright test --reporter=list, com caffeinate -i)
+
+Running 74 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/acessibilidade.spec.ts:44:5 › tema claro › login e sem permissão (1.6s)
+  ✓   2 [chromium] › e2e/acessibilidade.spec.ts:58:5 › tema claro › coordenação: painel, avisos, editor, seletor, histórico (5.2s)
+  ✓   3 [chromium] › e2e/acessibilidade.spec.ts:94:5 › tema claro › estados vazio e de erro (3.0s)
+  ✓   4 [chromium] › e2e/acessibilidade.spec.ts:108:5 › tema claro › coordenação: turmas, vínculos, solicitações (6.6s)
+  ✓   5 [chromium] › e2e/acessibilidade.spec.ts:144:5 › tema claro › administração: usuários e alterar perfil (4.2s)
+  ✓   6 [chromium] › e2e/acessibilidade.spec.ts:168:5 › tema claro › docente: painel, listas, editor restrito e sem permissão (6.0s)
+  ✓   7 [chromium] › e2e/acessibilidade.spec.ts:193:5 › tema claro › coordenação: agenda e horários (F2) (7.1s)
+  ✓   8 [chromium] › e2e/acessibilidade.spec.ts:44:5 › tema escuro › login e sem permissão (1.3s)
+  ✓   9 [chromium] › e2e/acessibilidade.spec.ts:58:5 › tema escuro › coordenação: painel, avisos, editor, seletor, histórico (5.1s)
+  ✓  10 [chromium] › e2e/acessibilidade.spec.ts:94:5 › tema escuro › estados vazio e de erro (3.0s)
+  ✓  11 [chromium] › e2e/acessibilidade.spec.ts:108:5 › tema escuro › coordenação: turmas, vínculos, solicitações (5.9s)
+  ✓  12 [chromium] › e2e/acessibilidade.spec.ts:144:5 › tema escuro › administração: usuários e alterar perfil (4.1s)
+  ✓  13 [chromium] › e2e/acessibilidade.spec.ts:168:5 › tema escuro › docente: painel, listas, editor restrito e sem permissão (6.0s)
+  ✓  14 [chromium] › e2e/acessibilidade.spec.ts:193:5 › tema escuro › coordenação: agenda e horários (F2) (6.6s)
+  ✓  15 [chromium] › e2e/acessos.spec.ts:22:1 › quem aguarda vê o aviso no login e não entra (413ms)
+  ✓  16 [chromium] › e2e/acessos.spec.ts:31:1 › administração libera como docente; a pessoa entra e o contador some (1.2s)
+  ✓  17 [chromium] › e2e/acessos.spec.ts:68:1 › coordenação recusa; o recusado aparece em Recusados, sem ações, e não entra (1.2s)
+  ✓  18 [chromium] › e2e/acessos.spec.ts:103:1 › coordenação só oferece docente ou coordenação (650ms)
+  ✓  19 [chromium] › e2e/acessos.spec.ts:120:1 › ordem das verificações ao aprovar é a da API: 403 de perfil, depois 422, depois 404/409 (7ms)
+  ✓  20 [chromium] › e2e/agenda.spec.ts:26:1 › coordenação cria, edita, arquiva, desarquiva e exclui um evento, com o histórico (4.0s)
+  ✓  21 [chromium] › e2e/agenda.spec.ts:87:1 › docente cria só para as turmas em que leciona e vê só os seus eventos (771ms)
+  ✓  22 [chromium] › e2e/agenda.spec.ts:109:1 › descartar a edição volta para onde se estava, sem repetir o endereço no histórico do navegador (866ms)
+  ✓  23 [chromium] › e2e/agenda.spec.ts:131:3 › fuso com horário de verão › hora que não existe no fuso é recusada no campo, sem virar outra hora (1.5s)
+  ✓  24 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:23:1 › criar, editar, arquivar, desarquivar e excluir: um evento por operação e cada filtro certo (SC-007) (2.1s)
+  ✓  25 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:94:1 › docente vê só os seus avisos e não tem a aba Excluídos (2.1s)
+  ✓  26 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:117:1 › servidor falso: "publicar agora" num agendado grava a hora da publicação, como a API (D-E2-6) (5ms)
+  ✓  27 [chromium] › e2e/fluxo-completo.spec.ts:13:1 › coordenação publica pela web → a API registra o destino → só quem está na turma recebe (SC-001) (871ms)
+  ✓  28 [chromium] › e2e/horarios.spec.ts:10:1 › coordenação escolhe a turma, cria aula com conflito, edita, remove e segue para o aviso da turma (2.1s)
+  ✓  29 [chromium] › e2e/horarios.spec.ts:63:1 › docente não vê Horários e a rota leva à tela sem permissão (1.5s)
+  ✓  30 [chromium] › e2e/login.spec.ts:9:1 › coordenação e administração chegam ao painel com Usuários na navegação (775ms)
+  ✓  31 [chromium] › e2e/login.spec.ts:19:1 › docente chega ao painel com a navegação restrita (459ms)
+  ✓  32 [chromium] › e2e/login.spec.ts:27:1 › aluno vê a orientação do aplicativo e a sessão é encerrada (595ms)
+  ✓  33 [chromium] › e2e/login.spec.ts:37:1 › credencial inválida e usuário desativado ficam no login (491ms)
+  ✓  34 [chromium] › e2e/login.spec.ts:50:1 › rota protegida sem sessão leva ao login e depois à página pedida (437ms)
+  ✓  35 [chromium] › e2e/login.spec.ts:61:1 › sessão continua ao recarregar a página (cookie de 24 h) (1.7s)
+  ✓  36 [chromium] › e2e/login.spec.ts:70:1 › 401 no meio da navegação volta ao login com sessão expirada (502ms)
+  ✓  37 [chromium] › e2e/login.spec.ts:82:1 › sair encerra a sessão na API e volta ao login (692ms)
+  ✓  38 [chromium] › e2e/painel.spec.ts:9:1 › painel da coordenação: números de toda a gestão e o contador na barra lateral (475ms)
+  ✓  39 [chromium] › e2e/painel.spec.ts:21:1 › painel do docente: só as turmas e solicitações dele, como a API restringe (473ms)
+  ✓  40 [chromium] › e2e/publicar-aviso.spec.ts:23:1 › coordenação publica para três turmas (808ms)
+  ✓  41 [chromium] › e2e/publicar-aviso.spec.ts:45:1 › docente publica para a turma em que leciona (961ms)
+  ✓  42 [chromium] › e2e/publicar-aviso.spec.ts:59:1 › docente que perdeu o vínculo é recusado e não perde o texto (679ms)
+  ✓  43 [chromium] › e2e/publicar-aviso.spec.ts:74:1 › o rascunho sobrevive a recarregar a página (1.6s)
+  ✓  44 [chromium] › e2e/sem-perder-texto.spec.ts:14:1 › login: sem rede, usuário e senha ficam (478ms)
+  ✓  45 [chromium] › e2e/sem-perder-texto.spec.ts:30:1 › editor de aviso: sem rede, título, conteúdo e destinos ficam; com rede, publica (1.8s)
+  ✓  46 [chromium] › e2e/sem-perder-texto.spec.ts:53:1 › nova turma e recusa com motivo: sem rede, o digitado fica; com rede, o mesmo envio funciona (2.3s)
+  ✓  47 [chromium] › e2e/sem-perder-texto.spec.ts:86:1 › editar aviso: sem rede, a alteração fica; com rede, salva a versão 2 (1.9s)
+  ✓  48 [chromium] › e2e/sem-perder-texto.spec.ts:111:1 › editar turma e vincular: sem rede, o digitado e a escolha ficam; com rede, salvam (2.7s)
+  ✓  49 [chromium] › e2e/sem-perder-texto.spec.ts:142:1 › alterar perfil: sem rede, a escolha fica; com rede, salva (1.7s)
+  ✓  50 [chromium] › e2e/sem-vazamento.spec.ts:14:1 › o token nunca chega ao JavaScript nem ao armazenamento do navegador (RW-02, SC-003) (496ms)
+  ✓  51 [chromium] › e2e/sem-vazamento.spec.ts:34:1 › o pacote servido não contém segredo (RW-44) (471ms)
+  ✓  52 [chromium] › e2e/solicitacoes.spec.ts:22:1 › aprovar cria o vínculo; recusar registra o motivo (1.1s)
+  ✓  53 [chromium] › e2e/solicitacoes.spec.ts:52:1 › decidir uma solicitação que outra pessoa acabou de decidir (409) (1.3s)
+  ✓  54 [chromium] › e2e/solicitacoes.spec.ts:70:1 › docente decide só nas turmas em que leciona (403 ao perder o vínculo) (643ms)
+  ✓  55 [chromium] › e2e/teclado.spec.ts:40:1 › do login à exclusão de um aviso, só com o teclado (1.1s)
+  ✓  56 [chromium] › e2e/teclado.spec.ts:104:1 › confirmação: Esc cancela e devolve o foco; Enter confirma (718ms)
+  ✓  57 [chromium] › e2e/teclado.spec.ts:129:1 › vincular: busca, escolha no grupo de rádios e confirmação, só com o teclado (1.5s)
+  ✓  58 [chromium] › e2e/teclado.spec.ts:151:1 › recusar com motivo, só com o teclado (640ms)
+  ✓  59 [chromium] › e2e/teclado.spec.ts:166:1 › alterar perfil: setas no grupo de rádios e salvar, só com o teclado (652ms)
+  ✓  60 [chromium] › e2e/teclado.spec.ts:186:1 › agenda: abas e calendário só com o teclado (F2) (762ms)
+  ✓  61 [chromium] › e2e/teclado.spec.ts:204:1 › horários: nova aula na célula, Esc devolve o foco, salvar e remover só com o teclado (F2) (885ms)
+  ✓  62 [chromium] › e2e/tema.spec.ts:24:1 › sem escolha, segue o sistema escuro desde o primeiro quadro (319ms)
+  ✓  63 [chromium] › e2e/tema.spec.ts:33:1 › alternar no login, entrar, recarregar e sair: o escuro continua (1.2s)
+  ✓  64 [chromium] › e2e/tema.spec.ts:57:1 › a escolha "claro" vence o sistema escuro (303ms)
+  ✓  65 [chromium] › e2e/tema.spec.ts:66:1 › trocar o tema no meio do editor não perde o que foi digitado (1.5s)
+  ✓  66 [chromium] › e2e/tema.spec.ts:81:1 › outra aba acompanha a escolha (621ms)
+  ✓  67 [chromium] › e2e/turmas-vinculos.spec.ts:18:1 › criar turma e recusar código duplicado (799ms)
+  ✓  68 [chromium] › e2e/turmas-vinculos.spec.ts:44:1 › vincular docente, remover vínculo e desativar a turma (2.8s)
+  ✓  69 [chromium] › e2e/turmas-vinculos.spec.ts:86:1 › docente vê só as turmas em que leciona, sem ações de gestão (697ms)
+  ✓  70 [chromium] › e2e/usuarios.spec.ts:24:1 › administração muda o perfil e a mudança vale na navegação seguinte da pessoa (SC-008) (1.3s)
+  ✓  71 [chromium] › e2e/usuarios.spec.ts:43:1 › vínculos incompatíveis e último administrador são explicados (897ms)
+  ✓  72 [chromium] › e2e/usuarios.spec.ts:62:1 › desativar corta o acesso de quem está usando a plataforma (1.2s)
+  ✓  73 [chromium] › e2e/usuarios.spec.ts:78:1 › coordenação vê os usuários sem a ação de alterar perfil (573ms)
+  ✓  74 [chromium] › e2e/usuarios.spec.ts:84:1 › docente que abre /usuarios vê a tela sem permissão (1.5s)
+
+  74 passed (2.2m)
+
+## playwright (execução 2: npx playwright test --reporter=list, com caffeinate -i)
+
+Running 74 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/acessibilidade.spec.ts:44:5 › tema claro › login e sem permissão (1.4s)
+  ✓   2 [chromium] › e2e/acessibilidade.spec.ts:58:5 › tema claro › coordenação: painel, avisos, editor, seletor, histórico (4.7s)
+  ✓   3 [chromium] › e2e/acessibilidade.spec.ts:94:5 › tema claro › estados vazio e de erro (3.0s)
+  ✓   4 [chromium] › e2e/acessibilidade.spec.ts:108:5 › tema claro › coordenação: turmas, vínculos, solicitações (5.9s)
+  ✓   5 [chromium] › e2e/acessibilidade.spec.ts:144:5 › tema claro › administração: usuários e alterar perfil (4.1s)
+  ✓   6 [chromium] › e2e/acessibilidade.spec.ts:168:5 › tema claro › docente: painel, listas, editor restrito e sem permissão (5.9s)
+  ✓   7 [chromium] › e2e/acessibilidade.spec.ts:193:5 › tema claro › coordenação: agenda e horários (F2) (7.0s)
+  ✓   8 [chromium] › e2e/acessibilidade.spec.ts:44:5 › tema escuro › login e sem permissão (1.2s)
+  ✓   9 [chromium] › e2e/acessibilidade.spec.ts:58:5 › tema escuro › coordenação: painel, avisos, editor, seletor, histórico (4.6s)
+  ✓  10 [chromium] › e2e/acessibilidade.spec.ts:94:5 › tema escuro › estados vazio e de erro (3.0s)
+  ✓  11 [chromium] › e2e/acessibilidade.spec.ts:108:5 › tema escuro › coordenação: turmas, vínculos, solicitações (6.0s)
+  ✓  12 [chromium] › e2e/acessibilidade.spec.ts:144:5 › tema escuro › administração: usuários e alterar perfil (4.2s)
+  ✓  13 [chromium] › e2e/acessibilidade.spec.ts:168:5 › tema escuro › docente: painel, listas, editor restrito e sem permissão (6.5s)
+  ✓  14 [chromium] › e2e/acessibilidade.spec.ts:193:5 › tema escuro › coordenação: agenda e horários (F2) (7.1s)
+  ✓  15 [chromium] › e2e/acessos.spec.ts:22:1 › quem aguarda vê o aviso no login e não entra (416ms)
+  ✓  16 [chromium] › e2e/acessos.spec.ts:31:1 › administração libera como docente; a pessoa entra e o contador some (1.2s)
+  ✓  17 [chromium] › e2e/acessos.spec.ts:68:1 › coordenação recusa; o recusado aparece em Recusados, sem ações, e não entra (1.2s)
+  ✓  18 [chromium] › e2e/acessos.spec.ts:103:1 › coordenação só oferece docente ou coordenação (654ms)
+  ✓  19 [chromium] › e2e/acessos.spec.ts:120:1 › ordem das verificações ao aprovar é a da API: 403 de perfil, depois 422, depois 404/409 (7ms)
+  ✓  20 [chromium] › e2e/agenda.spec.ts:26:1 › coordenação cria, edita, arquiva, desarquiva e exclui um evento, com o histórico (4.6s)
+  ✓  21 [chromium] › e2e/agenda.spec.ts:87:1 › docente cria só para as turmas em que leciona e vê só os seus eventos (804ms)
+  ✓  22 [chromium] › e2e/agenda.spec.ts:109:1 › descartar a edição volta para onde se estava, sem repetir o endereço no histórico do navegador (848ms)
+  ✓  23 [chromium] › e2e/agenda.spec.ts:131:3 › fuso com horário de verão › hora que não existe no fuso é recusada no campo, sem virar outra hora (1.5s)
+  ✓  24 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:23:1 › criar, editar, arquivar, desarquivar e excluir: um evento por operação e cada filtro certo (SC-007) (2.1s)
+  ✓  25 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:94:1 › docente vê só os seus avisos e não tem a aba Excluídos (2.1s)
+  ✓  26 [chromium] › e2e/aviso-ciclo-de-vida.spec.ts:117:1 › servidor falso: "publicar agora" num agendado grava a hora da publicação, como a API (D-E2-6) (6ms)
+  ✓  27 [chromium] › e2e/fluxo-completo.spec.ts:13:1 › coordenação publica pela web → a API registra o destino → só quem está na turma recebe (SC-001) (899ms)
+  ✓  28 [chromium] › e2e/horarios.spec.ts:10:1 › coordenação escolhe a turma, cria aula com conflito, edita, remove e segue para o aviso da turma (2.1s)
+  ✓  29 [chromium] › e2e/horarios.spec.ts:63:1 › docente não vê Horários e a rota leva à tela sem permissão (1.5s)
+  ✓  30 [chromium] › e2e/login.spec.ts:9:1 › coordenação e administração chegam ao painel com Usuários na navegação (744ms)
+  ✓  31 [chromium] › e2e/login.spec.ts:19:1 › docente chega ao painel com a navegação restrita (458ms)
+  ✓  32 [chromium] › e2e/login.spec.ts:27:1 › aluno vê a orientação do aplicativo e a sessão é encerrada (593ms)
+  ✓  33 [chromium] › e2e/login.spec.ts:37:1 › credencial inválida e usuário desativado ficam no login (472ms)
+  ✓  34 [chromium] › e2e/login.spec.ts:50:1 › rota protegida sem sessão leva ao login e depois à página pedida (414ms)
+  ✓  35 [chromium] › e2e/login.spec.ts:61:1 › sessão continua ao recarregar a página (cookie de 24 h) (1.5s)
+  ✓  36 [chromium] › e2e/login.spec.ts:70:1 › 401 no meio da navegação volta ao login com sessão expirada (520ms)
+  ✓  37 [chromium] › e2e/login.spec.ts:82:1 › sair encerra a sessão na API e volta ao login (689ms)
+  ✓  38 [chromium] › e2e/painel.spec.ts:9:1 › painel da coordenação: números de toda a gestão e o contador na barra lateral (457ms)
+  ✓  39 [chromium] › e2e/painel.spec.ts:21:1 › painel do docente: só as turmas e solicitações dele, como a API restringe (472ms)
+  ✓  40 [chromium] › e2e/publicar-aviso.spec.ts:23:1 › coordenação publica para três turmas (808ms)
+  ✓  41 [chromium] › e2e/publicar-aviso.spec.ts:45:1 › docente publica para a turma em que leciona (696ms)
+  ✓  42 [chromium] › e2e/publicar-aviso.spec.ts:59:1 › docente que perdeu o vínculo é recusado e não perde o texto (684ms)
+  ✓  43 [chromium] › e2e/publicar-aviso.spec.ts:74:1 › o rascunho sobrevive a recarregar a página (1.6s)
+  ✓  44 [chromium] › e2e/sem-perder-texto.spec.ts:14:1 › login: sem rede, usuário e senha ficam (478ms)
+  ✓  45 [chromium] › e2e/sem-perder-texto.spec.ts:30:1 › editor de aviso: sem rede, título, conteúdo e destinos ficam; com rede, publica (1.7s)
+  ✓  46 [chromium] › e2e/sem-perder-texto.spec.ts:53:1 › nova turma e recusa com motivo: sem rede, o digitado fica; com rede, o mesmo envio funciona (2.8s)
+  ✓  47 [chromium] › e2e/sem-perder-texto.spec.ts:86:1 › editar aviso: sem rede, a alteração fica; com rede, salva a versão 2 (2.0s)
+  ✓  48 [chromium] › e2e/sem-perder-texto.spec.ts:111:1 › editar turma e vincular: sem rede, o digitado e a escolha ficam; com rede, salvam (2.7s)
+  ✓  49 [chromium] › e2e/sem-perder-texto.spec.ts:142:1 › alterar perfil: sem rede, a escolha fica; com rede, salva (1.7s)
+  ✓  50 [chromium] › e2e/sem-vazamento.spec.ts:14:1 › o token nunca chega ao JavaScript nem ao armazenamento do navegador (RW-02, SC-003) (481ms)
+  ✓  51 [chromium] › e2e/sem-vazamento.spec.ts:34:1 › o pacote servido não contém segredo (RW-44) (425ms)
+  ✓  52 [chromium] › e2e/solicitacoes.spec.ts:22:1 › aprovar cria o vínculo; recusar registra o motivo (1.1s)
+  ✓  53 [chromium] › e2e/solicitacoes.spec.ts:52:1 › decidir uma solicitação que outra pessoa acabou de decidir (409) (1.3s)
+  ✓  54 [chromium] › e2e/solicitacoes.spec.ts:70:1 › docente decide só nas turmas em que leciona (403 ao perder o vínculo) (629ms)
+  ✓  55 [chromium] › e2e/teclado.spec.ts:40:1 › do login à exclusão de um aviso, só com o teclado (1.1s)
+  ✓  56 [chromium] › e2e/teclado.spec.ts:104:1 › confirmação: Esc cancela e devolve o foco; Enter confirma (718ms)
+  ✓  57 [chromium] › e2e/teclado.spec.ts:129:1 › vincular: busca, escolha no grupo de rádios e confirmação, só com o teclado (1.5s)
+  ✓  58 [chromium] › e2e/teclado.spec.ts:151:1 › recusar com motivo, só com o teclado (639ms)
+  ✓  59 [chromium] › e2e/teclado.spec.ts:166:1 › alterar perfil: setas no grupo de rádios e salvar, só com o teclado (675ms)
+  ✓  60 [chromium] › e2e/teclado.spec.ts:186:1 › agenda: abas e calendário só com o teclado (F2) (756ms)
+  ✓  61 [chromium] › e2e/teclado.spec.ts:204:1 › horários: nova aula na célula, Esc devolve o foco, salvar e remover só com o teclado (F2) (901ms)
+  ✓  62 [chromium] › e2e/tema.spec.ts:24:1 › sem escolha, segue o sistema escuro desde o primeiro quadro (310ms)
+  ✓  63 [chromium] › e2e/tema.spec.ts:33:1 › alternar no login, entrar, recarregar e sair: o escuro continua (1.7s)
+  ✓  64 [chromium] › e2e/tema.spec.ts:57:1 › a escolha "claro" vence o sistema escuro (314ms)
+  ✓  65 [chromium] › e2e/tema.spec.ts:66:1 › trocar o tema no meio do editor não perde o que foi digitado (1.5s)
+  ✓  66 [chromium] › e2e/tema.spec.ts:81:1 › outra aba acompanha a escolha (635ms)
+  ✓  67 [chromium] › e2e/turmas-vinculos.spec.ts:18:1 › criar turma e recusar código duplicado (815ms)
+  ✓  68 [chromium] › e2e/turmas-vinculos.spec.ts:44:1 › vincular docente, remover vínculo e desativar a turma (2.8s)
+  ✓  69 [chromium] › e2e/turmas-vinculos.spec.ts:86:1 › docente vê só as turmas em que leciona, sem ações de gestão (648ms)
+  ✓  70 [chromium] › e2e/usuarios.spec.ts:24:1 › administração muda o perfil e a mudança vale na navegação seguinte da pessoa (SC-008) (1.3s)
+  ✓  71 [chromium] › e2e/usuarios.spec.ts:43:1 › vínculos incompatíveis e último administrador são explicados (893ms)
+  ✓  72 [chromium] › e2e/usuarios.spec.ts:62:1 › desativar corta o acesso de quem está usando a plataforma (1.3s)
+  ✓  73 [chromium] › e2e/usuarios.spec.ts:78:1 › coordenação vê os usuários sem a ação de alterar perfil (576ms)
+  ✓  74 [chromium] › e2e/usuarios.spec.ts:84:1 › docente que abre /usuarios vê a tela sem permissão (1.4s)
+
+  74 passed (2.2m)
+
+## implantação (deploy/verificar.sh: build → nginx em Docker com HTTPS → API local real)
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+Running 11 tests using 1 worker
+
+  ✓   1 deploy/implantacao.spec.ts:4:1 › rota desconhecida cai no index.html e a aplicação decide (vai ao login) (169ms)
+  ✓   2 deploy/implantacao.spec.ts:15:1 › HTTP vai para HTTPS, na porta HTTPS configurada (5ms)
+  ✓   3 deploy/implantacao.spec.ts:22:1 › login pela API em /api: cookie de sessão Secure e httpOnly; recarregar uma rota funda mantém a sessão (2.0s)
+  ✓   4 deploy/implantacao.spec.ts:39:1 › arquivos com hash têm cache longo; a página tem os cabeçalhos de segurança (117ms)
+  ✓   5 deploy/implantacao.spec.ts:49:1 › nenhuma violação da CSP ao entrar e navegar (1.1s)
+  ✓   6 deploy/implantacao.spec.ts:66:1 › fontes têm os cabeçalhos de segurança e o nginx não informa a versão (13ms)
+  ✓   7 deploy/implantacao.spec.ts:82:1 › escrita pela API real: o CSRF assinado da sessão passa (sair encerra a sessão) (308ms)
+  ✓   8 deploy/implantacao.spec.ts:91:1 › CSRF válido de outra sessão, plantado no navegador, é recusado pela API real (RF-33, v2.2) (317ms)
+  ✓   9 deploy/implantacao.spec.ts:106:1 › os cookies vêm com o prefixo __Host- e Secure, Path=/ e sem Domain (cabeçalho bruto) (12ms)
+  ✓  10 deploy/implantacao.spec.ts:117:1 › redirecionamento da própria API (barra no fim) fica sob /api, na mesma origem (6ms)
+  ✓  11 deploy/implantacao.spec.ts:123:1 › a documentação da API não fica exposta pela plataforma (7ms)
+
+  11 passed (4.4s)

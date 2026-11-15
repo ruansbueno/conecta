@@ -74,9 +74,11 @@ Flutter · `provider` (estado) · `Navigator` com rotas nomeadas · `http` com c
 | — Puxar para atualizar | Agenda › Mês e Perfil: puxar para baixo busca de novo o mês aberto e relê o perfil e o período das turmas; voltar ao chip Mês também busca o mês de novo, então um evento marcado pela gestão aparece sem trocar de mês; sem rede, a tela fica e um aviso breve explica | ✅ [#42](https://github.com/ruansbueno/conecta/pull/42) |
 | — Docente (emenda E3.1 da API) | Horários mostra ao docente as próprias aulas em todas as turmas, cada uma com a turma, sem escolher turma; na Agenda, só as provas que ele criou (filtradas pela API) | ✅ [#43](https://github.com/ruansbueno/conecta/pull/43) |
 
-**Testes** (registro de 11/11/2026, com o modo noturno, [`testes-app-2026-11-11.txt`](evidencias/testes-app-2026-11-11.txt)):
-408 de unidade e de widget (`flutter test`, com a acessibilidade nos dois temas) e 22 de integração
-no emulador, com servidor falso, em `integration_test/`. Antes do modo noturno: registro de 06/11
+**Testes** (registro de 15/11/2026, cada teste pelo nome, [`testes-app-final-2026-11-15.txt`](evidencias/testes-app-final-2026-11-15.txt)):
+425 de unidade e de widget (`flutter test`, com a acessibilidade nos dois temas) e 23 de integração
+no emulador, com servidor falso, em `integration_test/`. Registros anteriores: o final de 12/11
+([`testes-app-final-2026-11-12.txt`](evidencias/testes-app-final-2026-11-12.txt)), o do modo
+noturno, de 11/11 ([`testes-app-2026-11-11.txt`](evidencias/testes-app-2026-11-11.txt)), o de 06/11
 ([`testes-app-final-2026-11-06.txt`](evidencias/testes-app-final-2026-11-06.txt)) e o de 10/11, com
 cada teste pelo nome ([`testes-app-por-teste-2026-11-10.txt`](evidencias/testes-app-por-teste-2026-11-10.txt)).
 

@@ -88,10 +88,11 @@ mesma origem, e proteção CSRF em toda escrita.
 | — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login; segue o sistema até a pessoa escolher, e a escolha fica no navegador; paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas e blocos vazios do painel com aviso | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
 | — Pedidos na aba | Aba Aguardando acesso, em Usuários, com a mesma bolinha laranja da barra lateral e o número de pedidos esperando ("Aguardando acesso 1 pendente" no leitor de tela) | ✅ [#42](https://github.com/ruansbueno/conecta/pull/42) |
 
-**Testes** (registro de 13/11/2026, [`testes-web-revisao-2026-11-13.txt`](evidencias/testes-web-revisao-2026-11-13.txt)):
-466 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas) e
-11 da implantação (`deploy/verificar.sh`), com o servidor falso alinhado à emenda v2.4 da API.
-Registros anteriores: o final de 12/11, com cada teste pelo nome
+**Testes** (registro de 15/11/2026, cada teste pelo nome, [`testes-web-final-2026-11-15.txt`](evidencias/testes-web-final-2026-11-15.txt)):
+468 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas,
+em duas execuções seguidas) e 11 da implantação (`deploy/verificar.sh`).
+Registros anteriores: o de 13/11, com as correções da revisão de código
+([`testes-web-revisao-2026-11-13.txt`](evidencias/testes-web-revisao-2026-11-13.txt)), o final de 12/11, com cada teste pelo nome
 ([`testes-web-final-2026-11-12.txt`](evidencias/testes-web-final-2026-11-12.txt)), o do modo noturno
 ([`testes-web-2026-11-11.txt`](evidencias/testes-web-2026-11-11.txt)) e os de 06/11 e 10/11.
 Além disso, a validação visual de cada tela contra a

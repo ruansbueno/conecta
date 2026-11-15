@@ -168,10 +168,11 @@ Verificações de estilo: `uv run ruff check .` (API), `npm run lint` e `npm run
 
 ## Evidências dos testes
 
-Os registros até 12/11 são as saídas das execuções citadas no TCC, menos o de 11/11 (modo
-noturno). O de 13/11 registra as correções de uma revisão de código feita depois das evidências
-finais (emenda v2.4 da API). Cada arquivo traz a data, a versão do código (commit) e os comandos
-executados; o roteiro do IFSul rodou no commit `59f05d5`.
+Os registros são as saídas das execuções citadas no TCC, menos o de 11/11 (modo noturno) e os de
+13/11, que registraram as correções de uma revisão de código (emenda v2.4 da API) e foram
+substituídos, no TCC, pelos de 15/11: a execução final depois dos PRs #42 a #44. Cada arquivo
+traz a data, a versão do código (commit) e os comandos executados; o roteiro do IFSul rodou no
+commit `59f05d5`.
 
 | Execução | Registro |
 |---|---|
@@ -183,6 +184,7 @@ executados; o roteiro do IFSul rodou no commit `59f05d5`.
 | Modo noturno e fim de lista (11/11): web (com a implantação) e aplicativo (com a integração no emulador) | [web](projeto-web/evidencias/testes-web-2026-11-11.txt), [app](projeto-mobile/evidencias/testes-app-2026-11-11.txt) |
 | Final (12/11), depois do modo noturno, do modelo de dados e das restrições do banco: API, web (com a implantação), aplicativo (com a integração no emulador) e roteiro integrado, cada teste pelo nome | [API](projeto-api/evidencias/testes-final-2026-11-12.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-12.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-12.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-12.txt) |
 | Correções da revisão de código (13/11): API, roteiro integrado e web (com a implantação) | [API](projeto-api/evidencias/testes-revisao-2026-11-13.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-revisao-2026-11-13.txt), [web](projeto-web/evidencias/testes-web-revisao-2026-11-13.txt) |
+| Final (15/11), depois do puxar para atualizar, dos pedidos na aba e das provas e aulas do docente (PRs #42 a #44): API, web (com a implantação), aplicativo (com a integração no emulador) e roteiro integrado, cada teste pelo nome | [API](projeto-api/evidencias/testes-final-2026-11-15.txt), [web](projeto-web/evidencias/testes-web-final-2026-11-15.txt), [app](projeto-mobile/evidencias/testes-app-final-2026-11-15.txt), [roteiro](projeto-api/evidencias/roteiro-integrado-2026-11-15.txt) |
 
 O roteiro integrado (`projeto-api/scripts/roteiro_integrado.py`) exercita a API real como a web
 (cookie de sessão e CSRF) e como o aplicativo (token no cabeçalho). Os relatórios de cada fase dos
@@ -193,10 +195,13 @@ Até 06/11/2026, a integração real prevista para o login era com o Moodle; por
 anteriores a essa data citam `MOODLE_URL`, e os 3 testes pulados neles são os dessa integração. A
 partir de 06/11, os pulados são os da integração real com o IFSul.
 
-Depois da execução final de 12/11, a `main` mudou só com as correções da revisão de código
-(PR #40), registradas em 13/11: a API passou de 1011 para 1028 testes aprovados (3 pulados) e a
-web, de 465 para 466 de unidade e componente; o aplicativo não mudou. Para repetir uma execução
-exatamente como registrada, use o commit indicado no registro (`git checkout <commit>`).
+Depois da execução final de 12/11, a `main` mudou com as correções da revisão de código (PR #40),
+registradas em 13/11, e com os PRs #42 a #44, registrados em 15/11. A API passou de 1011 para 1028
+e depois para 1041 testes aprovados (3 pulados); a web, de 465 para 468 de unidade e componente; o
+aplicativo, de 408 + 22 para 425 + 23. Em 15/11, a API, o aplicativo e o roteiro integrado rodaram
+no commit `b1fde87` (#43), e a web no `e8982f2` (#44, que só corrigiu um teste instável do painel).
+Para repetir uma execução exatamente como registrada, use o commit indicado no registro
+(`git checkout <commit>`).
 
 ## Arquitetura em uma página
 

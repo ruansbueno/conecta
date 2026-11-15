@@ -17,7 +17,7 @@ import '../comum/faixa_informativa.dart';
 import '../turmas/turma_card.dart';
 
 /// T14 — perfil (design m-13, RM-08, RM-10). A recarga de `GET /me` ao abrir a aba e ao voltar
-/// do segundo plano fica na casca (RM-09).
+/// do segundo plano fica na casca (RM-09); puxar para baixo também recarrega.
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 
@@ -83,6 +83,27 @@ class _PerfilPageState extends State<PerfilPage> {
     Perfil.desconhecido => u.perfilBruto,
   };
 
+  /// Puxar para atualizar (RM-15): relê o `/me` e o período das turmas, mesmo com as mesmas turmas
+  /// (a gestão pode ter mudado o período). Sem rede, os dados ficam e um aviso breve explica; 401 e
+  /// 403 já encerram a sessão pelo evento central.
+  Future<void> _recarregar() async {
+    final sessao = context.read<SessionController>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    final falha = await sessao.recarregarPerfil();
+    if (!mounted) return;
+    if (falha != null) {
+      if (falha.efeito != EfeitoFalha.encerraSessao) {
+        mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+      }
+      return;
+    }
+    final usuario = sessao.usuario;
+    if (usuario == null) return;
+    // Marcadas antes da reconstrução: o didChangeDependencies não repete o pedido.
+    _turmasDoPeriodo = {for (final t in usuario.turmas ?? const <TurmaVinculada>[]) t.id};
+    await _carregarPeriodo(usuario);
+  }
+
   Future<void> _sair() async {
     final sessao = context.read<SessionController>();
     final confirmou = await showDialog<bool>(
@@ -123,52 +144,57 @@ class _PerfilPageState extends State<PerfilPage> {
       ),
       body: usuario == null
           ? const SizedBox.shrink()
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-              children: [
-                // Aberto sem rede, o perfil é o guardado: diz de quando são os dados (RM-29).
-                if (dadosDe != null) ...[
-                  FaixaCache(coletadoEm: dadosDe, onRepetir: sessao.recarregarPerfil),
-                  const SizedBox(height: 16),
-                ],
-                _Identificacao(usuario: usuario, perfil: _rotuloPerfil(usuario)),
-                const SizedBox(height: 24),
-                _Dados(usuario: usuario, periodo: _periodo),
-                if (usuario.turmas?.isNotEmpty ?? false) ...[
+          : RefreshIndicator(
+              onRefresh: _recarregar,
+              child: ListView(
+                // Puxa mesmo quando o perfil cabe inteiro na tela.
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                children: [
+                  // Aberto sem rede, o perfil é o guardado: diz de quando são os dados (RM-29).
+                  if (dadosDe != null) ...[
+                    FaixaCache(coletadoEm: dadosDe, onRepetir: sessao.recarregarPerfil),
+                    const SizedBox(height: 16),
+                  ],
+                  _Identificacao(usuario: usuario, perfil: _rotuloPerfil(usuario)),
                   const SizedBox(height: 24),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      'Minhas turmas',
-                      style: context.tipos.subtitulo.copyWith(color: context.cores.apagado),
+                  _Dados(usuario: usuario, periodo: _periodo),
+                  if (usuario.turmas?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 24),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        'Minhas turmas',
+                        style: context.tipos.subtitulo.copyWith(color: context.cores.apagado),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final t in usuario.turmas!)
+                          _ChipTurma(rotulo: codigoCurto(t.codigo), nome: t.nome),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  const FaixaInformativa(
+                    'Seu perfil de acesso é definido pela administração do CONECTA.',
+                    icone: Icons.shield_outlined,
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: _sair,
+                      icon: const Icon(Icons.logout, size: 20),
+                      label: const Text('Sair da conta'),
+                      style: TextButton.styleFrom(foregroundColor: context.cores.perigo),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final t in usuario.turmas!)
-                        _ChipTurma(rotulo: codigoCurto(t.codigo), nome: t.nome),
-                    ],
-                  ),
                 ],
-                const SizedBox(height: 24),
-                const FaixaInformativa(
-                  'Seu perfil de acesso é definido pela administração do CONECTA.',
-                  icone: Icons.shield_outlined,
-                ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: _sair,
-                    icon: const Icon(Icons.logout, size: 20),
-                    label: const Text('Sair da conta'),
-                    style: TextButton.styleFrom(foregroundColor: context.cores.perigo),
-                  ),
-                ),
-              ],
+              ),
             ),
     );
   }

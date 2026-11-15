@@ -18,14 +18,33 @@ import 'calendario.dart';
 const _semana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 /// T11 — visão de mês (design m-10b, plan-f2 D-AF2-4): grade de domingo a sábado com marcadores e,
-/// abaixo, as atividades do dia escolhido. Rola inteira, para caber com a fonte a 200% (RM-36).
+/// abaixo, as atividades do dia escolhido. Rola inteira, para caber com a fonte a 200% (RM-36), e
+/// puxar para baixo busca de novo o mês aberto.
 class MesView extends StatelessWidget {
   const MesView({super.key});
+
+  /// Puxar para atualizar (RM-15): falhando, o mês fica na tela e a falha vira um aviso breve.
+  Future<void> _recarregar(BuildContext context) async {
+    final controller = context.read<MesController>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    await controller.recarregar();
+    final falha = controller.ultimaFalha;
+    if (falha != null) mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+  }
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<MesController>();
+    return RefreshIndicator(
+      onRefresh: () => _recarregar(context),
+      child: _conteudo(context, controller),
+    );
+  }
+
+  Widget _conteudo(BuildContext context, MesController controller) {
     return ListView(
+      // Puxa mesmo quando o mês cabe inteiro na tela.
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 24),
       children: [
         if (controller.dadosDe != null)

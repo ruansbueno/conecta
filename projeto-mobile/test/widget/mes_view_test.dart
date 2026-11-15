@@ -225,4 +225,60 @@ void main() {
     );
     expect(find.text('Hoje tem'), findsOneWidget);
   });
+
+  // Evento marcado pela gestão com o Mês já aberto: aparece sem precisar trocar de mês.
+  final reuniaoDeHoje = eventoMapa(
+    'n',
+    titulo: 'Reunião nova',
+    inicio: DateTime(hoje.year, hoje.month, hoje.day, 12),
+  );
+
+  testWidgets('puxar para atualizar no Mês busca de novo o mês aberto', (tester) async {
+    app.api.responder('GET /eventos', paginaJson([]));
+    await abrirMes(tester);
+    final antes = pedidosDoMes().length;
+    app.api.responder('GET /eventos', paginaJson([reuniaoDeHoje]));
+
+    await tester.fling(find.text(atual.nome), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    expect(pedidosDoMes().length, antes + 1);
+    expect(pedidosDoMes().last['de'], janelaDaGrade(atual).de.toUtc().toIso8601String());
+    expect(find.text('Reunião nova'), findsOneWidget);
+    expect(find.text(tituloDoDia(hoje)), findsOneWidget); // o dia escolhido continua o mesmo
+  });
+
+  testWidgets('puxar no Mês sem rede mantém o mês na tela e avisa', (tester) async {
+    app.api.responder('GET /eventos', paginaJson([reuniaoDeHoje]));
+    await abrirMes(tester);
+    app.api.falharRede('GET /eventos');
+
+    await tester.fling(find.text(atual.nome), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reunião nova'), findsOneWidget);
+    expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  testWidgets('voltar ao chip Mês busca de novo o mês que estava aberto', (tester) async {
+    app.api.responder('GET /eventos', paginaJson([]));
+    await abrirMes(tester);
+    await tester.tap(find.byTooltip('Próximo mês'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Próximos'));
+    await tester.pumpAndSettle();
+    final antes = pedidosDoMes().length;
+    app.api.responder('GET /eventos', paginaJson(eventos));
+
+    await tester.tap(find.text('Mês'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(seguinte.nome), findsOneWidget);
+    expect(pedidosDoMes().length, antes + 1);
+    expect(pedidosDoMes().last['de'], janelaDaGrade(seguinte).de.toUtc().toIso8601String());
+    // Dia 1 continua escolhido; o mês mostra os marcadores dos eventos que chegaram.
+    await tester.tap(dia(16, seguinte));
+    await tester.pumpAndSettle();
+    expect(find.text('Prova de BD'), findsOneWidget);
+  });
 }

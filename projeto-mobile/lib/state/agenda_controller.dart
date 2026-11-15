@@ -26,7 +26,8 @@ class EventosController extends ControllerDeLista<Evento> {
 }
 
 /// Os chips Próximos · Provas · Mês e o filtro de tipo (plan-f2 D-AF2-2). Cada visão é criada ao
-/// ser aberta; mudar o tipo recria Próximos e Mês (o mês aberto continua o mesmo).
+/// ser aberta; mudar o tipo recria Próximos e Mês (o mês aberto continua o mesmo). Voltar ao Mês
+/// busca de novo o mês aberto.
 class AgendaController extends ChangeNotifier {
   AgendaController(this._repo, {required this.usuarioId});
 
@@ -63,6 +64,9 @@ class AgendaController extends ChangeNotifier {
   void alternar(VisaoAgenda visao) {
     if (visao == _visao) return;
     _visao = visao;
+    // O mês não tem paginação para "puxar" sem querer: voltar a ele já busca de novo o mês aberto,
+    // para um evento marcado nesse meio-tempo aparecer sem trocar de mês e voltar.
+    if (visao == VisaoAgenda.mes) _mes?.recarregar();
     notifyListeners();
   }
 

@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+# Sobe o ambiente local do CONECTA para testar: banco (Docker), migrações, API e plataforma web.
+# O que já estiver no ar é mantido; o que este comando subir mostra os logs aqui e para com Ctrl+C.
+# O aplicativo fica de fora: roda pelo Android Studio (ou `flutter run`, ver README).
+#
+# Instalação, uma vez, a partir da raiz do repositório:
+#     ln -s "$PWD/scripts/conecta" ~/.local/bin/conecta      # ~/.local/bin precisa estar no PATH
+
+set -u
+
+# Raiz do repositório, mesmo chamado pelo link em ~/.local/bin.
+script="$0"
+while [ -L "$script" ]; do
+  alvo="$(readlink "$script")"
+  case "$alvo" in /*) script="$alvo" ;; *) script="$(dirname "$script")/$alvo" ;; esac
+done
+RAIZ="$(cd "$(dirname "$script")/.." && pwd)"
+API_DIR="$RAIZ/projeto-api"
+WEB_DIR="$RAIZ/projeto-web"
+
+API_URL="http://localhost:8000"
+WEB_URL="http://localhost:5173"
+ESPERA_MAX=90 # segundos para a API e a web responderem
+# Só esta máquina: o emulador (10.0.2.2) e o celular por USB (adb reverse) já a alcançam. Para um
+# celular pelo Wi-Fi, use CONECTA_API_HOST=0.0.0.0 conecta (a API fica visível na rede).
+API_HOST="${CONECTA_API_HOST:-127.0.0.1}"
+
+if [ -t 1 ]; then
+  VERDE=$'\033[32m' AMARELO=$'\033[33m' VERMELHO=$'\033[31m' AZUL=$'\033[36m' ROXO=$'\033[35m'
+  NEGRITO=$'\033[1m' FIM=$'\033[0m'
+else
+  VERDE='' AMARELO='' VERMELHO='' AZUL='' ROXO='' NEGRITO='' FIM=''
+fi
+
+passo() { printf '%s•%s %s\n' "$AZUL" "$FIM" "$*"; }
+pass() { printf '%s✓%s %s %s(já ativo, pass)%s\n' "$VERDE" "$FIM" "$1" "$AMARELO" "$FIM"; }
+ok() { printf '%s✓%s %s\n' "$VERDE" "$FIM" "$*"; }
+erro() { printf '%s✗ %s%s\n' "$VERMELHO" "$*" "$FIM" >&2; }
+
+responde() { curl -s -o /dev/null --max-time 2 "$1"; }
+
+# Cada serviço iniciado aqui fica no seu próprio grupo de processos (set -m): o Ctrl+C chega só a
+# este script, que encerra os grupos — o uvicorn com o recarregador, o npx com o vite.
+set -m
+PIDS=""
+
+parar() {
+  trap - INT TERM
+  if [ -n "$PIDS" ]; then
+    printf '\n%s\n' "Parando o que este comando subiu..."
+    for pid in $PIDS; do kill -TERM -- "-$pid" 2>/dev/null; done
+    wait 2>/dev/null
+    ok "Parado. O banco continua no Docker (docker compose stop db, em projeto-api, para pará-lo)."
+  fi
+  exit "${1:-0}"
+}
+trap 'parar 0' INT TERM
+
+com_prefixo() { # $1 rótulo, $2 cor
+  local rotulo="$1" cor="$2"
+  while IFS= read -r linha; do printf '%s[%s]%s %s\n' "$cor" "$rotulo" "$FIM" "$linha"; done
+}
+
+printf '%sCONECTA — ambiente local%s\n\n' "$NEGRITO" "$FIM"
+
+# 1. Docker -----------------------------------------------------------------------------------------
+if ! docker info >/dev/null 2>&1; then
+  erro "O Docker não está rodando. Abra o Docker Desktop e rode 'conecta' de novo."
+  exit 1
+fi
+
+# 2. Banco ------------------------------------------------------------------------------------------
+cd "$API_DIR" || exit 1
+db_id="$(docker compose ps -q db 2>/dev/null)"
+if [ -n "$db_id" ] && [ "$(docker inspect -f '{{.State.Health.Status}}' "$db_id" 2>/dev/null)" = "healthy" ]; then
+  pass "Banco (PostgreSQL, porta 5433)"
+else
+  passo "Subindo o banco..."
+  if ! saida="$(docker compose up -d --wait db 2>&1)"; then
+    printf '%s\n' "$saida" >&2
+    erro "O banco não subiu. Veja também: cd projeto-api && docker compose logs db"
+    exit 1
+  fi
+  ok "Banco (PostgreSQL, porta 5433)"
+fi
+
+# 3. Migrações (sempre: sem pendências, não mudam nada) ---------------------------------------------
+if [ ! -f "$API_DIR/.env" ]; then
+  erro "Falta projeto-api/.env. Crie-o como no README (Como baixar e rodar, passo 2)."
+  exit 1
+fi
+if ! saida="$(uv run alembic upgrade head 2>&1)"; then
+  printf '%s\n' "$saida" >&2
+  erro "As migrações falharam."
+  exit 1
+fi
+ok "Migrações em dia"
+
+# 4. API --------------------------------------------------------------------------------------------
+# stdin em /dev/null: um processo em segundo plano que lê o terminal é suspenso (SIGTTIN).
+if responde "$API_URL/docs"; then
+  pass "API ($API_URL)"
+else
+  passo "Subindo a API..."
+  uv run uvicorn src.main:app --reload --host "$API_HOST" --port 8000 </dev/null > >(com_prefixo api "$ROXO") 2>&1 &
+  API_PID=$!
+  PIDS="$PIDS $API_PID"
+fi
+
+# 5. Web --------------------------------------------------------------------------------------------
+if responde "$WEB_URL"; then
+  pass "Web ($WEB_URL)"
+else
+  cd "$WEB_DIR" || exit 1
+  if [ ! -d node_modules ]; then
+    passo "Instalando as dependências da web (npm ci)..."
+    npm ci --no-audit --no-fund >/dev/null || { erro "npm ci falhou."; parar 1; }
+  fi
+  passo "Subindo a web..."
+  npx vite --port 5173 --strictPort </dev/null > >(com_prefixo web "$AZUL") 2>&1 &
+  WEB_PID=$!
+  PIDS="$PIDS $WEB_PID"
+fi
+
+# 6. Espera os dois responderem ---------------------------------------------------------------------
+esperar() { # $1 nome, $2 url, $3 pid (vazio se já estava no ar)
+  local nome="$1" url="$2" pid="$3" t=0
+  [ -z "$pid" ] && return 0
+  until responde "$url"; do
+    if ! kill -0 "$pid" 2>/dev/null; then
+      erro "$nome parou ao subir (veja os logs acima)."
+      parar 1
+    fi
+    if [ "$t" -ge "$ESPERA_MAX" ]; then
+      erro "$nome não respondeu em ${ESPERA_MAX}s."
+      parar 1
+    fi
+    sleep 1
+    t=$((t + 1))
+  done
+  ok "$nome (${url%/docs})"
+}
+esperar "API" "$API_URL/docs" "${API_PID:-}"
+esperar "Web" "$WEB_URL" "${WEB_PID:-}"
+
+# 7. Pronto -----------------------------------------------------------------------------------------
+if command -v open >/dev/null; then open "$WEB_URL"; elif command -v xdg-open >/dev/null; then xdg-open "$WEB_URL" >/dev/null 2>&1; fi
+
+printf '\n%s%sConecta rodando!%s\n' "$NEGRITO" "$VERDE" "$FIM"
+printf '  Web: %s   API: %s/docs   Login: admin.teste / senha-teste\n' "$WEB_URL" "$API_URL"
+
+if [ -z "$PIDS" ]; then
+  printf '  Tudo já estava no ar; nada para acompanhar aqui.\n'
+  exit 0
+fi
+printf '  Logs abaixo. Ctrl+C para a API e a web que este comando subiu.\n\n'
+wait

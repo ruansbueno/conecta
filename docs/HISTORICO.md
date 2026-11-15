@@ -70,7 +70,8 @@ antes do merge.
 | **Puxar para atualizar e pedidos na aba** | App: puxar para atualizar no Mês e no Perfil, e o Mês buscado de novo ao voltar ao chip; web: bolinha com o número de pedidos na aba Aguardando acesso | web 468 (Vitest) + 74 (Playwright), app 417 + 22 | [#42](https://github.com/ruansbueno/conecta/pull/42) |
 | **Docente: provas e aulas** | Emenda E3.1 da API: ao docente, só as provas que ele criou na consulta de eventos (RF-53) e `GET /horarios/minhas` com as aulas dele em todas as turmas (RF-54); no app, Horários do docente com as próprias aulas | API 1041, app 425 + 23 | [#43](https://github.com/ruansbueno/conecta/pull/43) |
 | **Teste do painel** | O teste do painel espera o número do cartão chegar (falhava com a máquina carregada); só o teste muda | web 468 (Vitest) | [#44](https://github.com/ruansbueno/conecta/pull/44) |
-| **Evidências de 15/11** | Execução final depois dos PRs #42 a #44, cada teste pelo nome: API, roteiro integrado (9 de 9), web (com a implantação) e aplicativo (com a integração no emulador) | API 1041, web 468 + 74 + 11, app 425 + 23 | [#45](https://github.com/ruansbueno/conecta/pull/45) |
+| **Usuários de primeiro login** | Provedor simulado com `aluno.novo2` (vídeo de demonstração) e `servidor.novo2`; os de primeiro login numa lista explícita, fora do seed | API 1043 | [#46](https://github.com/ruansbueno/conecta/pull/46) |
+| **Evidências de 15/11** | Execução final depois dos PRs #42 a #44 (a da API, refeita depois do #46), cada teste pelo nome: API, roteiro integrado (9 de 9), web (com a implantação) e aplicativo (com a integração no emulador) | API 1043, web 468 + 74 + 11, app 425 + 23 | [#45](https://github.com/ruansbueno/conecta/pull/45) |
 
 **Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
 web → API → app contra a API real): no fechamento, em 01/11/2026

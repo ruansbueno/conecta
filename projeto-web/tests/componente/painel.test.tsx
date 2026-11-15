@@ -23,7 +23,8 @@ const PENDENTES = [
   { ...solicitacao, id: 's2', aluno: { id: 'a2', username: 'caio', nome: 'Caio Ribeiro' }, turma: { id: 't1', codigo: 'SI-3A', nome: 'Sistemas para Internet 3A' } },
 ]
 
-function api(rotas: Record<string, Responder> = {}, sessao: object = me) {
+/** `atraso` (ms) segura cada resposta, como uma máquina carregada: os cartões ficam em "…" um tempo. */
+function api(rotas: Record<string, Responder> = {}, sessao: object = me, atraso = 0) {
   const chamadas: { chave: string; query: URLSearchParams }[] = []
   const base: Record<string, Responder> = {
     'GET /me': () => ({ status: 200, corpo: sessao }),
@@ -44,6 +45,7 @@ function api(rotas: Record<string, Responder> = {}, sessao: object = me) {
       chamadas.push({ chave, query })
       const r = base[chave]
       const { status, corpo } = r ? r(query) : { status: 404, corpo: erro('NAO_ENCONTRADO') }
+      if (atraso > 0) await new Promise((fim) => setTimeout(fim, atraso))
       return new Response(corpo === undefined ? null : JSON.stringify(corpo), { status })
     }),
   )
@@ -60,13 +62,19 @@ function abrir() {
   )
 }
 
-const cartao = (nome: string) => screen.findByRole('region', { name: nome })
+/** O cartão já carregado: enquanto a resposta não chega, ele mostra "…" (número ou "Carregando…"). */
+async function cartao(nome: string) {
+  const regiao = await screen.findByRole('region', { name: nome })
+  await waitFor(() => expect(regiao).not.toHaveTextContent('…'))
+  return regiao
+}
 
 describe('painel da coordenação (T02)', () => {
   afterEach(() => vi.unstubAllGlobals())
 
   it('números vêm do total de cada lista, sem endpoint de resumo', async () => {
-    const chamadas = api()
+    // Com as respostas atrasadas: o número é conferido quando chega, não enquanto o cartão carrega.
+    const chamadas = api({}, me, 50)
     abrir()
     expect(await screen.findByRole('heading', { level: 1, name: /Maria/ })).toBeInTheDocument()
     expect(await cartao('Avisos ativos')).toHaveTextContent('1.248')

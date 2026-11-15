@@ -85,6 +85,8 @@ async def test_mock_tem_os_usuarios_de_teste(username):
         ("aluno.teste", "aluno"),
         ("docente.teste", "administrativo"),
         ("servidor.novo", "administrativo"),
+        ("aluno.novo2", "aluno"),
+        ("servidor.novo2", "administrativo"),
     ],
 )
 async def test_mock_informa_o_tipo_institucional_como_a_api_do_ifsul(username, tipo):

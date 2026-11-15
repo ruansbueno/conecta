@@ -72,6 +72,7 @@ Flutter · `provider` (estado) · `Navigator` com rotas nomeadas · `http` com c
 | — Login pelo IFSul | Mensagens de acesso pendente e recusado (RM-41); login sem menção ao Moodle | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 | — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login e "Sem conexão"; segue o sistema até a pessoa escolher, e a escolha fica no aparelho (continua depois de sair da conta); paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
 | — Puxar para atualizar | Agenda › Mês e Perfil: puxar para baixo busca de novo o mês aberto e relê o perfil e o período das turmas; voltar ao chip Mês também busca o mês de novo, então um evento marcado pela gestão aparece sem trocar de mês; sem rede, a tela fica e um aviso breve explica | ✅ [#42](https://github.com/ruansbueno/conecta/pull/42) |
+| — Docente (emenda E3.1 da API) | Horários mostra ao docente as próprias aulas em todas as turmas, cada uma com a turma, sem escolher turma; na Agenda, só as provas que ele criou (filtradas pela API) | ✅ [#43](https://github.com/ruansbueno/conecta/pull/43) |
 
 **Testes** (registro de 11/11/2026, com o modo noturno, [`testes-app-2026-11-11.txt`](evidencias/testes-app-2026-11-11.txt)):
 408 de unidade e de widget (`flutter test`, com a acessibilidade nos dois temas) e 22 de integração

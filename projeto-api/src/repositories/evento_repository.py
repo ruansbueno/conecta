@@ -75,9 +75,14 @@ class EventoRepository:
 
     @staticmethod
     def _visiveis(usuario: Usuario) -> Select:
-        return select(Evento).where(
+        stmt = select(Evento).where(
             alcanca(EventoDestino, EventoDestino.evento_id == Evento.id, usuario)
         )
+        if usuario.perfil == "docente":
+            # Ao docente, só as provas que ele criou (emenda E3.1, RF-53); os outros tipos seguem
+            # só o alcance. Vale para a lista, o filtro de tipo, a janela do mês e o detalhe.
+            stmt = stmt.where(or_(Evento.tipo != "prova", Evento.autor_id == usuario.id))
+        return stmt
 
     @staticmethod
     def _com_detalhes(stmt: Select) -> Select:

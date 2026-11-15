@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/aula.dart';
+import '../../models/usuario.dart';
 import '../../repositories/horarios_repository.dart';
 import '../../repositories/turmas_repository.dart';
 import '../../state/avisos_controller.dart' show EstadoLista;
 import '../../state/horarios_controller.dart';
+import '../../state/minhas_aulas_controller.dart';
 import '../../state/session_controller.dart';
 import '../../theme/cores.dart';
 import '../../theme/tipografia.dart';
@@ -30,13 +32,26 @@ const _nomes = {
 };
 
 /// T13 — grade semanal da turma (design m-12, plan-f2 D-AF2-6): agrupada por dia, só os dias com
-/// aula; cada aula com disciplina, horas, local e docente.
+/// aula; cada aula com disciplina, horas, local e docente. O docente vê, no lugar, as próprias aulas
+/// em todas as turmas, cada uma com a turma (emenda E3.1 da API).
 class HorariosPage extends StatelessWidget {
   const HorariosPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final usuarioId = context.read<SessionController>().usuario!.id;
+    final usuario = context.read<SessionController>().usuario!;
+    final usuarioId = usuario.id;
+    // O docente vê as próprias aulas em todas as turmas, e não a grade de cada turma (emenda E3.1).
+    if (usuario.perfil == Perfil.docente) {
+      return ChangeNotifierProvider(
+        create: (_) => MinhasAulasController(
+          context.read<HorariosRepository>(),
+          usuarioId: usuarioId,
+          aoPerderPermissao: context.read<SessionController>().recarregarPerfil,
+        )..carregar(),
+        child: const _MinhasAulas(),
+      );
+    }
     return ChangeNotifierProvider(
       create: (_) => HorariosController(
         context.read<TurmasRepository>(),
@@ -103,6 +118,77 @@ class _HorariosState extends State<_Horarios> {
     );
   }
 }
+
+class _MinhasAulas extends StatelessWidget {
+  const _MinhasAulas();
+
+  Future<void> _recarregar(BuildContext context) async {
+    final controller = context.read<MinhasAulasController>();
+    final mensageiro = ScaffoldMessenger.of(context);
+    await controller.recarregar();
+    final falha = controller.ultimaFalha;
+    if (falha != null) mensageiro.showSnackBar(SnackBar(content: Text(falha.mensagem)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<MinhasAulasController>();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Horários'),
+        toolbarHeight: 60,
+        titleSpacing: 20,
+        actions: const [BotaoTema(), SizedBox(width: 8)],
+      ),
+      body: switch (controller.estado) {
+        EstadoLista.carregando => const EsqueletoLista(),
+        EstadoLista.erro => EstadoErro(
+          mensagem: controller.falha!.mensagem,
+          onRepetir: controller.carregar,
+        ),
+        _ => RefreshIndicator(
+          onRefresh: () => _recarregar(context),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              if (controller.dadosDe != null)
+                FaixaCache(coletadoEm: controller.dadosDe!, onRepetir: () => _recarregar(context)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: Text('Suas aulas em todas as turmas', style: context.tipos.apoio),
+              ),
+              const Divider(),
+              if (controller.estado == EstadoLista.vazio)
+                const SizedBox(
+                  height: 300,
+                  child: EstadoVazio(
+                    icone: Icons.event_busy_outlined,
+                    titulo: 'Nenhuma aula atribuída',
+                    texto:
+                        'Suas aulas aparecem aqui quando a coordenação incluir você como docente '
+                        'na grade de uma turma.',
+                  ),
+                )
+              else
+                ..._semana(controller.aulas, mostrarTurma: true),
+            ],
+          ),
+        ),
+      },
+    );
+  }
+}
+
+/// Os dias com aula, de segunda a domingo, e o fecho quando falta algum dia.
+List<Widget> _semana(List<Aula> aulas, {bool mostrarTurma = false}) => [
+  for (final dia in [1, 2, 3, 4, 5, 6, 7])
+    if (aulas.where((a) => a.diaSemana == dia).toList() case final doDia when doDia.isNotEmpty)
+      _Dia(dia: dia, aulas: doDia, mostrarTurma: mostrarTurma),
+  // Os dias sem aula não aparecem: o fecho diz que não faltou nada (spec 002).
+  if (aulas.map((a) => a.diaSemana).toSet().length < 7)
+    const FimDaLista('Não há aulas nos outros dias da semana.'),
+];
 
 class _Conteudo extends StatelessWidget {
   const _Conteudo(this.controller);
@@ -184,23 +270,16 @@ class _Conteudo extends StatelessWidget {
         ),
       ),
     ],
-    EstadoLista.conteudo => [
-      for (final dia in [1, 2, 3, 4, 5, 6, 7])
-        if (controller.aulas.where((a) => a.diaSemana == dia).toList() case final doDia
-            when doDia.isNotEmpty)
-          _Dia(dia: dia, aulas: doDia),
-      // Os dias sem aula não aparecem: o fecho diz que não faltou nada (spec 002).
-      if (controller.aulas.map((a) => a.diaSemana).toSet().length < 7)
-        const FimDaLista('Não há aulas nos outros dias da semana.'),
-    ],
+    EstadoLista.conteudo => _semana(controller.aulas),
   };
 }
 
 class _Dia extends StatelessWidget {
-  const _Dia({required this.dia, required this.aulas});
+  const _Dia({required this.dia, required this.aulas, this.mostrarTurma = false});
 
   final int dia;
   final List<Aula> aulas;
+  final bool mostrarTurma;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -235,7 +314,7 @@ class _Dia extends StatelessWidget {
             children: [
               for (final (i, a) in aulas.indexed) ...[
                 if (i > 0) const SizedBox(height: 12),
-                _Aula(a),
+                _Aula(a, mostrarTurma: mostrarTurma),
               ],
             ],
           ),
@@ -246,9 +325,12 @@ class _Dia extends StatelessWidget {
 }
 
 class _Aula extends StatelessWidget {
-  const _Aula(this.aula);
+  const _Aula(this.aula, {this.mostrarTurma = false});
 
   final Aula aula;
+
+  /// Nas aulas do docente, a última linha é a turma (o docente é ele mesmo).
+  final bool mostrarTurma;
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +358,16 @@ class _Aula extends StatelessWidget {
                     aula.local == null ? horas : '$horas · ${aula.local}',
                     style: context.tipos.meta,
                   ),
-                  if (aula.docenteNome case final docente?)
+                  if (mostrarTurma)
+                    Text(
+                      [
+                        // Código completo: distingue turmas de períodos diferentes ainda ativas.
+                        ?aula.turmaCodigo,
+                        ?aula.turmaNome,
+                      ].join(' · '),
+                      style: context.tipos.meta.copyWith(color: context.cores.apagado),
+                    )
+                  else if (aula.docenteNome case final docente?)
                     Text(docente, style: context.tipos.meta.copyWith(color: context.cores.apagado)),
                 ],
               ),

@@ -235,6 +235,10 @@ solicitar de novo.
    turma e vê a grade semanal com disciplina, horário, sala e docente.
 5. **Given** um usuário sem vínculo, **When** abre Horários, **Then** vê o estado vazio explicando
    que a grade aparece depois do vínculo com uma turma.
+6. **[Emenda E3.1 da API, 2026-11-14]** **Given** um docente, **When** abre Horários, **Then** vê
+   as próprias aulas em todas as turmas (`GET /horarios/minhas`), por dia, cada uma com a turma
+   no lugar do docente, sem escolher turma; sem aulas, um estado vazio próprio. Na Agenda, o
+   docente vê só as provas que criou (a API já as filtra).
 
 ### Edge Cases
 

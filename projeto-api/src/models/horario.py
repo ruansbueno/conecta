@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.base import Base
 
 if TYPE_CHECKING:
+    from src.models.turma import Turma
     from src.models.usuario import Usuario
 
 
@@ -40,3 +41,5 @@ class Horario(Base):
     )
 
     docente: Mapped["Usuario | None"] = relationship(lazy="raise")
+    # Só para as aulas do docente (RF-54), que mostram a turma de cada aula.
+    turma: Mapped["Turma"] = relationship(lazy="raise")

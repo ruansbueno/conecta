@@ -10,13 +10,16 @@ API REST do CONECTA em FastAPI. Atende o aplicativo mobile (token `Bearer`) e a 
 - **Entrega 3** (agenda e horários): eventos com os mesmos destinos, versões e histórico dos
   avisos (`/eventos`, `/gestao/eventos`) e a grade semanal das turmas, com conflitos de sala e de
   docente informados sem bloquear (`/turmas/{id}/horarios`, `/gestao/turmas/{id}/horarios`).
+- **Emenda E3.1** (docente): só as provas que ele criou na consulta de eventos e as próprias
+  aulas em todas as turmas (`/horarios/minhas`).
 
 Especificação, contrato e tarefas em
 [`specs/001-auth-perfil-turmas-avisos/`](specs/001-auth-perfil-turmas-avisos/) (`tasks.md` para a
 E1; `plan-e2.md` e `tasks-e2.md` para a E2) e
 [`specs/002-agenda-horarios/`](specs/002-agenda-horarios/) para a E3 (com o próprio
 `quickstart.md`). As correções de uma revisão de código posterior às evidências finais (emenda
-v2.4) estão em [`specs/003-revisao-de-codigo/`](specs/003-revisao-de-codigo/).
+v2.4) estão em [`specs/003-revisao-de-codigo/`](specs/003-revisao-de-codigo/), e a emenda E3.1
+(provas e aulas do docente), em [`specs/004-docente-provas-aulas/`](specs/004-docente-provas-aulas/).
 
 ## Rodando localmente
 

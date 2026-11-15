@@ -185,6 +185,36 @@ void main() {
         await auditar(tester);
       });
 
+      testWidgets('docente: as próprias aulas em Horários e o estado vazio (emenda E3.1)', (
+        tester,
+      ) async {
+        await preparar(perfil: 'docente');
+        app.api.responder(
+          'GET /horarios/minhas',
+          paginaJson([
+            {
+              ...aulaMapa('a1', turmaId: 'turma-TADS-3A-2026-2'),
+              'turma': {
+                'id': 'turma-TADS-3A-2026-2',
+                'codigo': 'TADS-3A-2026-2',
+                'nome': 'TADS 3º Sem A',
+              },
+            },
+          ]),
+        );
+        await app.abrir(tester);
+        await aba(tester, 'Horários');
+        expect(find.text('TADS-3A-2026-2 · TADS 3º Sem A'), findsOneWidget);
+        await auditar(tester);
+
+        app.api.responder('GET /horarios/minhas', paginaJson([]));
+        await tester.pumpWidget(const SizedBox());
+        await app.abrir(tester);
+        await aba(tester, 'Horários');
+        expect(find.text('Nenhuma aula atribuída'), findsOneWidget);
+        await auditar(tester);
+      });
+
       testWidgets('coordenação sem turmas e estado de erro', (tester) async {
         await preparar(perfil: 'coordenacao');
         await app.abrir(tester);

@@ -2,7 +2,13 @@
 
 **Feature Branch**: `002-agenda-horarios`
 
-**Created**: 2026-10-13
+**Created**: 2026-10-13 | **Emenda (E3.1)**: 2026-11-14
+
+> **Emenda E3.1 (2026-11-14)** — pedido do autor ao testar o aplicativo com o perfil docente:
+> (1) ao docente, a consulta de eventos traz só as **provas que ele criou** (RF-53); os demais
+> tipos seguem só o alcance; (2) o docente consulta **as próprias aulas**, em todas as turmas
+> ativas, por `GET /horarios/minhas` (RF-54), em vez da grade inteira de cada turma, como o aluno.
+> Plano e tarefas em [`specs/004-docente-provas-aulas`](../004-docente-provas-aulas/plan.md).
 
 **Status**: Draft
 
@@ -222,6 +228,10 @@ dessas turmas o recebem.
   lecionam; qualquer outro destino MUST resultar em 403 `DESTINO_NAO_PERMITIDO`.
 - **RF-37**: A consulta de eventos MUST retornar apenas os que alcançam o usuário, sem
   duplicidade, ordenados por `inicio`.
+- **RF-53 [emenda E3.1]**: Para o docente, a consulta de eventos MUST retornar, entre as provas
+  que o alcançam, apenas as que ele criou — na lista, no filtro por tipo, na janela do mês e no
+  detalhe (prova de outro autor é 404 `EVENTO_NAO_ENCONTRADO`). Os demais tipos e os demais
+  perfis não mudam.
 - **RF-38**: A consulta MUST aceitar filtro por intervalo (`de`, `ate`) e a opção de incluir
   eventos já encerrados.
 - **RF-39**: Editar um evento MUST criar nova versão, preencher `editado_em` e preservar as
@@ -244,6 +254,9 @@ dessas turmas o recebem.
 - **RF-46**: A grade MUST ser recorrência semanal pura, sem exceções por data.
 - **RF-47**: O docente informado em um horário MUST ter perfil `docente`; caso contrário, 409
   `PERFIL_INCOMPATIVEL`.
+- **RF-54 [emenda E3.1]**: O docente MUST poder consultar as aulas em que é o docente, em todas
+  as turmas ativas, ordenadas por dia e hora de início, cada uma com a turma
+  (`GET /horarios/minhas`); os demais perfis recebem 403 `SEM_PERMISSAO`.
 
 ### Qualidade
 
@@ -312,3 +325,5 @@ Decididas em 13/10/2026, antes da especificação; registradas aqui com o motivo
 | RF-43, RF-45, RF-46, RF-47 | O6 | contrato `test_horarios_crud`; integração `test_horario_acesso_por_vinculo` |
 | RF-44 | O6 | unitário `test_conflito_horario`; contrato `test_horarios_conflito` |
 | RF-48, RF-49 | O9, O10, O13 | contrato `test_erro_padrao`, `test_paginacao` |
+| RF-53 (emenda E3.1) | O2, O5 | integração `test_docente_provas_proprias` |
+| RF-54 (emenda E3.1) | O6 | integração `test_horarios_minhas` |

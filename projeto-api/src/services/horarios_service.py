@@ -93,6 +93,16 @@ async def consultar(
     return await HorarioRepository(session).listar_da_turma(turma_id, None, limit, offset)
 
 
+async def minhas_aulas(
+    session: AsyncSession, usuario: Usuario, limit: int, offset: int
+) -> tuple[list[Horario], int]:
+    """As aulas do docente em todas as turmas ativas (emenda E3.1, RF-54). Só o perfil docente
+    pode ser docente de uma aula (RF-47); os outros perfis recebem 403."""
+    if usuario.perfil != "docente":
+        raise SemPermissao("Só docentes têm aulas atribuídas")
+    return await HorarioRepository(session).listar_do_docente(usuario.id, limit, offset)
+
+
 async def criar(
     session: AsyncSession, turma_id: uuid.UUID, dados: HorarioCreate
 ) -> tuple[Horario, list[dict]]:

@@ -27,6 +27,25 @@ class HorarioRepository:
         )
         return list(horarios), total
 
+    async def listar_do_docente(
+        self, docente_id: uuid.UUID, limit: int, offset: int
+    ) -> tuple[list[Horario], int]:
+        """Aulas em que a pessoa é o docente, só de turmas ativas (RF-54): turma inativa não tem
+        aula acontecendo, como nos conflitos (plan E3 D-E3-9)."""
+        stmt = (
+            select(Horario)
+            .join(Turma, Turma.id == Horario.turma_id)
+            .where(Horario.docente_id == docente_id, Turma.ativa)
+        )
+        total = await self.session.scalar(select(func.count()).select_from(stmt.subquery()))
+        horarios = await self.session.scalars(
+            stmt.options(selectinload(Horario.docente), selectinload(Horario.turma))
+            .order_by(Horario.dia_semana, Horario.inicio, Horario.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(horarios), total
+
     async def obter_da_turma(self, turma_id: uuid.UUID, horario_id: uuid.UUID) -> Horario | None:
         return await self.session.scalar(
             select(Horario)

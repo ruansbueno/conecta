@@ -37,6 +37,20 @@ class HorarioOut(BaseModel):
     docente: PessoaOut | None
 
 
+class TurmaResumoOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    codigo: str
+    nome: str
+
+
+class AulaDoDocenteOut(HorarioOut):
+    """Aula de `GET /horarios/minhas` (RF-54): a da grade, com a turma."""
+
+    turma: TurmaResumoOut
+
+
 class TurmaConflitoOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

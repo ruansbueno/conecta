@@ -11,7 +11,11 @@ destino.
 > "encerrado" (D-E3-3, D-E3-4), ordem das listas (D-E3-5), `fim` no `PATCH` (D-E3-6) e 404 para a
 > grade de turma inativa (D-E3-10).
 
-Caminhos de consulta (clientes): `/eventos`, `/turmas/{turma_id}/horarios`.
+> **Emenda E3.1 (2026-11-14)**, de [specs/004](../../004-docente-provas-aulas/plan.md): ao
+> docente, `GET /eventos` e `GET /eventos/{id}` trazem só as provas que ele criou (RF-53); nova
+> rota `GET /horarios/minhas`, com as aulas do docente (seção 3a, RF-54).
+
+Caminhos de consulta (clientes): `/eventos`, `/turmas/{turma_id}/horarios`, `/horarios/minhas`.
 Caminhos de gestão: `/gestao/eventos`, `/gestao/turmas/{turma_id}/horarios`.
 
 ## Códigos acrescentados
@@ -84,7 +88,10 @@ de arquivados traz todos. Ordem: `inicio` crescente e, no empate, `id`.
 
 **Erros**: 401; 403 `USUARIO_INATIVO`; 422 (`ate` menor que `de`, tipo ou situação inválidos).
 
-**Maps to**: RF-37, RF-38.
+**Docente (emenda E3.1)**: entre as provas (`tipo` = `prova`) que o alcançam, só vêm as que ele
+criou; os outros tipos seguem só o alcance. Vale também com `tipo=prova` e na janela do mês.
+
+**Maps to**: RF-37, RF-38, RF-53.
 
 ---
 
@@ -92,10 +99,10 @@ de arquivados traz todos. Ordem: `inicio` crescente e, no empate, `id`.
 
 Um evento visível ao usuário (mesmo formato de item da seção 1).
 
-**Erros**: 404 `EVENTO_NAO_ENCONTRADO` (inexistente, excluído ou sem destino que alcance o
-usuário — a API não distingue os casos).
+**Erros**: 404 `EVENTO_NAO_ENCONTRADO` (inexistente, excluído, sem destino que alcance o
+usuário ou, para o docente, prova de outro autor — a API não distingue os casos).
 
-**Maps to**: RF-37.
+**Maps to**: RF-37, RF-53.
 
 ---
 
@@ -131,6 +138,44 @@ a grade é recorrência semanal (RF-46).
 inativa, para todos os perfis; a gestão vê a grade de turma inativa pela seção 11).
 
 **Maps to**: RF-45.
+
+---
+
+## 3a. GET /horarios/minhas *(emenda E3.1)*
+
+As aulas em que o usuário é o docente, em todas as turmas **ativas**, ordenadas por dia, hora de
+início e `id`. Mesmo item da seção 3, com a turma.
+
+**Auth**: perfil `docente`.
+
+**Query**: `limit` / `offset` (20 / 0), ver Paginação.
+
+**200**
+```json
+{
+  "items": [
+    {
+      "id": "c9d8...",
+      "turma_id": "c3f0...",
+      "turma": { "id": "c3f0...", "codigo": "TADS-3A-2026-2", "nome": "TADS 3º Sem A" },
+      "dia_semana": 1,
+      "inicio": "19:10",
+      "fim": "20:50",
+      "disciplina": "Banco de Dados II",
+      "local": "Lab 4",
+      "docente": { "id": "22bb...", "nome": "Helena Prado" }
+    }
+  ],
+  "total": 1, "limit": 20, "offset": 0
+}
+```
+
+Aula de turma inativa não entra: a turma não tem aula acontecendo (plan D-E3-9). O docente não
+precisa ter vínculo com a turma: basta ser o docente da aula.
+
+**Erros**: 401; 403 `SEM_PERMISSAO` (perfil que não é docente).
+
+**Maps to**: RF-54.
 
 ---
 
@@ -350,7 +395,7 @@ comunicação. **204**.
 
 | Cliente | Usa |
 |---|---|
-| Aplicativo (F2) | `GET /eventos` (com `de`, `ate`, `incluir_encerrados`), `GET /eventos/{id}`, `GET /turmas/{id}/horarios` |
+| Aplicativo (F2) | `GET /eventos` (com `de`, `ate`, `incluir_encerrados`), `GET /eventos/{id}`, `GET /turmas/{id}/horarios`; para o docente, `GET /horarios/minhas` (emenda E3.1) |
 | Plataforma web (F2) | `/gestao/eventos` (CRUD, arquivar, desarquivar, versões, histórico) e `/gestao/turmas/{id}/horarios` (CRUD) |
 
 Nenhum endpoint além destes é necessário para as telas já desenhadas (RF-49).

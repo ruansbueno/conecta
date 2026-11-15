@@ -8,10 +8,20 @@ import 'avisos_controller.dart' show EstadoLista;
 /// Horários do docente (emenda E3.1 da API, RF-54): as aulas dele em todas as turmas, de
 /// `GET /horarios/minhas`. Sem rede, as guardadas, com a data da coleta.
 class MinhasAulasController extends ChangeNotifier {
-  MinhasAulasController(this._repo, {required this.usuarioId});
+  MinhasAulasController(this._repo, {required this.usuarioId, this.aoPerderPermissao});
 
   final HorariosRepository _repo;
   final String usuarioId;
+
+  /// 403 `SEM_PERMISSAO`: a pessoa deixou de ser docente com o app aberto. Reler o perfil faz a
+  /// casca recriar a aba com a tela do perfil novo, em vez de um "Tentar de novo" que falha sempre.
+  final Future<void> Function()? aoPerderPermissao;
+
+  bool _semPermissao(ApiFailure f) {
+    if (f.code != 'SEM_PERMISSAO') return false;
+    aoPerderPermissao?.call();
+    return true;
+  }
 
   EstadoLista estado = EstadoLista.carregando;
   List<Aula> aulas = const [];
@@ -38,6 +48,7 @@ class MinhasAulasController extends ChangeNotifier {
       _aplicar(novas);
     } on ApiFailure catch (f) {
       if (pedido != _pedido) return;
+      _semPermissao(f);
       final guardado = f.efeito == EfeitoFalha.repetir ? _repo.minhasAulasEmCache(usuarioId) : null;
       if (guardado != null) {
         _aplicar(guardado.$1, dadosDe: guardado.$2);
@@ -61,7 +72,7 @@ class MinhasAulasController extends ChangeNotifier {
       _aplicar(novas);
     } on ApiFailure catch (f) {
       if (pedido != _pedido) return;
-      ultimaFalha = f;
+      if (!_semPermissao(f)) ultimaFalha = f;
     }
     notifyListeners();
   }

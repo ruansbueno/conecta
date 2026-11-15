@@ -36,6 +36,10 @@ estar, e não a grade de cada turma como se fosse aluno.
   dizer em qual turma é cada aula. `Horario` ganha a relação `turma` (`lazy="raise"`, carregada
   explicitamente); o banco não muda.
 
+- **D-DP-6 — Consequência de D-DP-1 (a confirmar com o autor):** a prova do docente precisa alcançá-lo;
+  se ele deixar a turma, ou se a coordenação trocar os destinos, ela sai do aplicativo dele e
+  continua na gestão da web (onde o docente vê o que criou).
+
 ## Fora do escopo
 
 - Outros tipos de evento: o docente continua vendo palestras, reuniões, bancas etc. que o

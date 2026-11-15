@@ -92,9 +92,9 @@ void main() {
     expect(find.text('Banco de Dados II'), findsNWidgets(2));
     expect(find.text('19:10–20:50 · Lab 4'), findsOneWidget);
     expect(find.text('21:00–22:40 · Lab 5'), findsOneWidget);
-    expect(find.text('TADS-3A · TADS 3º Sem A'), findsOneWidget);
-    expect(find.text('TADS-3B · TADS 3º Sem B'), findsOneWidget);
-    expect(find.text('TADS-5A · TADS 5º Sem A'), findsOneWidget);
+    expect(find.text('TADS-3A-2026-2 · TADS 3º Sem A'), findsOneWidget);
+    expect(find.text('TADS-3B-2026-2 · TADS 3º Sem B'), findsOneWidget);
+    expect(find.text('TADS-5A-2026-2 · TADS 5º Sem A'), findsOneWidget);
     // O nome do próprio docente não se repete em cada aula.
     expect(find.text('Docente de Teste'), findsNothing);
     expect(pedidos('/horarios/minhas'), 1);
@@ -161,5 +161,27 @@ void main() {
     await tester.tap(find.text('Tentar de novo'));
     await tester.pumpAndSettle();
     expect(find.text('Projeto Integrador'), findsOneWidget);
+  });
+
+  testWidgets('403 (deixou de ser docente): relê o perfil e a aba vira a grade das turmas', (
+    tester,
+  ) async {
+    app.api.responder('GET /horarios/minhas', paginaJson(minhas));
+    await abrirHorarios(tester);
+    // A gestão mudou o perfil para aluno com o app aberto.
+    app.api
+      ..responder('GET /horarios/minhas', '{"detail": "x", "code": "SEM_PERMISSAO"}', 403)
+      ..responder('GET /me', meJson)
+      ..responder(
+        'GET /turmas/minhas',
+        paginaJson([turmaMapa('SI-3A', nome: 'Sistemas para Internet 3A', papel: 'aluno')]),
+      )
+      ..responder('GET /turmas/turma-SI-3A/horarios', paginaJson([aulaMapa('h1')]));
+
+    await tester.fling(find.text('Projeto Integrador'), const Offset(0, 400), 1200);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Turma SI-3A'), findsOneWidget);
+    expect(find.text('Suas aulas em todas as turmas'), findsNothing);
   });
 }

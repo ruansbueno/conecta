@@ -18,7 +18,6 @@ import '../comum/estado_erro.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/faixa_cache.dart';
 import '../comum/fim_da_lista.dart';
-import '../turmas/turma_card.dart' show codigoCurto;
 import 'folha_turmas.dart';
 
 const _siglas = {1: 'SEG', 2: 'TER', 3: 'QUA', 4: 'QUI', 5: 'SEX', 6: 'SÁB', 7: 'DOM'};
@@ -45,9 +44,11 @@ class HorariosPage extends StatelessWidget {
     // O docente vê as próprias aulas em todas as turmas, e não a grade de cada turma (emenda E3.1).
     if (usuario.perfil == Perfil.docente) {
       return ChangeNotifierProvider(
-        create: (_) =>
-            MinhasAulasController(context.read<HorariosRepository>(), usuarioId: usuarioId)
-              ..carregar(),
+        create: (_) => MinhasAulasController(
+          context.read<HorariosRepository>(),
+          usuarioId: usuarioId,
+          aoPerderPermissao: context.read<SessionController>().recarregarPerfil,
+        )..carregar(),
         child: const _MinhasAulas(),
       );
     }
@@ -360,7 +361,8 @@ class _Aula extends StatelessWidget {
                   if (mostrarTurma)
                     Text(
                       [
-                        if (aula.turmaCodigo case final codigo?) codigoCurto(codigo),
+                        // Código completo: distingue turmas de períodos diferentes ainda ativas.
+                        ?aula.turmaCodigo,
                         ?aula.turmaNome,
                       ].join(' · '),
                       style: context.tipos.meta.copyWith(color: context.cores.apagado),

@@ -173,7 +173,7 @@ início e `id`. Mesmo item da seção 3, com a turma.
 Aula de turma inativa não entra: a turma não tem aula acontecendo (plan D-E3-9). O docente não
 precisa ter vínculo com a turma: basta ser o docente da aula.
 
-**Erros**: 401; 403 `SEM_PERMISSAO` (perfil que não é docente).
+**Erros**: 401; 403 `USUARIO_INATIVO`; 403 `SEM_PERMISSAO` (perfil que não é docente).
 
 **Maps to**: RF-54.
 

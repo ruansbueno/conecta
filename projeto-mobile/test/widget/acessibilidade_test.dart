@@ -204,7 +204,7 @@ void main() {
         );
         await app.abrir(tester);
         await aba(tester, 'Horários');
-        expect(find.text('TADS-3A · TADS 3º Sem A'), findsOneWidget);
+        expect(find.text('TADS-3A-2026-2 · TADS 3º Sem A'), findsOneWidget);
         await auditar(tester);
 
         app.api.responder('GET /horarios/minhas', paginaJson([]));

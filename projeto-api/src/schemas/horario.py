@@ -51,18 +51,10 @@ class AulaDoDocenteOut(HorarioOut):
     turma: TurmaResumoOut
 
 
-class TurmaConflitoOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    codigo: str
-    nome: str
-
-
 class ConflitoOut(BaseModel):
     tipo: str
     local: str | None
     horario_id: uuid.UUID
-    turma: TurmaConflitoOut
+    turma: TurmaResumoOut
     inicio: Hora
     fim: Hora

@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router'
 
 import type { UsuarioSessao } from '../../api/schemas'
 import { Avatar } from '../comum/avatar'
+import { ContadorPendentes } from '../comum/contador-pendentes'
 import { Icone, Marca } from '../comum/icone'
 import { itemAtivo, navegacaoDoPerfil, ROTULO_PERFIL } from './navegacao'
 
@@ -41,18 +42,7 @@ export function BarraLateral({ usuario, onSair, contadores = {} }: Props) {
                   >
                     <Icone nome={item.icone} tamanho={19} />
                     <span className="flex-1">{item.rotulo}</span>
-                    {/* O número visível faz parte do nome do link (rótulo no nome, WCAG 2.5.3):
-                        "Solicitações 3 pendentes". */}
-                    {(contadores[item.para] ?? 0) > 0 && (
-                      <>
-                        {' '}
-                        <span className="flex size-[22px] items-center justify-center rounded-full bg-alerta-fundo text-[11.5px] font-semibold text-alerta">
-                          {contadores[item.para].toLocaleString('pt-BR')}
-                        </span>
-                        {' '}
-                        <span className="sr-only">{contadores[item.para] === 1 ? 'pendente' : 'pendentes'}</span>
-                      </>
-                    )}
+                    <ContadorPendentes quantidade={contadores[item.para] ?? 0} />
                   </Link>
                 </li>
               ))}

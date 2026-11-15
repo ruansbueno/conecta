@@ -92,7 +92,7 @@ describe('aguardando acesso (RW-50, RW-51)', () => {
     expect(fulano).toHaveTextContent('fulano.servidor@ifsul.edu.br')
     expect(fulano).toHaveTextContent('agora')
     expect(chamadas.find((c) => c.chave === 'GET /gestao/acessos')?.query.get('situacao')).toBe('pendente')
-    expect(screen.getByRole('tab', { name: 'Aguardando acesso', selected: true })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /^Aguardando acesso/, selected: true })).toBeInTheDocument()
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
   })
 
@@ -141,6 +141,27 @@ describe('aguardando acesso (RW-50, RW-51)', () => {
     await userEvent.click(within(dialogo).getByRole('button', { name: 'Liberar acesso' }))
 
     expect(await screen.findByRole('link', { name: 'Usuários 1 pendente' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Aguardando acesso 1 pendente' })).toBeInTheDocument()
+  })
+
+  it('a aba Aguardando acesso mostra quantos pedidos esperam, com a bolinha da barra lateral', async () => {
+    api({ 'GET /gestao/acessos': { status: 200, corpo: pagina(PENDENTES) } })
+    abrir('/usuarios')
+
+    const aba = await screen.findByRole('tab', { name: 'Aguardando acesso 2 pendentes' })
+    expect(within(aba).getByText('2')).toHaveClass('rounded-full', 'bg-alerta-fundo', 'text-alerta')
+    // A mesma bolinha da barra lateral (componente comum), com o mesmo número.
+    const link = screen.getByRole('link', { name: 'Usuários 2 pendentes' })
+    expect(within(link).getByText('2').className).toBe(within(aba).getByText('2').className)
+  })
+
+  it('sem pedidos esperando, a aba Aguardando acesso fica sem número', async () => {
+    const chamadas = api({ 'GET /gestao/acessos': { status: 200, corpo: pagina([]) } })
+    abrir('/usuarios')
+
+    await waitFor(() => expect(chamadas.some((c) => c.chave === 'GET /gestao/acessos')).toBe(true))
+    await screen.findByRole('link', { name: 'Usuários' })
+    expect(screen.getByRole('tab', { name: 'Aguardando acesso' })).toBeInTheDocument()
   })
 
   it('coordenação só concede docente ou coordenação', async () => {

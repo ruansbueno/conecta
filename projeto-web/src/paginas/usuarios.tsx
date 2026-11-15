@@ -2,7 +2,7 @@
 // perfil e ativar/desativar só para a administração (RW-32); a coordenação só lê (RW-11). A aba
 // "Aguardando acesso" decide os pedidos de servidores (emenda v2.3 da API; RW-50, RW-51).
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
 
 import { ApiError } from '../api/erros'
 import { alterarUsuario, listarUsuarios, obterUsuario, type FiltrosUsuarios } from '../api/recursos/usuarios'
@@ -18,6 +18,7 @@ import { AlterarPerfilModal } from '../componentes/usuarios/alterar-perfil-modal
 import { TabelaUsuarios } from '../componentes/usuarios/tabela'
 import { rotuloDoPerfil, type PerfilDeAcesso } from '../lib/perfis'
 import { useSessao } from '../sessao/contexto'
+import type { ContextoGestao } from './area-gestao'
 import { PedidosDeAcesso } from './pedidos-de-acesso'
 import { paginaDaUrl, useCargaPaginada, useFiltrosNaUrl, useMensagemDaLista, useTextoNaUrl } from './lista-na-url'
 
@@ -40,6 +41,8 @@ export default function Usuarios() {
   const administracao = eu?.perfil === 'administrador'
   const navegar = useNavigate()
   const { params, filtrar } = useFiltrosNaUrl()
+  // Pedidos de acesso esperando: a mesma contagem de Usuários na barra lateral, na própria aba.
+  const acessosPendentes = useOutletContext<ContextoGestao | undefined>()?.acessosPendentes ?? 0
 
   const pedida = params.get('aba')
   const aba = ABAS.find((a) => a.id === pedida) ?? ABAS[0]
@@ -116,7 +119,7 @@ export default function Usuarios() {
         <Abas
           rotulo="Perfil e situação"
           idBase={ID_ABAS}
-          abas={ABAS}
+          abas={ABAS.map((a) => (a.id === 'aguardando' ? { ...a, contador: acessosPendentes } : a))}
           atual={aba.id}
           onMudar={(a) => {
             setMensagem(undefined)

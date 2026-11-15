@@ -10,6 +10,8 @@ import { useSessao } from '../sessao/contexto'
 /** O que a área de gestão oferece às páginas dentro dela (via `useOutletContext`). */
 export interface ContextoGestao {
   atualizarPendentes: () => void
+  /** Pedidos de acesso esperando a gestão (o mesmo número de Usuários na barra lateral). */
+  acessosPendentes: number
 }
 
 /** Título da seção: o mesmo rótulo da navegação do perfil ("Meus avisos" para docente). */
@@ -90,7 +92,14 @@ export default function AreaGestao() {
           {falhaAoSair}
         </p>
       )}
-      <Outlet context={{ atualizarPendentes: () => setVersaoPendentes((n) => n + 1) } satisfies ContextoGestao} />
+      <Outlet
+        context={
+          {
+            atualizarPendentes: () => setVersaoPendentes((n) => n + 1),
+            acessosPendentes: decideAcessos ? acessos : 0,
+          } satisfies ContextoGestao
+        }
+      />
     </Casca>
   )
 }

@@ -7,7 +7,7 @@ SENHA_TESTE = "senha-teste"
 # Usuários fictícios de desenvolvimento: login → (nome, tipo institucional, como a API do IFSul
 # informa). Os perfis dos que já existem são aplicados pelo seed no banco (RF-03);
 # `servidor.aguardando` entra no seed como pedido de acesso pendente; os que o seed não cria
-# (`servidor.novo`, `aluno.novo`) mostram o primeiro login de cada tipo.
+# (PRIMEIRO_LOGIN) mostram o primeiro login de cada tipo.
 USUARIOS_TESTE: dict[str, tuple[str, TipoInstitucional]] = {
     "admin.conecta": ("Administrador de Implantação", "administrativo"),
     "admin.teste": ("Administrador de Teste", "administrativo"),
@@ -20,10 +20,13 @@ USUARIOS_TESTE: dict[str, tuple[str, TipoInstitucional]] = {
     "servidor.aguardando": ("Servidor Aguardando de Teste", "administrativo"),
     "servidor.novo": ("Servidor Novo de Teste", "administrativo"),
     "aluno.novo": ("Aluno Novo de Teste", "aluno"),
+    # Primeiro login do vídeo de demonstração, separado do aluno.novo usado nos testes manuais.
+    "aluno.novo2": ("Aluno Novo Dois de Teste", "aluno"),
 }
 
-# Criados pelo seed; os demais de USUARIOS_TESTE só existem no banco depois do 1º login.
-USUARIOS_DO_SEED = tuple(u for u in USUARIOS_TESTE if not u.endswith(".novo"))
+# O seed não os cria: só existem no banco depois do 1º login.
+PRIMEIRO_LOGIN = ("servidor.novo", "aluno.novo", "aluno.novo2")
+USUARIOS_DO_SEED = tuple(u for u in USUARIOS_TESTE if u not in PRIMEIRO_LOGIN)
 
 
 class MockAuthProvider:

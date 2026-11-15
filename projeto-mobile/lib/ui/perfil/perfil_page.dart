@@ -153,7 +153,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 children: [
                   // Aberto sem rede, o perfil é o guardado: diz de quando são os dados (RM-29).
                   if (dadosDe != null) ...[
-                    FaixaCache(coletadoEm: dadosDe, onRepetir: sessao.recarregarPerfil),
+                    FaixaCache(coletadoEm: dadosDe, onRepetir: _recarregar),
                     const SizedBox(height: 16),
                   ],
                   _Identificacao(usuario: usuario, perfil: _rotuloPerfil(usuario)),

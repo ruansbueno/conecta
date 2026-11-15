@@ -96,10 +96,11 @@ class MesController extends ChangeNotifier {
   /// tela. Falhando, o que estava fica e a falha vai para [ultimaFalha]. Carregando ou com erro, não
   /// há o que manter: é uma carga completa.
   Future<void> recarregar() async {
+    // Zerada antes de tudo: quem puxou não pode ver a falha de uma recarga anterior.
+    ultimaFalha = null;
     if (estado != EstadoLista.conteudo) return carregar();
     final pedido = ++_pedido;
     final alvo = mes;
-    ultimaFalha = null;
     try {
       final pagina = await _buscar(alvo);
       if (pedido != _pedido) return;

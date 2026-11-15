@@ -4,6 +4,7 @@ import '../models/evento.dart';
 import '../models/mes.dart';
 import '../models/pagina.dart';
 import '../repositories/eventos_repository.dart';
+import 'avisos_controller.dart' show EstadoLista;
 import 'lista_paginada.dart';
 import 'mes_controller.dart';
 
@@ -64,9 +65,12 @@ class AgendaController extends ChangeNotifier {
   void alternar(VisaoAgenda visao) {
     if (visao == _visao) return;
     _visao = visao;
-    // O mês não tem paginação para "puxar" sem querer: voltar a ele já busca de novo o mês aberto,
-    // para um evento marcado nesse meio-tempo aparecer sem trocar de mês e voltar.
-    if (visao == VisaoAgenda.mes) _mes?.recarregar();
+    // Voltar ao Mês busca de novo o mês aberto: um evento marcado enquanto outra visão estava aberta
+    // aparece sem trocar de mês e voltar. Ainda carregando, a carga em curso já serve.
+    final mes = _mes;
+    if (visao == VisaoAgenda.mes && mes != null && mes.estado != EstadoLista.carregando) {
+      mes.recarregar();
+    }
     notifyListeners();
   }
 

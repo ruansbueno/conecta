@@ -20,6 +20,7 @@ export const ICONES = {
   'local': `<path d="M11 18.5s6-5 6-9a6 6 0 1 0-12 0c0 4 6 9 6 9Z"/><circle cx="11" cy="9.4" r="2.2"/>`,
   'lua': `<path d="M17.8 13.4A7 7 0 0 1 8.6 4.2a7 7 0 1 0 9.2 9.2Z"/>`,
   'mais': `<path d="M11 4.5v13M4.5 11h13"/>`,
+  'menu': `<path d="M4 6.5h14M4 11h14M4 15.5h14"/>`,
   'painel': `<rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.6"/><rect x="12" y="3.5" width="6.5" height="6.5" rx="1.6"/><rect x="3.5" y="12" width="6.5" height="6.5" rx="1.6"/><rect x="12" y="12" width="6.5" height="6.5" rx="1.6"/>`,
   'perfil': `<circle cx="11" cy="7.8" r="3.6"/><path d="M4.4 18.4c.6-3.3 3.4-5.2 6.6-5.2s6 1.9 6.6 5.2"/>`,
   'relogio': `<circle cx="11" cy="11" r="7.5"/><path d="M11 6.6V11l3 1.8"/>`,

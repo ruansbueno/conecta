@@ -37,6 +37,7 @@ _P = {
     "solicitacoes": '<path d="M5.5 3.5h11v15l-5.5-3-5.5 3v-15Z"/>',
     "busca": '<circle cx="9.6" cy="9.6" r="5.8"/><path d="M14 14l4 4"/>',
     "mais": '<path d="M11 4.5v13M4.5 11h13"/>',
+    "menu": '<path d="M4 6.5h14M4 11h14M4 15.5h14"/>',
     "voltar": '<path d="M13 4.5 6.5 11l6.5 6.5"/>',
     "filtro": '<path d="M3.5 5.5h15M6.5 11h9M9.5 16.5h3"/>',
     "sino": '<path d="M11 3.5a5 5 0 0 0-5 5v3.4L4.5 15h13L16 11.9V8.5a5 5 0 0 0-5-5Z"/><path d="M9 17.5a2 2 0 0 0 4 0"/>',

@@ -53,8 +53,8 @@ roda também em 390 px. VI — PASS, sem dependência.
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `src/componentes/comum/foco-preso.ts` (novo) | `usarFocoPreso`: foco inicial, Tab preso, Esc, foco de volta à origem |
-| `src/componentes/comum/modal.tsx` | Passa a usar `usarFocoPreso`; layout de celular (RR-21) |
+| `src/componentes/comum/foco-preso.ts` (novo) | `useFocoPreso`: foco inicial, Tab preso, Esc, foco de volta à origem |
+| `src/componentes/comum/modal.tsx` | Passa a usar `useFocoPreso`; layout de celular (RR-21) |
 | `src/componentes/layout/navegacao-lateral.tsx` (novo) | Miolo da barra lateral (marca, grupos, pessoa, Sair) |
 | `src/componentes/layout/barra-lateral.tsx` | `aside` de 252 px, `hidden lg:flex`, com `NavegacaoLateral` |
 | `src/componentes/layout/gaveta-menu.tsx` (novo) | Gaveta abaixo de `lg` com `NavegacaoLateral` |
@@ -75,7 +75,7 @@ roda também em 390 px. VI — PASS, sem dependência.
 
 **Interfaces:**
 - Produces:
-  - `usarFocoPreso(caixa: RefObject<HTMLElement | null>, onFechar: () => void): void`. Tem o mesmo
+  - `useFocoPreso(caixa: RefObject<HTMLElement | null>, onFechar: () => void): void`. Tem o mesmo
     comportamento do efeito atual do `Modal`, inclusive a pilha `abertos`, para que só o de cima
     responda.
   - `NavegacaoLateral(props: { usuario: UsuarioSessao; onSair: () => void; contadores?: Record<string, number> }): JSX.Element`
@@ -99,7 +99,7 @@ roda também em 390 px. VI — PASS, sem dependência.
   - Os testes atuais de `BarraLateral` continuam verdes sem mudança.
 - [ ] **Step 2: Rodar** `npx vitest run tests/componente/layout.test.tsx` → FAIL ("Abrir menu" não existe).
 - [ ] **Step 3: Implementar.**
-  - Extrair `usarFocoPreso` do `Modal`, que passa a chamá-lo.
+  - Extrair `useFocoPreso` do `Modal`, que passa a chamá-lo.
   - Extrair `NavegacaoLateral` da `BarraLateral`, que fica com `hidden lg:flex`.
   - Escrever a `GavetaMenu`: `fixed inset-0 z-40`, véu clicável, painel `w-[300px]` à esquerda,
     "Fechar menu" ao lado da marca.

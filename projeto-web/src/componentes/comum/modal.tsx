@@ -1,13 +1,8 @@
 // Modal acessível próprio (D12, RW-39): foco preso, Esc fecha, foco volta à origem.
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useId, useRef, type ReactNode } from 'react'
 
+import { useFocoPreso } from './foco-preso'
 import { Icone } from './icone'
-
-const FOCAVEIS =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-
-/** Modais abertos, do mais antigo ao mais recente: só o de cima responde a Esc e a Tab. */
-const abertos: symbol[] = []
 
 interface Props {
   titulo: string
@@ -23,48 +18,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
   const caixa = useRef<HTMLDivElement>(null)
   const idTitulo = useId()
   const idDescricao = useId()
-  // Em ref: o pai costuma passar uma função nova a cada renderização, e refazer o efeito
-  // devolveria o foco à origem e o puxaria de novo para o primeiro botão.
-  const fechar = useRef(onFechar)
-  useEffect(() => {
-    fechar.current = onFechar
-  }, [onFechar])
-
-  useEffect(() => {
-    const origem = document.activeElement as HTMLElement | null
-    const focaveis = () => [...(caixa.current?.querySelectorAll<HTMLElement>(FOCAVEIS) ?? [])]
-    ;(focaveis()[0] ?? caixa.current)?.focus()
-
-    const eu = Symbol()
-    abertos.push(eu)
-    const aoTeclar = (e: KeyboardEvent) => {
-      // Uma confirmação aberta sobre outro modal: Esc fecha só ela.
-      if (abertos.at(-1) !== eu) return
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        fechar.current()
-        return
-      }
-      if (e.key !== 'Tab') return
-      const lista = focaveis()
-      if (lista.length === 0) return e.preventDefault()
-      const primeiro = lista[0]
-      const ultimo = lista[lista.length - 1]
-      if (e.shiftKey && document.activeElement === primeiro) {
-        e.preventDefault()
-        ultimo.focus()
-      } else if (!e.shiftKey && document.activeElement === ultimo) {
-        e.preventDefault()
-        primeiro.focus()
-      }
-    }
-    document.addEventListener('keydown', aoTeclar)
-    return () => {
-      document.removeEventListener('keydown', aoTeclar)
-      abertos.splice(abertos.indexOf(eu), 1)
-      origem?.focus()
-    }
-  }, [])
+  useFocoPreso(caixa, onFechar)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-veu p-6">

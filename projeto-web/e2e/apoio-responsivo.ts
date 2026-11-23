@@ -28,3 +28,25 @@ export async function caixa(alvo: Locator) {
   expect(b, 'elemento sem caixa (invisível?)').not.toBeNull()
   return b!
 }
+
+/** Publica um aviso pela tela, na largura de desktop, e volta à largura pedida. */
+export async function publicarAviso(page: Page, titulo: string, largura: number) {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/avisos/novo')
+  await page.getByLabel('Título').fill(titulo)
+  await page.getByLabel('Conteúdo').fill('Conteúdo do aviso de teste.')
+  await page.getByRole('button', { name: 'Adicionar destino' }).click()
+  await page.getByRole('dialog').getByRole('checkbox', { name: /TADS-3A/ }).check()
+  await page.getByRole('dialog').getByRole('button', { name: 'Adicionar 1 destino' }).click()
+  await page.getByRole('button', { name: 'Publicar aviso' }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
+  await page.setViewportSize({ width: largura, height: 844 })
+}
+
+/** Largura útil do conteúdo: o <main> menos as margens laterais. */
+export async function larguraDoConteudo(page: Page) {
+  return page.locator('main').evaluate((m) => {
+    const s = getComputedStyle(m)
+    return m.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight)
+  })
+}

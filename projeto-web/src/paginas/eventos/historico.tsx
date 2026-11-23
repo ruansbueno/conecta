@@ -124,27 +124,29 @@ export default function HistoricoEvento() {
             {e.editadoEm && ` · editado ${dataNumerica(e.editadoEm)}`}
           </p>
         </div>
-        {e.situacao === 'ativo' && (
-          <>
-            <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', e)} className="botao-secundario">
-              <Icone nome="arquivo" tamanho={18} />
-              Arquivar
-            </button>
-            <Link to={`/eventos/${e.id}/editar`} className="botao-secundario">
-              <Icone nome="lapis" tamanho={18} />
-              Editar
-            </Link>
-          </>
-        )}
-        {e.situacao === 'arquivado' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', e)} className="botao-secundario">
-            Desarquivar
-          </button>
-        )}
         {e.situacao !== 'excluido' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('excluir', e)} className="botao-perigo">
-            Excluir
-          </button>
+          <div className="botoes-cabecalho">
+            {e.situacao === 'ativo' && (
+              <>
+                <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', e)} className="botao-secundario">
+                  <Icone nome="arquivo" tamanho={18} />
+                  Arquivar
+                </button>
+                <Link to={`/eventos/${e.id}/editar`} className="botao-secundario">
+                  <Icone nome="lapis" tamanho={18} />
+                  Editar
+                </Link>
+              </>
+            )}
+            {e.situacao === 'arquivado' && (
+              <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', e)} className="botao-secundario">
+                Desarquivar
+              </button>
+            )}
+            <button type="button" disabled={ocupado} onClick={() => pedir('excluir', e)} className="botao-perigo">
+              Excluir
+            </button>
+          </div>
         )}
       </header>
 

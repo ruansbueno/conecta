@@ -127,12 +127,14 @@ export function EditorEvento(props: Props) {
           <h1 className="text-[22px] font-bold tracking-[-0.02em] text-navy">{modo === 'novo' ? 'Novo evento' : 'Editar evento'}</h1>
           <p className="mt-1 text-[13px] text-apagado">{subtitulo}</p>
         </div>
-        <button type="button" onClick={onDescartar} className="botao-secundario">
-          Descartar
-        </button>
-        <button type="submit" disabled={enviando} aria-busy={enviando} className="botao-primario">
-          {modo === 'novo' ? 'Criar evento' : 'Salvar alterações'}
-        </button>
+        <div className="botoes-cabecalho">
+          <button type="button" onClick={onDescartar} className="botao-secundario">
+            Descartar
+          </button>
+          <button type="submit" disabled={enviando} aria-busy={enviando} className="botao-primario">
+            {modo === 'novo' ? 'Criar evento' : 'Salvar alterações'}
+          </button>
+        </div>
       </header>
 
       {alerta && (

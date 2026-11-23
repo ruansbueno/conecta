@@ -31,7 +31,7 @@ export function Abas<T extends string>({
   abas,
   atual,
   onMudar,
-  classe = 'flex gap-7 border-b border-linha',
+  classe = 'abas-rolaveis flex gap-7 border-b border-linha',
   classeAba = 'pb-3 text-[14.5px]',
 }: Props<T>) {
   const teclar = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -56,7 +56,7 @@ export function Abas<T extends string>({
           aria-controls={idDoPainel(idBase)}
           tabIndex={a.id === atual ? 0 : -1}
           onClick={() => onMudar(a.id)}
-          className={`${classeAba} ${
+          className={`${classeAba} shrink-0 whitespace-nowrap ${
             a.id === atual ? 'font-semibold text-navy shadow-[inset_0_-2px_0_var(--color-azul)]' : 'font-medium text-apagado'
           }`}
         >

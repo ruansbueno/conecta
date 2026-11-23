@@ -142,7 +142,7 @@ export default function Solicitacoes() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header>
-        <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Solicitações de inscrição</h1>
+        <h1 className="titulo-pagina">Solicitações de inscrição</h1>
         <p className="mt-1.5 text-[14px] text-apagado">
           Aprovar cria o vínculo do aluno com a turma na mesma hora. Recusar permite registrar o motivo, que o aluno vê
           no aplicativo.
@@ -221,7 +221,7 @@ export default function Solicitacoes() {
                 }}
               />
             </div>
-            <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+            <div className="rodape-lista">
               <p className="text-[13px] text-apagado">
                 {status === 'pendente' && esperando > 0
                   ? `${esperando} ${esperando === 1 ? 'solicitação esperando' : 'solicitações esperando'} há mais de ${DIAS_DE_ESPERA} dias`

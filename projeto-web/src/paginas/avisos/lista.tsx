@@ -205,15 +205,15 @@ export default function ListaAvisos() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">{gestao ? 'Avisos' : 'Meus avisos'}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="titulo-pagina">{gestao ? 'Avisos' : 'Meus avisos'}</h1>
           <p className="mt-1.5 text-[14px] text-apagado">
             {gestao
               ? 'Tudo que foi publicado no curso, com o público de cada aviso.'
               : 'Os avisos que você publicou, com o público de cada um.'}
           </p>
         </div>
-        <Link to="/avisos/novo" className="botao-primario">
+        <Link to="/avisos/novo" className="botao-primario acao-pagina">
           <Icone nome="mais" tamanho={18} />
           Novo aviso
         </Link>
@@ -230,7 +230,7 @@ export default function ListaAvisos() {
           onMudar={(s) => filtrar({ situacao: s === 'ativo' ? '' : s })}
         />
         <div className="flex flex-wrap items-center gap-3">
-          <div className="w-[300px]">
+          <div className="w-full sm:w-[300px]">
             <Busca rotulo="Buscar por título ou conteúdo" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
           {gestao && (
@@ -300,7 +300,7 @@ export default function ListaAvisos() {
             <div className="overflow-x-auto px-3 pt-4">
               <Tabela legenda={`Avisos — ${rotuloAba}`} colunas={colunas} linhas={carga.dados.items} chave={(a) => a.id} />
             </div>
-            <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+            <div className="rodape-lista">
               <p className="text-[13px] text-apagado">
                 Mostrando {carga.dados.items.length} de {carga.dados.total} avisos
               </p>

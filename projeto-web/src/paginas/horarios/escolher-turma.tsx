@@ -22,7 +22,7 @@ export default function EscolherTurmaHorarios() {
 
   return (
     <div className="mx-auto max-w-[1180px]">
-      <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Horários</h1>
+      <h1 className="titulo-pagina">Horários</h1>
       <p className="mt-1.5 text-[14px] text-apagado">Escolha a turma para ver e ajustar a grade semanal.</p>
 
       {ultima && (

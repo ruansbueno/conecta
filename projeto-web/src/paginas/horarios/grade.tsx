@@ -227,13 +227,13 @@ export default function GradeHorarios() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Horários</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="titulo-pagina">Horários</h1>
           <p className="mt-1.5 text-[14px] text-apagado">
             Grade semanal da turma. Os alunos vinculados veem esta mesma grade no aplicativo.
           </p>
         </div>
-        <button type="button" onClick={() => abrir({ modo: 'nova', inicial: aulaNova() })} className="botao-primario">
+        <button type="button" onClick={() => abrir({ modo: 'nova', inicial: aulaNova() })} className="botao-primario acao-pagina">
           <Icone nome="mais" tamanho={18} />
           Nova aula
         </button>

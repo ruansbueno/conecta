@@ -101,13 +101,13 @@ export default function ListaEventos() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Agenda</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="titulo-pagina">Agenda</h1>
           <p className="mt-1.5 text-[14px] text-apagado">
             Eventos, bancas, provas e datas importantes. O público funciona igual ao dos avisos.
           </p>
         </div>
-        <Link to="/eventos/novo" className="botao-primario">
+        <Link to="/eventos/novo" className="botao-primario acao-pagina">
           <Icone nome="mais" tamanho={18} />
           Novo evento
         </Link>
@@ -139,7 +139,7 @@ export default function ListaEventos() {
               ))}
             </select>
           </label>
-          <div className="w-[300px]">
+          <div className="w-full sm:w-[300px]">
             <Busca rotulo="Buscar evento" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function ListaEventos() {
               <FimDaLista texto="Não há mais eventos." className="border-t border-linha-suave" />
             )}
             {carga.dados.total > POR_PAGINA && (
-              <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+              <div className="rodape-lista">
                 <p className="text-[13px] text-apagado">
                   Mostrando {eventos.length} de {carga.dados.total} eventos
                 </p>

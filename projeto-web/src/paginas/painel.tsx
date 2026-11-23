@@ -395,10 +395,10 @@ export default function Painel() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">
+        <h1 className="titulo-pagina">
           {saudacao(agora)}, {usuario.nome.split(' ')[0]}
         </h1>
-        <Link to="/avisos/novo" className="botao-primario">
+        <Link to="/avisos/novo" className="botao-primario acao-pagina">
           <Icone nome="mais" tamanho={18} />
           Novo aviso
         </Link>

@@ -42,7 +42,8 @@ export function Casca({ usuario, secao, onSair, contadores, children }: Props) {
   }, [])
 
   return (
-    <div className="flex h-screen bg-fundo">
+    // h-dvh: no celular, 100vh conta a barra de endereço recolhida e a página rolaria além do conteúdo.
+    <div className="flex h-dvh bg-fundo">
       <BarraLateral usuario={usuario} onSair={onSair} contadores={contadores} />
       {menuAberto && (
         <GavetaMenu usuario={usuario} onSair={onSair} contadores={contadores} onFechar={() => setMenuAberto(false)} retorno={botaoMenu} />
@@ -56,7 +57,7 @@ export function Casca({ usuario, secao, onSair, contadores, children }: Props) {
           menuAberto={menuAberto}
           botaoMenu={botaoMenu}
         />
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7 sm:py-[26px]">{children}</main>
+        <main className="relative min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7 sm:py-[26px]">{children}</main>
       </div>
     </div>
   )

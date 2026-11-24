@@ -59,7 +59,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen bg-branco">
+    <div className="flex min-h-dvh bg-branco">
       <aside className="hidden w-[60%] max-w-[860px] flex-col justify-between bg-painel px-14 py-14 text-sobre-cor lg:flex">
         <div className="flex items-center gap-2.5">
           <Marca tamanho={30} />

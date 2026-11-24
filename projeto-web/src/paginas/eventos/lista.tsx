@@ -126,10 +126,11 @@ export default function ListaEventos() {
             filtrar({ aba: nova === 'proximos' ? '' : nova, mes: '' })
           }}
         />
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-[13px] text-apagado">
-            <Icone nome="filtro" tamanho={17} />
-            <span className="sr-only">Tipo</span>
+        <div className="filtros">
+          <label className="filtro">
+            <Icone nome="filtro" tamanho={17} className="hidden sm:block" />
+            {/* No celular o rótulo aparece acima do campo; a partir de 640 px fica só o ícone. */}
+            <span className="sm:sr-only">Tipo</span>
             <select aria-label="Tipo" className="campo h-11 py-0" value={tipo} onChange={(e) => filtrar({ tipo: e.target.value })}>
               <option value="">Todos os tipos</option>
               {TIPOS_EVENTO.map((t) => (

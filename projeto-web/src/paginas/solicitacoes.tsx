@@ -162,7 +162,7 @@ export default function Solicitacoes() {
             filtrar({ status: s === 'pendente' ? '' : s })
           }}
         />
-        <label className="flex items-center gap-2 text-[13px] text-apagado">
+        <label className="filtro w-full sm:w-auto">
           <span>Turma</span>
           <select aria-label="Turma" className="campo h-11 py-0" value={turma} onChange={(e) => filtrar({ turma: e.target.value })}>
             <option value="">Todas</option>

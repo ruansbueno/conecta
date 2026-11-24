@@ -63,6 +63,7 @@ em `projeto-*/specs/` (especificação, plano e tarefas).
 | [`projeto-api/`](projeto-api/) | Código (`src/`), migrações (`alembic/`), testes (`tests/`), scripts (`scripts/`), especificações (`specs/`) e evidências (`evidencias/`) |
 | [`projeto-web/`](projeto-web/) | Código (`src/`), testes de unidade e componente (`tests/`), de ponta a ponta (`e2e/`), implantação (`deploy/`), especificações e evidências com capturas |
 | [`projeto-mobile/`](projeto-mobile/) | Código (`lib/`), testes de unidade e widget (`test/`), de integração (`integration_test/`), especificações e evidências com capturas |
+| [`scripts/`](scripts/) | O comando `conecta`, que sobe o ambiente local (banco, API e web) |
 | [`design/`](design/) | As 30 telas desenhadas (14 do aplicativo, 16 da web), com a paleta e a tipografia, e as capturas no tema escuro (`web-escuro/`, `mobile-escuro/`) |
 | [`CONECTA_Arquitetura.md`](CONECTA_Arquitetura.md) | Arquitetura do sistema: componentes, autenticação, módulos e regras |
 | [`docs/modelo-de-dados/`](docs/modelo-de-dados/) | Modelo de dados no SQL Power Architect (`ER.architect`) |
@@ -121,6 +122,21 @@ npm run dev                             # http://localhost:5173
 
 O servidor de desenvolvimento encaminha `/api` para a API em `localhost:8000`, reproduzindo a
 mesma origem de produção.
+
+### Atalho: o comando `conecta`
+
+Depois da primeira configuração (passos 2 e 3), [`scripts/conecta`](scripts/conecta) sobe tudo de
+uma vez: banco, migrações, API e web. O que já estiver no ar é mantido; no fim, abre a web no
+navegador e mostra os logs da API e da web no mesmo terminal. Ctrl+C para o que ele subiu (o banco
+continua no Docker). Para chamá-lo de qualquer pasta:
+
+```bash
+ln -s "$PWD/scripts/conecta" ~/.local/bin/conecta   # uma vez, na raiz; ~/.local/bin no PATH
+conecta
+```
+
+A API fica só nesta máquina, o que basta para o emulador e para o celular por USB. Para um celular
+pelo Wi-Fi: `CONECTA_API_HOST=0.0.0.0 conecta`.
 
 ### 4. Aplicativo
 

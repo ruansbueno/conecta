@@ -8,7 +8,9 @@ const FOCAVEIS =
 /** Caixas abertas, da mais antiga à mais recente: só a de cima responde a Esc e a Tab. */
 const abertos: symbol[] = []
 
-export function useFocoPreso(caixa: RefObject<HTMLElement | null>, onFechar: () => void): void {
+/** `retorno`: para onde o foco volta ao fechar. Sem ele, volta a quem tinha o foco ao abrir — o que
+ * falha no Safari, onde tocar num botão não o foca (aí o foco ficaria no body). */
+export function useFocoPreso(caixa: RefObject<HTMLElement | null>, onFechar: () => void, retorno?: RefObject<HTMLElement | null>): void {
   // Em ref: o pai costuma passar uma função nova a cada renderização, e refazer o efeito
   // devolveria o foco à origem e o puxaria de novo para o primeiro botão.
   const fechar = useRef(onFechar)
@@ -17,7 +19,7 @@ export function useFocoPreso(caixa: RefObject<HTMLElement | null>, onFechar: () 
   }, [onFechar])
 
   useEffect(() => {
-    const origem = document.activeElement as HTMLElement | null
+    const origem = (retorno?.current ?? document.activeElement) as HTMLElement | null
     const focaveis = () => [...(caixa.current?.querySelectorAll<HTMLElement>(FOCAVEIS) ?? [])]
     ;(focaveis()[0] ?? caixa.current)?.focus()
 

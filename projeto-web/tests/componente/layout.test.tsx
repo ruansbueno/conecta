@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, useLocation } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
@@ -151,5 +151,25 @@ describe('gaveta de navegação abaixo de 1024 px (spec 003, RR-01 a RR-03)', ()
     await userEvent.tab()
 
     expect(within(gaveta).getByRole('button', { name: 'Fechar menu' })).toHaveFocus()
+  })
+})
+
+describe('gaveta: conteúdo inerte e foco de volta (revisão final)', () => {
+  it('com a gaveta aberta, o conteúdo atrás fica inerte', async () => {
+    await userEvent.click(casca())
+
+    expect(screen.getByTestId('rota').closest('[inert]')).not.toBeNull()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.getByTestId('rota').closest('[inert]')).toBeNull()
+  })
+
+  it('o foco volta ao botão mesmo quando o toque não o focou (Safari)', async () => {
+    const abrir = casca()
+    fireEvent.click(abrir)
+    expect(abrir).not.toHaveFocus()
+
+    await userEvent.keyboard('{Escape}')
+
+    expect(abrir).toHaveFocus()
   })
 })

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 import { BotaoTema } from '../comum/botao-tema'
 import { Icone } from '../comum/icone'
@@ -10,15 +10,17 @@ interface Props {
   /** Abaixo de 1024 px a barra lateral some e este botão abre a gaveta (spec 003, RR-01). */
   onAbrirMenu?: () => void
   menuAberto?: boolean
+  botaoMenu?: Ref<HTMLButtonElement>
 }
 
 /** Barra superior (design `.topbar`): título da seção, ações da página e, no canto direito, o botão
  * do modo noturno (spec 002, D-MN-6). 60 px no celular e 68 px a partir de 640 px (spec 003, RR-04). */
-export function BarraSuperior({ titulo, subtitulo, acoes, onAbrirMenu, menuAberto = false }: Props) {
+export function BarraSuperior({ titulo, subtitulo, acoes, onAbrirMenu, menuAberto = false, botaoMenu }: Props) {
   return (
     <header className="flex h-[60px] shrink-0 items-center gap-2 border-b border-linha bg-branco px-2 sm:h-[68px] sm:gap-4 sm:px-7">
       {onAbrirMenu && (
         <button
+          ref={botaoMenu}
           type="button"
           aria-label="Abrir menu"
           aria-expanded={menuAberto}

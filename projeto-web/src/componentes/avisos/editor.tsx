@@ -121,7 +121,7 @@ export function Editor(props: Props) {
 
       {/* Abaixo de 1024 px, uma coluna na ordem de leitura: campos, destinos, publicação e prévia
           (spec 003, RR-18). No desktop o grid devolve a prévia à esquerda, sob os campos. */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-y-5">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_1fr] lg:gap-y-5">
         <div className="space-y-5 lg:col-start-1 lg:row-start-1">
           <div>
             <label htmlFor={idCampo('titulo')} className="rotulo">

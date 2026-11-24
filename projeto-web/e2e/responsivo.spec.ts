@@ -54,8 +54,12 @@ for (const tema of TEMAS) {
 
         await page.setViewportSize({ width: 1024, height: 1024 })
 
-        await expect(page.getByRole('dialog', { name: 'Menu' })).toHaveCount(0)
+        // Pelo id: em 1024 px a gaveta, se continuasse aberta, estaria escondida (lg:hidden) e o
+        // getByRole não a acharia. Ao estreitar de novo, ela não pode reaparecer.
+        await expect(page.locator('#gaveta-menu')).toHaveCount(0)
         await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible()
+        await page.setViewportSize({ width: LARGURAS.tablet, height: 1024 })
+        await expect(page.locator('#gaveta-menu')).toHaveCount(0)
       })
 
       test('painel em 390 px sem rolagem lateral', async ({ page }) => {
@@ -384,6 +388,102 @@ for (const tema of TEMAS) {
           return [miolo.scrollHeight, miolo.clientHeight]
         })
         expect(rola).toBeGreaterThan(visivel)
+      })
+    })
+
+    test.describe('achados da revisão final', () => {
+      test('nome e usuário longos não escondem Aprovar e Recusar em 360 px', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.estreito, height: 800 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/solicitacoes')
+        const regiao = page.getByRole('region', { name: /^Solicitações — Pendentes/ })
+        await expect(regiao).toBeVisible()
+        await regiao.getByRole('cell').first().evaluate((td) => {
+          const textos = td.querySelectorAll('p')
+          textos[0].textContent = 'Maria Eduarda Fernandes de Albuquerque Cavalcanti'
+          textos[1].textContent = 'mariaeduarda.albuquerque'
+        })
+        await regiao.evaluate((r) => (r.scrollLeft = r.scrollWidth))
+        const presa = await caixa(regiao.getByRole('cell').first())
+        const aprovar = await caixa(regiao.getByRole('button', { name: /^Aprovar / }).first())
+        const area = await caixa(regiao)
+        expect(aprovar.x).toBeGreaterThanOrEqual(presa.x + presa.width - 1)
+        expect(aprovar.x + aprovar.width).toBeLessThanOrEqual(area.x + area.width + 1)
+      })
+
+      test('o contorno de foco das abas não é cortado no desktop', async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 })
+        await entrar(page, 'admin.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/usuarios')
+        const todos = page.getByRole('tab', { name: 'Todos' })
+        await todos.focus()
+        const sobra = await todos.evaluate((t) => {
+          const cs = getComputedStyle(t)
+          const anel = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth)
+          const a = t.getBoundingClientRect()
+          const l = t.parentElement!.getBoundingClientRect()
+          return Math.min(a.top - anel - l.top, a.left - anel - l.left, l.bottom - (a.bottom + anel))
+        })
+        expect(sobra).toBeGreaterThanOrEqual(0)
+      })
+
+      test('no desktop a prévia fica logo abaixo dos campos, mesmo com a coluna da direita alta', async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/avisos/novo')
+        const contador = page.getByText(/de 5\.000 caracteres/)
+        const previa = page.getByRole('region', { name: 'Como aparece no aplicativo' })
+        const antes = (await caixa(previa)).y - ((await caixa(contador)).y + (await caixa(contador)).height)
+        await page.getByRole('heading', { name: 'Quem vai receber' }).evaluate((h) => {
+          const alto = document.createElement('div')
+          alto.style.height = '400px'
+          h.closest('section')!.append(alto)
+        })
+        const depois = (await caixa(previa)).y - ((await caixa(contador)).y + (await caixa(contador)).height)
+        expect(Math.abs(depois - antes)).toBeLessThanOrEqual(1)
+      })
+
+      test('modal de aula em 360 px: Dia em cima, Início e Fim lado a lado e legíveis', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.estreito, height: 800 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/horarios')
+        await page.locator('main a[href*="/horarios"]').first().click()
+        await page.getByRole('button', { name: 'Nova aula' }).click()
+        const dialogo = page.getByRole('dialog', { name: 'Nova aula' })
+        const dia = await caixa(dialogo.getByLabel('Dia'))
+        const inicio = await caixa(dialogo.getByLabel('Início'))
+        const fim = await caixa(dialogo.getByLabel('Fim'))
+        expect(inicio.y).toBeGreaterThan(dia.y + dia.height - 1)
+        expect(Math.abs(inicio.y - fim.y)).toBeLessThanOrEqual(1)
+        expect(inicio.width).toBeGreaterThanOrEqual(120)
+      })
+
+      test('tabelas só viram parada de Tab quando rolam', async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 })
+        await entrar(page, 'admin.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/usuarios')
+        await expect(page.getByRole('region', { name: /^Usuários/ })).not.toHaveAttribute('tabindex')
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+        await expect(page.getByRole('region', { name: /^Usuários/ })).toHaveAttribute('tabindex', '0')
+      })
+
+      test('a aba ativa aparece na tela ao abrir a página no celular', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+        await entrar(page, 'admin.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/usuarios?aba=aguardando')
+        const aba = page.getByRole('tab', { name: /Aguardando acesso/ })
+        await expect(aba).toHaveAttribute('aria-selected', 'true')
+        await expect(async () => {
+          const c = await caixa(aba)
+          expect(c.x).toBeGreaterThanOrEqual(0)
+          expect(c.x + c.width).toBeLessThanOrEqual(LARGURAS.celular)
+        }).toPass({ timeout: 3000 })
       })
     })
   })

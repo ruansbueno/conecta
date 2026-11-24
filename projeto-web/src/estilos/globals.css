@@ -196,6 +196,10 @@ html[data-tema='escuro'] {
   .abas-rolaveis {
     @apply relative overflow-x-auto [scrollbar-width:none];
   }
+  /* A rolagem corta o que passa da caixa: o contorno de foco das abas fica por dentro. */
+  .abas-rolaveis [role='tab']:focus-visible {
+    outline-offset: -2px;
+  }
   /* Rodapé dos modais: no celular os botões dividem a largura em colunas iguais (3 quando são 3), o
      espaçador some e o texto ocupa a linha de cima; a partir de 640 px, a linha de antes (RR-21). */
   .rodape-modal {

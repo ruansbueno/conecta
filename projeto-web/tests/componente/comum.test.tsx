@@ -226,12 +226,13 @@ describe('Tabela que rola para o lado (spec 003, RR-11)', () => {
     { chave: 'outra', titulo: 'Outra', celula: () => 'x' },
   ]
 
-  it('rola dentro de uma região nomeada pela legenda, alcançável pelo teclado', () => {
+  it('rola dentro de uma região nomeada pela legenda; só é parada de Tab quando rola', () => {
     render(<Tabela legenda="Usuários — Todos" colunas={colunas} linhas={[{ nome: 'Ana' }]} chave={(l) => l.nome} />)
 
     const regiao = screen.getByRole('region', { name: 'Usuários — Todos' })
     expect(within(regiao).getByRole('table', { name: 'Usuários — Todos' })).toBeInTheDocument()
-    expect(regiao).toHaveAttribute('tabindex', '0')
+    // Sem nada para rolar (no jsdom não há largura), a região não vira uma parada de Tab.
+    expect(regiao).not.toHaveAttribute('tabindex')
   })
 
   it('a primeira coluna fica presa ao rolar', () => {

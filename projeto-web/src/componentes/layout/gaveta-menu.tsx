@@ -1,6 +1,6 @@
 // Gaveta de navegação abaixo de 1024 px (spec 003, RR-02 e RR-03): a mesma navegação da barra
 // lateral, sobre o conteúdo, com foco preso; Esc, "Fechar menu" e o véu fecham.
-import { useRef } from 'react'
+import { useRef, type RefObject } from 'react'
 
 import type { UsuarioSessao } from '../../api/schemas'
 import { useFocoPreso } from '../comum/foco-preso'
@@ -12,11 +12,13 @@ interface Props {
   onSair: () => void
   contadores?: Record<string, number>
   onFechar: () => void
+  /** O botão "Abrir menu": recebe o foco de volta ao fechar (RR-03). */
+  retorno?: RefObject<HTMLElement | null>
 }
 
-export function GavetaMenu({ usuario, onSair, contadores, onFechar }: Props) {
+export function GavetaMenu({ usuario, onSair, contadores, onFechar, retorno }: Props) {
   const caixa = useRef<HTMLDivElement>(null)
-  useFocoPreso(caixa, onFechar)
+  useFocoPreso(caixa, onFechar, retorno)
   return (
     <div className="fixed inset-0 z-40 lg:hidden">
       <div data-testid="veu-menu" aria-hidden="true" onClick={onFechar} className="absolute inset-0 bg-veu" />

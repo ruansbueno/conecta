@@ -1,5 +1,5 @@
 // Abas no padrão ARIA (RW-39): só a ativa no Tab; setas, Home e End trocam e levam o foco.
-import type { KeyboardEvent } from 'react'
+import { useEffect, type KeyboardEvent } from 'react'
 
 import { ContadorPendentes } from './contador-pendentes'
 
@@ -34,6 +34,13 @@ export function Abas<T extends string>({
   classe = 'abas-rolaveis flex gap-7 border-b border-linha',
   classeAba = 'pb-3 text-[14.5px]',
 }: Props<T>) {
+  // Quando as abas rolam (celular), a ativa fica à vista, inclusive ao abrir direto nela (spec 003, RR-09).
+  // Rótulos e contadores entram na chave: o contador chega depois e alarga a aba.
+  const conteudo = abas.map((a) => `${a.rotulo}:${a.contador ?? 0}`).join('|')
+  useEffect(() => {
+    document.getElementById(idDaAba(idBase, atual))?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+  }, [idBase, atual, conteudo])
+
   const teclar = (e: KeyboardEvent<HTMLDivElement>) => {
     const i = abas.findIndex((a) => a.id === atual)
     const destino = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: abas.length - 1 }[e.key]

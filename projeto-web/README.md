@@ -87,11 +87,15 @@ mesma origem, e proteção CSRF em toda escrita.
 | — Login pelo IFSul | Aba Aguardando acesso em Usuários, com contador na barra lateral (RW-50, RW-51), e as mensagens de acesso pendente e recusado no login | ✅ [#31](https://github.com/ruansbueno/conecta/pull/31) |
 | — Modo noturno ([spec 002](specs/002-modo-noturno/spec.md)) | Botão de lua e sol no canto superior direito de todas as telas, inclusive o login; segue o sistema até a pessoa escolher, e a escolha fica no navegador; paleta escura com contraste AA conferido; fecho "não há mais" nas listas curtas e blocos vazios do painel com aviso | ✅ [#36](https://github.com/ruansbueno/conecta/pull/36) |
 | — Pedidos na aba | Aba Aguardando acesso, em Usuários, com a mesma bolinha laranja da barra lateral e o número de pedidos esperando ("Aguardando acesso 1 pendente" no leitor de tela) | ✅ [#42](https://github.com/ruansbueno/conecta/pull/42) |
+| — Responsividade ([spec 003](specs/003-responsividade/spec.md)) | Celular (a partir de 360 px) e tablet, nos dois temas: abaixo de 1024 px a barra lateral vira uma gaveta ("Abrir menu"), tabelas rolam dentro do cartão com a primeira coluna presa, ação principal na largura toda, abas roláveis, calendário com a quantidade de eventos por dia, editor em uma coluna, modais quase na largura toda; o desktop não muda | ✅ [#49](https://github.com/ruansbueno/conecta/pull/49) |
 
-**Testes** (registro de 15/11/2026, cada teste pelo nome, [`testes-web-final-2026-11-15.txt`](evidencias/testes-web-final-2026-11-15.txt)):
-468 de unidade e componente (Vitest), 74 de ponta a ponta (Playwright, com o axe nos dois temas,
-em duas execuções seguidas) e 11 da implantação (`deploy/verificar.sh`).
-Registros anteriores: o de 13/11, com as correções da revisão de código
+**Testes** (registro de 23/11/2026, cada teste pelo nome, [`testes-web-final-2026-11-23.txt`](evidencias/testes-web-final-2026-11-23.txt)):
+480 de unidade e componente (Vitest), 156 de ponta a ponta (Playwright, com o axe nos dois temas
+e também em 390 px, e a varredura de rolagem lateral em 360, 390, 768 e 1024 px, em duas execuções
+seguidas) e 11 da implantação (`deploy/verificar.sh`). Capturas das telas reais em 390 e 768 px,
+nos dois temas, em [`evidencias/telas-responsivas/`](evidencias/telas-responsivas/).
+Registros anteriores: o final de 15/11
+([`testes-web-final-2026-11-15.txt`](evidencias/testes-web-final-2026-11-15.txt)), o de 13/11, com as correções da revisão de código
 ([`testes-web-revisao-2026-11-13.txt`](evidencias/testes-web-revisao-2026-11-13.txt)), o final de 12/11, com cada teste pelo nome
 ([`testes-web-final-2026-11-12.txt`](evidencias/testes-web-final-2026-11-12.txt)), o do modo noturno
 ([`testes-web-2026-11-11.txt`](evidencias/testes-web-2026-11-11.txt)) e os de 06/11 e 10/11.

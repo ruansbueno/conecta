@@ -5,7 +5,7 @@
 **Tests**: escritos antes da implementação (falham primeiro). Componente em `tests/componente/`,
 comportamento por largura em `e2e/responsivo.spec.ts`, acessibilidade em `e2e/acessibilidade.spec.ts`.
 
-- [x] R001 Casca responsiva: `usarFocoPreso`, `NavegacaoLateral`, `GavetaMenu`, botão "Abrir menu"
+- [x] R001 Casca responsiva: `useFocoPreso`, `NavegacaoLateral`, `GavetaMenu`, botão "Abrir menu"
       na barra superior, margens (RR-01 a RR-05) — plan Task 1
 - [x] R002 Cabeçalhos, abas, filtros, rodapés de lista e botões de ícone de 40 px (RR-06 a RR-10,
       RR-13, RR-23) — plan Task 2

@@ -24,12 +24,13 @@ interface Props {
 export function CartaoEvento({ evento: e, ocupado, onArquivar, onDesarquivar }: Props) {
   const cor = COR_DO_TIPO[e.tipo] ?? 'border-navy text-navy'
   return (
-    <li className="flex items-start gap-6 border-b border-linha-suave px-7 py-5 last:border-b-0">
+    // No celular, destinos e ações descem para baixo do texto, alinhados a ele (spec 003, RR-15).
+    <li className="flex flex-wrap items-start gap-x-4 gap-y-2 border-b border-linha-suave px-4 py-4 last:border-b-0 sm:flex-nowrap sm:gap-6 sm:px-7 sm:py-5">
       <div className="w-12 shrink-0 text-center" aria-hidden="true">
         <p className="text-[26px] leading-none font-bold text-navy">{String(e.inicio.getDate()).padStart(2, '0')}</p>
         <p className="mt-1 text-[13px] text-tenue">{MESES[e.inicio.getMonth()]}</p>
       </div>
-      <div className={`min-w-0 flex-1 border-l-[3px] pl-5 ${cor.split(' ')[0]}`}>
+      <div className={`min-w-0 flex-1 border-l-[3px] pl-4 sm:pl-5 ${cor.split(' ')[0]}`}>
         <p className={`text-[13px] font-semibold ${cor.split(' ')[1]}`}>{ROTULO_TIPO[e.tipo] ?? e.tipo}</p>
         <h3 className="mt-1 text-[16px] font-semibold text-navy">
           <Link to={`/eventos/${e.id}`} className="hover:underline">
@@ -49,14 +50,14 @@ export function CartaoEvento({ evento: e, ocupado, onArquivar, onDesarquivar }: 
           )}
         </p>
       </div>
-      <ul aria-label="Destinos" className="flex max-w-[300px] flex-wrap justify-end gap-1.5">
+      <ul aria-label="Destinos" className="flex basis-full flex-wrap gap-1.5 pl-[83px] sm:basis-auto sm:max-w-[300px] sm:justify-end sm:pl-0">
         {e.destinos.map((d, i) => (
           <li key={i}>
             <ChipDestino destino={d} />
           </li>
         ))}
       </ul>
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex shrink-0 basis-full items-center gap-1 pl-[73px] sm:basis-auto sm:pl-0">
         {e.situacao === 'ativo' && (
           <>
             <Link to={`/eventos/${e.id}/editar`} aria-label={`Editar “${e.titulo}”`} title="Editar" className="botao-icone">

@@ -208,5 +208,59 @@ for (const tema of TEMAS) {
         }
       })
     })
+
+    test.describe('painel e agenda (RR-14 a RR-16)', () => {
+      test.beforeEach(async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+      })
+
+      test('contadores do painel em 2 colunas e avisos com destinos abaixo do título', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await publicarAviso(page, 'Aviso do painel no celular', LARGURAS.celular)
+        await page.goto('/painel')
+        const ativos = await caixa(page.getByRole('region', { name: 'Avisos ativos' }))
+        const agendados = await caixa(page.getByRole('region', { name: 'Avisos agendados' }))
+        expect(Math.abs(ativos.y - agendados.y)).toBeLessThanOrEqual(1)
+        expect(agendados.x).toBeGreaterThan(ativos.x + ativos.width - 1)
+
+        const titulo = await caixa(page.getByRole('link', { name: 'Aviso do painel no celular', exact: true }))
+        const item = page.getByRole('link', { name: 'Aviso do painel no celular' }).locator('xpath=ancestor::li[1]')
+        const situacao = await caixa(item.getByText('Ativo', { exact: true }))
+        expect(situacao.y).toBeGreaterThan(titulo.y + titulo.height)
+        await semRolagemLateral(page)
+      })
+
+      test('agenda: calendário cabe, tocar num dia filtra a lista e o evento põe destino e ações embaixo', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/eventos')
+        const prova = page.getByRole('heading', { name: 'Prova de Banco de Dados II' }).locator('xpath=ancestor::li[1]')
+        const titulo = await caixa(prova.getByRole('link', { name: 'Prova de Banco de Dados II', exact: true }))
+        const destinos = await caixa(prova.getByRole('list', { name: 'Destinos' }))
+        const editar = await caixa(prova.getByRole('link', { name: /^Editar/ }))
+        expect(destinos.y).toBeGreaterThan(titulo.y + titulo.height)
+        expect(editar.y).toBeGreaterThan(destinos.y + destinos.height - 1)
+        await semRolagemLateral(page)
+
+        await page.getByRole('tab', { name: 'Mês' }).click()
+        const mes = page.getByRole('table', { name: /novembro de 2026/i })
+        await expect(mes).toBeVisible()
+        const larguraMes = await mes.evaluate((t) => [t.scrollWidth, t.parentElement!.clientWidth])
+        expect(larguraMes[0]).toBeLessThanOrEqual(larguraMes[1])
+        await semRolagemLateral(page)
+
+        await page.getByRole('button', { name: /^26 de novembro/ }).click()
+        await expect(page.getByRole('link', { name: 'Prova de Banco de Dados II', exact: true })).toBeVisible()
+        await expect(page.getByRole('link', { name: 'Palestra: carreira em TI', exact: true })).toHaveCount(0)
+      })
+
+      test('painel do docente sem rolagem lateral', async ({ page }) => {
+        await entrar(page, 'docente.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await expect(page.getByRole('heading', { name: 'O que seu perfil permite' })).toBeVisible()
+        await semRolagemLateral(page)
+      })
+    })
   })
 }

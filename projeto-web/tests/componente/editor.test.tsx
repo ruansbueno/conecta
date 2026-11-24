@@ -349,3 +349,18 @@ describe('editor de aviso (T04/T05/T15)', () => {
     expect(within(previa).getByText('Maria Coordenadora')).toBeInTheDocument()
   })
 })
+
+describe('editor de aviso abaixo de 1024 px (spec 003, RR-18)', () => {
+  beforeEach(() => apagarTodosRascunhos())
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('ordem de leitura: campos, destinos, publicação, prévia do aplicativo', async () => {
+    api({})
+    await abrir()
+
+    const titulos = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent?.trim())
+    expect(titulos).toEqual(['Quem vai receber', 'Publicação', 'Como aparece no aplicativo'])
+    const conteudo = screen.getByLabelText('Conteúdo')
+    expect(conteudo.compareDocumentPosition(screen.getByRole('heading', { name: 'Quem vai receber' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+})

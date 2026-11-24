@@ -262,5 +262,73 @@ for (const tema of TEMAS) {
         await semRolagemLateral(page)
       })
     })
+
+    test.describe('grade, editores, turma e login (RR-17 a RR-20)', () => {
+      test.beforeEach(async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+      })
+
+      test('grade rola dentro do cartão sem rolar a página', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/horarios')
+        await page.locator('main a[href*="/horarios"]').first().click()
+        const tabela = page.getByRole('table', { name: /Grade semanal/ })
+        await expect(tabela).toBeVisible()
+        const [rola, visivel] = await tabela.evaluate((t) => [t.parentElement!.scrollWidth, t.parentElement!.clientWidth])
+        expect(rola).toBeGreaterThan(visivel)
+        await semRolagemLateral(page)
+      })
+
+      test('Início e Fim do evento empilham e o editor de aviso põe a prévia por último', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/eventos/novo')
+        const inicio = await caixa(page.getByLabel('Início'))
+        const fim = await caixa(page.getByLabel('Fim', { exact: true }))
+        expect(fim.y).toBeGreaterThan(inicio.y + inicio.height)
+        await semRolagemLateral(page)
+
+        await page.goto('/avisos/novo')
+        const publicacao = await caixa(page.getByRole('heading', { name: 'Publicação' }))
+        const previa = await caixa(page.getByRole('heading', { name: 'Como aparece no aplicativo' }))
+        expect(previa.y).toBeGreaterThan(publicacao.y)
+        await semRolagemLateral(page)
+      })
+
+      test('dados da turma em 2 colunas', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/turmas')
+        await page.locator('main a[href^="/turmas/"]').first().click()
+        const dados = page.getByRole('region', { name: 'Dados da turma' })
+        const codigo = await caixa(dados.getByText('Código', { exact: true }))
+        const semestre = await caixa(dados.getByText('Semestre do curso', { exact: true }))
+        const periodo = await caixa(dados.getByText('Período letivo', { exact: true }))
+        expect(Math.abs(codigo.y - semestre.y)).toBeLessThanOrEqual(1)
+        expect(periodo.y).toBeGreaterThan(codigo.y + 20)
+        expect(Math.abs(periodo.x - codigo.x)).toBeLessThanOrEqual(1)
+        const vinculos = await caixa(dados.getByText('Vínculos', { exact: true }))
+        expect(Math.abs(vinculos.x - semestre.x), 'colunas alinhadas').toBeLessThanOrEqual(1)
+        await semRolagemLateral(page)
+      })
+
+      test('abrir e fechar o menu no editor não perde o rascunho', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/avisos/novo')
+        await page.getByLabel('Título').fill('Rascunho no celular')
+        await page.getByRole('button', { name: 'Abrir menu' }).click()
+        await page.keyboard.press('Escape')
+        await expect(page.getByRole('dialog', { name: 'Menu' })).toHaveCount(0)
+        await expect(page.getByLabel('Título')).toHaveValue('Rascunho no celular')
+      })
+
+      test('login mostra a marca no topo no celular', async ({ page }) => {
+        await page.goto('/login')
+        await expect(page.getByText('CONECTA', { exact: true }).last()).toBeVisible()
+        await semRolagemLateral(page)
+      })
+    })
   })
 }

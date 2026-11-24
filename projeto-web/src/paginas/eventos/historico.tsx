@@ -164,7 +164,7 @@ export default function HistoricoEvento() {
 
       <div id={idDoPainel(ID_ABAS)} role="tabpanel" aria-labelledby={idDaAba(ID_ABAS, aba)} className="mt-6">
         {aba === 'detalhes' ? (
-          <section className="space-y-4 rounded-xl border border-linha bg-branco p-7">
+          <section className="space-y-4 rounded-xl border border-linha bg-branco p-4 sm:p-7">
             <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[14px] text-navy-suave">
               <span className="inline-flex items-center gap-1.5">
                 <Icone nome="agenda" tamanho={16} />

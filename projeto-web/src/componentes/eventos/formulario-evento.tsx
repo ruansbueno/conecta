@@ -149,7 +149,7 @@ export function EditorEvento(props: Props) {
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="space-y-5 rounded-xl border border-linha bg-branco p-7">
+        <div className="space-y-5 rounded-xl border border-linha bg-branco p-4 sm:p-7">
           {campoTexto('titulo', 'Título', 150)}
           <div>
             <label htmlFor={idCampo('tipo')} className="rotulo">

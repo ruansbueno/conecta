@@ -77,8 +77,13 @@ export default function Login() {
         <p className="text-[12.5px] text-sobre-painel-suave">IFSul · Análise e Desenvolvimento de Sistemas</p>
       </aside>
 
-      <main className="relative flex flex-1 items-center justify-center px-8">
+      <main className="relative flex flex-1 items-center justify-center px-5 py-16 sm:px-8 lg:py-0">
         <form noValidate onSubmit={enviar} className="w-full max-w-[380px]">
+          {/* O painel azul com a marca só aparece no desktop: abaixo de 1024 px a marca vai ao topo (spec 003, RR-20). */}
+          <div className="mb-10 flex items-center gap-2.5 text-navy lg:hidden">
+            <Marca tamanho={26} />
+            <span className="text-[20px] font-extrabold tracking-[0.07em]">CONECTA</span>
+          </div>
           <h1 className="text-[26px] font-bold tracking-[-0.025em] text-navy">Acesso à gestão</h1>
           <p className="mt-2 text-[13.5px] leading-normal text-apagado">
             Disponível para administração, coordenação e docentes. Alunos usam o aplicativo.

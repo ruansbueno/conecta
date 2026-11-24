@@ -119,8 +119,10 @@ export function Editor(props: Props) {
         </p>
       )}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="space-y-5">
+      {/* Abaixo de 1024 px, uma coluna na ordem de leitura: campos, destinos, publicação e prévia
+          (spec 003, RR-18). No desktop o grid devolve a prévia à esquerda, sob os campos. */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-y-5">
+        <div className="space-y-5 lg:col-start-1 lg:row-start-1">
           <div>
             <label htmlFor={idCampo('titulo')} className="rotulo">
               Título
@@ -154,16 +156,9 @@ export function Editor(props: Props) {
               {f.conteudo.length.toLocaleString('pt-BR')} de {LIMITE_CONTEUDO.toLocaleString('pt-BR')} caracteres
             </p>
           </div>
-          <PreviaApp
-            autor={autor}
-            titulo={f.titulo}
-            conteudo={f.conteudo}
-            destinos={f.destinos}
-            publicarEm={momentoDaPublicacao(f)}
-          />
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <section aria-labelledby="quem-recebe" className="rounded-xl border border-linha bg-branco">
             <div className="border-b border-linha-suave px-7 py-5">
               <h2 id="quem-recebe" className="text-[15px] font-semibold text-navy">
@@ -269,6 +264,15 @@ export function Editor(props: Props) {
               </div>
             </section>
           )}
+        </div>
+        <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
+          <PreviaApp
+            autor={autor}
+            titulo={f.titulo}
+            conteudo={f.conteudo}
+            destinos={f.destinos}
+            publicarEm={momentoDaPublicacao(f)}
+          />
         </div>
       </div>
 

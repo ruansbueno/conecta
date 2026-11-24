@@ -170,7 +170,7 @@ export default function HistoricoAviso() {
 
       <div id={idDoPainel(ID_ABAS)} role="tabpanel" aria-labelledby={idDaAba(ID_ABAS, aba)} className="mt-6">
         {aba === 'conteudo' ? (
-          <section className="rounded-xl border border-linha bg-branco p-7">
+          <section className="rounded-xl border border-linha bg-branco p-4 sm:p-7">
             <p className="text-[14.5px] leading-relaxed whitespace-pre-line text-navy-suave">{a.conteudo}</p>
             <h2 className="mt-6 text-[13px] font-semibold text-apagado">Quem recebe</h2>
             <ul aria-label="Destinos do aviso" className="mt-2 flex flex-wrap gap-2">

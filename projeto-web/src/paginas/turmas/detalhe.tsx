@@ -293,7 +293,7 @@ export default function DetalheTurma() {
 
       <MensagemDaAcao mensagem={mensagem} />
 
-      <section aria-label="Dados da turma" className="mt-6 flex flex-wrap gap-x-12 gap-y-4 rounded-xl border border-linha bg-branco px-7 py-5">
+      <section aria-label="Dados da turma" className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 rounded-xl border border-linha bg-branco px-4 py-4 sm:grid-cols-3 sm:px-7 sm:py-5 lg:flex lg:flex-wrap lg:gap-x-12">
         {[
           ['Código', t.codigo],
           ['Semestre do curso', `${t.semestreCurso}º`],

@@ -15,6 +15,9 @@ interface Props<T> {
 
 /** A primeira coluna (quem é a linha) fica presa enquanto a tabela rola para o lado (spec 003, RR-11). */
 const PRESA = 'sticky left-0 z-[1] bg-branco'
+/** As outras colunas não quebram linha fora do desktop: a tabela rola, em vez de espremer cada
+ * célula em várias linhas (spec 003, RR-11). No desktop continuam como antes. */
+const LINHA_UNICA = 'whitespace-nowrap lg:whitespace-normal'
 
 /** Tabela com legenda e cabeçalhos associados às células (RW-40). Rola para o lado dentro da própria
  * região, nunca a página, com um esmaecido na borda direita enquanto houver colunas escondidas. */
@@ -58,7 +61,7 @@ export function Tabela<T>({ legenda, colunas, linhas, chave }: Props<T>) {
             {linhas.map((l) => (
               <tr key={chave(l)} className="border-b border-linha-suave last:border-b-0">
                 {colunas.map((c, i) => (
-                  <td key={c.chave} className={`px-4 py-3.5 align-middle text-tinta ${i === 0 ? PRESA : ''}`}>
+                  <td key={c.chave} className={`px-4 py-3.5 align-middle text-tinta ${i === 0 ? PRESA : LINHA_UNICA}`}>
                     {c.celula(l)}
                   </td>
                 ))}

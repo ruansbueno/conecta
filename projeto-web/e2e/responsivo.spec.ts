@@ -193,6 +193,20 @@ for (const tema of TEMAS) {
         expect(Math.abs(aprovar.height - 32)).toBeLessThanOrEqual(1)
       })
 
+      test('células fora da primeira coluna não quebram linha no celular (a tabela rola)', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/solicitacoes')
+        const turma = page.getByRole('region', { name: /^Solicitações — Pendentes/ }).getByRole('cell', { name: 'TADS 3º Sem B', exact: true }).first()
+        const linhas = await turma.evaluate((td) => {
+          const r = document.createRange()
+          r.selectNodeContents(td)
+          return new Set([...r.getClientRects()].map((q) => Math.round(q.top))).size
+        })
+        expect(linhas).toBe(1)
+      })
+
       test('listas com tabela não rolam a página em 360 px', async ({ page }) => {
         await entrar(page, 'admin.teste')
         await expect(page).toHaveURL(/\/painel$/)

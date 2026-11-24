@@ -196,7 +196,7 @@ export default function ListaTurmas() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <TabelaTurmas
                 legenda={`Turmas — ${rotuloAba}`}
                 turmas={carga.dados.items}

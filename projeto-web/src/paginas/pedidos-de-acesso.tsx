@@ -177,7 +177,7 @@ export function PedidosDeAcesso({ administracao }: Props) {
         />
       ) : (
         <>
-          <div className="overflow-x-auto px-3 pt-4">
+          <div className="px-3 pt-4">
             <Tabela
               legenda={situacao === 'pendente' ? 'Pedidos de acesso — pendentes' : 'Pedidos de acesso — recusados'}
               colunas={colunas}

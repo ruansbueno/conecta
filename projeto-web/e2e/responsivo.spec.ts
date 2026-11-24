@@ -168,5 +168,45 @@ for (const tema of TEMAS) {
         expect(Math.round((await caixa(alterar)).width)).toBe(36)
       })
     })
+
+    test.describe('tabelas (RR-11, RR-12)', () => {
+      test('coluna do aluno fica presa e Aprovar e Recusar aparecem inteiros', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.estreito, height: 800 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/solicitacoes')
+        const regiao = page.getByRole('region', { name: /^Solicitações — Pendentes/ })
+        await expect(regiao).toBeVisible()
+        await regiao.evaluate((r) => (r.scrollLeft = r.scrollWidth))
+        const area = await caixa(regiao)
+        const dentro = (c: { x: number; width: number }) => {
+          expect(c.x).toBeGreaterThanOrEqual(area.x - 1)
+          expect(c.x + c.width).toBeLessThanOrEqual(area.x + area.width + 1)
+        }
+
+        dentro(await caixa(regiao.getByRole('cell', { name: /Aluno Dois de Teste/ }).first()))
+        const aprovar = await caixa(regiao.getByRole('button', { name: /^Aprovar Aluno Dois de Teste/ }).first())
+        const recusar = await caixa(regiao.getByRole('button', { name: /^Recusar Aluno Dois de Teste/ }).first())
+        dentro(aprovar)
+        dentro(recusar)
+        expect(recusar.y).toBeGreaterThan(aprovar.y + aprovar.height - 1)
+        expect(Math.abs(aprovar.height - 32)).toBeLessThanOrEqual(1)
+      })
+
+      test('listas com tabela não rolam a página em 360 px', async ({ page }) => {
+        await entrar(page, 'admin.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await publicarAviso(page, 'Aviso para a tabela', LARGURAS.estreito)
+        await page.goto('/turmas')
+        await page.locator('main a[href^="/turmas/"]').first().click()
+        await expect(page.getByRole('heading', { name: 'Vínculos' })).toBeVisible()
+        const detalhe = page.url()
+        for (const rota of ['/avisos', '/turmas', '/usuarios', '/usuarios?aba=aguardando', '/solicitacoes', detalhe]) {
+          await page.goto(rota)
+          await expect(page.getByRole('region').first()).toBeVisible()
+          await semRolagemLateral(page)
+        }
+      })
+    })
   })
 }

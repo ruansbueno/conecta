@@ -297,7 +297,7 @@ export default function ListaAvisos() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <Tabela legenda={`Avisos — ${rotuloAba}`} colunas={colunas} linhas={carga.dados.items} chave={(a) => a.id} />
             </div>
             <div className="rodape-lista">

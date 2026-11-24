@@ -205,7 +205,7 @@ export default function Solicitacoes() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <TabelaSolicitacoes
                 legenda={`Solicitações — ${STATUS.find((s) => s.id === status)!.rotulo}`}
                 solicitacoes={itens}

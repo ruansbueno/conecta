@@ -45,6 +45,8 @@ interface Props {
   onRecusar: (s: SolicitacaoGestao) => void
 }
 
+const DECISAO = 'h-8 rounded-lg px-2.5 text-[13px] sm:h-[42px] sm:rounded-[10px] sm:px-[18px] sm:text-sm'
+
 export function TabelaSolicitacoes({ legenda, solicitacoes, agora, ocupado, onAprovar, onRecusar }: Props) {
   const colunas: Coluna<SolicitacaoGestao>[] = [
     {
@@ -83,11 +85,12 @@ export function TabelaSolicitacoes({ legenda, solicitacoes, agora, ocupado, onAp
       titulo: 'Decisão',
       celula: (s) =>
         s.status === 'pendente' ? (
-          <div className="flex justify-end gap-2">
-            <button type="button" disabled={ocupado} aria-label={`Aprovar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onAprovar(s)} className="botao-primario">
+          // No celular, empilhados e menores, para caberem ao lado da coluna presa (spec 003, RR-12).
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:justify-end sm:gap-2">
+            <button type="button" disabled={ocupado} aria-label={`Aprovar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onAprovar(s)} className={`botao-primario ${DECISAO}`}>
               Aprovar
             </button>
-            <button type="button" disabled={ocupado} aria-label={`Recusar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onRecusar(s)} className="botao-secundario">
+            <button type="button" disabled={ocupado} aria-label={`Recusar ${s.aluno.nome} em ${s.turma.nome}`} onClick={() => onRecusar(s)} className={`botao-secundario ${DECISAO}`}>
               Recusar
             </button>
           </div>

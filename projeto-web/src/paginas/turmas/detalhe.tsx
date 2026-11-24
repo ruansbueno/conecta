@@ -362,7 +362,7 @@ export default function DetalheTurma() {
             />
           ) : (
             <>
-              <div className="overflow-x-auto px-3 pt-4">
+              <div className="px-3 pt-4">
                 <TabelaVinculos
                   vinculos={visiveis}
                   desabilitado={ocupado}

@@ -153,7 +153,7 @@ export default function Usuarios() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <TabelaUsuarios
                 legenda={`Usuários — ${aba.rotulo}`}
                 usuarios={carga.dados.items}

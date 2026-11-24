@@ -196,6 +196,20 @@ html[data-tema='escuro'] {
   .abas-rolaveis {
     @apply relative overflow-x-auto [scrollbar-width:none];
   }
+  /* Rodapé dos modais: no celular os botões dividem a largura em colunas iguais (3 quando são 3), o
+     espaçador some e o texto ocupa a linha de cima; a partir de 640 px, a linha de antes (RR-21). */
+  .rodape-modal {
+    @apply grid grid-cols-2 items-center gap-3 border-t border-linha-suave bg-fundo px-4 py-4 sm:flex sm:px-6;
+  }
+  .rodape-modal:has(> button:nth-of-type(3)) {
+    @apply grid-cols-3;
+  }
+  .rodape-modal > p {
+    @apply col-span-full;
+  }
+  .rodape-modal > .grow {
+    @apply hidden sm:block;
+  }
   /* Rodapé das listas (contagem + paginação): quebra de linha no celular (RR-13). */
   .rodape-lista {
     @apply flex flex-wrap items-center justify-between gap-3 border-t border-linha-suave px-4 py-4 sm:px-6;

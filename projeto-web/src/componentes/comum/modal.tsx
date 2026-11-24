@@ -21,7 +21,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
   useFocoPreso(caixa, onFechar)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-veu p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-veu p-3 sm:p-6">
       <div
         ref={caixa}
         role={papel}
@@ -31,7 +31,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
         tabIndex={-1}
         className={`flex max-h-full w-full ${largura} flex-col rounded-2xl bg-branco shadow-2xl`}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-linha-suave px-6 pt-6 pb-4">
+        <div className="flex items-start justify-between gap-4 border-b border-linha-suave px-4 pt-5 pb-4 sm:px-6 sm:pt-6">
           <div>
             <h2 id={idTitulo} className="text-lg font-semibold tracking-[-0.015em] text-navy">
               {titulo}
@@ -47,7 +47,7 @@ export function Modal({ titulo, descricao, onFechar, children, rodape, papel = '
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
-        {rodape && <div className="flex items-center gap-3 border-t border-linha-suave bg-fundo px-6 py-4">{rodape}</div>}
+        {rodape && <div className="rodape-modal">{rodape}</div>}
       </div>
     </div>
   )

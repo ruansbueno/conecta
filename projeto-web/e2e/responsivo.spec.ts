@@ -330,5 +330,47 @@ for (const tema of TEMAS) {
         await semRolagemLateral(page)
       })
     })
+
+    test.describe('modais (RR-21)', () => {
+      test.beforeEach(async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+      })
+
+      test('modal ocupa a largura menos 12 px de cada lado e os botões dividem o rodapé', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/turmas')
+        await page.getByRole('button', { name: 'Nova turma' }).click()
+        const nova = page.getByRole('dialog', { name: 'Nova turma' })
+        expect(Math.abs((await caixa(nova)).width - (LARGURAS.celular - 24))).toBeLessThanOrEqual(1)
+        const cancelar = await caixa(nova.getByRole('button', { name: 'Cancelar' }))
+        const criar = await caixa(nova.getByRole('button', { name: 'Criar turma' }))
+        expect(Math.abs(cancelar.y - criar.y)).toBeLessThanOrEqual(1)
+        expect(Math.abs(cancelar.width - criar.width)).toBeLessThanOrEqual(1)
+        await page.keyboard.press('Escape')
+
+        await page.goto('/solicitacoes')
+        await page.getByRole('button', { name: /^Recusar / }).first().click()
+        const recusar = page.getByRole('dialog', { name: /^Recusar a solicitação/ })
+        expect(Math.abs((await caixa(recusar)).width - (LARGURAS.celular - 24))).toBeLessThanOrEqual(1)
+      })
+
+      test('modal alto cabe na tela e rola por dentro', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 600 })
+        await entrar(page, 'admin.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        await page.goto('/usuarios')
+        await page.getByRole('button', { name: /^Alterar perfil de/ }).nth(1).click()
+        const dialogo = page.getByRole('dialog', { name: 'Alterar perfil de acesso' })
+        const c = await caixa(dialogo)
+        expect(c.y).toBeGreaterThanOrEqual(0)
+        expect(c.y + c.height).toBeLessThanOrEqual(600)
+        const [rola, visivel] = await dialogo.evaluate((d) => {
+          const miolo = d.querySelector('.overflow-y-auto') as HTMLElement
+          return [miolo.scrollHeight, miolo.clientHeight]
+        })
+        expect(rola).toBeGreaterThan(visivel)
+      })
+    })
   })
 }

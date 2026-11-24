@@ -412,6 +412,25 @@ for (const tema of TEMAS) {
         expect(aprovar.x + aprovar.width).toBeLessThanOrEqual(area.x + area.width + 1)
       })
 
+      test('a coluna presa continua legível no celular (nome sem quebrar letra a letra)', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.estreito, height: 800 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        for (const rota of ['/solicitacoes', '/turmas']) {
+          await page.goto(rota)
+          const celula = page.getByRole('region').first().getByRole('cell').first()
+          await expect(celula).toBeVisible()
+          expect((await caixa(celula)).width, rota).toBeGreaterThanOrEqual(140)
+        }
+        await page.goto('/solicitacoes')
+        const linhas = await page.getByRole('region').first().getByText('Aluno Dois de Teste').first().evaluate((el) => {
+          const r = document.createRange()
+          r.selectNodeContents(el)
+          return new Set([...r.getClientRects()].map((q) => Math.round(q.top))).size
+        })
+        expect(linhas).toBeLessThanOrEqual(2)
+      })
+
       test('o contorno de foco das abas não é cortado no desktop', async ({ page }) => {
         await page.setViewportSize({ width: 1440, height: 900 })
         await entrar(page, 'admin.teste')

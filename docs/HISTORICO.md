@@ -73,6 +73,7 @@ antes do merge.
 | **Usuários de primeiro login** | Provedor simulado com `aluno.novo2` (vídeo de demonstração) e `servidor.novo2`; os de primeiro login numa lista explícita, fora do seed | API 1043 | [#46](https://github.com/ruansbueno/conecta/pull/46) |
 | **Evidências de 15/11** | Execução final depois dos PRs #42 a #44 (a da API, refeita depois do #46), cada teste pelo nome: API, roteiro integrado (9 de 9), web (com a implantação) e aplicativo (com a integração no emulador) | API 1043, web 468 + 74 + 11, app 425 + 23 | [#45](https://github.com/ruansbueno/conecta/pull/45) |
 | **Responsividade da web** | Gestão em celular e tablet, nos dois temas: barra lateral vira gaveta abaixo de 1024 px, tabelas rolam no próprio cartão com a primeira coluna presa, cabeçalhos, filtros, agenda, editores e modais adaptados; desktop sem mudança (spec 003 da web; telas aprovadas no canvas) | web 480 (Vitest) + 156 (Playwright) + 11 da implantação | [#49](https://github.com/ruansbueno/conecta/pull/49) |
+| **Ajustes da responsividade** | Página sem espaço vazio no fim (textos sr-only escapavam da área que rola; também no desktop, no mês da agenda) e altura dinâmica da tela no celular; filtros em grade com o rótulo acima no celular | web 481 (Vitest) + 160 (Playwright) | [#50](https://github.com/ruansbueno/conecta/pull/50) |
 
 **Evidências finais** (suítes completas, implantação, integração no emulador e o roteiro integrado
 web → API → app contra a API real): no fechamento, em 01/11/2026

@@ -130,27 +130,29 @@ export default function HistoricoAviso() {
             {a.editadoEm && ` · editado ${dataNumerica(a.editadoEm)}`}
           </p>
         </div>
-        {a.situacao === 'ativo' && (
-          <>
-            <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', a)} className="botao-secundario">
-              <Icone nome="arquivo" tamanho={18} />
-              Arquivar
-            </button>
-            <Link to={`/avisos/${a.id}/editar`} className="botao-secundario">
-              <Icone nome="lapis" tamanho={18} />
-              Editar
-            </Link>
-          </>
-        )}
-        {a.situacao === 'arquivado' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', a)} className="botao-secundario">
-            Desarquivar
-          </button>
-        )}
         {a.situacao !== 'excluido' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('excluir', a)} className="botao-perigo">
-            Excluir
-          </button>
+          <div className="botoes-cabecalho">
+            {a.situacao === 'ativo' && (
+              <>
+                <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', a)} className="botao-secundario">
+                  <Icone nome="arquivo" tamanho={18} />
+                  Arquivar
+                </button>
+                <Link to={`/avisos/${a.id}/editar`} className="botao-secundario">
+                  <Icone nome="lapis" tamanho={18} />
+                  Editar
+                </Link>
+              </>
+            )}
+            {a.situacao === 'arquivado' && (
+              <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', a)} className="botao-secundario">
+                Desarquivar
+              </button>
+            )}
+            <button type="button" disabled={ocupado} onClick={() => pedir('excluir', a)} className="botao-perigo">
+              Excluir
+            </button>
+          </div>
         )}
       </header>
 
@@ -168,7 +170,7 @@ export default function HistoricoAviso() {
 
       <div id={idDoPainel(ID_ABAS)} role="tabpanel" aria-labelledby={idDaAba(ID_ABAS, aba)} className="mt-6">
         {aba === 'conteudo' ? (
-          <section className="rounded-xl border border-linha bg-branco p-7">
+          <section className="rounded-xl border border-linha bg-branco p-4 sm:p-7">
             <p className="text-[14.5px] leading-relaxed whitespace-pre-line text-navy-suave">{a.conteudo}</p>
             <h2 className="mt-6 text-[13px] font-semibold text-apagado">Quem recebe</h2>
             <ul aria-label="Destinos do aviso" className="mt-2 flex flex-wrap gap-2">

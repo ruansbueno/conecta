@@ -249,7 +249,7 @@ export default function DetalheTurma() {
           <p className="mt-1 text-[13px] text-apagado">Turma acadêmica · criada em {dataCompleta.format(t.criadoEm)}</p>
         </div>
         {gestao && (
-          <div className="flex flex-wrap gap-2.5">
+          <div className="botoes-cabecalho">
             <Link to={`/turmas/${t.id}/horarios`} className="botao-secundario">
               <Icone nome="horarios" tamanho={17} />
               Horários
@@ -293,7 +293,7 @@ export default function DetalheTurma() {
 
       <MensagemDaAcao mensagem={mensagem} />
 
-      <section aria-label="Dados da turma" className="mt-6 flex flex-wrap gap-x-12 gap-y-4 rounded-xl border border-linha bg-branco px-7 py-5">
+      <section aria-label="Dados da turma" className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 rounded-xl border border-linha bg-branco px-4 py-4 sm:grid-cols-3 sm:px-7 sm:py-5 lg:flex lg:flex-wrap lg:gap-x-12">
         {[
           ['Código', t.codigo],
           ['Semestre do curso', `${t.semestreCurso}º`],
@@ -324,7 +324,7 @@ export default function DetalheTurma() {
           Vínculos
         </h2>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <div className="w-[300px]">
+          <div className="w-full sm:w-[300px]">
             <Busca rotulo="Buscar pessoa na turma" valor={busca} onMudar={setBusca} maxLength={100} />
           </div>
           <label className="flex items-center gap-2 text-[13px] text-apagado">
@@ -362,7 +362,7 @@ export default function DetalheTurma() {
             />
           ) : (
             <>
-              <div className="overflow-x-auto px-3 pt-4">
+              <div className="px-3 pt-4">
                 <TabelaVinculos
                   vinculos={visiveis}
                   desabilitado={ocupado}

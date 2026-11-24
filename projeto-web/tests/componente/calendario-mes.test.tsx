@@ -78,3 +78,24 @@ describe('agenda — aba Mês (plan-f2 D-F2-7)', () => {
     expect(await screen.findByText(/Mostrando 1 de 150 eventos deste mês/)).toBeInTheDocument()
   })
 })
+
+describe('agenda — aba Mês no celular (spec 003, RR-16)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('cada dia com eventos mostra só a quantidade abaixo de 640 px, sem mudar o nome do dia', async () => {
+    apiAgenda({ 'GET /gestao/eventos': { status: 200, corpo: pagina([SEMANA, ...PALESTRAS]) } })
+    abrirEm('/eventos?aba=mes&mes=2026-11', '/eventos', <ListaEventos />)
+
+    const dia2 = await screen.findByRole('button', { name: /^2 de novembro, 1 evento/ })
+    const quantidade = dia2.querySelector('[data-quantidade]')
+    expect(quantidade).toHaveTextContent('1')
+    expect(quantidade).toHaveAttribute('aria-hidden', 'true')
+    expect(quantidade).toHaveClass('sm:hidden')
+    expect(within(dia2).getByText('Semana Acadêmica')).toHaveClass('hidden', 'sm:block')
+
+    const dia5 = screen.getByRole('button', { name: /^5 de novembro, 4 eventos/ })
+    expect(dia5.querySelector('[data-quantidade]')).toHaveTextContent('4')
+    expect(within(dia5).getByText('+1')).toHaveClass('hidden', 'sm:block')
+    expect(screen.getByRole('button', { name: /^1 de novembro, sem eventos/ }).querySelector('[data-quantidade]')).toBeNull()
+  })
+})

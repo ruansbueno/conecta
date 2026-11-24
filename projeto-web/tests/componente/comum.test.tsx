@@ -8,12 +8,12 @@ import { Busca } from '../../src/componentes/comum/busca'
 import { ChipDestino } from '../../src/componentes/comum/chip-destino'
 import { Confirmacao } from '../../src/componentes/comum/confirmacao'
 import { Esqueleto } from '../../src/componentes/comum/esqueleto'
+import { Tabela } from '../../src/componentes/comum/tabela'
 import { EstadoErro } from '../../src/componentes/comum/estado-erro'
 import { EstadoVazio } from '../../src/componentes/comum/estado-vazio'
 import { Modal } from '../../src/componentes/comum/modal'
 import { Paginacao } from '../../src/componentes/comum/paginacao'
 import { SeloSituacao } from '../../src/componentes/comum/selo-situacao'
-import { Tabela } from '../../src/componentes/comum/tabela'
 
 describe('ChipDestino', () => {
   it('rótulo por tipo e leitura acessível', () => {
@@ -217,5 +217,29 @@ describe('Modal sob nova renderização da página', () => {
     act(() => screen.getByRole('button', { name: 'renderizar dentro' }).click())
 
     expect(campo).toHaveFocus()
+  })
+})
+
+describe('Tabela que rola para o lado (spec 003, RR-11)', () => {
+  const colunas = [
+    { chave: 'nome', titulo: 'Nome', celula: (l: { nome: string }) => l.nome },
+    { chave: 'outra', titulo: 'Outra', celula: () => 'x' },
+  ]
+
+  it('rola dentro de uma região nomeada pela legenda; só é parada de Tab quando rola', () => {
+    render(<Tabela legenda="Usuários — Todos" colunas={colunas} linhas={[{ nome: 'Ana' }]} chave={(l) => l.nome} />)
+
+    const regiao = screen.getByRole('region', { name: 'Usuários — Todos' })
+    expect(within(regiao).getByRole('table', { name: 'Usuários — Todos' })).toBeInTheDocument()
+    // Sem nada para rolar (no jsdom não há largura), a região não vira uma parada de Tab.
+    expect(regiao).not.toHaveAttribute('tabindex')
+  })
+
+  it('a primeira coluna fica presa ao rolar', () => {
+    render(<Tabela legenda="Usuários" colunas={colunas} linhas={[{ nome: 'Ana' }]} chave={(l) => l.nome} />)
+
+    expect(screen.getByRole('columnheader', { name: 'Nome' })).toHaveClass('sticky', 'left-0')
+    expect(screen.getByRole('cell', { name: 'Ana' })).toHaveClass('sticky', 'left-0')
+    expect(screen.getByRole('cell', { name: 'x' })).not.toHaveClass('sticky')
   })
 })

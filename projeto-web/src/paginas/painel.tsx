@@ -118,7 +118,7 @@ function Numero({ rotulo, detalhe, carga, repetir, cor = 'text-navy' }: {
   cor?: string
 }) {
   return (
-    <section aria-label={rotulo} className="rounded-xl border border-linha bg-branco px-6 py-5">
+    <section aria-label={rotulo} className="rounded-xl border border-linha bg-branco px-4 py-4 sm:px-6 sm:py-5">
       {carga.estado === 'erro' ? (
         <div className="flex flex-wrap items-baseline gap-x-2">
           <p role="alert" className="text-[13px] text-perigo">
@@ -141,8 +141,9 @@ function Numero({ rotulo, detalhe, carga, repetir, cor = 'text-navy' }: {
 
 function LinhaAviso({ a, agora, autor = true }: { a: AvisoGestao; agora: Date; autor?: boolean }) {
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-linha-suave px-6 py-3.5 last:border-b-0">
-      <div className="min-w-0 flex-1">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-linha-suave px-4 py-3.5 last:border-b-0 sm:px-6">
+      {/* No celular, destinos e situação descem para baixo do título (spec 003, RR-14). */}
+      <div className="min-w-0 basis-full sm:flex-1 sm:basis-0">
         <Link to={`/avisos/${a.id}`} className="font-semibold text-navy hover:underline">
           {a.titulo}
         </Link>
@@ -154,7 +155,7 @@ function LinhaAviso({ a, agora, autor = true }: { a: AvisoGestao; agora: Date; a
             : dataRelativa(a.publicarEm ?? a.publicadoEm, agora)}
         </p>
       </div>
-      <ul className="flex flex-wrap gap-1.5">
+      <ul className="flex flex-1 flex-wrap gap-1.5 sm:flex-initial">
         {a.destinos.slice(0, 2).map((d, i) => (
           <li key={i}>
             <ChipDestino destino={d} />
@@ -244,7 +245,7 @@ function PainelCoordenacao() {
   return (
     <>
       <p className="mt-2 min-h-5 text-[14px] text-apagado">{resumo}</p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Numero rotulo="Avisos ativos" detalhe="publicados e no ar no aplicativo" {...ativos} />
         <Numero rotulo="Avisos agendados" detalhe="aparecem na data marcada" cor="text-alerta" {...agendados} />
         <Numero rotulo="Solicitações pendentes" detalhe="esperando decisão" cor="text-alerta" {...pendentes} />
@@ -395,10 +396,10 @@ export default function Painel() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">
+        <h1 className="titulo-pagina">
           {saudacao(agora)}, {usuario.nome.split(' ')[0]}
         </h1>
-        <Link to="/avisos/novo" className="botao-primario">
+        <Link to="/avisos/novo" className="botao-primario acao-pagina">
           <Icone nome="mais" tamanho={18} />
           Novo aviso
         </Link>

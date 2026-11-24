@@ -2,6 +2,7 @@
 // contraste, nomes acessíveis, rótulos, cabeçalhos de tabela, ARIA de modais e abas. Os modais são
 // auditados abertos. O que o axe não vê (ordem de foco, uso só com teclado) está em teclado.spec.ts.
 // Spec 002 (SC-002): tudo roda duas vezes, no tema claro e no escuro (escolha guardada antes de abrir).
+// Spec 003 (RR-24): e de novo em 390 px (celular), com a gaveta de navegação aberta auditada também.
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 
@@ -34,8 +35,16 @@ async function publicarAviso(page: Page, titulo: string) {
   await expect(page.getByRole('status').filter({ hasText: 'Aviso publicado.' })).toBeVisible()
 }
 
+const LARGURAS_AUDITADAS = [
+  { nome: 'desktop', viewport: { width: 1440, height: 900 } },
+  { nome: 'celular', viewport: { width: 390, height: 844 } },
+] as const
+
+for (const largura of LARGURAS_AUDITADAS)
 for (const tema of ['claro', 'escuro'] as const) {
-  test.describe(`tema ${tema}`, () => {
+  test.describe(`${largura.nome} · tema ${tema}`, () => {
+    test.use({ viewport: largura.viewport })
+
     test.beforeEach(async ({ page }) => {
       temaAtual = tema
       await page.addInitScript((t) => localStorage.setItem('conecta:tema', t), tema)
@@ -224,6 +233,15 @@ for (const tema of ['claro', 'escuro'] as const) {
       await page.getByRole('dialog').getByRole('button', { name: 'Salvar aula' }).click()
       await expect(page.getByRole('status').filter({ hasText: 'Aula salva' })).toBeFocused()
       await auditar(page, 'grade com mensagem')
+    })
+
+    test('gaveta de navegação aberta', async ({ page }) => {
+      test.skip(largura.nome === 'desktop', 'a gaveta só existe abaixo de 1024 px')
+      await entrar(page, 'coord.teste')
+      await expect(page).toHaveURL(/\/painel$/)
+      await page.getByRole('button', { name: 'Abrir menu' }).click()
+      await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible()
+      await auditar(page, 'gaveta de navegação')
     })
   })
 }

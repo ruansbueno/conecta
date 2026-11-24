@@ -124,27 +124,29 @@ export default function HistoricoEvento() {
             {e.editadoEm && ` · editado ${dataNumerica(e.editadoEm)}`}
           </p>
         </div>
-        {e.situacao === 'ativo' && (
-          <>
-            <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', e)} className="botao-secundario">
-              <Icone nome="arquivo" tamanho={18} />
-              Arquivar
-            </button>
-            <Link to={`/eventos/${e.id}/editar`} className="botao-secundario">
-              <Icone nome="lapis" tamanho={18} />
-              Editar
-            </Link>
-          </>
-        )}
-        {e.situacao === 'arquivado' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', e)} className="botao-secundario">
-            Desarquivar
-          </button>
-        )}
         {e.situacao !== 'excluido' && (
-          <button type="button" disabled={ocupado} onClick={() => pedir('excluir', e)} className="botao-perigo">
-            Excluir
-          </button>
+          <div className="botoes-cabecalho">
+            {e.situacao === 'ativo' && (
+              <>
+                <button type="button" disabled={ocupado} onClick={() => pedir('arquivar', e)} className="botao-secundario">
+                  <Icone nome="arquivo" tamanho={18} />
+                  Arquivar
+                </button>
+                <Link to={`/eventos/${e.id}/editar`} className="botao-secundario">
+                  <Icone nome="lapis" tamanho={18} />
+                  Editar
+                </Link>
+              </>
+            )}
+            {e.situacao === 'arquivado' && (
+              <button type="button" disabled={ocupado} onClick={() => pedir('desarquivar', e)} className="botao-secundario">
+                Desarquivar
+              </button>
+            )}
+            <button type="button" disabled={ocupado} onClick={() => pedir('excluir', e)} className="botao-perigo">
+              Excluir
+            </button>
+          </div>
         )}
       </header>
 
@@ -162,7 +164,7 @@ export default function HistoricoEvento() {
 
       <div id={idDoPainel(ID_ABAS)} role="tabpanel" aria-labelledby={idDaAba(ID_ABAS, aba)} className="mt-6">
         {aba === 'detalhes' ? (
-          <section className="space-y-4 rounded-xl border border-linha bg-branco p-7">
+          <section className="space-y-4 rounded-xl border border-linha bg-branco p-4 sm:p-7">
             <p className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[14px] text-navy-suave">
               <span className="inline-flex items-center gap-1.5">
                 <Icone nome="agenda" tamanho={16} />

@@ -238,3 +238,17 @@ describe('login (T01)', () => {
     expect(await screen.findByText('Sua sessão expirou. Entre de novo.')).toBeInTheDocument()
   })
 })
+
+describe('login fora do desktop (spec 003, RR-20)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('a marca CONECTA aparece no topo do formulário, só abaixo de 1024 px', async () => {
+    api({ 'GET /me': { status: 401, corpo: erro('NAO_AUTENTICADO') } })
+    montar()
+    await screen.findByRole('heading', { name: 'Acesso à gestão' })
+
+    const marcas = screen.getAllByText('CONECTA')
+    expect(marcas).toHaveLength(2)
+    expect(marcas[1].closest('.lg\\:hidden')).not.toBeNull()
+  })
+})

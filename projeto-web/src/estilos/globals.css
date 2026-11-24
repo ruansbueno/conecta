@@ -161,7 +161,8 @@ html[data-tema='escuro'] {
     @apply inline-flex h-[42px] items-center justify-center gap-2 rounded-[10px] border border-perigo-borda bg-branco px-[18px] text-sm font-semibold text-perigo hover:bg-perigo-fundo;
   }
   .botao-icone {
-    @apply inline-flex size-9 items-center justify-center rounded-[9px] text-apagado hover:bg-fundo disabled:opacity-40;
+    /* 40 px de toque abaixo de 1024 px; 36 px no desktop, como no design (spec 003, RR-23). */
+    @apply inline-flex size-10 items-center justify-center rounded-[9px] text-apagado hover:bg-fundo disabled:opacity-40 lg:size-9;
   }
   .campo {
     @apply h-[46px] w-full rounded-[10px] border border-linha bg-branco px-3.5 text-sm text-tinta focus-within:border-azul focus-within:ring-[3px] focus-within:ring-foco;
@@ -172,5 +173,49 @@ html[data-tema='escuro'] {
   }
   .rotulo {
     @apply mb-1.5 block text-[12.5px] font-semibold text-apagado;
+  }
+
+  /* Spec 003 (responsividade). Celular = abaixo de sm (640 px). */
+  /* Título das páginas de lista: 24 px no celular, 28 px a partir de 640 px (RR-08). */
+  .titulo-pagina {
+    @apply text-[24px] font-bold tracking-[-0.025em] text-navy sm:text-[28px];
+  }
+  /* Ação principal ao lado do título: no celular desce e ocupa a largura toda (RR-06). */
+  .acao-pagina {
+    @apply w-full sm:w-auto;
+  }
+  /* Botões de cabeçalho com voltar: grade de 2 colunas no celular (3 quando são 3), linha a
+     partir de 640 px (RR-07). */
+  .botoes-cabecalho {
+    @apply grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-2.5;
+  }
+  .botoes-cabecalho:has(> :nth-child(3):last-child) {
+    @apply grid-cols-3;
+  }
+  /* Abas que não cabem rolam para o lado, sem barra visível (RR-09). */
+  .abas-rolaveis {
+    @apply relative overflow-x-auto [scrollbar-width:none];
+  }
+  /* A rolagem corta o que passa da caixa: o contorno de foco das abas fica por dentro. */
+  .abas-rolaveis [role='tab']:focus-visible {
+    outline-offset: -2px;
+  }
+  /* Rodapé dos modais: no celular os botões dividem a largura em colunas iguais (3 quando são 3), o
+     espaçador some e o texto ocupa a linha de cima; a partir de 640 px, a linha de antes (RR-21). */
+  .rodape-modal {
+    @apply grid grid-cols-2 items-center gap-3 border-t border-linha-suave bg-fundo px-4 py-4 sm:flex sm:px-6;
+  }
+  .rodape-modal:has(> button:nth-of-type(3)) {
+    @apply grid-cols-3;
+  }
+  .rodape-modal > p {
+    @apply col-span-full;
+  }
+  .rodape-modal > .grow {
+    @apply hidden sm:block;
+  }
+  /* Rodapé das listas (contagem + paginação): quebra de linha no celular (RR-13). */
+  .rodape-lista {
+    @apply flex flex-wrap items-center justify-between gap-3 border-t border-linha-suave px-4 py-4 sm:px-6;
   }
 }

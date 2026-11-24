@@ -112,8 +112,9 @@ export function ModalAula(props: Props) {
             {informacao}
           </p>
         )}
-        <div className="grid grid-cols-3 gap-3">
-          <div>
+        {/* No celular, Dia na linha de cima e Início e Fim lado a lado, para os horários caberem. */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="col-span-2 sm:col-span-1">
             {rotulo('diaSemana', 'Dia')}
             <select {...atributos('diaSemana')} className="campo" value={f.diaSemana} onChange={(e) => mudar({ diaSemana: e.target.value })}>
               {[1, 2, 3, 4, 5, 6, 7].map((d) => (

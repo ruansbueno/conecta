@@ -1,9 +1,10 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, useLocation } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
 import { BarraLateral } from '../../src/componentes/layout/barra-lateral'
+import { Casca } from '../../src/componentes/layout/casca'
 import { SemPermissao } from '../../src/paginas/sem-permissao'
 
 const usuario = (perfil: string, nome = 'Marina Duarte') => ({
@@ -82,5 +83,93 @@ describe('sem permissão (RW-06, RW-12)', () => {
 
     expect(screen.getByRole('heading', { name: 'Esta área não está disponível para o seu perfil' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
+  })
+})
+
+function Onde() {
+  return <p data-testid="rota">{useLocation().pathname}</p>
+}
+
+function casca(caminho = '/painel') {
+  render(
+    <MemoryRouter initialEntries={[caminho]}>
+      <Casca usuario={usuario('coordenacao')} secao="Painel" onSair={() => {}}>
+        <Onde />
+      </Casca>
+    </MemoryRouter>,
+  )
+  return screen.getByRole('button', { name: 'Abrir menu' })
+}
+
+describe('gaveta de navegação abaixo de 1024 px (spec 003, RR-01 a RR-03)', () => {
+  it('"Abrir menu" abre a gaveta com a mesma navegação do perfil', async () => {
+    const abrir = casca()
+    expect(abrir).toHaveAttribute('aria-expanded', 'false')
+
+    await userEvent.click(abrir)
+
+    const gaveta = screen.getByRole('dialog', { name: 'Menu' })
+    expect(within(gaveta).getAllByRole('link').map((l) => l.textContent)).toEqual([
+      'Painel', 'Avisos', 'Agenda', 'Turmas', 'Horários', 'Solicitações', 'Usuários',
+    ])
+    expect(abrir).toHaveAttribute('aria-expanded', 'true')
+    expect(abrir).toHaveAttribute('aria-controls', 'gaveta-menu')
+  })
+
+  it('Esc fecha a gaveta e devolve o foco ao botão', async () => {
+    const abrir = casca()
+    await userEvent.click(abrir)
+
+    await userEvent.keyboard('{Escape}')
+
+    expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument()
+    expect(abrir).toHaveFocus()
+  })
+
+  it('escolher um item fecha a gaveta e navega', async () => {
+    await userEvent.click(casca())
+
+    await userEvent.click(within(screen.getByRole('dialog', { name: 'Menu' })).getByRole('link', { name: 'Turmas' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument()
+    expect(screen.getByTestId('rota')).toHaveTextContent('/turmas')
+  })
+
+  it('tocar no véu fecha a gaveta', async () => {
+    await userEvent.click(casca())
+
+    await userEvent.click(screen.getByTestId('veu-menu'))
+
+    expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument()
+  })
+
+  it('Tab não sai da gaveta', async () => {
+    await userEvent.click(casca())
+    const gaveta = screen.getByRole('dialog', { name: 'Menu' })
+    within(gaveta).getByRole('button', { name: 'Sair' }).focus()
+
+    await userEvent.tab()
+
+    expect(within(gaveta).getByRole('button', { name: 'Fechar menu' })).toHaveFocus()
+  })
+})
+
+describe('gaveta: conteúdo inerte e foco de volta (revisão final)', () => {
+  it('com a gaveta aberta, o conteúdo atrás fica inerte', async () => {
+    await userEvent.click(casca())
+
+    expect(screen.getByTestId('rota').closest('[inert]')).not.toBeNull()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.getByTestId('rota').closest('[inert]')).toBeNull()
+  })
+
+  it('o foco volta ao botão mesmo quando o toque não o focou (Safari)', async () => {
+    const abrir = casca()
+    fireEvent.click(abrir)
+    expect(abrir).not.toHaveFocus()
+
+    await userEvent.keyboard('{Escape}')
+
+    expect(abrir).toHaveFocus()
   })
 })

@@ -177,7 +177,7 @@ export function PedidosDeAcesso({ administracao }: Props) {
         />
       ) : (
         <>
-          <div className="overflow-x-auto px-3 pt-4">
+          <div className="px-3 pt-4">
             <Tabela
               legenda={situacao === 'pendente' ? 'Pedidos de acesso — pendentes' : 'Pedidos de acesso — recusados'}
               colunas={colunas}
@@ -185,7 +185,7 @@ export function PedidosDeAcesso({ administracao }: Props) {
               chave={(a) => a.id}
             />
           </div>
-          <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+          <div className="rodape-lista">
             <p className="text-[13px] text-apagado">
               Mostrando {carga.dados.items.length} de {carga.dados.total} pedidos
             </p>

@@ -106,7 +106,7 @@ export default function Usuarios() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header>
-        <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">Usuários</h1>
+        <h1 className="titulo-pagina">Usuários</h1>
         <p className="mt-1.5 text-[14px] text-apagado">
           Alunos entram como aluno no primeiro acesso; servidores aguardam a liberação da coordenação ou da
           administração. Só a administração muda o perfil ou desativa alguém.
@@ -127,7 +127,7 @@ export default function Usuarios() {
           }}
         />
         {aba.id !== 'aguardando' && (
-          <div className="w-[300px]">
+          <div className="w-full sm:w-[300px]">
             <Busca rotulo="Buscar por nome ou usuário" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
         )}
@@ -153,7 +153,7 @@ export default function Usuarios() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <TabelaUsuarios
                 legenda={`Usuários — ${aba.rotulo}`}
                 usuarios={carga.dados.items}
@@ -161,7 +161,7 @@ export default function Usuarios() {
                 onAlterar={administracao ? abrirAlteracao : undefined}
               />
             </div>
-            <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+            <div className="rodape-lista">
               <p className="text-[13px] text-apagado">
                 Mostrando {carga.dados.items.length} de {carga.dados.total} usuários
               </p>

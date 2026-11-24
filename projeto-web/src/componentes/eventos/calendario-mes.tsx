@@ -25,7 +25,7 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
   const hoje = new Date().toDateString()
   return (
     <div>
-      <div className="flex items-center justify-between px-6 pt-5">
+      <div className="flex items-center justify-between px-3 pt-4 sm:px-6 sm:pt-5">
         <button type="button" aria-label="Mês anterior" onClick={() => onMudarMes(outroMes(mes, -1))} className="botao-icone">
           <Icone nome="voltar" tamanho={18} />
         </button>
@@ -57,7 +57,7 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                 return (
                   <td
                     key={dia.toISOString()}
-                    className={`h-[104px] border border-linha-suave align-top ${foraDoMes ? 'bg-fundo' : 'bg-branco'} ${
+                    className={`h-[52px] border border-linha-suave align-top sm:h-[104px] ${foraDoMes ? 'bg-fundo' : 'bg-branco'} ${
                       escolhido ? 'outline-2 -outline-offset-2 outline-azul' : ''
                     }`}
                   >
@@ -65,7 +65,7 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                       type="button"
                       aria-pressed={escolhido}
                       onClick={() => onEscolherDia(dia)}
-                      className="flex h-full w-full flex-col items-stretch gap-1 p-2 text-left"
+                      className="flex h-full w-full flex-col items-center gap-1 p-1 text-center sm:items-stretch sm:p-2 sm:text-left"
                     >
                       <span
                         className={`text-[13px] font-semibold ${
@@ -80,12 +80,22 @@ export function CalendarioMes({ mes, eventos, diaEscolhido, onMudarMes, onEscolh
                           {quantos ? `, ${quantidade(quantos, 'evento')}:` : ', sem eventos'}
                         </span>
                       </span>
+                      {/* No celular os títulos não cabem: só a quantidade, já dita no nome do botão (spec 003, RR-16). */}
+                      {quantos > 0 && (
+                        <span
+                          data-quantidade
+                          aria-hidden="true"
+                          className="min-w-[18px] rounded-full bg-azul-superficie px-1 text-[11px] leading-4 font-bold text-azul-escuro sm:hidden"
+                        >
+                          {quantos}
+                        </span>
+                      )}
                       {doDia.slice(0, POR_DIA).map((e) => (
-                        <span key={e.id} className="truncate rounded bg-azul-superficie px-1.5 py-0.5 text-[12px] text-navy">
+                        <span key={e.id} className="hidden truncate rounded bg-azul-superficie px-1.5 py-0.5 text-[12px] text-navy sm:block">
                           {e.titulo}
                         </span>
                       ))}
-                      {quantos > POR_DIA && <span className="px-1.5 text-[12px] font-semibold text-apagado">+{quantos - POR_DIA}</span>}
+                      {quantos > POR_DIA && <span className="hidden px-1.5 text-[12px] font-semibold text-apagado sm:block">+{quantos - POR_DIA}</span>}
                     </button>
                   </td>
                 )

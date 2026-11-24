@@ -32,7 +32,10 @@ export async function entrar(page: Page, usuario: string, destino = '/login') {
 }
 
 export async function estaNaGestao(page: Page) {
-  await expect(page.getByRole('navigation', { name: 'Navegação principal' })).toBeVisible()
+  // Abaixo de 1024 px a navegação fica na gaveta, aberta pelo botão "Abrir menu" (spec 003).
+  await expect(
+    page.getByRole('navigation', { name: 'Navegação principal' }).or(page.getByRole('button', { name: 'Abrir menu' })),
+  ).toBeVisible()
 }
 
 /** O que o aplicativo mostra a uma pessoa: entra pela API (Bearer, como o app) e lê GET /avisos. */

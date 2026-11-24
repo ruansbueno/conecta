@@ -127,12 +127,14 @@ export function EditorEvento(props: Props) {
           <h1 className="text-[22px] font-bold tracking-[-0.02em] text-navy">{modo === 'novo' ? 'Novo evento' : 'Editar evento'}</h1>
           <p className="mt-1 text-[13px] text-apagado">{subtitulo}</p>
         </div>
-        <button type="button" onClick={onDescartar} className="botao-secundario">
-          Descartar
-        </button>
-        <button type="submit" disabled={enviando} aria-busy={enviando} className="botao-primario">
-          {modo === 'novo' ? 'Criar evento' : 'Salvar alterações'}
-        </button>
+        <div className="botoes-cabecalho">
+          <button type="button" onClick={onDescartar} className="botao-secundario">
+            Descartar
+          </button>
+          <button type="submit" disabled={enviando} aria-busy={enviando} className="botao-primario">
+            {modo === 'novo' ? 'Criar evento' : 'Salvar alterações'}
+          </button>
+        </div>
       </header>
 
       {alerta && (
@@ -147,7 +149,7 @@ export function EditorEvento(props: Props) {
       )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="space-y-5 rounded-xl border border-linha bg-branco p-7">
+        <div className="space-y-5 rounded-xl border border-linha bg-branco p-4 sm:p-7">
           {campoTexto('titulo', 'Título', 150)}
           <div>
             <label htmlFor={idCampo('tipo')} className="rotulo">

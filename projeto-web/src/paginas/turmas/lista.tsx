@@ -95,8 +95,8 @@ export default function ListaTurmas() {
   return (
     <div className="mx-auto max-w-[1180px]">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-[-0.025em] text-navy">{gestao ? 'Turmas' : 'Minhas turmas'}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="titulo-pagina">{gestao ? 'Turmas' : 'Minhas turmas'}</h1>
           <p className="mt-1.5 text-[14px] text-apagado">
             {gestao
               ? 'Turmas acadêmicas do curso. Desativar uma turma preserva os vínculos, mas interrompe a entrega dos avisos dela.'
@@ -104,7 +104,7 @@ export default function ListaTurmas() {
           </p>
         </div>
         {gestao && (
-          <button type="button" onClick={() => setFormulario(null)} className="botao-primario">
+          <button type="button" onClick={() => setFormulario(null)} className="botao-primario acao-pagina">
             <Icone nome="mais" tamanho={18} />
             Nova turma
           </button>
@@ -122,7 +122,7 @@ export default function ListaTurmas() {
           onMudar={(s) => filtrar({ situacao: s === 'ativas' ? '' : s })}
         />
         <div className="flex flex-wrap items-center gap-3">
-          <div className="w-[280px]">
+          <div className="w-full sm:w-[280px]">
             <Busca rotulo="Buscar turma pelo código ou nome" dica="Buscar turma" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
           <label className="flex items-center gap-2 text-[13px] text-apagado">
@@ -196,14 +196,14 @@ export default function ListaTurmas() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto px-3 pt-4">
+            <div className="px-3 pt-4">
               <TabelaTurmas
                 legenda={`Turmas — ${rotuloAba}`}
                 turmas={carga.dados.items}
                 onEditar={gestao ? (t) => setFormulario(t) : undefined}
               />
             </div>
-            <div className="flex items-center justify-between border-t border-linha-suave px-6 py-4">
+            <div className="rodape-lista">
               <p className="text-[13px] text-apagado">
                 Mostrando {carga.dados.items.length} de {carga.dados.total} turmas
               </p>

@@ -23,6 +23,13 @@ export async function semRolagemLateral(page: Page) {
   expect(medidas.main, `<main> rola: ${medidas.main} > ${medidas.mainVisivel}`).toBeLessThanOrEqual(medidas.mainVisivel)
 }
 
+/** Na casca quem rola é o <main>: o documento em si nunca passa da altura da janela (sem espaço
+ * vazio embaixo). */
+export async function semRolagemDoDocumento(page: Page) {
+  const { doc, janela } = await page.evaluate(() => ({ doc: document.documentElement.scrollHeight, janela: window.innerHeight }))
+  expect(doc, `documento com ${doc} px de altura numa janela de ${janela}`).toBeLessThanOrEqual(janela)
+}
+
 export async function caixa(alvo: Locator) {
   const b = await alvo.boundingBox()
   expect(b, 'elemento sem caixa (invisível?)').not.toBeNull()

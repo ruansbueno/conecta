@@ -3,7 +3,7 @@
 import { expect, test } from '@playwright/test'
 
 import { entrar, reiniciarApi } from './apoio'
-import { caixa, LARGURAS, larguraDoConteudo, publicarAviso, semRolagemLateral, TEMAS, usarTema } from './apoio-responsivo'
+import { caixa, LARGURAS, larguraDoConteudo, publicarAviso, semRolagemDoDocumento, semRolagemLateral, TEMAS, usarTema } from './apoio-responsivo'
 
 test.beforeEach(async () => {
   await reiniciarApi()
@@ -261,14 +261,22 @@ for (const tema of TEMAS) {
         expect(editar.y).toBeGreaterThan(destinos.y + destinos.height - 1)
         await semRolagemLateral(page)
 
+        // O servidor falso marca os eventos em relação a hoje: dia e mês da prova vêm do próprio cartão.
+        const diaDaProva = Number(await prova.locator('p').first().textContent())
+        const mesDaProva = (await prova.locator('p').nth(1).textContent())!.trim()
+
         await page.getByRole('tab', { name: 'Mês' }).click()
-        const mes = page.getByRole('table', { name: /novembro de 2026/i })
+        const mes = page.getByRole('table', { name: / de 20\d\d$/i })
         await expect(mes).toBeVisible()
         const larguraMes = await mes.evaluate((t) => [t.scrollWidth, t.parentElement!.clientWidth])
         expect(larguraMes[0]).toBeLessThanOrEqual(larguraMes[1])
         await semRolagemLateral(page)
 
-        await page.getByRole('button', { name: /^26 de novembro/ }).click()
+        if (!(await mes.getAttribute('aria-label'))!.startsWith(mesDaProva)) {
+          await page.getByRole('button', { name: 'Próximo mês' }).click()
+          await expect(page.getByRole('table', { name: new RegExp(`^${mesDaProva}`, 'i') })).toBeVisible()
+        }
+        await page.getByRole('button', { name: new RegExp(`^${diaDaProva} de ${mesDaProva}`) }).click()
         await expect(page.getByRole('link', { name: 'Prova de Banco de Dados II', exact: true })).toBeVisible()
         await expect(page.getByRole('link', { name: 'Palestra: carreira em TI', exact: true })).toHaveCount(0)
       })
@@ -503,6 +511,52 @@ for (const tema of TEMAS) {
           expect(c.x).toBeGreaterThanOrEqual(0)
           expect(c.x + c.width).toBeLessThanOrEqual(LARGURAS.celular)
         }).toPass({ timeout: 3000 })
+      })
+    })
+
+    test.describe('ajustes depois do uso real (24/11)', () => {
+      test('a página não ganha altura extra atrás do conteúdo (agenda, celular e desktop)', async ({ page }) => {
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        for (const viewport of [{ width: LARGURAS.celular, height: 844 }, { width: 1440, height: 900 }]) {
+          await page.setViewportSize(viewport)
+          for (const rota of ['/eventos', '/eventos?aba=mes']) {
+            await page.goto(rota)
+            await expect(page.getByRole('heading', { name: 'Agenda', level: 1 })).toBeVisible()
+            await expect(page.getByRole('link', { name: 'Palestra: carreira em TI', exact: true }).first()).toBeVisible()
+            await semRolagemDoDocumento(page)
+          }
+        }
+      })
+
+      test('filtros em grade no celular: rótulo acima e larguras iguais', async ({ page }) => {
+        await page.setViewportSize({ width: LARGURAS.celular, height: 844 })
+        await entrar(page, 'coord.teste')
+        await expect(page).toHaveURL(/\/painel$/)
+        const conteudo = await larguraDoConteudo(page)
+
+        await page.goto('/avisos')
+        const autor = await caixa(page.getByRole('combobox', { name: 'Autor' }))
+        const turma = await caixa(page.getByRole('combobox', { name: 'Turma' }))
+        expect(Math.abs(autor.y - turma.y), 'Autor e Turma na mesma linha').toBeLessThanOrEqual(1)
+        expect(Math.abs(autor.width - turma.width), 'Autor e Turma com a mesma largura').toBeLessThanOrEqual(1)
+        expect(autor.width + turma.width).toBeGreaterThan(conteudo - 20)
+        const rotulo = await caixa(page.getByRole('main').getByText('Autor', { exact: true }))
+        expect(rotulo.y + rotulo.height, 'rótulo acima do campo').toBeLessThanOrEqual(autor.y + 1)
+        const abas = await caixa(page.getByRole('tablist', { name: 'Situação dos avisos' }))
+        expect(Math.abs(abas.width - conteudo), 'abas na largura do conteúdo').toBeLessThanOrEqual(1)
+
+        await page.goto('/turmas')
+        const semestre = await caixa(page.getByRole('combobox', { name: 'Semestre' }))
+        const periodo = await caixa(page.getByRole('textbox', { name: 'Período letivo' }))
+        expect(Math.abs(semestre.y - periodo.y)).toBeLessThanOrEqual(1)
+        expect(Math.abs(semestre.width - periodo.width)).toBeLessThanOrEqual(1)
+
+        for (const [rota, nome] of [['/eventos', 'Tipo'], ['/solicitacoes', 'Turma']]) {
+          await page.goto(rota)
+          const unico = await caixa(page.getByRole('combobox', { name: nome }))
+          expect(Math.abs(unico.width - (await larguraDoConteudo(page))), `${nome} em ${rota}`).toBeLessThanOrEqual(1)
+        }
       })
     })
   })

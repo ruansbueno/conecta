@@ -121,11 +121,11 @@ export default function ListaTurmas() {
           atual={situacao}
           onMudar={(s) => filtrar({ situacao: s === 'ativas' ? '' : s })}
         />
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="filtros">
           <div className="w-full sm:w-[280px]">
             <Busca rotulo="Buscar turma pelo código ou nome" dica="Buscar turma" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
-          <label className="flex items-center gap-2 text-[13px] text-apagado">
+          <label className="filtro">
             <span>Semestre</span>
             <select
               aria-label="Semestre"
@@ -141,11 +141,11 @@ export default function ListaTurmas() {
               ))}
             </select>
           </label>
-          <label className="flex items-center gap-2 text-[13px] text-apagado">
+          <label className="filtro">
             <span>Período</span>
             <input
               aria-label="Período letivo"
-              className="campo h-11 w-28"
+              className="campo h-11 sm:w-28"
               placeholder="AAAA/N"
               maxLength={6}
               value={periodoDigitado}

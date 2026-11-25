@@ -324,17 +324,19 @@ export default function DetalheTurma() {
           Vínculos
         </h2>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <div className="w-full sm:w-[300px]">
-            <Busca rotulo="Buscar pessoa na turma" valor={busca} onMudar={setBusca} maxLength={100} />
+          <div className="filtros">
+            <div className="w-full sm:w-[300px]">
+              <Busca rotulo="Buscar pessoa na turma" valor={busca} onMudar={setBusca} maxLength={100} />
+            </div>
+            <label className="filtro">
+              <span>Papel</span>
+              <select aria-label="Papel" className="campo h-11 py-0" value={papel} onChange={(e) => setPapel(e.target.value as Papel | '')}>
+                <option value="">Todos</option>
+                <option value="docente">Docentes</option>
+                <option value="aluno">Alunos</option>
+              </select>
+            </label>
           </div>
-          <label className="flex items-center gap-2 text-[13px] text-apagado">
-            <span>Papel</span>
-            <select aria-label="Papel" className="campo h-11 py-0" value={papel} onChange={(e) => setPapel(e.target.value as Papel | '')}>
-              <option value="">Todos</option>
-              <option value="docente">Docentes</option>
-              <option value="aluno">Alunos</option>
-            </select>
-          </label>
           <span className="grow" />
           {gestao && (
             <>

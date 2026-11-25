@@ -1,9 +1,9 @@
-// Spec 003, RR-22: nenhuma tela da gestão rola na horizontal em 360, 390, 768 e 1024 px, nos dois
+// Spec 003, RR-22: nenhuma tela da gestão rola na horizontal (nem o documento ganha altura além da janela) em 360, 390, 768 e 1024 px, nos dois
 // temas — como coordenação, como docente, no login e em "sem permissão".
 import { expect, test, type Page } from '@playwright/test'
 
 import { entrar, reiniciarApi } from './apoio'
-import { publicarAviso, semRolagemLateral, TEMAS, usarTema } from './apoio-responsivo'
+import { publicarAviso, semRolagemDoDocumento, semRolagemLateral, TEMAS, usarTema } from './apoio-responsivo'
 
 test.describe.configure({ timeout: 180_000 })
 
@@ -28,7 +28,10 @@ async function conferir(page: Page, rotas: string[], largura: number) {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     // Espera o conteúdo trocar o esqueleto de carregamento antes de medir.
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0)
-    await test.step(`${rota} em ${largura} px`, () => semRolagemLateral(page))
+    await test.step(`${rota} em ${largura} px`, async () => {
+      await semRolagemLateral(page)
+      await semRolagemDoDocumento(page)
+    })
   }
 }
 

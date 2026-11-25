@@ -229,12 +229,12 @@ export default function ListaAvisos() {
           atual={situacao}
           onMudar={(s) => filtrar({ situacao: s === 'ativo' ? '' : s })}
         />
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="filtros">
           <div className="w-full sm:w-[300px]">
             <Busca rotulo="Buscar por título ou conteúdo" valor={termo} onMudar={setTermo} maxLength={LIMITE_BUSCA} />
           </div>
           {gestao && (
-            <label className="flex items-center gap-2 text-[13px] text-apagado">
+            <label className="filtro">
               <span>Autor</span>
               <select
                 aria-label="Autor"
@@ -251,7 +251,7 @@ export default function ListaAvisos() {
               </select>
             </label>
           )}
-          <label className="flex items-center gap-2 text-[13px] text-apagado">
+          <label className="filtro">
             <span>Turma</span>
             <select
               aria-label="Turma"

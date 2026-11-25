@@ -194,7 +194,7 @@ html[data-tema='escuro'] {
   }
   /* Abas que não cabem rolam para o lado, sem barra visível (RR-09). */
   .abas-rolaveis {
-    @apply relative overflow-x-auto [scrollbar-width:none];
+    @apply relative w-full overflow-x-auto [scrollbar-width:none] sm:w-auto;
   }
   /* A rolagem corta o que passa da caixa: o contorno de foco das abas fica por dentro. */
   .abas-rolaveis [role='tab']:focus-visible {
@@ -213,6 +213,22 @@ html[data-tema='escuro'] {
   }
   .rodape-modal > .grow {
     @apply hidden sm:block;
+  }
+  /* Filtros das listas (RR-10): no celular, busca na largura toda e os seletores em grade de 2
+     colunas, com o rótulo acima; um seletor sozinho ocupa a linha. A partir de 640 px, a linha de antes. */
+  .filtros {
+    @apply grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap sm:items-center;
+  }
+  .filtros > :not(label),
+  .filtros:not(:has(> label ~ label)) > label {
+    @apply col-span-full;
+  }
+  .filtro {
+    @apply grid min-w-0 gap-1.5 text-[12.5px] text-apagado sm:flex sm:items-center sm:gap-2 sm:text-[13px];
+  }
+  .filtro > select,
+  .filtro > input {
+    @apply w-full min-w-0 sm:w-auto;
   }
   /* Rodapé das listas (contagem + paginação): quebra de linha no celular (RR-13). */
   .rodape-lista {

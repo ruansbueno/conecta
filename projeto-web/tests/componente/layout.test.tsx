@@ -173,3 +173,18 @@ describe('gaveta: conteúdo inerte e foco de volta (revisão final)', () => {
     expect(abrir).toHaveFocus()
   })
 })
+
+describe('altura da casca no celular (24/11)', () => {
+  it('usa a altura dinâmica da tela, que desconta a barra do navegador do celular', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Casca usuario={usuario('coordenacao')} secao="Painel" onSair={() => {}}>
+          <p>conteúdo</p>
+        </Casca>
+      </MemoryRouter>,
+    )
+
+    expect(container.firstElementChild).toHaveClass('h-dvh')
+    expect(screen.getByRole('main')).toHaveClass('relative')
+  })
+})
